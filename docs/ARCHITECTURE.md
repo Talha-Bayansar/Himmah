@@ -1,0 +1,34 @@
+# Architecture
+
+## Current state and intended stack
+
+Current repository: docs, TypeScript domain contracts, project checks, and provisioning records. No UI, authentication, API, scheduler, or application tables exist yet.
+
+Proposed stack: Next.js App Router and TypeScript, responsive browser UI, server-side application services, Drizzle schema/migrations, Lakebase Postgres on Neon. Hosting is undecided and not provisioned. Do not add hosting, storage, AI services, or payment processing merely because integrations are available.
+
+src/domain holds pure versioned game calculations independent of UI/database. Application services enforce access and orchestrate transactions. Scheduled work calls the same services as audited administrator retries. PostgreSQL stores authoritative state. Browser state is never authoritative for quiz answers, points, ratings, or results.
+
+## Conceptual entities (not implemented tables)
+
+Organization; identity; organization membership and role; invitation; participant profile; consent record; season and rules snapshot; season entry; club/team; roster membership; player and attribute snapshot; activity; contribution approval; quiz/question; quiz attempt and answer; engagement ledger; training allocation/result; lineup/tactics; fixture; simulation result/events; reward definition/award; job execution; audit event.
+
+Separate account identity from game profile. Avoid mandatory email addresses or dates of birth for children until enrollment is agreed. Every mutable row belongs to an organization and relevant season. Use foreign keys and composite constraints to prevent cross-season/team references.
+
+## Integrity requirements
+
+- Unique engagement award per participant/activity/award type.
+- Unique scored attempt per quiz policy; answer keys accessible only through protected server operations.
+- Unique training per player/week/rules version and fixture result per fixture.
+- Transactionally validate eligibility, consume capped credits, record outcomes, and mark jobs complete.
+- Use database locking or compare-and-set status changes for concurrent execution.
+- Store immutable inputs and rules/engine version; retries use saved results.
+- Audit corrections, changes of team, prize decisions, and season closure.
+- Secrets and privileged database connections stay on the server.
+
+## Environments
+
+Dedicated Neon project, main reserved for eventual production and development branch for synthetic data. Future preview branches must be schema-only or based on sanitized data once children's records exist. No copying real youth data into previews. Use project-specific env variables and fail closed if they are missing. Migrations use the direct connection; app requests use pooling. Never push application migrations to main automatically.
+
+## Authentication decision pending
+
+Invite-only membership with participant, volunteer, and administrator roles. Select and implement authentication during the enrollment milestone; evaluate Neon managed authentication using its current skill and support constraints then. No auth service is claimed to be configured now.
