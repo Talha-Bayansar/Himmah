@@ -47,3 +47,7 @@ Created detailed interaction specifications and a local static visual board for 
 ## First interactive Hub prototype
 
 Implemented approved core screens as a Next.js application, using fictional in-memory data before production identity and persistence. User-authorized build follows the design handoff sequence. State transitions cover linked attendance awards/corrections, revision validation, manual grants and one-off activity publishing. Two sample workspaces and role/member switches are demo controls, not security boundaries. Do not use real youth records. Recurring activities, authentication, database/API integration and Futsal gameplay remain subsequent work.
+
+## Cloudflare prototype deployment
+
+Owner explicitly requested publishing for phone testing. Deploy the current client-only prototype as a static Next.js export through the dedicated himmah-hub Worker, without modifying Kermes Pay or sending database/auth credentials. Keep server-side authentication and persistence as future work; migrate deployment architecture when those features arrive.

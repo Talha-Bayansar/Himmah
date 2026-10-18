@@ -9,7 +9,7 @@ npm ci
 npm run check
 ```
 
-Run `npm run dev` to serve the interactive sample-data Hub prototype on port 3101. Run `npm run build` for a production build and `npm start` to serve it. The UI does not call Neon yet. Never stop Kermes Pay or edit its configuration to free a port.
+Run `npm run dev` to serve the interactive sample-data Hub prototype on port 3101. Run `npm run build` for a static export and `npm start` to preview it with Wrangler. `npm run deploy` builds and publishes the dedicated Cloudflare Worker. The UI does not call Neon yet. Never stop Kermes Pay or edit its configuration to free a port.
 
 ## Environment isolation
 
