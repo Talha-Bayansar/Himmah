@@ -63,6 +63,12 @@ it("resizes the dialog with the visual viewport and reveals a keyboard-covered f
         expect.objectContaining({ block: "nearest" }),
       ),
     );
+    // Still inside the visual viewport, but clipped by the scrollable dialog.
+    dialog.getBoundingClientRect = () => new DOMRect(0, 100, 390, 130);
+    input.getBoundingClientRect = () => new DOMRect(20, 200, 350, 48);
+    scroll.mockClear();
+    act(() => viewport.dispatchEvent(new Event("resize")));
+    await waitFor(() => expect(scroll).toHaveBeenCalled());
     unmount();
     scroll.mockClear();
     viewport.dispatchEvent(new Event("resize"));

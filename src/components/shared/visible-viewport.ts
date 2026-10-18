@@ -33,7 +33,24 @@ export function useVisibleViewport() {
         const rect = focused.getBoundingClientRect();
         const top = viewport?.offsetTop ?? 0;
         const bottom = top + (viewport?.height ?? window.innerHeight);
-        if (rect.top < top + 16 || rect.bottom > bottom - 24) {
+        const modal = focused.closest<HTMLElement>(
+          '[role="dialog"], [role="alertdialog"]',
+        );
+        const modalRect = modal?.getBoundingClientRect();
+        const actions = modal?.querySelector<HTMLElement>(
+          ".directory-form > .directory-actions",
+        );
+        const visibleTop = Math.max(
+          top + 16,
+          modalRect ? modalRect.top + 16 : top + 16,
+        );
+        const visibleBottom = Math.min(
+          bottom - 24,
+          modalRect
+            ? modalRect.bottom - 16 - (actions?.offsetHeight ?? 0)
+            : bottom - 24,
+        );
+        if (rect.top < visibleTop || rect.bottom > visibleBottom) {
           focused.scrollIntoView?.({
             block: "nearest",
             inline: "nearest",

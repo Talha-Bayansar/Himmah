@@ -3641,8 +3641,6 @@ dialog p {
   }
   [data-slot="dialog-content"],
   [data-slot="alert-dialog-content"] {
-    top: calc(var(--visible-top, 0px) + 12px);
-    translate: -50% 0;
     max-height: calc(var(--visible-height, 100dvh) - 24px);
     padding: 20px;
     border-radius: 16px;
