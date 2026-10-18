@@ -170,3 +170,11 @@ Member/group/staff/invitation actions now use Lucide icons with localized labels
 Validation: npm run check passes all 70 tests (39 domain/API/Postgres/localization/PWA, 2 Workerd, 29 component/client), strict types/docs, production build and contrast audit. New real-SQL/API checks cover assigned flags, bounded pages, member-bound cursors, tenant/role isolation and archived/missing records. UI checks cover disabled existing memberships, zero duplicate writes, pagination and selected-only spinners. Local Chromium with synthetic intercepted APIs additionally verifies refreshed membership after reopening, different-member isolation and icon actions; screenshots inspected. No real member data, schema migration, auth changes or automated messages.
 
 Latest Worker: ef381b11-96ad-423e-8acb-dce15fe2e101, confirmed active at 100% traffic. Existing dedicated infrastructure, secrets, rate limits, PWA privacy and native fetch receiver fix retained.
+
+## Disabled current-organization option
+
+The organization switcher now applies the same non-selectable-current-state convention as the group picker. Its current row shows a visible translated Current organization label and checkmark, stays fully readable and is disabled. The handler also guards the current ID before closing or navigating. Other paginated organization options and focus restoration are unchanged. The existing switcher interaction test now checks that clicking the current row cannot navigate or close the dialog.
+
+Validation: npm run check passes all 70 tests, including the expanded current-option/cancel/focus/switching flow; strict types/docs, production build and contrast audit pass. No data/auth/schema changes.
+
+Latest Worker: 9571a522-0d97-4199-8af5-b135720c6794, confirmed active at 100% traffic; existing dedicated infrastructure and privacy/auth safeguards retained.

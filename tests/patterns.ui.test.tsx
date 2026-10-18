@@ -713,6 +713,14 @@ it("paginates the organization switcher and replaces the scoped directory when s
   await screen.findByText("First group");
   await user.click(screen.getByRole("button", { name: "Switch organization" }));
   const dialog = await screen.findByRole("dialog");
+  const current = within(dialog).getByRole("button", { name: /Noor Youth/ });
+  expect((current as HTMLButtonElement).disabled).toBe(true);
+  expect(current.textContent).toContain("Current organization");
+  await user.click(current);
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/groups`,
+  );
+  expect(screen.getByRole("dialog")).toBe(dialog);
   expect(within(dialog).queryByText("Other Community")).toBeNull();
   await user.click(within(dialog).getByRole("button", { name: "Load more" }));
   await user.click(

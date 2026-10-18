@@ -86,20 +86,24 @@ export function OrganizationSwitcher({
                     <Button
                       variant="ghost"
                       aria-current={current?.id === org.id ? "true" : undefined}
+                      disabled={current?.id === org.id}
                       onClick={() => {
+                        if (org.id === current?.id) return;
                         setOpen(false);
-                        if (org.id !== current?.id) onSwitch(org);
+                        onSwitch(org);
                       }}
                     >
                       <span>
                         <strong>{org.name}</strong>
-                        <small>{m[`role_${org.role}`]()}</small>
+                        <small>
+                          {m[`role_${org.role}`]()}
+                          {current?.id === org.id
+                            ? " · " + m.current_organization()
+                            : ""}
+                        </small>
                       </span>
                       {current?.id === org.id && (
-                        <Check
-                          size={18}
-                          aria-label={m.current_organization()}
-                        />
+                        <Check size={18} aria-hidden="true" />
                       )}
                     </Button>
                   </li>
