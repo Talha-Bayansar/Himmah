@@ -85,6 +85,11 @@ function mount(component: () => React.ReactNode) {
       workspace,
       createRoute({
         getParentRoute: () => root,
+        path: "/settings",
+        component: () => <OrganizationPortal accountSettings />,
+      }),
+      createRoute({
+        getParentRoute: () => root,
         path: "/demo",
         component: () => <p>Sample workspace</p>,
       }),
@@ -148,14 +153,14 @@ describe("shared page and interaction patterns", () => {
   it("requires a sign-out confirmation and preserves the session on cancel", async () => {
     mount(OrganizationPortal);
     const user = userEvent.setup();
-    await screen.findByText("A place for every organization.");
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    await user.click(await screen.findByRole("link", { name: "Your profile" }));
+    await user.click(await screen.findByRole("button", { name: "Sign out" }));
     const dialog = await screen.findByRole("alertdialog");
     expect(within(dialog).getByText("Sign out of Himmah?")).toBeTruthy();
     expect(mocks.signOut).not.toHaveBeenCalled();
     await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
     expect(mocks.signOut).not.toHaveBeenCalled();
-    expect(screen.getByText("Noor Youth")).toBeTruthy();
+    expect(screen.getByText("Test Organizer")).toBeTruthy();
   });
   it("shows an interaction spinner while sign-out is pending and clears private query data", async () => {
     let complete: (value: unknown) => void = () => {};
@@ -167,14 +172,14 @@ describe("shared page and interaction patterns", () => {
     );
     const { queryClient } = mount(OrganizationPortal);
     const user = userEvent.setup();
-    await screen.findByText("A place for every organization.");
-    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    await user.click(await screen.findByRole("link", { name: "Your profile" }));
+    await user.click(await screen.findByRole("button", { name: "Sign out" }));
     const dialog = await screen.findByRole("alertdialog");
     await user.click(within(dialog).getByRole("button", { name: "Sign out" }));
     expect(await screen.findByRole("status", { name: "Working" })).toBeTruthy();
     expect(mocks.signOut).toHaveBeenCalledTimes(1);
     complete({ data: { success: true }, error: null });
-    await screen.findByText("Good things start with you.");
+    await screen.findByText("Organizer page");
     expect(
       queryClient.getQueryData(["organizations", owner.id]),
     ).toBeUndefined();
@@ -397,7 +402,7 @@ describe("public landing page", () => {
   it("localizes sign-out confirmation and cancellation in Dutch", async () => {
     mount(OrganizationPortal);
     const user = userEvent.setup();
-    await screen.findByText("A place for every organization.");
+    await user.click(await screen.findByRole("link", { name: "Your profile" }));
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Language" }),
       "nl",
@@ -410,23 +415,27 @@ describe("public landing page", () => {
   });
 });
 
-it("shows only saved organization details after opening a workspace", async () => {
+it("keeps profile controls and organization details on settings", async () => {
   mount(OrganizationPortal);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
-  await screen.findByRole("heading", { name: "Noor Youth" });
-  expect(screen.queryByText(/coming next|demo|futsal/i)).toBeNull();
+  await screen.findByRole("heading", { name: "Members" });
+  expect(screen.queryByRole("combobox", { name: "Language" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Sign out" })).toBeNull();
+  expect(screen.queryByText(organization.timezone)).toBeNull();
+  expect(screen.queryByRole("link", { name: "Workspace" })).toBeNull();
+  await user.click(screen.getByRole("link", { name: "Settings" }));
+  await screen.findByRole("heading", { name: "Settings" });
   expect(screen.getByText("Owner")).toBeTruthy();
+  expect(screen.getByText(organization.timezone)).toBeTruthy();
+  expect(screen.getByRole("link", { name: "Staff access" })).toBeTruthy();
+  expect(screen.getByRole("link", { name: "Invitations" })).toBeTruthy();
   await user.selectOptions(
     screen.getByRole("combobox", { name: "Language" }),
     "tr",
   );
   expect(screen.getByText("Sahip")).toBeTruthy();
-  expect(
-    screen.getByText(
-      "Kuruluşunuz kaydedildi ve yeniden giriş yaptığınızda erişilebilir olacak.",
-    ),
-  ).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Ayarlar" })).toBeTruthy();
 });
 
 it("keeps a created account in verification when email delivery fails instead of inviting duplicate signup", async () => {
@@ -540,11 +549,11 @@ it("uses dedicated workspace pages and blocks navigation when a member form is d
   const { router } = mount(OrganizationPortal);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
-  await screen.findByRole("heading", { name: "Noor Youth" });
+  await screen.findByRole("heading", { name: "Members" });
   expect(router.state.location.pathname).toBe(
-    `/workspace/${organization.id}/overview`,
+    `/workspace/${organization.id}/members`,
   );
-  expect(screen.queryByRole("button", { name: "Add member" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Add member" })).toBeTruthy();
   await user.click(screen.getByRole("link", { name: "Groups" }));
   const groupsHeading = await screen.findByRole("heading", {
     name: "Groups",
@@ -610,10 +619,14 @@ it("opens a successfully saved workspace without asking to discard its setup", a
       if (String(input) === "/api/organizations") {
         if (init?.method === "POST") {
           created = true;
+          if (/\/(people|groups|staff|invitations)(\?|$)/.test(String(input)))
+            return Response.json({ items: [], nextCursor: null });
           return Response.json({ organization });
         }
         return Response.json({ organizations: created ? [organization] : [] });
       }
+      if (/\/(people|groups|staff|invitations)(\?|$)/.test(String(input)))
+        return Response.json({ items: [], nextCursor: null });
       return Response.json({ organization });
     }),
   );
@@ -629,9 +642,83 @@ it("opens a successfully saved workspace without asking to discard its setup", a
     }),
   );
   await user.click(screen.getByRole("button", { name: "Create organization" }));
-  await screen.findByRole("heading", { name: "Noor Youth" });
+  await screen.findByRole("heading", { name: "Members" });
   expect(router.state.location.pathname).toBe(
-    `/workspace/${organization.id}/overview`,
+    `/workspace/${organization.id}/members`,
   );
   expect(screen.queryByRole("alertdialog")).toBeNull();
+});
+
+it("paginates the organization switcher and replaces the scoped directory when switching", async () => {
+  vi.stubGlobal("IntersectionObserver", undefined);
+  const other = {
+    ...organization,
+    id: "b2222222-2222-4222-8222-222222222222",
+    name: "Other Community",
+  };
+  const requests: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const path = String(input);
+      requests.push(path);
+      if (path === "/api/account") return Response.json({ user: owner });
+      if (path.startsWith("/api/organizations?"))
+        return Response.json({ organizations: [other], nextCursor: null });
+      if (path === "/api/organizations")
+        return Response.json({
+          organizations: [organization],
+          nextCursor: "page-two",
+        });
+      if (path === `/api/organizations/${organization.id}`)
+        return Response.json({ organization });
+      if (path === `/api/organizations/${other.id}`)
+        return Response.json({ organization: other });
+      const isOther = path.includes(other.id);
+      return Response.json({
+        items: path.includes("/groups?")
+          ? [
+              {
+                id: "33333333-3333-4333-8333-333333333333",
+                name: isOther ? "Other group" : "First group",
+                version: 1,
+                archived: false,
+                createdAt: organization.createdAt,
+              },
+            ]
+          : [],
+        nextCursor: null,
+      });
+    }),
+  );
+  const { router } = mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await user.click(await screen.findByRole("link", { name: "Groups" }));
+  await screen.findByText("First group");
+  await user.click(screen.getByRole("button", { name: "Switch organization" }));
+  const dialog = await screen.findByRole("dialog");
+  expect(within(dialog).queryByText("Other Community")).toBeNull();
+  await user.click(within(dialog).getByRole("button", { name: "Load more" }));
+  await user.click(
+    await within(dialog).findByRole("button", { name: /Other Community/ }),
+  );
+  await screen.findByText("Other group");
+  expect(screen.queryByText("First group")).toBeNull();
+  expect(router.state.location.pathname).toBe(`/workspace/${other.id}/groups`);
+  expect(
+    screen.getByRole("button", { name: "Switch organization" }).textContent,
+  ).toContain("Other Community");
+  const trigger = screen.getByRole("button", { name: "Switch organization" });
+  await user.click(trigger);
+  await user.click(
+    within(await screen.findByRole("dialog")).getByRole("button", {
+      name: "Done",
+    }),
+  );
+  await waitFor(() => expect(document.activeElement).toBe(trigger));
+  expect(requests).toContain("/api/organizations?cursor=page-two");
+  expect(requests.some((path) => path.includes(other.id + "/groups?"))).toBe(
+    true,
+  );
 });

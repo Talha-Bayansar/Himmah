@@ -224,5 +224,14 @@
   "directory_invalid_invitation": "Deze uitnodiging is ongeldig, verlopen, ingetrokken of hoort bij een ander e-mailadres. Vraag de organisator om hulp.",
   "directory_rate_limit": "Te veel wijzigingen. Wacht een minuut en probeer het opnieuw.",
   "directory_sign_in": "Log in om door te gaan.",
-  "directory_service": "De ledenlijst is niet beschikbaar. Probeer het opnieuw."
+  "directory_service": "De ledenlijst is niet beschikbaar. Probeer het opnieuw.",
+  "settings": "Instellingen",
+  "profile": "Je profiel",
+  "organization_details": "Organisatiegegevens",
+  "switch_organization": "Organisatie wisselen",
+  "switch_organization_help": "Kies de organisatie waarmee je wilt werken.",
+  "current_organization": "Huidige organisatie",
+  "manage_organizations": "Organisaties beheren",
+  "done": "Klaar",
+  "back_to_settings": "Terug naar instellingen"
 }

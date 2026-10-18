@@ -1,69 +1,46 @@
-import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { Building2, Users, Folder, ShieldCheck, Mail } from "lucide-react";
+import { Users, Folder, Settings } from "lucide-react";
 import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
-import type { Organization } from "./contracts";
 
 export const workspaceSections = [
-  "overview",
   "members",
   "groups",
   "staff",
   "invitations",
+  "settings",
 ] as const;
 export type WorkspaceSection = (typeof workspaceSections)[number];
 export function WorkspaceNavigation({
-  organization,
+  organizationId,
+  role,
   section,
 }: {
-  organization: Organization;
+  organizationId: string;
+  role: string | undefined;
   section: WorkspaceSection;
 }) {
   useLocale();
-  const nav = useRef<HTMLElement>(null);
   const labels = {
-    overview: m.workspace(),
     members: m.directory_members(),
     groups: m.directory_groups(),
-    staff: m.directory_staff(),
-    invitations: m.directory_invitations(),
+    settings: m.settings(),
   };
-  const icons = {
-    overview: Building2,
-    members: Users,
-    groups: Folder,
-    staff: ShieldCheck,
-    invitations: Mail,
-  };
-  useEffect(() => {
-    // Announce each new page without opening the keyboard or moving focus into a form.
-    const heading = nav.current?.parentElement?.querySelector<HTMLElement>(
-      "[data-page-heading]",
-    );
-    heading?.focus({ preventScroll: true });
-    nav.current
-      ?.querySelector<HTMLElement>('[aria-current="page"]')
-      ?.scrollIntoView?.({ block: "nearest", inline: "nearest" });
-  }, [section, organization.id]);
+  const icons = { members: Users, groups: Folder, settings: Settings };
+  const active =
+    section === "members" || section === "groups" ? section : "settings";
   return (
-    <nav
-      ref={nav}
-      className="workspace-navigation"
-      aria-label={m.directory_title()}
-    >
-      {workspaceSections
-        .filter(
-          (key) => key === "overview" || organization.role !== "volunteer",
-        )
+    <nav className="workspace-navigation" aria-label={m.directory_title()}>
+      {(["members", "groups", "settings"] as const)
+        .filter((key) => key === "settings" || role !== "volunteer")
         .map((key) => {
           const Icon = icons[key];
           return (
             <Link
               key={key}
               to="/workspace/$organizationId/$section"
-              params={{ organizationId: organization.id, section: key }}
-              aria-current={section === key ? "page" : undefined}
+              params={{ organizationId, section: key }}
+              aria-current={active === key ? "page" : undefined}
             >
               <Icon size={20} aria-hidden="true" />
               <span>{labels[key]}</span>

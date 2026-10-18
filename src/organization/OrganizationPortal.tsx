@@ -1,3 +1,5 @@
+import { OrganizationSwitcher } from "./OrganizationSwitcher";
+import { AccountSettings } from "./AccountSettings";
 import { useNavigate } from "@tanstack/react-router";
 import {
   WorkspaceNavigation,
@@ -10,7 +12,7 @@ import { InstallApp } from "../pwa/install";
 import { m } from "../paraglide/messages.js";
 import { LanguageSelector, useLocale } from "../localization/locale";
 import { localizedText, authError, authFailure } from "../localization/errors";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useBlocker } from "@tanstack/react-router";
 import { useForm, useStore } from "@tanstack/react-form";
 import {
@@ -26,9 +28,8 @@ import {
   CheckCircle2,
   Building2,
   ShieldCheck,
-  LogOut,
   Plus,
-  Clock3,
+  CircleUserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,12 +78,14 @@ export default function OrganizationPortal({
   initialMode = "signup",
   inviteToken = null,
   workspaceId = null,
-  workspaceSection = "overview",
+  workspaceSection = "members",
+  accountSettings = false,
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
+  accountSettings?: boolean;
 } = {}) {
   const queryClient = useQueryClient();
   useLocale();
@@ -90,10 +93,18 @@ export default function OrganizationPortal({
   const [creating, setCreating] = useState(false);
   const navigate = useNavigate();
   const selectedId = workspaceId;
-  const openWorkspace = (id: string) =>
+  const openWorkspace = (id: string, role: string = "owner") =>
     navigate({
       to: "/workspace/$organizationId/$section",
-      params: { organizationId: id, section: "overview" },
+      params: {
+        organizationId: id,
+        section:
+          role === "volunteer"
+            ? "settings"
+            : workspaceId
+              ? workspaceSection
+              : "members",
+      },
     });
   const closeWorkspace = () => navigate({ to: "/start" });
   const session = useQuery({
@@ -145,7 +156,7 @@ export default function OrganizationPortal({
       queryClient.removeQueries({ queryKey: ["organization"] });
       queryClient.getMutationCache().clear();
       queryClient.setQueryData(accountKey, null);
-      if (workspaceId) void closeWorkspace();
+      if (workspaceId || accountSettings) void closeWorkspace();
       setCreating(false);
     },
   });
@@ -159,11 +170,14 @@ export default function OrganizationPortal({
     )
       logout.mutate();
   }
-  const loading = session.isPending || (!!user && organizations.isPending);
+  const loading =
+    session.isPending ||
+    (!!user && !workspaceId && !accountSettings && organizations.isPending);
+  const appShell = !!workspaceId || accountSettings || !!user;
   return (
     <div
       className={
-        workspaceId ? "onboarding-shell workspace-shell" : "onboarding-shell"
+        appShell ? "onboarding-shell workspace-shell" : "onboarding-shell"
       }
     >
       <aside className="onboarding-story">
@@ -204,25 +218,81 @@ export default function OrganizationPortal({
         </div>
       </aside>
       <section className="onboarding-main">
-        <header className="onboarding-top">
-          <Button variant="link" asChild>
-            <Link to="/">
-              <ArrowLeft size={15} />
-              {m.back_home()}
-            </Link>
-          </Button>
-          <LanguageSelector />
-          {user && (
-            <ActionButton
-              variant="ghost"
-              pending={logout.isPending}
-              onClick={signOut}
-            >
-              <LogOut size={16} />
-              {m.sign_out()}
-            </ActionButton>
+        <header className={appShell ? "app-header" : "onboarding-top"}>
+          {appShell ? (
+            <>
+              <OrganizationSwitcher
+                current={selected.data}
+                disabled={session.isPending || !user}
+                retryPending={
+                  organizations.isFetching && !organizations.isFetchingNextPage
+                }
+                items={organizationItems}
+                loading={session.isPending || organizations.isPending}
+                error={
+                  organizations.isError && !organizations.isFetchNextPageError
+                    ? organizations.error.message
+                    : null
+                }
+                retry={() => {
+                  void organizations.refetch();
+                }}
+                pagination={{
+                  ...organizations,
+                  fetchNextPage: () =>
+                    organizations.fetchNextPage({ cancelRefetch: false }),
+                }}
+                onSwitch={(org) => {
+                  void openWorkspace(org.id, org.role);
+                }}
+                onManage={() => {
+                  setCreating(false);
+                  void closeWorkspace();
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="profile-shortcut"
+              >
+                {workspaceId && user?.emailVerified ? (
+                  <Link
+                    to="/workspace/$organizationId/$section"
+                    params={{
+                      organizationId: workspaceId,
+                      section: "settings",
+                    }}
+                    aria-label={m.profile()}
+                  >
+                    <CircleUserRound size={22} />
+                  </Link>
+                ) : (
+                  <Link to="/settings" aria-label={m.profile()}>
+                    <CircleUserRound size={22} />
+                  </Link>
+                )}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="link" asChild>
+                <Link to="/">
+                  <ArrowLeft size={15} />
+                  {m.back_home()}
+                </Link>
+              </Button>
+              <LanguageSelector />
+            </>
           )}
         </header>
+        {workspaceId && (
+          <WorkspaceNavigation
+            organizationId={workspaceId}
+            role={selected.data?.role}
+            section={workspaceSection}
+          />
+        )}
         <div className="onboarding-content">
           {loading ? (
             <AccountSkeleton />
@@ -241,24 +311,18 @@ export default function OrganizationPortal({
             />
           ) : (
             <>
-              <div className="account-greeting">
-                <span className="avatar">
-                  {user.name?.slice(0, 1).toUpperCase() || "O"}
-                </span>
-                <div>
-                  <strong>{user.name}</strong>
-                  <span>{user.email}</span>
-                </div>
-                <span className="badge">
-                  {user.emailVerified ? m.verified() : m.verify_email()}
-                </span>
-              </div>
               {logout.isError && (
                 <ErrorAlert
                   message={authFailure(logout.error, m.error_signout())}
                 />
               )}
-              {!user.emailVerified ? (
+              {accountSettings ? (
+                <AccountSettings
+                  user={user}
+                  pending={logout.isPending}
+                  onSignOut={signOut}
+                />
+              ) : !user.emailVerified ? (
                 <AuthForm
                   key={user.id}
                   verificationEmail={user.email}
@@ -308,7 +372,9 @@ export default function OrganizationPortal({
                     organization={selected.data}
                     userId={user.id}
                     section={workspaceSection}
-                    onBack={() => void closeWorkspace()}
+                    user={user}
+                    signOutPending={logout.isPending}
+                    onSignOut={signOut}
                   />
                 ) : null
               ) : (
@@ -322,7 +388,7 @@ export default function OrganizationPortal({
                         variant="outline"
                         key={org.id}
                         className="organization-choice h-auto"
-                        onClick={() => void openWorkspace(org.id)}
+                        onClick={() => void openWorkspace(org.id, org.role)}
                       >
                         <span className="avatar">
                           <Building2 size={20} />
@@ -355,11 +421,13 @@ export default function OrganizationPortal({
             </>
           )}
         </div>
-        <footer className="onboarding-footer">
-          <Leaf size={14} />
-          {m.footer_tagline()}
-          <InstallApp />
-        </footer>
+        {!appShell && (
+          <footer className="onboarding-footer">
+            <Leaf size={14} />
+            {m.footer_tagline()}
+            <InstallApp />
+          </footer>
+        )}
       </section>
     </div>
   );
@@ -1032,64 +1100,61 @@ function Workspace({
   organization,
   userId,
   section,
-  onBack,
+  user,
+  signOutPending,
+  onSignOut,
 }: {
   organization: Organization;
   userId: string;
   section: WorkspaceSection;
-  onBack: () => void;
+  user: User;
+  signOutPending: boolean;
+  onSignOut: () => void;
 }) {
   useLocale();
+  const page = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    page.current
+      ?.querySelector<HTMLElement>("[data-page-heading]")
+      ?.focus({ preventScroll: true });
+  }, [section, organization.id]);
   return (
-    <>
-      <Button variant="link" onClick={onBack}>
-        <ArrowLeft size={16} />
-        {m.my_organizations()}
-      </Button>
-      {section !== "overview" && (
-        <p className="workspace-context">{organization.name}</p>
-      )}
-      <WorkspaceNavigation organization={organization} section={section} />
-      {section === "overview" ? (
-        <>
-          <div className="workspace-welcome">
-            <span className="workspace-monogram">
-              {organization.name.slice(0, 1)}
-            </span>
-            <div className="eyebrow">{m.workspace_heading()}</div>
-            <h1 tabIndex={-1} data-page-heading>
-              {organization.name}
-            </h1>
-            <p className="onboarding-intro">{m.workspace_saved()}</p>
-          </div>
-          <div className="workspace-detail-grid">
-            <div>
-              <Building2 size={19} />
-              <span>{m.workspace()}</span>
-              <strong>{organization.slug}</strong>
-            </div>
-            <div>
-              <Clock3 size={19} />
-              <span>{m.timezone()}</span>
-              <strong>{organization.timezone}</strong>
-            </div>
-            <div>
-              <ShieldCheck size={19} />
-              <span>{m.your_role()}</span>
-              <strong>{m[`role_${organization.role}`]()}</strong>
-            </div>
-          </div>
-        </>
-      ) : organization.role === "owner" || organization.role === "admin" ? (
-        <Directory
-          key={organization.id + section}
-          section={section === "members" ? "people" : section}
+    <div ref={page}>
+      {section === "settings" ? (
+        <AccountSettings
+          user={user}
           organization={organization}
-          userId={userId}
+          pending={signOutPending}
+          onSignOut={onSignOut}
         />
       ) : (
-        <p>{m.directory_volunteer_access()}</p>
+        <>
+          {(section === "staff" || section === "invitations") && (
+            <Button variant="link" className="settings-back" asChild>
+              <Link
+                to="/workspace/$organizationId/$section"
+                params={{
+                  organizationId: organization.id,
+                  section: "settings",
+                }}
+              >
+                <ArrowLeft size={16} />
+                {m.back_to_settings()}
+              </Link>
+            </Button>
+          )}
+          {organization.role === "owner" || organization.role === "admin" ? (
+            <Directory
+              key={organization.id + section}
+              section={section === "members" ? "people" : section}
+              organization={organization}
+              userId={userId}
+            />
+          ) : (
+            <p>{m.directory_volunteer_access()}</p>
+          )}
+        </>
       )}
-    </>
+    </div>
   );
 }

@@ -224,5 +224,14 @@
   "directory_invalid_invitation": "Bu davet geçersiz, süresi dolmuş, iptal edilmiş veya başka bir e-postaya ait. Organizatörden yardım isteyin.",
   "directory_rate_limit": "Çok fazla değişiklik yapıldı. Bir dakika bekleyip tekrar deneyin.",
   "directory_sign_in": "Devam etmek için giriş yapın.",
-  "directory_service": "Liste kullanılamıyor. Lütfen tekrar deneyin."
+  "directory_service": "Liste kullanılamıyor. Lütfen tekrar deneyin.",
+  "settings": "Ayarlar",
+  "profile": "Profiliniz",
+  "organization_details": "Kuruluş bilgileri",
+  "switch_organization": "Kuruluş değiştir",
+  "switch_organization_help": "Çalışmak istediğiniz kuruluşu seçin.",
+  "current_organization": "Geçerli kuruluş",
+  "manage_organizations": "Kuruluşları yönet",
+  "done": "Tamam",
+  "back_to_settings": "Ayarlara dön"
 }

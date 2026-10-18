@@ -12,7 +12,7 @@ Live app: **https://himmah-hub.talha-bayansar.workers.dev**. The landing page st
 
 ## Project status
 
-The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly workspace pages and keyboard-aware forms. All growing lists use cursor-based infinite fetching. Participant logins, persistent activities/attendance/points and Futsal gameplay remain future work. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
+The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly pages and keyboard-aware forms. Fixed navigation and a paginated organization switcher keep daily use compact; profile preferences and organization details live in Settings. All growing lists use cursor-based infinite fetching. Participant logins, persistent activities/attendance/points and Futsal gameplay remain future work. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
 
 ## Start here
 

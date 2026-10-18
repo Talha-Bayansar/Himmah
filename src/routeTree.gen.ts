@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const JoinRoute = JoinRouteImport.update({
   id: '/join',
   path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StartRoute = StartRouteImport.update({
@@ -39,12 +45,14 @@ const WorkspaceOrganizationIdSectionRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
+  '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
+  '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
 }
@@ -52,18 +60,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
+  '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/join' | '/start' | '/workspace/$organizationId/$section'
+  fullPaths:
+    | '/'
+    | '/join'
+    | '/settings'
+    | '/start'
+    | '/workspace/$organizationId/$section'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/join' | '/start' | '/workspace/$organizationId/$section'
+  to:
+    | '/'
+    | '/join'
+    | '/settings'
+    | '/start'
+    | '/workspace/$organizationId/$section'
   id:
     | '__root__'
     | '/'
     | '/join'
+    | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
   fileRoutesById: FileRoutesById
@@ -71,6 +91,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   JoinRoute: typeof JoinRoute
+  SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
 }
@@ -89,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/join'
       fullPath: '/join'
       preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/start': {
@@ -111,6 +139,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   JoinRoute: JoinRoute,
+  SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
 }

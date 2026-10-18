@@ -82,3 +82,5 @@ Owner authorized building member/group management and explicitly requires consis
 Delivered foundation: private nickname roster records with staff consent attestation, multi-group assignment, rename/archive/restore, staff invitation links, acceptance and owner-controlled administrator roles. Roster entries do not create logins. Only owners/admins administer the directory; volunteers have a verified workspace membership but no directory administration. Guardian processes and youth account invitations remain a separate milestone. No automatic invitation emails are sent.
 
 - Owner requests phone-first forms with focused inputs remaining visible above the keyboard, clear accessible focus and separate management pages with mobile navigation. Shared visual-viewport dialogs and routed workspace sections implement this preference.
+
+- Owner wants a minimal header, language/sign-out on a settings/profile page, stable persistent navigation, an organization switcher and no low-purpose Workspace tab. Current design uses fixed phone bottom navigation (Members, Groups, Settings) and places organization details/staff/invitations in Settings.

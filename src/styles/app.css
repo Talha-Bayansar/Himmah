@@ -3670,3 +3670,252 @@ dialog p {
   color: var(--forest);
   overflow-wrap: anywhere;
 }
+
+/* Stable app chrome: content scrolls between reserved header/navigation space. */
+html {
+  scrollbar-gutter: stable;
+}
+.workspace-shell .onboarding-main,
+.workspace-shell:has(.directory) .onboarding-main {
+  max-width: 1120px;
+  min-height: 100dvh;
+  padding: calc(88px + env(safe-area-inset-top)) 24px
+    calc(104px + env(safe-area-inset-bottom));
+}
+.workspace-shell .onboarding-content {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+.app-header {
+  position: fixed;
+  top: 0;
+  inset-inline: 0;
+  z-index: 30;
+  height: calc(64px + env(safe-area-inset-top));
+  padding: env(safe-area-inset-top) max(16px, calc((100vw - 1072px) / 2)) 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--background);
+  border-bottom: 1px solid var(--line);
+}
+.app-header .organization-switcher-trigger {
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  justify-content: flex-start;
+  padding-inline: 8px;
+  color: var(--forest);
+}
+.organization-switcher-trigger > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.organization-switcher-trigger > svg {
+  flex-shrink: 0;
+}
+.organization-switcher-trigger > svg:last-child {
+  margin-left: auto;
+}
+.app-header .profile-shortcut {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  color: var(--forest);
+}
+.workspace-navigation {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 30;
+  height: calc(72px + env(safe-area-inset-bottom));
+  padding: 8px max(12px, env(safe-area-inset-right))
+    calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  margin: 0;
+  gap: 8px;
+  background: var(--background);
+  border: 0;
+  border-top: 1px solid var(--line);
+  overflow: visible;
+}
+.workspace-navigation a {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 56px;
+  min-height: 0;
+  padding: 6px 8px;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.workspace-navigation a span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.workspace-navigation a[aria-current="page"] {
+  color: var(--forest);
+  background: #e8efdf;
+}
+.workspace-shell:has(.workspace-navigation)
+  :is(input, select, textarea, button, a) {
+  scroll-margin-block: 100px;
+}
+.organization-switcher-list {
+  max-height: min(48dvh, 360px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.organization-switcher-list ul {
+  list-style: none;
+  padding: 4px;
+  display: grid;
+  gap: 4px;
+}
+.organization-switcher-list li > button {
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: 64px;
+  justify-content: space-between;
+  white-space: normal;
+  text-align: left;
+}
+.organization-switcher-list li > button > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.organization-switcher-list strong,
+.organization-switcher-list small {
+  display: block;
+}
+.organization-switcher-list small {
+  color: var(--app-muted);
+  font-weight: 400;
+  margin-top: 4px;
+}
+.organization-switcher-list li > button[aria-current] {
+  background: #e8efdf;
+}
+.settings-page {
+  display: grid;
+  gap: 24px;
+}
+.settings-page h1 {
+  font-size: 30px;
+  line-height: 1.2;
+}
+.settings-panel {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+.settings-panel h2 {
+  font-size: 18px;
+}
+.settings-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.settings-identity > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.settings-identity p,
+.settings-identity small {
+  color: var(--app-muted);
+  font-size: 13px;
+}
+.settings-language {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.settings-language > span {
+  font-size: 14px;
+  font-weight: 600;
+}
+.settings-language select {
+  min-height: 48px;
+  font-size: 16px;
+}
+.settings-panel > [data-slot="button"] {
+  min-height: 48px;
+  justify-self: start;
+}
+.settings-details {
+  display: grid;
+  gap: 16px;
+}
+.settings-details > div {
+  display: grid;
+  gap: 4px;
+}
+.settings-details dt {
+  font-size: 12px;
+  color: var(--app-muted);
+}
+.settings-details dd {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.settings-links {
+  display: grid;
+  gap: 8px;
+}
+.settings-links a {
+  min-height: 48px;
+  justify-content: space-between;
+  white-space: normal;
+}
+.settings-back {
+  margin-bottom: 20px;
+  min-height: 44px;
+}
+@media (min-width: 768px) {
+  .workspace-navigation {
+    top: calc(64px + env(safe-area-inset-top));
+    bottom: auto;
+    height: 60px;
+    padding: 6px max(24px, calc((100vw - 1072px) / 2));
+    border-top: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .workspace-navigation a {
+    flex-direction: row;
+    height: 48px;
+    font-size: 14px;
+    gap: 8px;
+  }
+  .workspace-shell:has(.workspace-navigation) .onboarding-main {
+    padding-top: calc(148px + env(safe-area-inset-top));
+    padding-bottom: 40px;
+  }
+}
+@media (max-width: 640px) {
+  .workspace-shell .onboarding-main {
+    padding-inline: max(16px, env(safe-area-inset-left))
+      max(16px, env(safe-area-inset-right));
+  }
+  .settings-panel {
+    padding: 20px;
+  }
+}
+/* Route headings are announcement targets, not interactive form controls. */
+.workspace-shell [data-page-heading]:focus {
+  outline: none;
+  box-shadow: none;
+}

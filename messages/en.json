@@ -224,5 +224,14 @@
   "directory_invalid_invitation": "This invitation is invalid, expired, revoked or belongs to a different email. Ask the organizer for help.",
   "directory_rate_limit": "Too many changes. Wait a minute and try again.",
   "directory_sign_in": "Sign in to continue.",
-  "directory_service": "The directory is unavailable. Please try again."
+  "directory_service": "The directory is unavailable. Please try again.",
+  "settings": "Settings",
+  "profile": "Your profile",
+  "organization_details": "Organization details",
+  "switch_organization": "Switch organization",
+  "switch_organization_help": "Choose the organization you want to work with.",
+  "current_organization": "Current organization",
+  "manage_organizations": "Manage organizations",
+  "done": "Done",
+  "back_to_settings": "Back to settings"
 }

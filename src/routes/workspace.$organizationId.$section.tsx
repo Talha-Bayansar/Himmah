@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import OrganizationPortal from "../organization/OrganizationPortal";
 import {
   workspaceSections,
@@ -6,6 +6,12 @@ import {
 } from "../organization/WorkspaceNavigation";
 export const Route = createFileRoute("/workspace/$organizationId/$section")({
   beforeLoad: ({ params }) => {
+    if (params.section === "overview")
+      throw redirect({
+        to: "/workspace/$organizationId/$section",
+        params: { ...params, section: "settings" },
+        replace: true,
+      });
     if (!workspaceSections.includes(params.section as WorkspaceSection))
       throw notFound();
   },
