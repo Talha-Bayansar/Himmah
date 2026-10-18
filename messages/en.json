@@ -327,5 +327,9 @@
   "directory_attendance_key_conflict": "This request key was already used for a different save. Refresh and review the roster.",
   "attendance_conflict": "Changed since it was loaded. Review the latest status.",
   "attendance_ineligible": "Not currently eligible for a new attendance record.",
-  "attendance_reason_required": "A correction reason is required."
+  "attendance_reason_required": "A correction reason is required.",
+  "directory_add_members": "Add members",
+  "directory_choose_members": "Choose up to 50 active members. Members already in this group cannot be selected.",
+  "directory_add_selected": "Add selected ({count})",
+  "directory_selected_count": "{count} of 50 selected"
 }

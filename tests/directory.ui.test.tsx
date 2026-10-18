@@ -30,7 +30,7 @@ const first = {
   version: 1,
   createdAt: "2026-10-18T10:00:00Z",
 };
-function mount() {
+function mount(group?: typeof first) {
   const client = new QueryClient({
     defaultOptions: {
       queries: { retry: false, staleTime: Infinity },
@@ -41,7 +41,9 @@ function mount() {
   const index = createRoute({
     getParentRoute: () => root,
     path: "/",
-    component: () => <Directory organization={org} userId="owner-a" />,
+    component: () => (
+      <Directory organization={org} userId="owner-a" group={group ?? null} />
+    ),
   });
   const router = createRouter({
     routeTree: root.addChildren([index]),
@@ -327,4 +329,89 @@ it("keeps secondary actions in the menu and returns focus after menu-driven rena
   );
   await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
   await waitFor(() => expect(document.activeElement).toBe(trigger));
+});
+
+it("selects members across pages and search, disables existing members and adds one batch", async () => {
+  const user = userEvent.setup();
+  const second = {
+    ...first,
+    id: "33333333-3333-4333-8333-333333333333",
+    name: "Nickname Two",
+  };
+  const third = {
+    ...first,
+    id: "44444444-4444-4444-8444-444444444444",
+    name: "Nickname Three",
+  };
+  const batches: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input, init) => {
+      const path = String(input);
+      if (path.endsWith("/members")) {
+        batches.push(JSON.parse(init.body));
+        if (batches.length === 1)
+          return Response.json({ code: "service" }, { status: 503 });
+        return Response.json({ success: true });
+      }
+      if (path.includes("member-options")) {
+        const q = new URL(path, "https://test.invalid");
+        return Response.json(
+          q.searchParams.get("q")
+            ? { items: [{ ...third, assigned: false }], nextCursor: null }
+            : q.searchParams.has("cursor")
+              ? { items: [{ ...second, assigned: false }], nextCursor: null }
+              : {
+                  items: [
+                    { ...first, assigned: true },
+                    { ...third, assigned: false },
+                  ],
+                  nextCursor: "next",
+                },
+        );
+      }
+      return Response.json({ items: [], nextCursor: null });
+    }),
+  );
+  mount({ ...first, name: "Helpers" });
+  await user.click(await screen.findByRole("button", { name: "Add members" }));
+  const dialog = screen.getByRole("dialog");
+  const existing = await within(dialog).findByRole("checkbox", {
+    name: /Nickname One/,
+  });
+  expect(existing.getAttribute("data-state")).toBe("checked");
+  expect(existing.hasAttribute("disabled")).toBe(true);
+  await user.click(
+    within(dialog).getByRole("checkbox", { name: "Nickname Three" }),
+  );
+  await user.click(within(dialog).getByRole("button", { name: /Load more/ }));
+  await user.click(
+    await within(dialog).findByRole("checkbox", { name: "Nickname Two" }),
+  );
+  await user.type(within(dialog).getByRole("textbox"), "Three");
+  await waitFor(() =>
+    expect(
+      within(dialog).queryByRole("checkbox", { name: "Nickname Two" }),
+    ).toBeNull(),
+  );
+  expect(
+    (
+      await within(dialog).findByRole("checkbox", { name: "Nickname Three" })
+    ).getAttribute("data-state"),
+  ).toBe("checked");
+  await user.click(
+    within(dialog).getByRole("button", { name: "Add selected (2)" }),
+  );
+  await within(dialog).findByRole("alert");
+  expect(
+    within(dialog).getByRole("button", { name: "Add selected (2)" }),
+  ).toBeTruthy();
+  await user.click(
+    within(dialog).getByRole("button", { name: "Add selected (2)" }),
+  );
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(batches).toEqual([
+    { people: [third.id, second.id] },
+    { people: [third.id, second.id] },
+  ]);
 });

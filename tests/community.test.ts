@@ -712,6 +712,64 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
         );
         const groupPath =
           "/api/organizations/" + orgA + "/groups/" + routedGroup!.id;
+        const bulkRequest = (people: unknown, actor = identity) =>
+          communityApi(
+            new Request(url + groupPath + "/members", {
+              method: "POST",
+              body: JSON.stringify({ people }),
+            }),
+            actor,
+            organizations,
+            store,
+          );
+        const [bulkPerson] = await store.create(
+          "owner-a",
+          orgA,
+          "people",
+          "API Bulk",
+          crypto.randomUUID(),
+        );
+        assert.equal((await bulkRequest([]))!.status, 400);
+        assert.equal(
+          (await bulkRequest(Array(51).fill(bulkPerson!.id)))!.status,
+          400,
+        );
+        assert.equal(
+          (await bulkRequest([
+            bulkPerson!.id,
+            String(bulkPerson!.id).toUpperCase(),
+          ]))!.status,
+          400,
+        );
+        assert.equal(
+          (await bulkRequest([bulkPerson!.id], {
+            ...identity,
+            id: "volunteer-a",
+          }))!.status,
+          403,
+        );
+        assert.equal(
+          (await bulkRequest([bulkPerson!.id], {
+            ...identity,
+            emailVerified: false,
+          }))!.status,
+          403,
+        );
+        assert.equal((await bulkRequest([bulkPerson!.id]))!.status, 200);
+        assert.equal((await bulkRequest([bulkPerson!.id]))!.status, 200);
+        const memberOptions = await communityApi(
+          new Request(url + groupPath + "/member-options"),
+          identity,
+          organizations,
+          store,
+        );
+        assert.equal(memberOptions!.status, 200);
+        assert.ok(
+          (await memberOptions!.json()).items.find(
+            (item: { id: string; assigned: boolean }) =>
+              item.id === bulkPerson!.id && item.assigned,
+          ),
+        );
         const detail = await communityApi(
           new Request(url + groupPath),
           identity,
@@ -874,6 +932,103 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
             store,
           ))!.status,
           403,
+        );
+      },
+    );
+    await t.test(
+      "bulk group membership is atomic, scoped and retry-safe",
+      async () => {
+        const [bulkGroup] = await store.create(
+          "owner-a",
+          orgA,
+          "groups",
+          "Bulk group",
+          crypto.randomUUID(),
+        );
+        const [one] = await store.create(
+          "owner-a",
+          orgA,
+          "people",
+          "Batch One",
+          crypto.randomUUID(),
+        );
+        const [two] = await store.create(
+          "owner-a",
+          orgA,
+          "people",
+          "Batch Two",
+          crypto.randomUUID(),
+        );
+        const [foreign] = await store.create(
+          "owner-b",
+          orgB,
+          "people",
+          "Foreign",
+          crypto.randomUUID(),
+        );
+        const ids = [String(one!.id), String(two!.id)];
+        assert.equal(
+          (
+            await store.addMembers(
+              "volunteer-a",
+              orgA,
+              String(bulkGroup!.id),
+              ids,
+            )
+          ).length,
+          0,
+        );
+        assert.equal(
+          (
+            await store.addMembers("owner-a", orgA, String(bulkGroup!.id), [
+              ids[0]!,
+              String(foreign!.id),
+            ])
+          ).length,
+          0,
+        );
+        assert.equal(
+          (
+            await store.memberOptions(
+              "owner-a",
+              orgA,
+              String(bulkGroup!.id),
+              page(orgA, "&q=Batch"),
+            )
+          ).every((row) => !row.assigned),
+          true,
+        );
+        assert.equal(
+          (await store.addMembers("owner-a", orgA, String(bulkGroup!.id), ids))
+            .length,
+          2,
+        );
+        const auditCount = async () =>
+          (
+            await db.query<{ n: number }>(
+              "select count(*)::int as n from hub_directory_audit where action='group.add'",
+            )
+          ).rows[0]!.n;
+        const count = await auditCount();
+        assert.equal(
+          (await store.addMembers("owner-a", orgA, String(bulkGroup!.id), ids))
+            .length,
+          2,
+        );
+        assert.equal(await auditCount(), count);
+        const options = await store.memberOptions(
+          "owner-a",
+          orgA,
+          String(bulkGroup!.id),
+          page(orgA, "&q=Batch"),
+        );
+        assert.equal(options.length, 2);
+        assert.ok(options.every((row) => row.assigned));
+        await store.update("owner-a", orgA, "people", ids[1]!, 1, null, true);
+        assert.equal(
+          (await store.addMembers("owner-a", orgA, String(bulkGroup!.id), ids))
+            .length,
+          0,
         );
       },
     );

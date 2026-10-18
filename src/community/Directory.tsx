@@ -97,6 +97,7 @@ export default function Directory({
   const [archived, setArchived] = useState(false);
   const kind = group ? "people" : section;
   const [editor, setEditor] = useState<EditorState | null>(null);
+  const [bulk, setBulk] = useState(false);
   const [assign, setAssign] = useState<Person | null>(null);
   const [link, setLink] = useState<string | null>(null);
   const prefix = ["organization", userId, organization.id, "directory"];
@@ -204,6 +205,12 @@ export default function Directory({
               : kind === "groups"
                 ? m.directory_add_group()
                 : m.directory_invite()}
+          </Button>
+        )}
+        {group && (
+          <Button onClick={() => setBulk(true)}>
+            <UserPlus aria-hidden="true" />
+            {m.directory_add_members()}
           </Button>
         )}
       </div>
@@ -568,6 +575,18 @@ export default function Directory({
           }}
         />
       )}
+      {bulk && group && (
+        <BulkMembers
+          path={base + `/groups/${group.id}`}
+          scope={[...prefix, "member-picker", group.id]}
+          onClose={() => setBulk(false)}
+          onSaved={async () => {
+            setBulk(false);
+            setNotice(m.directory_saved());
+            await refresh();
+          }}
+        />
+      )}
       {assign && (
         <Picker
           title={m.directory_add_to_group()}
@@ -776,6 +795,172 @@ function Editor({
             </ActionButton>
           </div>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+function BulkMembers({
+  path,
+  scope,
+  onClose,
+  onSaved,
+}: {
+  path: string;
+  scope: readonly unknown[];
+  onClose: () => void;
+  onSaved: () => Promise<void>;
+}) {
+  useLocale();
+  const confirm = useConfirmation();
+  const [search, setSearch] = useState("");
+  const query = useSearch(search);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const pages = useDirectoryPages<GroupOption>(
+    [...scope, query],
+    path + "/member-options?q=" + encodeURIComponent(query),
+    { staleTime: 0, refetchOnMount: "always" },
+  );
+  const mutation = useMutation({
+    mutationFn: async () => {
+      await directoryRequest(path + "/members", {
+        method: "POST",
+        body: JSON.stringify({ people: [...selected] }),
+      });
+      await onSaved();
+    },
+    onError: () => {
+      void pages.refetch();
+    },
+  });
+  const canLeave = async () =>
+    !mutation.isPending &&
+    (selected.size === 0 ||
+      mutation.isSuccess ||
+      (await confirm({
+        title: m.directory_discard(),
+        description: m.directory_discard_description(),
+        confirmLabel: m.directory_discard(),
+        destructive: true,
+      })));
+  useBlocker({
+    shouldBlockFn: async () => !(await canLeave()),
+    enableBeforeUnload: selected.size > 0 && !mutation.isSuccess,
+  });
+  const close = async () => {
+    if (await canLeave()) onClose();
+  };
+  const items = pages.data?.pages.flatMap((p) => p.items) ?? [];
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) void close();
+      }}
+    >
+      <DialogContent showCloseButton={false}>
+        <DialogHeader>
+          <DialogTitle>{m.directory_add_members()}</DialogTitle>
+          <DialogDescription>{m.directory_choose_members()}</DialogDescription>
+        </DialogHeader>
+        <Input
+          aria-label={m.directory_search()}
+          placeholder={m.directory_search()}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <p role="status">
+          {m.directory_selected_count({ count: selected.size })}
+        </p>
+        {mutation.isError && <ErrorNotice error={mutation.error} />}
+        <div className="directory-picker">
+          {pages.isPending ? (
+            <ListSkeleton />
+          ) : pages.isError &&
+            (!pages.isFetchNextPageError ||
+              (pages.error instanceof DirectoryError &&
+                ["forbidden", "not_found", "sign_in"].includes(
+                  pages.error.code,
+                ))) ? (
+            <>
+              <ErrorNotice error={pages.error} />
+              <ActionButton
+                pending={pages.isFetching}
+                onClick={() => {
+                  void pages.refetch();
+                }}
+              >
+                {m.try_again()}
+              </ActionButton>
+            </>
+          ) : (
+            <>
+              <ul className="directory-list">
+                {items.map((item) => (
+                  <li key={item.id}>
+                    <label
+                      className="bulk-member-option"
+                      data-assigned={item.assigned || undefined}
+                    >
+                      <Checkbox
+                        checked={item.assigned || selected.has(item.id)}
+                        disabled={
+                          item.assigned ||
+                          mutation.isPending ||
+                          (!selected.has(item.id) && selected.size >= 50)
+                        }
+                        onCheckedChange={(checked) =>
+                          setSelected((previous) => {
+                            const next = new Set(previous);
+                            if (checked && !item.assigned && next.size < 50)
+                              next.add(item.id);
+                            else next.delete(item.id);
+                            return next;
+                          })
+                        }
+                      />
+                      <span>
+                        <strong>{item.name}</strong>
+                        {item.assigned && (
+                          <small>{m.directory_already_in_group()}</small>
+                        )}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              {items.length === 0 ? (
+                <p>{m.directory_empty()}</p>
+              ) : (
+                <InfiniteFooter
+                  {...pages}
+                  fetchNextPage={() =>
+                    pages.fetchNextPage({ cancelRefetch: false })
+                  }
+                />
+              )}
+            </>
+          )}
+        </div>
+        <div className="directory-actions">
+          <Button
+            variant="outline"
+            disabled={mutation.isPending}
+            onClick={() => {
+              void close();
+            }}
+          >
+            <X aria-hidden="true" />
+            {m.cancel()}
+          </Button>
+          <ActionButton
+            pending={mutation.isPending}
+            disabled={selected.size === 0}
+            onClick={() => mutation.mutate()}
+          >
+            <UserPlus aria-hidden="true" />
+            {m.directory_add_selected({ count: selected.size })}
+          </ActionButton>
+        </div>
       </DialogContent>
     </Dialog>
   );

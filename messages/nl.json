@@ -327,5 +327,9 @@
   "directory_attendance_key_conflict": "Deze verzoeksleutel is al voor een andere registratie gebruikt. Vernieuw en controleer de lijst.",
   "attendance_conflict": "Gewijzigd sinds het laden. Controleer de laatste status.",
   "attendance_ineligible": "Komt momenteel niet in aanmerking voor een nieuwe registratie.",
-  "attendance_reason_required": "Een reden voor correctie is verplicht."
+  "attendance_reason_required": "Een reden voor correctie is verplicht.",
+  "directory_add_members": "Leden toevoegen",
+  "directory_choose_members": "Kies maximaal 50 actieve leden. Leden die al in deze groep zitten, kunnen niet worden geselecteerd.",
+  "directory_add_selected": "Geselecteerde leden toevoegen ({count})",
+  "directory_selected_count": "{count} van 50 geselecteerd"
 }

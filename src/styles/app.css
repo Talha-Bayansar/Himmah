@@ -4479,3 +4479,53 @@ html {
 .attendance-filters .activity-group-search [data-slot="input"] {
   margin-top: 0;
 }
+
+/* Search controls share a baseline; filters never squeeze mobile search. */
+.directory-toolbar > label:first-child > [data-slot="input"] {
+  margin-top: 0;
+  min-width: 0;
+}
+.directory-toolbar > label:first-child > svg {
+  flex-shrink: 0;
+}
+.directory-toolbar .directory-archived {
+  gap: 8px;
+  flex-shrink: 0;
+  margin: 0;
+}
+@media (max-width: 639px) {
+  .directory-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  .directory-toolbar > label:first-child {
+    flex: auto;
+    width: 100%;
+    min-width: 0;
+  }
+  .directory-toolbar .directory-archived {
+    align-self: flex-end;
+    font-size: 13px;
+  }
+}
+.bulk-member-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 48px;
+  cursor: pointer;
+}
+.bulk-member-option > span {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.bulk-member-option small {
+  display: block;
+  color: var(--muted-foreground);
+}
+.bulk-member-option[data-assigned] {
+  cursor: default;
+}

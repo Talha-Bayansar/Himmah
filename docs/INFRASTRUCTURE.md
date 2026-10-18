@@ -264,3 +264,10 @@ Local production Chromium with synthetic intercepted APIs verifies route entry/r
 Migration 0004 is also applied transactionally to onboarding with its journal entry. Post-migration verification retained two existing activities and two sessions, with zero attendance records, request receipts or change rows; the attendance function exists. No synthetic records were added to onboarding, and main remains untouched. Existing dedicated database/auth bindings, native fetch wrapper, rate limits and private-cache safeguards are retained.
 
 Latest Worker: e87d4027-bac5-4b92-b7a7-bba2a17c75b6, confirmed active at 100% traffic.
+
+
+## Search layout and bulk group membership checkpoint (2026-10-18)
+
+Deployed Worker `2a17650a-a7c6-4b26-9b94-06c421952cc3` to Himmah Hub; Cloudflare deployments API verified the version receives 100% of traffic. Shared search/filter controls are vertically centered and mobile search uses a full-width row. Group detail pages offer a paginated bulk member picker with existing memberships disabled and an atomic, audited batch endpoint (1–50 people). No migration or new infrastructure was required; neither Kermes nor the reserved Neon main branch was changed.
+
+Validation: `npm run check` passes all 97 tests (44 Node/domain/API/PostgreSQL, 2 real Worker runtime, 51 UI); production build and button contrast audit pass (minimum 5.87:1). Chromium checked Members, Groups and Activities in en/nl/tr at 320/390/768px for centered controls, adequate search width and no horizontal overflow; the bulk picker disabled an existing member and submitted one selected batch. UI tests cover selection retention across pages/search and failed-save retry; SQL/API tests cover authorization, tenant isolation, all-or-nothing eligibility and duplicate audit prevention. Browser tests used synthetic local API fixtures only; no live participant data was seeded or changed. Deployment activation is verified through Cloudflare's API; direct workers.dev requests remain unavailable from this environment.

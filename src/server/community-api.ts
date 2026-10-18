@@ -63,10 +63,17 @@ export async function communityApi(
     const options = url.pathname.match(
       /^\/api\/organizations\/([0-9a-f-]{36})\/people\/([0-9a-f-]{36})\/group-options$/i,
     );
-    if (!match && !options) return null;
-    const orgId = uuid((match ?? options)![1]);
-    const kind = options ? "group-options" : match![2]!.toLowerCase();
-    const id = options ? options[2] : match![3];
+    const members = url.pathname.match(
+      /^\/api\/organizations\/([0-9a-f-]{36})\/groups\/([0-9a-f-]{36})\/(member-options|members)$/i,
+    );
+    if (!match && !options && !members) return null;
+    const orgId = uuid((match ?? options ?? members)![1]);
+    const kind = members
+      ? members[3]!.toLowerCase()
+      : options
+        ? "group-options"
+        : match![2]!.toLowerCase();
+    const id = options ? options[2] : match?.[3];
     const groupId = match?.[4];
     const org = await organizations.get(user.id, orgId);
     if (!org) throw new CommunityError("not_found", 404);
@@ -74,6 +81,45 @@ export async function communityApi(
       throw new CommunityError("forbidden", 403);
     if (request.method !== "GET" && !user.emailVerified)
       throw new CommunityError("verify_required", 403);
+    if (members) {
+      const group = uuid(members[2]);
+      if (!(await directory.group(user.id, orgId, group))[0])
+        throw new CommunityError("not_found", 404);
+      if (kind === "member-options" && request.method === "GET") {
+        const input = pageInput(
+          url,
+          user.id + ":" + orgId + "/member-options/" + group,
+        );
+        return respond(
+          pageResult(
+            (await directory.memberOptions(
+              user.id,
+              orgId,
+              group,
+              input,
+            )) as unknown as { id: string; createdAt: string }[],
+            input,
+          ),
+        );
+      }
+      if (kind === "members" && request.method === "POST") {
+        const value = await body();
+        if (
+          !Array.isArray(value.people) ||
+          value.people.length < 1 ||
+          value.people.length > 50
+        )
+          throw new CommunityError("invalid_input");
+        const people = value.people.map((id) => uuid(id).toLowerCase()).sort();
+        if (new Set(people).size !== people.length)
+          throw new CommunityError("invalid_input");
+        const rows = await directory.addMembers(user.id, orgId, group, people);
+        if (rows.length !== people.length)
+          throw new CommunityError("conflict", 409);
+        return respond({ success: true });
+      }
+      return respond({ code: "not_found" }, 404);
+    }
     if (kind === "group-options") {
       if (request.method !== "GET") return respond({ code: "not_found" }, 404);
       const person = uuid(id);

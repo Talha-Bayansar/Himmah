@@ -327,5 +327,9 @@
   "directory_attendance_key_conflict": "Bu istek anahtarı başka bir kayıt için kullanıldı. Listeyi yenileyip inceleyin.",
   "attendance_conflict": "Yüklendiğinden beri değiştirildi. Son durumu kontrol edin.",
   "attendance_ineligible": "Şu anda yeni katılım kaydı için uygun değil.",
-  "attendance_reason_required": "Bir düzeltme nedeni gereklidir."
+  "attendance_reason_required": "Bir düzeltme nedeni gereklidir.",
+  "directory_add_members": "Üye ekle",
+  "directory_choose_members": "En fazla 50 aktif üye seçin. Zaten bu grupta olan üyeler seçilemez.",
+  "directory_add_selected": "Seçilenleri ekle ({count})",
+  "directory_selected_count": "50 üyeden {count} seçildi"
 }

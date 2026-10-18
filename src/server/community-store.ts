@@ -42,6 +42,32 @@ export function createCommunityStore(
         sql`with ${actor(user, org)} select ${projection}, exists(select 1 from hub_group_people gp where gp.organization_id=${org}::uuid and gp.person_id=${person}::uuid and gp.group_id=hub_groups.id) as assigned from hub_groups where organization_id=${org}::uuid and exists(select 1 from actor) and exists(select 1 from hub_people hp where hp.organization_id=${org}::uuid and hp.id=${person}::uuid and not hp.archived) and not archived and name ilike ${pattern(p.query)} ${cursor(p)} order by created_at desc,id desc limit ${p.limit + 1}`,
       );
     },
+    async memberOptions(
+      user: string,
+      org: string,
+      group: string,
+      p: PageInput,
+    ) {
+      return rows(
+        sql`with ${actor(user, org)} select ${projection}, exists(select 1 from hub_group_people gp where gp.organization_id=${org}::uuid and gp.group_id=${group}::uuid and gp.person_id=hub_people.id) as assigned from hub_people where organization_id=${org}::uuid and not archived and exists(select 1 from actor) and exists(select 1 from hub_groups where organization_id=${org}::uuid and id=${group}::uuid and not archived) and name ilike ${pattern(p.query)} ${cursor(p)} order by created_at desc,id desc limit ${p.limit + 1}`,
+      );
+    },
+    async addMembers(
+      user: string,
+      org: string,
+      group: string,
+      people: string[],
+    ) {
+      // One statement: either every requested member is eligible or nothing changes.
+      // Stable entity lock order and uniqueness make retries safe without duplicate audit events.
+      const ids = sql.join(
+        people.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      );
+      return rows(
+        sql`with ${actor(user, org)}, eligible_group as (select id from hub_groups where organization_id=${org}::uuid and id=${group}::uuid and not archived for update), eligible_people as (select id from hub_people where organization_id=${org}::uuid and id in (${ids}) and not archived order by id for update), permitted as (select 1 where exists(select 1 from actor) and exists(select 1 from eligible_group) and (select count(*) from eligible_people)=${people.length}), changed as (insert into hub_group_people (organization_id,group_id,person_id) select ${org}::uuid,${group}::uuid,id from eligible_people where exists(select 1 from permitted) on conflict do nothing returning person_id as id), ${audit(org, user, "group.add")} select id from eligible_people where exists(select 1 from permitted)`,
+      );
+    },
     async group(user: string, org: string, id: string) {
       return rows(
         sql`with ${actor(user, org)} select ${projection} from hub_groups where organization_id=${org}::uuid and id=${id}::uuid and not archived and exists(select 1 from actor) limit 1`,
