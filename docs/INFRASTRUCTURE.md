@@ -98,3 +98,15 @@ Public copy is age-neutral in English/Dutch/Turkish and welcomes community organ
 Verification: strict types/docs and 45 tests pass (27 domain/API/localization/PWA plus 18 component/client interactions). Tests cover the real Neon client against the actual proxy with a fake upstream, normalized thrown rate-limit/account-exists errors, successful signup with failed code delivery, native install prompts, translations, icon/startup dimensions and cache privacy. Production build/contrast audit pass. Local Workerd serves all localized manifests, service worker, icons and 44 startup images with correct types; canonical offline URL is 200 without redirect. Removed demo remains 404, anonymous account 401, environment files 404. App icon was visually inspected. Actual hosted signup/email and physical-device installation/splash behavior remain unverified because direct-host/browser/device access is unavailable here.
 
 Latest Worker version: `17bae902-0555-4d0c-881c-4f1e4f451128`, confirmed active at 100% traffic. Existing database secret and managed-auth/origin/rate-limit bindings retained. See PWA.md for installation and regeneration.
+
+## Confirmed Cloudflare-native fetch receiver fix
+
+The subsequent signup screenshot prompted a real Workerd reproduction. Root cause: the API default dependencies stored the native global fetch function directly, then invoked it as a method on a different object. Cloudflare threw TypeError “Illegal invocation” before any auth-service request; the existing catch returned the screenshot’s generic 503. Prior proxy-header/error-message changes did not correct this runtime cause.
+
+Replaced the native function reference with an arrow forwarding to globalThis.fetch, preserving the required receiver. No auth-provider migration, account recreation, database changes, new logging of identities or Kermes Pay modifications. The production Vite bundle was inspected and retains the corrected wrapper.
+
+Added a real Workerd suite using the actual API source/default dependencies and a second local Worker as the auth fixture. The old source variant reproduces 503; the corrected source returns signup 201, sends verification requests, normalizes cookies, restores authenticated account reads and rejects cross-origin POSTs. No real auth accounts are created, emails sent or screenshot details used in fixtures. This now runs in npm test/CI through test:worker.
+
+Validation: strict types/documentation, 27 domain/API/PWA/localization tests, 2 actual Worker-runtime integration tests and 18 SDK/component tests pass (47 total), alongside production build and contrast audit. Hosted email delivery and real browser signup remain unverified due to restricted host/browser access, but the previously untested native-runtime failure is reproduced and fixed.
+
+Latest Worker: `d114565a-d28c-450b-aa2a-90fb775116f5`, confirmed active at 100% traffic; existing database/auth/rate-limit bindings retained.

@@ -54,6 +54,8 @@ Keep the stack similar to Kermes Pay without modifying that project or sharing i
 
 The app is an installable PWA for iOS/Android. Keep Himmah icons/manifest/splash assets isolated from other projects. `npm run pwa:assets` regenerates assets and localized offline text; build runs it automatically. Service worker may cache only public hashed assets/icons and a static offline notice. Never cache authenticated HTML, auth/API responses or queue account mutations offline. Keep iOS startup metadata, maskable Android icons and safe-area layouts.
 
+Cloudflare native fetch must remain bound to its global receiver. Never store a bare globalThis.fetch reference on a dependency object and invoke it as a method; use an arrow wrapper. Run the real Worker runtime regression (`npm run test:worker`) for auth/proxy changes, because Node/mock fetch does not catch receiver errors.
+
 The managed Neon client throws normalized AuthApiError exceptions on non-2xx responses (snake_case codes), in addition to returning Better Auth error unions in some cases. Handle both via authFailure/authError. Preserve form values, give specific localized messages, and keep successful signup in verification if code delivery fails. Same-origin auth proxy follows the installed SDK middleware-header contract after CSRF validation. Do not claim a user's exact live failure is reproduced without evidence.
 
 ## Youth experience

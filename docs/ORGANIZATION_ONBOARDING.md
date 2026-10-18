@@ -48,3 +48,10 @@ Development-database integration check passed using the exact parameterized Driz
 The installed Neon adapter throws normalized AuthApiError objects for non-2xx responses, including snake_case codes. UI handles these with authFailure as well as Better Auth returned error objects. Do not display raw provider errors or hide all failures behind one generic message. Account creation and verification email delivery are separate outcomes; delivery failure must not encourage duplicate signup. Password requirements are visible and validated (12–128 characters).
 
 The same-origin proxy sets x-neon-auth-middleware=true, forwards the SDK client-info/user-agent headers, and supplies the configured Origin/Referer after validating the browser request origin. This follows the installed managed SDK server-proxy contract while retaining endpoint allowlisting and rate limits. Rate-limited proxy responses include a stable code/message understood by the real SDK. Regression tests use the actual client against our actual proxy with a fake upstream; they are not proof of live provider signup or email delivery.
+
+
+## Confirmed runtime fix after the signup screenshot
+
+Cloudflare’s global fetch requires its original receiver. The former `deps.fetch = globalThis.fetch` default was invoked as `deps.fetch(...)`, which threw “Illegal invocation” inside Workerd before reaching Neon. The generic catch turned it into the service-unavailable message. A forwarding arrow now preserves the receiver. This affects both signup proxy calls and authenticated session lookups. No identity migration is necessary.
+
+`npm run test:worker` bundles the actual API and runs it in Workerd with a second local Worker as the upstream fixture. It proves the old default returns 503 and the repaired default supports signup/verification/session lookup while retaining cookie scoping, no-store responses and CSRF checks. This runtime test complements the SDK/component tests; none sends a real verification email or uses the screenshot’s account details.

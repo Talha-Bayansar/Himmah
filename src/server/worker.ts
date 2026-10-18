@@ -76,7 +76,12 @@ function origin(env: Env) {
   return url.origin;
 }
 export function createHandler(
-  deps: Dependencies = { fetch: globalThis.fetch, store: createStore },
+  deps: Dependencies = {
+    // Workers' native fetch requires its global receiver. A bare reference stored
+    // on deps is invoked with deps as `this` and throws "Illegal invocation".
+    fetch: (input, init) => globalThis.fetch(input, init),
+    store: createStore,
+  },
 ) {
   return async function handle(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);

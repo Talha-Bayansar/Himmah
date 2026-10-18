@@ -52,7 +52,8 @@ Source adaptations: project import aliases, the combined Radix dependency for le
 
 - `npm run dev`: Vite/Cloudflare on 3101; no other project's process or port is touched.
 - `npm run typecheck`: generates typed routes and runs strict TypeScript.
-- `npm test`: domain/API tests plus JSDOM component interaction tests.
+- `npm test`: domain/API tests, real Workerd integration tests and JSDOM component interaction tests.
+- `npm run test:worker`: actual default API dependencies inside Workerd, with a local-only auth fixture and no real accounts/email.
 - `npm run build`: production client and SSR Worker build.
 - `npm run deploy`: deploy the generated Cloudflare configuration, preserving runtime secrets.
 
