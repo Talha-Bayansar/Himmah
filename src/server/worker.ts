@@ -1,3 +1,5 @@
+import { activityApi } from "./activity-api.ts";
+import { createActivityStore } from "./activity-store.ts";
 import { communityApi } from "./community-api.ts";
 import {
   createCommunityStore,
@@ -201,6 +203,21 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (/^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `activities:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await activityApi(
+          request,
+          user,
+          store,
+          createActivityStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
       if (
         /^\/api\/organizations\/[^/]+\/(people|groups|staff|invitations)(\/|$)/.test(
           url.pathname,

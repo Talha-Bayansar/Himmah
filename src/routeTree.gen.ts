@@ -15,6 +15,7 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
+import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
 import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.groups.$groupId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -48,6 +49,12 @@ const WorkspaceOrganizationIdSectionRoute =
     path: '/workspace/$organizationId/$section',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdActivitiesActivityIdRoute =
+  WorkspaceOrganizationIdActivitiesActivityIdRouteImport.update({
+    id: '/workspace/$organizationId/activities/$activityId',
+    path: '/workspace/$organizationId/activities/$activityId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspaceOrganizationIdGroupsGroupIdRoute =
   WorkspaceOrganizationIdGroupsGroupIdRouteImport.update({
     id: '/workspace/$organizationId/groups/$groupId',
@@ -62,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRoute
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 export interface FileRoutesByTo {
@@ -71,6 +79,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRoute
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 export interface FileRoutesById {
@@ -81,6 +90,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRoute
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 export interface FileRouteTypes {
@@ -92,6 +102,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -101,6 +112,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
   id:
     | '__root__'
@@ -110,6 +122,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
   fileRoutesById: FileRoutesById
 }
@@ -120,6 +133,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRoute
   WorkspaceOrganizationIdGroupsGroupIdRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 
@@ -167,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/activities/$activityId': {
+      id: '/workspace/$organizationId/activities/$activityId'
+      path: '/workspace/$organizationId/activities/$activityId'
+      fullPath: '/workspace/$organizationId/activities/$activityId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/groups/$groupId': {
       id: '/workspace/$organizationId/groups/$groupId'
       path: '/workspace/$organizationId/groups/$groupId'
@@ -184,6 +205,8 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+  WorkspaceOrganizationIdActivitiesActivityIdRoute:
+    WorkspaceOrganizationIdActivitiesActivityIdRoute,
   WorkspaceOrganizationIdGroupsGroupIdRoute:
     WorkspaceOrganizationIdGroupsGroupIdRoute,
 }

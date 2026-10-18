@@ -56,3 +56,7 @@ Adult organizer signup/sign-in/email verification/recovery, persistent workspace
 ## Owner-directed stack migration checkpoint
 
 Runtime migrated to TanStack Start/Router on Cloudflare; Query manages remote account/organization data and mutations; Form manages application forms. All 62 shadcn registry components and helpers are installed, with source provenance. Shared skeleton, interaction spinner and destructive-confirmation patterns are required going forward. Existing managed Better Auth accounts and organization records remain unchanged. Domain/API and component interaction checks cover the migration; browser/email verification limits remain documented.
+
+## Persistent activities checkpoint
+
+Organizer onboarding, staff invitations and private members/groups are live. The next implemented slice adds organization-owned one-off activities with timezone-aware scheduling, independent detail URLs, editing, audited cancellation and bounded infinite lists. This supersedes the older prototype-only checkpoints above. Next: occurrence attendance with volunteer authorization, roster pagination, idempotent saves and explicit corrections; then configurable/manual awards and personal histories. Recurrence, eligibility and registration/capacity remain follow-up work, not shipped controls.

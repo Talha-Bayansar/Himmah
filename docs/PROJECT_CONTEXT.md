@@ -90,3 +90,5 @@ Delivered foundation: private nickname roster records with staff consent attesta
 - Owner prefers a mobile app feel: item actions should use recognizable icons with their labels, rather than plain text-only actions. Group assignment pickers must visibly mark and disable existing memberships, with pending indicators limited to the selected action.
 
 - Owner wants compact item rows: one obvious primary action at most; other actions in an icon-and-label dropdown, or all actions in the menu if no primary stands out. The installed PWA should open an app-focused starting point rather than public marketing.
+
+Persistent one-off activities now have an Activities navigation entry, paginated lists, independent detail routes and organization-timezone scheduling. Owners/admins manage activities; volunteers can view them. Cancellation preserves history. Attendance, recurrence, registration and point rules are subsequent slices.

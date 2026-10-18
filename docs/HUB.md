@@ -1,6 +1,6 @@
 # Himmah Hub — approved feature direction
 
-Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Persistent activities, attendance, points and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
+Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Persistent one-off activities now support scheduling, details, editing and cancellation. Attendance, points, recurring activities and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
 
 ## Purpose and boundaries
 

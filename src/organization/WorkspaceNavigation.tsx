@@ -1,9 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { Users, Folder, Settings } from "lucide-react";
+import { Users, Folder, Settings, CalendarDays } from "lucide-react";
 import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "activities",
   "members",
   "groups",
   "staff",
@@ -22,17 +23,28 @@ export function WorkspaceNavigation({
 }) {
   useLocale();
   const labels = {
+    activities: m.activities_title(),
     members: m.directory_members(),
     groups: m.directory_groups(),
     settings: m.settings(),
   };
-  const icons = { members: Users, groups: Folder, settings: Settings };
+  const icons = {
+    activities: CalendarDays,
+    members: Users,
+    groups: Folder,
+    settings: Settings,
+  };
   const active =
-    section === "members" || section === "groups" ? section : "settings";
+    section === "activities" || section === "members" || section === "groups"
+      ? section
+      : "settings";
   return (
     <nav className="workspace-navigation" aria-label={m.directory_title()}>
-      {(["members", "groups", "settings"] as const)
-        .filter((key) => key === "settings" || role !== "volunteer")
+      {(["activities", "members", "groups", "settings"] as const)
+        .filter(
+          (key) =>
+            key === "settings" || key === "activities" || role !== "volunteer",
+        )
         .map((key) => {
           const Icon = icons[key];
           return (

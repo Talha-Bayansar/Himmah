@@ -33,7 +33,11 @@ export function directoryMessage(error: unknown) {
 export function useDirectoryPages<T>(
   key: readonly unknown[],
   path: string,
-  options: { staleTime?: number; refetchOnMount?: "always" | boolean } = {},
+  options: {
+    staleTime?: number;
+    refetchOnMount?: "always" | boolean;
+    enabled?: boolean;
+  } = {},
 ) {
   return useInfiniteQuery({
     ...options,

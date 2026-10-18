@@ -3999,3 +3999,91 @@ html {
     flex: 1;
   }
 }
+
+/* One-off activities share directory navigation and keyboard-aware forms. */
+.activity-list {
+  display: grid;
+  gap: 16px;
+}
+.activity-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  padding: 20px;
+  min-width: 0;
+}
+.activity-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.activity-card-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+.activity-card-heading h2 {
+  font-size: 18px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.activity-status {
+  margin: 0;
+  font-weight: 600;
+}
+.activity-details {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.activity-details > div {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 12px;
+}
+.activity-details dt,
+.activity-timezone {
+  color: #52665b;
+}
+.activity-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.activity-timezone {
+  font-size: 13px;
+}
+.activity-location {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.activity-location svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+.activity-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.activity-form [data-slot="textarea"] {
+  width: 100%;
+  font-size: 16px;
+}
+.activity-form input[type="datetime-local"] {
+  width: 100%;
+  max-width: 100%;
+}
+.activity-page > h1 {
+  overflow-wrap: anywhere;
+}
+.activity-card .activity-description,
+.activity-card .activity-location {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.activity-card .activity-timezone {
+  font-size: 13px;
+  color: #52665b;
+}

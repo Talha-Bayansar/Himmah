@@ -1,3 +1,4 @@
+import Activities from "../activities/Activities";
 import GroupMembersPage from "../community/GroupMembersPage";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import { AccountSettings } from "./AccountSettings";
@@ -82,6 +83,7 @@ export default function OrganizationPortal({
   workspaceSection = "members",
   accountSettings = false,
   groupId = null,
+  activityId = null,
   launch = false,
 }: {
   initialMode?: "signup" | "signin";
@@ -90,6 +92,7 @@ export default function OrganizationPortal({
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
   groupId?: string | null;
+  activityId?: string | null;
   launch?: boolean;
 } = {}) {
   const queryClient = useQueryClient();
@@ -416,6 +419,7 @@ export default function OrganizationPortal({
                     organization={selected.data}
                     userId={user.id}
                     section={workspaceSection}
+                    activityId={activityId}
                     groupId={groupId}
                     user={user}
                     signOutPending={logout.isPending}
@@ -1149,12 +1153,14 @@ function Workspace({
   signOutPending,
   onSignOut,
   groupId,
+  activityId,
 }: {
   organization: Organization;
   userId: string;
   section: WorkspaceSection;
   user: User;
   groupId: string | null;
+  activityId: string | null;
   signOutPending: boolean;
   onSignOut: () => void;
 }) {
@@ -1164,10 +1170,17 @@ function Workspace({
     page.current
       ?.querySelector<HTMLElement>("[data-page-heading]")
       ?.focus({ preventScroll: true });
-  }, [section, organization.id, groupId]);
+  }, [section, organization.id, groupId, activityId]);
   return (
     <div ref={page}>
-      {section === "settings" ? (
+      {section === "activities" ? (
+        <Activities
+          key={organization.id}
+          organization={organization}
+          userId={userId}
+          activityId={activityId}
+        />
+      ) : section === "settings" ? (
         <AccountSettings
           user={user}
           organization={organization}
