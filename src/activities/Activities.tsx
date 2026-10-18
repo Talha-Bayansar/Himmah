@@ -1,3 +1,4 @@
+import Attendance from "../attendance/Attendance";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -135,11 +136,13 @@ export default function Activities({
   userId,
   activityId = null,
   sessionId = null,
+  attendance = false,
 }: {
   organization: Organization;
   userId: string;
   activityId?: string | null;
   sessionId?: string | null;
+  attendance?: boolean;
 }) {
   useLocale();
   const cache = useQueryClient(),
@@ -268,7 +271,19 @@ export default function Activities({
       {activityId ? (
         <>
           <Button variant="link" asChild className="settings-back">
-            {sessionId ? (
+            {attendance && sessionId ? (
+              <Link
+                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
+                params={{
+                  organizationId: organization.id,
+                  activityId,
+                  sessionId,
+                }}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                {m.sessions_view()}
+              </Link>
+            ) : sessionId ? (
               <Link
                 to="/workspace/$organizationId/activities/$activityId"
                 params={{ organizationId: organization.id, activityId }}
@@ -300,12 +315,21 @@ export default function Activities({
           ) : (
             <>
               {!sessionId && row(detail.data.item, true)}
-              <Sessions
-                organization={organization}
-                userId={userId}
-                activity={detail.data.item}
-                sessionId={sessionId}
-              />
+              {attendance && sessionId ? (
+                <Attendance
+                  organization={organization}
+                  userId={userId}
+                  activityId={activityId}
+                  sessionId={sessionId}
+                />
+              ) : (
+                <Sessions
+                  organization={organization}
+                  userId={userId}
+                  activity={detail.data.item}
+                  sessionId={sessionId}
+                />
+              )}
             </>
           )}
         </>

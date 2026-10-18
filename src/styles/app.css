@@ -4275,3 +4275,207 @@ html {
 .activity-session-detail {
   margin-top: 0;
 }
+
+.attendance-page {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.attendance-context {
+  display: grid;
+  gap: 12px;
+}
+.attendance-context h2 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.attendance-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.attendance-totals > div {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+.attendance-totals dt {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #52665b;
+}
+.attendance-totals dd {
+  margin: 4px 0 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+.attendance-filters {
+  display: grid;
+  gap: 16px;
+}
+.attendance-filters > div {
+  display: grid;
+  gap: 8px;
+}
+.attendance-filters [data-slot="input"],
+.attendance-form [data-slot="input"] {
+  min-height: 48px;
+  font-size: 16px;
+}
+.attendance-list {
+  display: grid;
+  gap: 16px;
+}
+.attendance-row {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+  background: var(--white);
+  min-width: 0;
+}
+.attendance-row-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.attendance-row-heading > [data-slot="checkbox"] {
+  margin-top: 6px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.attendance-row-heading > div {
+  flex: 1;
+  min-width: 0;
+}
+.attendance-row h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.attendance-row .attendance-state {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: #344e44;
+}
+.attendance-state-present {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #edf2e5;
+}
+.attendance-row .attendance-retained {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #52665b;
+}
+.attendance-bulkbar {
+  position: sticky;
+  top: calc(72px + env(safe-area-inset-top));
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  background: var(--background);
+  box-shadow: 0 4px 12px #153f3610;
+}
+.attendance-bulkbar > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.attendance-bulkbar button {
+  flex: 1;
+  min-height: 44px;
+  height: auto;
+  white-space: normal;
+}
+.attendance-bulkbar > p,
+.attendance-notice > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+.attendance-notice {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--paper);
+}
+.attendance-form .attendance-reason-help {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #52665b;
+}
+.attendance-history {
+  display: grid;
+  gap: 12px;
+}
+.attendance-history article {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+}
+.attendance-history p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.attendance-history .attendance-history-change {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+.attendance-history time {
+  font-size: 13px;
+  color: #52665b;
+}
+@media (min-width: 768px) {
+  .attendance-totals {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .attendance-filters {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: end;
+  }
+  .attendance-bulkbar {
+    top: calc(136px + env(safe-area-inset-top));
+  }
+}
+
+.attendance-select {
+  display: grid;
+  place-items: center;
+  flex: 0 0 44px;
+  min-height: 44px;
+  margin-top: -4px;
+}
+.attendance-select [data-slot="checkbox"] {
+  width: 24px;
+  height: 24px;
+}
+.attendance-filters .activity-group-search [data-slot="input"] {
+  margin-top: 0;
+}

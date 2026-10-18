@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
+  ClipboardCheck,
   Plus,
   CalendarDays,
   Pencil,
@@ -171,6 +172,21 @@ export default function Sessions({
             )}
             <p className="activity-note">{m.sessions_snapshot_help()}</p>
             {past && <p className="activity-note">{m.sessions_past_help()}</p>}
+            {canManage && (
+              <Button asChild className="activity-card-primary">
+                <Link
+                  to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+                  params={{
+                    organizationId: organization.id,
+                    activityId: activity.id,
+                    sessionId: item.id,
+                  }}
+                >
+                  <ClipboardCheck size={16} aria-hidden="true" />
+                  {m.attendance_open()}
+                </Link>
+              </Button>
+            )}
           </>
         )}
         {item.cancelled && item.cancellationReason && (

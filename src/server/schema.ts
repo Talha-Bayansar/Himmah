@@ -1,5 +1,6 @@
 import {
   pgTable,
+  jsonb,
   boolean,
   integer,
   foreignKey,
@@ -295,5 +296,133 @@ export const activitySessions = pgTable(
     check("hub_session_reason", sql`length(${t.cancellationReason}) <= 300`),
     check("hub_session_location", sql`length(${t.location}) <= 160`),
     check("hub_session_version", sql`${t.version}>0`),
+  ],
+);
+
+export const attendanceRequests = pgTable(
+  "hub_attendance_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    unique("hub_attendance_request_key").on(
+      t.organizationId,
+      t.sessionId,
+      t.requestKey,
+    ),
+    unique("hub_attendance_request_scope").on(
+      t.organizationId,
+      t.sessionId,
+      t.id,
+    ),
+  ],
+);
+export const attendance = pgTable(
+  "hub_attendance",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    status: text("status").notNull(),
+    version: integer("version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.sessionId, t.personId] }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    check(
+      "hub_attendance_status",
+      sql`${t.status} in ('unmarked','present','absent','excused')`,
+    ),
+    check("hub_attendance_version", sql`${t.version}>0`),
+  ],
+);
+export const attendanceChanges = pgTable(
+  "hub_attendance_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    requestId: uuid("request_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    beforeStatus: text("before_status").notNull(),
+    afterStatus: text("after_status").notNull(),
+    reason: text("reason").notNull(),
+    version: integer("version").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.sessionId, t.personId],
+      foreignColumns: [
+        attendance.organizationId,
+        attendance.sessionId,
+        attendance.personId,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.sessionId, t.requestId],
+      foreignColumns: [
+        attendanceRequests.organizationId,
+        attendanceRequests.sessionId,
+        attendanceRequests.id,
+      ],
+    }),
+    unique("hub_attendance_change_version").on(
+      t.organizationId,
+      t.sessionId,
+      t.personId,
+      t.version,
+    ),
+    index("hub_attendance_history_page").on(
+      t.organizationId,
+      t.sessionId,
+      t.personId,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_attendance_change_states",
+      sql`${t.beforeStatus} in ('unmarked','present','absent','excused') and ${t.afterStatus} in ('unmarked','present','absent','excused')`,
+    ),
+    check(
+      "hub_attendance_change_reason",
+      sql`length(${t.reason})<=300 and (${t.version}=1 or length(trim(${t.reason}))>0)`,
+    ),
   ],
 );

@@ -64,3 +64,7 @@ Organizer onboarding, staff invitations and private members/groups are live. The
 ## Session and audience checkpoint
 
 Activities now own reusable defaults and group eligibility; sessions own their saved schedule, details, audience and cancellation reason. Existing one-off records migrate into first sessions. Upcoming/past lists and real session detail routes are implemented with bounded pagination, retry protection and history guards. Next: session-scoped attendance with eligibility-aware rosters and audited corrections, then configurable/manual awards. Draft/publish and recurring scheduling remain later workflow additions.
+
+## Attendance checkpoint
+
+Session attendance now supports an eligible paginated roster, individual/bulk statuses, distinct unmarked/present/absent/excused states, same-request replay protection, per-member failure outcomes and reasoned corrections with private paginated history. Owners/admins are authorized; volunteers remain blocked pending assignments. Check-in opens at session start; cancelled sessions are read-only. Next: configurable/manual awards through the engagement ledger, then attendance-linked awards and personal histories. Volunteer assignments, finalization, walk-in overrides and richer registration remain separate follow-up features.

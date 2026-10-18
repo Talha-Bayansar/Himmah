@@ -401,8 +401,13 @@ it("started session details remain read-only for an owner", async () => {
   await screen.findByRole("heading", { name: session.name });
   expect(screen.queryByRole("button", { name: /Actions for/ })).toBeNull();
   expect(
+    screen.getByRole("link", { name: "Check attendance" }).getAttribute("href"),
+  ).toBe(
+    `/workspace/${org.id}/activities/${item.id}/sessions/${session.id}/attendance`,
+  );
+  expect(
     screen.getByText(
-      "Sessions that have started are read-only to preserve their history.",
+      "The session’s schedule and details are read-only once it starts.",
     ),
   ).toBeTruthy();
 });

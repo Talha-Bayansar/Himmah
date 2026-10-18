@@ -85,6 +85,7 @@ export default function OrganizationPortal({
   groupId = null,
   activityId = null,
   sessionId = null,
+  attendance = false,
   launch = false,
 }: {
   initialMode?: "signup" | "signin";
@@ -95,6 +96,7 @@ export default function OrganizationPortal({
   groupId?: string | null;
   activityId?: string | null;
   sessionId?: string | null;
+  attendance?: boolean;
   launch?: boolean;
 } = {}) {
   const queryClient = useQueryClient();
@@ -421,6 +423,7 @@ export default function OrganizationPortal({
                     organization={selected.data}
                     userId={user.id}
                     section={workspaceSection}
+                    attendance={attendance}
                     sessionId={sessionId}
                     activityId={activityId}
                     groupId={groupId}
@@ -1158,6 +1161,7 @@ function Workspace({
   groupId,
   activityId,
   sessionId,
+  attendance,
 }: {
   organization: Organization;
   userId: string;
@@ -1166,6 +1170,7 @@ function Workspace({
   groupId: string | null;
   activityId: string | null;
   sessionId: string | null;
+  attendance: boolean;
   signOutPending: boolean;
   onSignOut: () => void;
 }) {
@@ -1175,11 +1180,12 @@ function Workspace({
     page.current
       ?.querySelector<HTMLElement>("[data-page-heading]")
       ?.focus({ preventScroll: true });
-  }, [section, organization.id, groupId, activityId, sessionId]);
+  }, [section, organization.id, groupId, activityId, sessionId, attendance]);
   return (
     <div ref={page}>
       {section === "activities" ? (
         <Activities
+          attendance={attendance}
           sessionId={sessionId}
           key={organization.id}
           organization={organization}

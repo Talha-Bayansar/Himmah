@@ -1,3 +1,5 @@
+import { attendanceApi } from "./attendance-api.ts";
+import { createAttendanceStore } from "./attendance-store.ts";
 import { activityApi } from "./activity-api.ts";
 import { createActivityStore } from "./activity-store.ts";
 import { communityApi } from "./community-api.ts";
@@ -209,6 +211,16 @@ export function createHandler(
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
           ).limit({ key: `activities:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        if (url.pathname.includes("/attendance")) {
+          const attendanceResponse = await attendanceApi(
+            request,
+            user,
+            store,
+            createActivityStore(env.HIMMAH_DATABASE_URL),
+            createAttendanceStore(env.HIMMAH_DATABASE_URL),
+          );
+          if (attendanceResponse) return attendanceResponse;
         }
         const response = await activityApi(
           request,
