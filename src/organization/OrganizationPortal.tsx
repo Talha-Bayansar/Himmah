@@ -138,8 +138,8 @@ export default function OrganizationPortal() {
             youth community.
           </h1>
           <p>
-            Bring your activities, attendance and recognition together. Make
-            room for every young person to grow.
+            Start with your organizer account and workspace. Together, we’re
+            building a place for your youth community to grow.
           </p>
           <ul>
             <li>
@@ -161,14 +161,13 @@ export default function OrganizationPortal() {
           </div>
         </div>
         <div className="onboarding-story-footer">
-          <ShieldCheck size={17} />
-          Your account is powered by Better Auth.
+          <ShieldCheck size={17} />A dedicated space for your organization.
         </div>
       </aside>
       <section className="onboarding-main">
         <header className="onboarding-top">
           <Button variant="link" asChild>
-            <Link to="/">
+            <Link to="/demo">
               <ArrowLeft size={15} />
               Explore the demo
             </Link>
@@ -1010,7 +1009,7 @@ function Workspace({
             workspace yet.
           </p>
           <Button variant="outline" asChild>
-            <Link to="/">
+            <Link to="/demo">
               Explore those flows in the demo
               <ArrowRight size={17} />
             </Link>

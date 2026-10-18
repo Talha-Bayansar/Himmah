@@ -13,6 +13,7 @@ import {
 import { ConfirmationProvider } from "../src/components/shared/confirmation";
 import OrganizationPortal from "../src/organization/OrganizationPortal";
 import Hub from "../src/hub/Hub";
+import LandingPage from "../src/landing/LandingPage";
 const mocks = vi.hoisted(() => ({
   signOut: vi.fn(),
   sendVerificationOtp: vi.fn(),
@@ -60,7 +61,15 @@ function mount(component: () => React.ReactNode) {
     component: () => <p>Organizer page</p>,
   });
   const router = createRouter({
-    routeTree: root.addChildren([index, start]),
+    routeTree: root.addChildren([
+      index,
+      start,
+      createRoute({
+        getParentRoute: () => root,
+        path: "/demo",
+        component: () => <p>Sample workspace</p>,
+      }),
+    ]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
   render(
@@ -289,4 +298,30 @@ it("requires confirmation before replacing a password", async () => {
   );
   await screen.findByText("Password updated. Sign in to continue.");
   expect(mocks.resetPassword).toHaveBeenCalledTimes(1);
+});
+
+describe("public landing page", () => {
+  it("starts organizer onboarding from the main call to action", async () => {
+    mount(LandingPage);
+    const user = userEvent.setup();
+    await screen.findByRole("heading", { name: /Small actions/ });
+    expect(screen.getByText("Planned add-on")).toBeTruthy();
+    expect(
+      screen.getByText(
+        /Member management, activities and points are currently/,
+      ),
+    ).toBeTruthy();
+    await user.click(
+      screen.getByRole("link", { name: "Start your organization" }),
+    );
+    await screen.findByText("Organizer page");
+  });
+  it("opens the separate sample workspace", async () => {
+    mount(LandingPage);
+    const user = userEvent.setup();
+    await user.click(
+      await screen.findByRole("link", { name: "Explore the demo" }),
+    );
+    await screen.findByText("Sample workspace");
+  });
 });

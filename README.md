@@ -6,9 +6,11 @@ A mosque youth platform for ages 11–15: take part, learn together, develop you
 
 Himmah Hub is the standalone membership, attendance and points app. Himmah Futsal is an optional connected game; future games can use the same contribution history. Hub and game licenses are organization-level. The existing folder and infrastructure retain their himmah-futsal names for continuity; no resources have been renamed.
 
-Phone-testing prototype: **https://himmah-hub.talha-bayansar.workers.dev** (sample data; resets on refresh).
+Phone-testing prototype: **https://himmah-hub.talha-bayansar.workers.dev/demo** (sample data; resets on refresh).
 
 Organizer early-access portal: **https://himmah-hub.talha-bayansar.workers.dev/start/**. See [organization onboarding](docs/ORGANIZATION_ONBOARDING.md) for scope and testing limits.
+
+Public landing page: **https://himmah-hub.talha-bayansar.workers.dev**. Start organization onboarding or explore the separate sample workspace.
 
 ## Project status
 

@@ -2,7 +2,7 @@
 
 ## What is implemented
 
-`/start/` is a separate organizer portal alongside the fictional demo at `/`. Adult organizers can create an account, request an email verification code, verify it, sign in/out, restore their session, and use email-code password recovery. Verified organizers can create a workspace (name, unique address and timezone), list their memberships and return to a saved workspace. There is no paid checkout yet.
+`/start/` is a separate organizer portal alongside the fictional demo at `/demo` and public landing page at `/`. Adult organizers can create an account, request an email verification code, verify it, sign in/out, restore their session, and use email-code password recovery. Verified organizers can create a workspace (name, unique address and timezone), list their memberships and return to a saved workspace. There is no paid checkout yet.
 
 Organization setup is persistent. The attendance, activities and youth records in the demo remain fictional/browser-memory-only and are NOT linked to saved workspaces. The saved-workspace welcome screen explains that member invitations and persistent Hub activity management are the next work. Do not enroll real children yet.
 

@@ -61,3 +61,8 @@ Owner reiterated independent organization registration and asked to continue. Ad
 Replace Next.js with TanStack Start and Router, use TanStack Query for remote state and mutations, and TanStack Form for application forms. Install the complete official shadcn component set. Preserve the approved Himmah styling. Required interaction patterns: skeleton page loading, spinner pending actions and confirmation dialogs for destructive actions (including sign-out).
 
 The existing identity service is managed Better Auth. Keep its users, sessions, proxy endpoints and database IDs; no identity-storage migration or replacement is needed to satisfy Better Auth. Cloudflare now runs TanStack Start SSR and the existing protected API, with generated Worker configuration. No database schema/data migration is part of this framework change.
+
+
+## Public landing page and component layout refinement
+
+Owner requested a landing page that initiates onboarding and a UI refresh after shadcn migration. Serve the public introduction at `/`, move the fictional interactive workspace to `/demo`, and keep persistent organizer onboarding at `/start`. Use explicit early-access copy: accounts/workspace setup are available, engagement workflows are sample-only and Futsal is planned. Repair wrapped-select flex sizing, navigation alignment, mobile controls and button wrapping while preserving the forest/lime theme. Existing unsaved-change guards, confirmation dialogs and auth boundaries remain in place.

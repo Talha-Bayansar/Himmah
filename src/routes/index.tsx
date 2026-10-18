@@ -1,3 +1,3 @@
 import { createFileRoute } from "@tanstack/react-router";
-import Hub from "../hub/Hub";
-export const Route = createFileRoute("/")({ component: Hub });
+import LandingPage from "../landing/LandingPage";
+export const Route = createFileRoute("/")({ component: LandingPage });

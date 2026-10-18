@@ -70,3 +70,11 @@ Next.js/static export is superseded by TanStack Start SSR on the same himmah-hub
 TanStack migration validation: 19 domain/API tests and 8 component interaction tests pass. Production Workerd preview renders both demo and organizer pages, serves built assets, returns 401 for anonymous account requests, 404 for disabled admin endpoints and local environment files. Managed auth is lazily imported in browser interactions to avoid SDK module-scope crypto initialization during Cloudflare SSR.
 
 Latest TanStack/shadcn deployment: `47f12b0d-7340-4e45-8b84-fd40654d603e`, confirmed active at 100% traffic. Encrypted database binding and auth/origin/rate-limit bindings are retained. Hosted browser/email verification remains unavailable from this workspace; local production Workerd and component tests are recorded above.
+
+## Public landing page and UI refinement
+
+Public introduction now lives at `/`, sample Hub at `/demo`, and organizer onboarding remains `/start`. Landing CTAs use TanStack Router; no database, identity or tenant-permission changes. Refined responsive shadcn control sizing and existing workflow copy.
+
+Validation: 19 domain/API tests and 10 component interaction tests pass, including landing-to-onboarding and landing-to-demo navigation. Type checks, documentation links and production build pass. Local production Workerd serves all three routes and their built assets; anonymous account requests remain 401, disabled auth-admin paths and environment files remain 404. A real browser/phone visual check is still pending because browser tooling is unavailable here.
+
+Latest landing/UI deployment: `0b34d416-da7b-4d53-897c-5da94e15a0c8`. Same dedicated Cloudflare Worker; organizer database secret and managed-auth/origin/rate-limit bindings retained.

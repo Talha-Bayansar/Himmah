@@ -59,3 +59,7 @@ Owner reiterated that other organizations must be able to register independently
 ## Explicit stack and UI preferences
 
 Owner requires Better Auth, TanStack Start/Router/Query/Form and the complete shadcn component set. Page loading uses skeleton layouts; interaction loading uses spinners. Every destructive action, including sign-out/delete/reset/discard, needs a confirmation modal. These are standing requirements, not optional implementation proposals. Existing accounts are already managed Better Auth; preserve those identities while changing the framework. Self-hosting or an identity-storage cutover was not requested.
+
+## Public entry and UI refinement
+
+Owner requested a refresh of existing UI/copy after the shadcn migration, plus a landing page that starts organization onboarding. Public entry is `/`, fictional demo is `/demo`, and persistent organizer setup is `/start`. Preserve clear early-access boundaries in public copy; do not present demo engagement workflows or planned games as persistent features.

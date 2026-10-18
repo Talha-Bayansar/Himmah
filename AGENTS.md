@@ -25,7 +25,7 @@ Read docs/ENGAGEMENT.md. Each organization defines its own activities and earnin
 
 ## Organizer accounts and production boundary
 
-Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is a sample-data demo; `/start/` is persistent early-access organizer setup. Do not confuse demo role/workspace selectors with authorization. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. No youth enrollment is implemented yet.
+Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is the public landing page; `/demo` is a sample-data demo; `/start/` is persistent early-access organizer setup. Do not confuse demo role/workspace selectors with authorization. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. No youth enrollment is implemented yet.
 
 ## Engineering defaults
 

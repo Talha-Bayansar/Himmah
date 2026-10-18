@@ -1,5 +1,7 @@
 # Hub interactive prototype
 
+The public landing page is `/`; the interactive sample workspace is `/demo` and organizer setup is `/start`.
+
 Run `npm ci`, then `npm run dev` in the project. Server uses port 3101. The sample-data app can also be published as a TanStack Start Cloudflare Worker using `npm run deploy`. It is a testing prototype, not a service for real youth records.
 
 ## Explore the connected flows

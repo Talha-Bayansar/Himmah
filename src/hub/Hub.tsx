@@ -521,7 +521,8 @@ export default function Hub() {
             <strong>himmah</strong>
           </div>
           <div className="breadcrumb">
-            Your community <span>/</span> <strong>Himmah Hub</strong>
+            <Link to="/">Himmah</Link> <span>/</span>{" "}
+            <strong>Himmah Hub</strong>
           </div>
           <div className="topbar-right">
             <Link to="/start" className="register-org-link">
@@ -583,7 +584,10 @@ export default function Hub() {
         </div>
         <main>
           <div className="prototype-note">
-            <span>Sample data only · Explore the youth and staff views.</span>
+            <span>
+              Sample workspace · Try the youth and staff views. Changes reset on
+              refresh.
+            </span>
             <Button
               variant="ghost"
               onClick={async () => {
@@ -643,7 +647,7 @@ export default function Hub() {
                   </h1>
                   <p>
                     {staff
-                      ? "Bring your community together, one activity at a time."
+                      ? "See upcoming activities, check attendance and recognise contributions."
                       : workspace.subtitle}
                   </p>
                 </div>
@@ -901,7 +905,7 @@ export default function Hub() {
                 <div>
                   <div className="eyebrow">TAKE PART</div>
                   <h1>Something to look forward to.</h1>
-                  <p>Find your next opportunity to connect and contribute.</p>
+                  <p>See what’s coming up and book your place.</p>
                 </div>
                 {staff && (
                   <Button
@@ -1146,7 +1150,9 @@ export default function Hub() {
                 <div>
                   <div className="eyebrow">VOLUNTEER CHECK-IN</div>
                   <h1>Good to see everyone.</h1>
-                  <p>Confirm participation. Recognize the effort.</p>
+                  <p>
+                    Mark attendance, review your changes and save the roster.
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
@@ -1377,7 +1383,10 @@ export default function Hub() {
                 <div>
                   <div className="eyebrow">BRING PEOPLE TOGETHER</div>
                   <h1>A little planning. A lot of good.</h1>
-                  <p>Create an activity that fits your community.</p>
+                  <p>
+                    Set the details, choose who can join and decide how points
+                    are awarded.
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
