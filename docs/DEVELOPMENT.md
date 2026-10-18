@@ -34,3 +34,7 @@ git push origin main
 ```
 
 API-based creation previously failed because api.github.com was denied. Git transport uses github.com; do not replace credentials or assume the API restriction blocks Git pushes. Inspect the remote and branch state before pushing; never force-push shared history by default.
+
+## Organizer API development
+
+The new `/start/` account portal needs the Cloudflare Worker API, unlike the demo. Next dev serves UI only. Build then use Wrangler for integrated testing with an explicitly separate local environment; see [Onboarding](ORGANIZATION_ONBOARDING.md). The hosted app uses the onboarding branch, not the development database in .env.local.

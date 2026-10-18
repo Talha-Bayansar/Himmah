@@ -48,3 +48,7 @@ Verify custom activities and manual-only earning before treating the core loop a
 ## Prototype implementation checkpoint
 
 The first three core flows are now implemented in Next.js with session-memory fictional data, plus activity registration, point/attendance histories, manual awards, organization switching and a connected-app information page. Automated domain tests cover award retries, linked corrections, roster revision conflicts, registration capacity and independent sample workspaces. No production authorization, persistent database integration, recurrence, scheduled activity lifecycle, correction requests or actual Futsal API exists yet. Next: review the runnable prototype, then implement membership/auth and a tenant-scoped persistent Hub data layer.
+
+## Organizer onboarding checkpoint
+
+Adult organizer signup/sign-in/email verification/recovery, persistent workspace creation/list/detail and session-derived membership checks are implemented separately at `/start/`. Initial organization/membership migrations are applied to development and a dedicated onboarding branch; demo activities remain in-memory. Next: verify signup/email/session flow on the hosted app, then implement authorized staff invitations and member/group management before connecting persistent activities and points.

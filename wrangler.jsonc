@@ -1,10 +1,18 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "himmah-hub",
+  "main": "src/server/worker.ts",
+  "vars": {
+    "HIMMAH_APP_ORIGIN": "https://himmah-hub.talha-bayansar.workers.dev",
+    "HIMMAH_AUTH_URL": "https://ep-broad-sea-b9dnqx7c.neonauth.c-7.eu-central-1.aws.neon.tech/himmah_futsal/auth"
+  },
   "compatibility_date": "2026-10-18",
   "workers_dev": true,
+  "ratelimits": [{ "name": "ONBOARDING_LIMITER", "namespace_id": "2847131", "simple": { "limit": 10, "period": 60 } }],
   "assets": {
     "directory": "./out",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
     "not_found_handling": "404-page"
   }
 }

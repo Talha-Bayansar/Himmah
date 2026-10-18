@@ -456,6 +456,9 @@ export default function Hub() {
             Your community <span>/</span> <strong>Himmah Hub</strong>
           </div>
           <div className="topbar-right">
+            <a href="/start/" className="register-org-link">
+              Register your organization →
+            </a>
             <span className="demo-pill">
               <span />
               Interactive demo
@@ -484,6 +487,9 @@ export default function Hub() {
           </div>
         </header>
         <div className="mobile-controls">
+          <a href="/start/" className="register-org-link">
+            Your organization →
+          </a>
           <select
             aria-label="Mobile workspace"
             value={workspaceId}

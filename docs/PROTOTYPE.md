@@ -25,3 +25,7 @@ Dates and point caps are sample configuration, not final organization policy. Ac
 ## Verification
 
 `npm run check` runs generated Next.js types, TypeScript checking, documentation links and domain tests. `npm run build` verifies an optimized app build. Browser interaction/visual QA requires an available supported browser connection; HTTP serving alone does not verify all rendered interactions or accessibility.
+
+## Organization registration
+
+The registration link opens a separate persistent organizer portal at `/start/`. Its account and organization records survive refresh. This does not make sample activity/attendance/points records persistent or enroll youth. See [Organization onboarding](ORGANIZATION_ONBOARDING.md).

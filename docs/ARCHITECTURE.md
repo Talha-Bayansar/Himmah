@@ -2,7 +2,7 @@
 
 ## Current state and intended stack
 
-Current repository: a runnable Next.js/React Hub prototype, docs, domain state transitions/tests and provisioning records. Prototype state is browser-memory-only and fictional; no authentication, persistent API, scheduler, or application tables exist yet.
+Current repository: a runnable Next.js/React Hub prototype, docs, domain state transitions/tests and provisioning records. Demo state is browser-memory-only and fictional. A separate organizer portal now uses managed authentication, a Cloudflare API and persistent organizations/memberships. Persistent youth/activity data and the scheduler remain future work.
 
 Proposed stack: Next.js App Router and TypeScript, responsive browser UI, server-side application services, Drizzle schema/migrations, Lakebase Postgres on Neon. Hosting is undecided and not provisioned. Do not add hosting, storage, AI services, or payment processing merely because integrations are available.
 
@@ -58,3 +58,7 @@ Himmah Hub owns organization identities/memberships, groups, activities/occurren
 Shared sign-in supports separate app experiences. Proposed initial code organization is a single repository with app-specific entry points and shared identity/API contracts; no runnable app split is implemented yet. Games consume versioned, tenant-authorized contribution APIs, not direct writes to Hub totals. Corrections have stable IDs and a documented propagation/reconciliation policy. Each game handles updates idempotently and preserves already-finalized results. API permissions expose only eligible participant references/awards, not guardian information or private notes. Capture event order/cursors for reconciling missed updates before relying on notifications.
 
 Organization entitlements include Hub access and optional Futsal access; exact plan identifiers remain provisional. App licenses are distinct from staff permissions. Turning off Futsal must not disable Hub attendance or erase contributions. Contribution history can power multiple games; any future cross-app spendable currency requires a separately specified wallet and consumption policy.
+
+## Organizer onboarding implementation
+
+See [Organization onboarding](ORGANIZATION_ONBOARDING.md) for the persistent account/workspace boundary, same-origin managed auth proxy, API authorization, Drizzle migrations and onboarding branch. The existing demo is preserved independently. Do not interpret the earlier pending-auth design sections as current setup instructions.

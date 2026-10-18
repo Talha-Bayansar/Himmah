@@ -8,9 +8,11 @@ Himmah Hub is the standalone membership, attendance and points app. Himmah Futsa
 
 Phone-testing prototype: **https://himmah-hub.talha-bayansar.workers.dev** (sample data; resets on refresh).
 
+Organizer early-access portal: **https://himmah-hub.talha-bayansar.workers.dev/start/**. See [organization onboarding](docs/ORGANIZATION_ONBOARDING.md) for scope and testing limits.
+
 ## Project status
 
-Runnable Hub prototype with fictional data: youth dashboard, activity registration, attendance review/corrections, manual point awards, personal history, organization switching and a one-off activity builder. Real accounts, database persistence and Futsal gameplay are not implemented yet. See [infrastructure](docs/INFRASTRUCTURE.md) for actual provisioning status.
+Runnable Hub prototype with fictional data: youth dashboard, activity registration, attendance review/corrections, manual point awards, personal history, organization switching and a one-off activity builder. Organizer accounts and organization setup are implemented separately; persistent youth/activity management and Futsal gameplay are not implemented yet. See [infrastructure](docs/INFRASTRUCTURE.md) for actual provisioning status.
 
 ## Start here
 
@@ -36,7 +38,7 @@ Runnable Hub prototype with fictional data: youth dashboard, activity registrati
 Requires Node.js 24 and npm. Run `npm ci` then `npm run check`.
 Run `npm run dev` for the Hub prototype on port **3101**. `npm run build` creates a static export in `out/`; `npm start` previews that export with Wrangler on the same port. `npm run check` verifies types, documentation links and domain tests.
 
-The prototype uses fictional data held in memory, resets on refresh and never connects to Neon or inherited credentials. Staff/youth and organization switches are demonstration controls, not authentication. Do not enter real youth records. See [Prototype guide](docs/PROTOTYPE.md).
+The demo uses fictional data held in memory and resets on refresh. The separate organizer portal uses managed authentication and a dedicated Neon branch. Neither uses inherited Kermes Pay credentials. Staff/youth and organization switches are demonstration controls, not authentication. Do not enter real youth records. See [Prototype guide](docs/PROTOTYPE.md).
 
 This repository is independent of `/workspace/kermes-pay`. Never reuse its credentials, database, auth, deployment, or repository.
 

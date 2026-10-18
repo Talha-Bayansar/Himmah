@@ -1,0 +1,182 @@
+{
+  "id": "99d59db2-d887-4f74-adcf-946261668584",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.hub_memberships": {
+      "name": "hub_memberships",
+      "schema": "",
+      "columns": {
+        "organization_id": {
+          "name": "organization_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "hub_membership_user": {
+          "name": "hub_membership_user",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "hub_memberships_organization_id_hub_organizations_id_fk": {
+          "name": "hub_memberships_organization_id_hub_organizations_id_fk",
+          "tableFrom": "hub_memberships",
+          "tableTo": "hub_organizations",
+          "columnsFrom": [
+            "organization_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "hub_memberships_organization_id_user_id_pk": {
+          "name": "hub_memberships_organization_id_user_id_pk",
+          "columns": [
+            "organization_id",
+            "user_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "hub_membership_role": {
+          "name": "hub_membership_role",
+          "value": "\"hub_memberships\".\"role\" in ('owner','admin','volunteer')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.hub_organizations": {
+      "name": "hub_organizations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creation_key": {
+          "name": "creation_key",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "hub_organizations_slug_unique": {
+          "name": "hub_organizations_slug_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "slug"
+          ]
+        },
+        "hub_organization_creation": {
+          "name": "hub_organization_creation",
+          "nullsNotDistinct": false,
+          "columns": [
+            "created_by",
+            "creation_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "hub_organization_name_length": {
+          "name": "hub_organization_name_length",
+          "value": "length(\"hub_organizations\".\"name\") between 2 and 100"
+        },
+        "hub_organization_slug": {
+          "name": "hub_organization_slug",
+          "value": "\"hub_organizations\".\"slug\" ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and length(\"hub_organizations\".\"slug\") between 3 and 48"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -21,13 +21,13 @@ Verified 17 October 2026. Resource identifiers only; never commit credentials.
 - Development branch: br-wandering-truth-b9rcp1wm; ready, synthetic data only.
 - Read-only SQL against development confirmed database name, role, and PostgreSQL version.
 - Dedicated credentials are saved in ignored .env.local (0600). HIMMAH_DATABASE_URL is pooled; HIMMAH_DATABASE_URL_UNPOOLED is direct. Shared workspace variables were not modified.
-- No application schema, migrations, or real youth records yet.
+- Drizzle organization/membership schema is now applied to development and onboarding (see below). No real youth records.
 - Account compute defaults retained. Explicit suspend-time configuration was rejected, so do not assume an idle suspension interval or promise a free tier. No plan upgrade or paid add-on was requested.
 - Neon CLI 8.8.0 installed but has no authenticated profile. Connected Neon tools performed provisioning; no browser login launched.
 
 ## Other services
 
-Cloudflare static hosting is now provisioned (see deployment below). No auth provider, storage, email, scheduler, analytics, AI provider, payment service, or custom domain provisioned. Add these only when needed. Stripe CLI is unavailable and https://stripe.directory is denied by network policy, so that provisioning route could not be used. Dedicated Neon provisioning succeeded through the existing connection.
+Cloudflare static hosting is now provisioned (see deployment below). Managed Neon Auth is now enabled for organizer onboarding. No file storage, scheduler, analytics, AI provider, payment service, or custom domain provisioned. Add these only when needed. Stripe CLI is unavailable and https://stripe.directory is denied by network policy, so that provisioning route could not be used. Dedicated Neon provisioning succeeded through the existing connection.
 
 ## Isolation
 
@@ -35,7 +35,7 @@ Kermes Pay files and settings were not changed. No inherited database, auth or d
 
 ## Local Hub prototype
 
-Next.js/React application added on reserved port 3101. Uses fictional browser-memory state only; does not read project or inherited database credentials. Initially local-only; now published through a separate Cloudflare Worker below. The previously created Neon database remains without application tables.
+Next.js/React application added on reserved port 3101. Uses fictional browser-memory state only; does not read project or inherited database credentials. Initially local-only; now published through a separate Cloudflare Worker below. The demo does not use application tables; the organizer portal uses the schema below.
 
 ## Cloudflare phone-testing deployment
 
@@ -49,3 +49,16 @@ Next.js/React application added on reserved port 3101. Uses fictional browser-me
 - Future authenticated/server features need a deliberate deployment change; static hosting cannot provide them.
 
 Cloudflare confirmed successful upload and active deployment. Direct page verification from this workspace is blocked by the outbound proxy (403 for the workers.dev hostname); phone/browser rendering has not been verified here.
+
+## Persistent organizer onboarding
+
+- Dedicated branch: onboarding (`br-cool-art-b9jm6gkq`), based on main; reserved for early-access organizer accounts/workspaces, not synthetic seeding. Main remains unchanged.
+- Neon managed Better Auth enabled; trusted origin is the existing Cloudflare app URL. Uses managed email-code verification and recovery. Shared email delivery is for early access; production SMTP setup is still needed.
+- Initial Drizzle migration applied first to development, then onboarding, with standard migration journal records. Tables: hub_organizations and hub_memberships.
+- Worker now has a real `/api/*` handler while serving static exported UI. `HIMMAH_DATABASE_URL` is encrypted Worker secret storage and targets onboarding; the development `.env.local` was not overwritten. No Kermes Pay credentials were used.
+- Non-secret vars: HIMMAH_AUTH_URL and HIMMAH_APP_ORIGIN. Native ONBOARDING_LIMITER binding throttles signup/auth IPs and workspace creation by user.
+- Portal URL: https://himmah-hub.talha-bayansar.workers.dev/start/
+- Org creation/retry and membership-filter SQL tested against development with synthetic organizers: one workspace, one owner membership, zero rows visible to a different user. Onboarding was not seeded with fictional youth or test organizations.
+- Browser signup, verification-email delivery and session restoration remain unverified from this workspace due to its network restrictions.
+
+Latest organizer portal deployment: `042d9883-2720-4bdf-be59-9fccf1460383` (Cloudflare confirmed active). The original static-only deployment record above is historical.

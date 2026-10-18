@@ -51,3 +51,7 @@ Implemented approved core screens as a Next.js application, using fictional in-m
 ## Cloudflare prototype deployment
 
 Owner explicitly requested publishing for phone testing. Deploy the current client-only prototype as a static Next.js export through the dedicated himmah-hub Worker, without modifying Kermes Pay or sending database/auth credentials. Keep server-side authentication and persistence as future work; migrate deployment architecture when those features arrive.
+
+## Early-access organization onboarding
+
+Owner reiterated independent organization registration and asked to continue. Add a separate managed-Neon-auth organizer portal with persistent organization ownership/memberships, using a dedicated onboarding branch and a same-origin Cloudflare API. Preserve the sample-data demo. No custom self-managed password storage, billing, new youth enrollment or persistent attendance system is introduced by this increment. Development migration precedes onboarding migration; main remains unchanged.

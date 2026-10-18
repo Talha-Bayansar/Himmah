@@ -23,6 +23,10 @@ Distinguish owner-confirmed requirements from implementation proposals. Numerica
 
 Read docs/ENGAGEMENT.md. Each organization defines its own activities and earning rules, or uses manual-only awards. Quizzes and attendance are optional sources, never mandatory game mechanics or hard-coded training inputs. The engine consumes normalized, authorized engagement awards through a ledger and season conversion rules. Keep engagement points separate from football standings points. Hub awards must not require a game season. They need actor, organization-scoped recipient, optional Hub engagement period, reason, occurrence time, idempotency and audited corrections; game eligibility and allocation are separate records. Never allow direct rating/total edits as an award shortcut.
 
+## Organizer accounts and production boundary
+
+Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is a sample-data demo; `/start/` is persistent early-access organizer setup. Do not confuse demo role/workspace selectors with authorization. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. No youth enrollment is implemented yet.
+
 ## Engineering defaults
 
 TypeScript strict mode; mobile-first responsive web app. Proposed application stack: Next.js, PostgreSQL on Neon, Drizzle migrations. Keep football calculations pure in src/domain with injected, seeded randomness and versioned rules. Match inputs, training outcomes, and results must persist; refreshes and job retries cannot reroll them.
