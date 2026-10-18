@@ -1246,7 +1246,7 @@ dialog label,
 }
 input:not([type="checkbox"], [type="radio"]),
 textarea,
-select {
+select:not([data-slot="native-select"]) {
   border: 1px solid #dfe6d7;
   border-radius: 8px;
   padding: 11px 12px;

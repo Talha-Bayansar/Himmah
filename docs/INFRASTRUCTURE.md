@@ -188,3 +188,11 @@ All localized PWA manifests now use /app as start_url while retaining id /. The 
 Validation: npm run check passes all 77 tests (39 domain/API/Postgres/localization/PWA, 2 Workerd, 36 component/client), strict types/docs, production build and contrast audit. Tests cover menu visibility, confirmation cancel/confirm, rename and dialog focus restoration, existing membership picker behavior through menus, six launch cases including partial pages, and all localized manifest launch URLs/stable IDs. Chromium with synthetic local intercepted APIs checks compact 320/390px rows, primary group links, menu-to-form/picker/confirmation flows, cancel vs archive, staff-role menu changes, released pointer locks, owner/volunteer/chooser/sign-in launches and manifests. Screenshots inspected, including completed menu fade-in. No real member/account data or external messages used.
 
 Latest Worker: 3586b667-24b0-4111-abcf-4cff7fa0758b, confirmed active at 100% traffic. Existing dedicated infrastructure, secrets, rate limits, PWA privacy and native fetch receiver fix retained.
+
+## Native role select text clipping
+
+Removed the legacy select box padding override from the shared shadcn NativeSelect. Its fixed 36px height previously competed with 22px of vertical padding, leaving too little room for the text. Shared selects now use a 48px default height (44px small variant), zero vertical padding, reserved chevron space and a 16px font utility. Context-specific form font sizing remains in place. Staff role changes already use the item action menu; the invitation role selector and other shared selects receive the underlying fix.
+
+Validation: all 77 tests, strict types/docs, production build and button contrast audit pass. Local Chromium with synthetic intercepted APIs verifies Volunteer and Administrator in the invitation form at 320/390/768px: 48px height, 16px text, sufficient content height for the text line, no horizontal overflow or browser errors. Focused phone screenshot inspected. No actual iOS/Android keyboard verification, private data changes, migration or auth changes.
+
+Latest Worker: 6f052803-423e-4daa-a2e6-14f4ad1a1853, confirmed active at 100% traffic. Dedicated infrastructure, secrets and privacy/auth safeguards retained.
