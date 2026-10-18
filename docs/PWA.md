@@ -8,6 +8,10 @@ Himmah is a progressive web app on the existing Cloudflare HTTPS URL. It uses th
 - iPhone/iPad: open Himmah in Safari, choose Share → Add to Home Screen → Add. The in-app install dialog gives these steps in the selected language.
 - Installed windows hide the install control. Browser/OS support determines installation and splash presentation; this is not an App Store or Play Store package.
 
+## Starting page
+
+All localized manifests use `start_url: /app`, retaining the stable `id: /` so the installed app identity does not change. The entry checks the account and one bounded organization page: a verified single-organization organizer opens Members; a volunteer opens Settings; multiple/partial membership pages open the organization chooser; no memberships open setup. Signed-out and unverified accounts enter sign-in/verification. Route replacement avoids a Back loop to the launcher. No private account/workspace data is persisted in local storage for this behavior. Existing installations adopt manifest updates according to their browser/OS update schedule.
+
 ## Launch assets and localization
 
 `public/pwa/icon.svg` is the Himmah forest/lime leaf artwork. `npm run pwa:assets` uses sharp to generate opaque 192/512px icons, a 512px maskable icon with safe-zone artwork, 180px Apple touch icon and 32px favicon. Android uses manifest icon/background/theme colors for its system splash.

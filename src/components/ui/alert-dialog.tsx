@@ -1,5 +1,6 @@
 "use client";
 
+import { useDialogFocusRestore } from "../shared/dialog-focus";
 import { useVisibleViewport } from "../shared/visible-viewport";
 
 import * as React from "react";
@@ -49,12 +50,15 @@ function AlertDialogOverlay({
 function AlertDialogContent({
   className,
   style,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   size = "default",
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content> & {
   size?: "default" | "sm";
 }) {
   const viewportStyle = useVisibleViewport();
+  const focus = useDialogFocusRestore(onOpenAutoFocus, onCloseAutoFocus);
   return (
     <AlertDialogPortal>
       <AlertDialogOverlay />
@@ -67,6 +71,7 @@ function AlertDialogContent({
           className,
         )}
         {...props}
+        {...focus}
       />
     </AlertDialogPortal>
   );

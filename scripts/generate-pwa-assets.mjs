@@ -81,7 +81,7 @@ for (const locale of ["en", "nl", "tr"]) {
     description: messages.page_description,
     lang: locale,
     dir: "ltr",
-    start_url: "/start",
+    start_url: "/app",
     scope: "/",
     display: "standalone",
     display_override: ["standalone"],

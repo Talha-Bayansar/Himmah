@@ -235,5 +235,7 @@
   "done": "Done",
   "back_to_settings": "Back to settings",
   "directory_group_members_help": "Members of this group. To add someone, open Members and choose Add to group.",
-  "directory_already_in_group": "Already in this group"
+  "directory_already_in_group": "Already in this group",
+  "directory_actions_for": "Actions for {name}",
+  "directory_set_role": "Change role to {role}"
 }

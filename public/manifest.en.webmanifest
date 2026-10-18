@@ -5,7 +5,7 @@
   "description": "Create your organizer account and your organization’s own workspace with Himmah Hub.",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "/start",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "display_override": [

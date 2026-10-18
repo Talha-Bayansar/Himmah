@@ -235,5 +235,7 @@
   "done": "Tamam",
   "back_to_settings": "Ayarlara dön",
   "directory_group_members_help": "Bu grubun üyeleri. Birini eklemek için Üyeler sayfasını açıp Gruba ekle seçeneğini kullanın.",
-  "directory_already_in_group": "Zaten bu grubun üyesi"
+  "directory_already_in_group": "Zaten bu grubun üyesi",
+  "directory_actions_for": "{name} için işlemler",
+  "directory_set_role": "Rolü {role} olarak değiştir"
 }

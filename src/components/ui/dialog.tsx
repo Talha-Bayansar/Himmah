@@ -1,5 +1,6 @@
 "use client";
 
+import { useDialogFocusRestore } from "../shared/dialog-focus";
 import { useVisibleViewport } from "../shared/visible-viewport";
 
 import * as React from "react";
@@ -52,6 +53,8 @@ function DialogOverlay({
 function DialogContent({
   className,
   style,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   children,
   showCloseButton = true,
   ...props
@@ -59,6 +62,7 @@ function DialogContent({
   showCloseButton?: boolean;
 }) {
   const viewportStyle = useVisibleViewport();
+  const focus = useDialogFocusRestore(onOpenAutoFocus, onCloseAutoFocus);
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay />
@@ -70,6 +74,7 @@ function DialogContent({
           className,
         )}
         {...props}
+        {...focus}
       >
         {children}
         {showCloseButton && (

@@ -1,3 +1,4 @@
+import { ItemActions } from "../components/shared/item-actions";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,6 +18,7 @@ import {
   Save,
   X,
   Copy,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -290,9 +292,13 @@ export default function Directory({
                               </span>
                               <strong>{record.name}</strong>
                             </div>
-                            <div className="directory-actions">
+                            <div className="directory-row-actions">
                               {kind === "groups" && !record.archived && (
-                                <Button variant="outline" asChild>
+                                <Button
+                                  variant="outline"
+                                  asChild
+                                  className="directory-primary-action"
+                                >
                                   <Link
                                     to="/workspace/$organizationId/groups/$groupId"
                                     params={{
@@ -305,59 +311,52 @@ export default function Directory({
                                   </Link>
                                 </Button>
                               )}
-                              {kind === "people" &&
-                                !record.archived &&
-                                (group ? (
-                                  <ActionButton
-                                    variant="outline"
-                                    pending={busy(item.id, "DELETE")}
-                                    disabled={operation.isPending}
-                                    onClick={() => removeFromGroup(record)}
-                                  >
-                                    <UserMinus size={17} aria-hidden="true" />
-                                    {m.directory_remove_group()}
-                                  </ActionButton>
-                                ) : (
-                                  <Button
-                                    variant="outline"
-                                    disabled={operation.isPending}
-                                    onClick={() => setAssign(record)}
-                                  >
-                                    <UserPlus size={17} aria-hidden="true" />
-                                    {m.directory_add_to_group()}
-                                  </Button>
-                                ))}
-                              <Button
-                                variant="outline"
-                                disabled={operation.isPending}
-                                onClick={() =>
-                                  setEditor({
-                                    kind: kind as "people" | "groups",
-                                    item: record,
-                                  })
+                              <ItemActions
+                                name={record.name}
+                                pending={
+                                  busy(item.id, "PATCH") ||
+                                  busy(item.id, "DELETE")
                                 }
-                              >
-                                <Pencil size={17} aria-hidden="true" />
-                                {m.directory_rename()}
-                              </Button>
-                              <ActionButton
-                                variant="outline"
-                                pending={busy(item.id, "PATCH")}
                                 disabled={operation.isPending}
-                                onClick={() => archive(record)}
-                              >
-                                {record.archived ? (
-                                  <ArchiveRestore
-                                    size={17}
-                                    aria-hidden="true"
-                                  />
-                                ) : (
-                                  <Archive size={17} aria-hidden="true" />
-                                )}
-                                {record.archived
-                                  ? m.directory_restore()
-                                  : m.directory_archive()}
-                              </ActionButton>
+                                actions={[
+                                  ...(kind === "people" && !record.archived
+                                    ? [
+                                        group
+                                          ? {
+                                              label: m.directory_remove_group(),
+                                              icon: UserMinus,
+                                              destructive: true,
+                                              onSelect: () =>
+                                                removeFromGroup(record),
+                                            }
+                                          : {
+                                              label: m.directory_add_to_group(),
+                                              icon: UserPlus,
+                                              onSelect: () => setAssign(record),
+                                            },
+                                      ]
+                                    : []),
+                                  {
+                                    label: m.directory_rename(),
+                                    icon: Pencil,
+                                    onSelect: () =>
+                                      setEditor({
+                                        kind: kind as "people" | "groups",
+                                        item: record,
+                                      }),
+                                  },
+                                  {
+                                    label: record.archived
+                                      ? m.directory_restore()
+                                      : m.directory_archive(),
+                                    icon: record.archived
+                                      ? ArchiveRestore
+                                      : Archive,
+                                    destructive: !record.archived,
+                                    onSelect: () => archive(record),
+                                  },
+                                ]}
+                              />
                             </div>
                           </>
                         );
@@ -380,75 +379,80 @@ export default function Directory({
                                     : ""}
                                 </p>
                               </div>
-                              <div className="directory-actions">
-                                {editable && organization.role === "owner" && (
-                                  <NativeSelect
-                                    aria-label={m.directory_role_for({
-                                      name:
-                                        staff.name ?? m[`role_${staff.role}`](),
-                                    })}
-                                    value={staff.role}
-                                    disabled={operation.isPending}
-                                    onChange={async (e) => {
-                                      const role = e.target.value;
-                                      if (
-                                        await confirm({
-                                          title: m.directory_change_role(),
-                                          description:
-                                            m.directory_access_description(),
-                                          confirmLabel:
-                                            m.directory_change_role(),
-                                        })
+                              <ItemActions
+                                name={staff.name ?? m[`role_${staff.role}`]()}
+                                pending={
+                                  busy(item.id, "PATCH") ||
+                                  busy(item.id, "DELETE")
+                                }
+                                disabled={operation.isPending}
+                                actions={[
+                                  ...(editable && organization.role === "owner"
+                                    ? (["admin", "volunteer"] as const).map(
+                                        (role) => ({
+                                          label: m.directory_set_role({
+                                            role: m[`role_${role}`](),
+                                          }),
+                                          icon: ShieldCheck,
+                                          disabled: staff.role === role,
+                                          onSelect: async () => {
+                                            if (
+                                              await confirm({
+                                                title:
+                                                  m.directory_change_role(),
+                                                description:
+                                                  m.directory_access_description(),
+                                                confirmLabel:
+                                                  m.directory_change_role(),
+                                              })
+                                            )
+                                              operation.mutate({
+                                                path:
+                                                  "/staff/" +
+                                                  encodeURIComponent(staff.id),
+                                                method: "PATCH",
+                                                body: {
+                                                  previous: staff.role,
+                                                  role,
+                                                },
+                                              });
+                                          },
+                                        }),
                                       )
-                                        operation.mutate({
-                                          path:
-                                            "/staff/" +
-                                            encodeURIComponent(staff.id),
-                                          method: "PATCH",
-                                          body: { previous: staff.role, role },
-                                        });
-                                    }}
-                                  >
-                                    <NativeSelectOption value="admin">
-                                      {m.role_admin()}
-                                    </NativeSelectOption>
-                                    <NativeSelectOption value="volunteer">
-                                      {m.role_volunteer()}
-                                    </NativeSelectOption>
-                                  </NativeSelect>
-                                )}
-                                {editable &&
+                                    : []),
+                                  ...(editable &&
                                   (organization.role === "owner" ||
-                                    staff.role === "volunteer") && (
-                                    <ActionButton
-                                      variant="outline"
-                                      pending={busy(item.id, "DELETE")}
-                                      disabled={operation.isPending}
-                                      onClick={async () => {
-                                        if (
-                                          await confirm({
-                                            title: m.directory_remove_staff(),
-                                            description:
-                                              m.directory_access_description(),
-                                            confirmLabel:
-                                              m.directory_remove_staff(),
-                                            destructive: true,
-                                          })
-                                        )
-                                          operation.mutate({
-                                            path:
-                                              "/staff/" +
-                                              encodeURIComponent(staff.id),
-                                            method: "DELETE",
-                                            body: { previous: staff.role },
-                                          });
-                                      }}
-                                    >
-                                      <UserMinus size={17} aria-hidden="true" />
-                                      {m.directory_remove_staff()}
-                                    </ActionButton>
-                                  )}
-                              </div>
+                                    staff.role === "volunteer")
+                                    ? [
+                                        {
+                                          label: m.directory_remove_staff(),
+                                          icon: UserMinus,
+                                          destructive: true,
+                                          onSelect: async () => {
+                                            if (
+                                              await confirm({
+                                                title:
+                                                  m.directory_remove_staff(),
+                                                description:
+                                                  m.directory_access_description(),
+                                                confirmLabel:
+                                                  m.directory_remove_staff(),
+                                                destructive: true,
+                                              })
+                                            )
+                                              operation.mutate({
+                                                path:
+                                                  "/staff/" +
+                                                  encodeURIComponent(staff.id),
+                                                method: "DELETE",
+                                                body: { previous: staff.role },
+                                              });
+                                          },
+                                        },
+                                      ]
+                                    : []),
+                                ]}
+                              />
                             </>
                           );
                         })()
@@ -484,29 +488,34 @@ export default function Directory({
                                 !expired &&
                                 (organization.role === "owner" ||
                                   invite.role === "volunteer") && (
-                                  <ActionButton
-                                    variant="outline"
+                                  <ItemActions
+                                    name={invite.email}
                                     pending={busy(item.id, "DELETE")}
                                     disabled={operation.isPending}
-                                    onClick={async () => {
-                                      if (
-                                        await confirm({
-                                          title: m.directory_revoke(),
-                                          description:
-                                            m.directory_access_description(),
-                                          confirmLabel: m.directory_revoke(),
-                                          destructive: true,
-                                        })
-                                      )
-                                        operation.mutate({
-                                          path: "/invitations/" + invite.id,
-                                          method: "DELETE",
-                                        });
-                                    }}
-                                  >
-                                    <Ban size={17} aria-hidden="true" />
-                                    {m.directory_revoke()}
-                                  </ActionButton>
+                                    actions={[
+                                      {
+                                        label: m.directory_revoke(),
+                                        icon: Ban,
+                                        destructive: true,
+                                        onSelect: async () => {
+                                          if (
+                                            await confirm({
+                                              title: m.directory_revoke(),
+                                              description:
+                                                m.directory_access_description(),
+                                              confirmLabel:
+                                                m.directory_revoke(),
+                                              destructive: true,
+                                            })
+                                          )
+                                            operation.mutate({
+                                              path: "/invitations/" + invite.id,
+                                              method: "DELETE",
+                                            });
+                                        },
+                                      },
+                                    ]}
+                                  />
                                 )}
                             </>
                           );

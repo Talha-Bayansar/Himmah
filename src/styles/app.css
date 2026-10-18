@@ -3955,3 +3955,47 @@ html {
   opacity: 1;
   cursor: default;
 }
+/* One primary action at most; the remaining controls live in a touch-sized menu. */
+.directory-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+.directory-row-actions .item-actions-trigger,
+.directory-list > li > .item-actions-trigger {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  padding: 0;
+}
+.directory-primary-action {
+  min-height: 44px;
+}
+.item-actions-menu {
+  min-width: 210px;
+  max-width: calc(100vw - 32px);
+}
+.item-actions-menu [data-slot="dropdown-menu-item"] {
+  min-height: 44px;
+  padding: 12px;
+  gap: 12px;
+  white-space: normal;
+}
+.item-actions-menu [data-slot="dropdown-menu-item"] span {
+  overflow-wrap: anywhere;
+}
+.item-actions-menu [data-slot="dropdown-menu-item"] svg {
+  width: 18px;
+  height: 18px;
+}
+@media (max-width: 640px) {
+  .directory-row-actions:has(.directory-primary-action) {
+    width: 100%;
+  }
+  .directory-row-actions .directory-primary-action {
+    flex: 1;
+  }
+}

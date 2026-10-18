@@ -132,3 +132,9 @@ Owner wants an app-like mobile interaction style as a general preference: consis
 ## Current organization is a disabled choice
 
 Apply the same non-selectable state used for existing group memberships to the organization switcher. The current organization shows a visible translated Current organization label and checkmark, remains readable, and is disabled. Selecting it cannot close the picker, trigger navigation or show pending state; other paginated choices keep their existing behavior.
+
+## Compact item menus and app-focused PWA entry
+
+Owner requested fewer visible row controls: retain one clear primary action where useful and put secondary actions in a dropdown; use only the dropdown where no primary action stands out. Active groups keep their real View members link. Member/group rename/archive/restore/group assignment and staff/invitation controls use shared accessible icon-and-label ItemActions menus. Current staff roles are disabled choices, and all permission guards/confirmations remain. Queue modal actions after menu focus/scroll locks release and restore focus after cancelling a controlled dialog, including dialogs opened without a Radix Trigger.
+
+The PWA now starts at /app with its existing id / unchanged. This entry checks the session and first bounded membership page. Verified users with one complete organization result go to Members, or Settings for volunteers. Multiple/partial organization pages use /start for selection; zero memberships use setup. Signed-out or unverified accounts go to /start?mode=signin for sign-in/verification. Navigation replaces the entry history item. Do not fetch every organization or add device-stored private preferences. Public / and manual /start behavior remain available.

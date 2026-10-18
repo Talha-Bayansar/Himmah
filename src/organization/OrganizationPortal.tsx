@@ -82,6 +82,7 @@ export default function OrganizationPortal({
   workspaceSection = "members",
   accountSettings = false,
   groupId = null,
+  launch = false,
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
@@ -89,6 +90,7 @@ export default function OrganizationPortal({
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
   groupId?: string | null;
+  launch?: boolean;
 } = {}) {
   const queryClient = useQueryClient();
   useLocale();
@@ -173,10 +175,49 @@ export default function OrganizationPortal({
     )
       logout.mutate();
   }
+  const launching = useRef(false);
+  useEffect(() => {
+    if (!launch || launching.current || session.isPending || session.isError)
+      return;
+    if (!user || !user.emailVerified) {
+      launching.current = true;
+      void navigate({
+        to: "/start",
+        search: { mode: "signin" },
+        replace: true,
+      });
+    } else if (organizations.isSuccess) {
+      launching.current = true;
+      const only =
+        organizationItems.length === 1 && !organizations.hasNextPage
+          ? organizationItems[0]
+          : null;
+      if (only)
+        void navigate({
+          to: "/workspace/$organizationId/$section",
+          params: {
+            organizationId: only.id,
+            section: only.role === "volunteer" ? "settings" : "members",
+          },
+          replace: true,
+        });
+      else void navigate({ to: "/start", replace: true });
+    }
+  }, [
+    launch,
+    session.isPending,
+    session.isError,
+    user,
+    organizations.isSuccess,
+    organizations.hasNextPage,
+    organizationItems,
+    navigate,
+  ]);
   const loading =
     session.isPending ||
+    (launch && !session.isError && !organizations.isError) ||
     (!!user && !workspaceId && !accountSettings && organizations.isPending);
-  const appShell = !!workspaceId || accountSettings || !!user;
+  const appShell = launch || !!workspaceId || accountSettings || !!user;
   return (
     <div
       className={

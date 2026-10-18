@@ -121,11 +121,17 @@ it("archive requires confirmation and cancellation preserves the record", async 
   mount();
   const user = userEvent.setup();
   await screen.findByText("Nickname One");
-  await user.click(screen.getByRole("button", { name: "Archive" }));
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Nickname One" }),
+  );
+  await user.click(await screen.findByRole("menuitem", { name: "Archive" }));
   let dialog = await screen.findByRole("alertdialog");
   await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
   expect(changes).not.toHaveBeenCalled();
-  await user.click(screen.getByRole("button", { name: "Archive" }));
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Nickname One" }),
+  );
+  await user.click(await screen.findByRole("menuitem", { name: "Archive" }));
   dialog = await screen.findByRole("alertdialog");
   await user.click(within(dialog).getByRole("button", { name: "Archive" }));
   await waitFor(() => expect(changes).toHaveBeenCalledTimes(1));
@@ -263,7 +269,12 @@ it("marks existing memberships as disabled and only spins the group being added 
   );
   mount();
   const user = userEvent.setup();
-  await user.click(await screen.findByRole("button", { name: "Add to group" }));
+  await user.click(
+    await screen.findByRole("button", { name: "Actions for Nickname One" }),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Add to group" }),
+  );
   const dialog = await screen.findByRole("dialog");
   const existing = await within(dialog).findByRole("button", {
     name: "Study group Already in this group",
@@ -293,4 +304,27 @@ it("marks existing memberships as disabled and only spins the group being added 
   expect(writes).toHaveBeenCalledWith(
     `/api/organizations/${org.id}/people/${first.id}/groups/${available.id}`,
   );
+});
+
+it("keeps secondary actions in the menu and returns focus after menu-driven rename is cancelled", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => Response.json({ items: [first], nextCursor: null })),
+  );
+  mount();
+  const user = userEvent.setup();
+  const trigger = await screen.findByRole("button", {
+    name: "Actions for Nickname One",
+  });
+  expect(screen.queryByRole("button", { name: "Rename" })).toBeNull();
+  expect(screen.queryByRole("button", { name: "Archive" })).toBeNull();
+  await user.click(trigger);
+  await user.click(await screen.findByRole("menuitem", { name: "Rename" }));
+  const dialog = await screen.findByRole("dialog");
+  expect(screen.queryByRole("menu")).toBeNull();
+  expect(document.activeElement).toBe(
+    within(dialog).getByLabelText("Display name"),
+  );
+  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+  await waitFor(() => expect(document.activeElement).toBe(trigger));
 });

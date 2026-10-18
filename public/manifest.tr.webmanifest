@@ -5,7 +5,7 @@
   "description": "Himmah Hub ile organizatör hesabınızı ve kuruluşunuza özel çalışma alanınızı oluşturun.",
   "lang": "tr",
   "dir": "ltr",
-  "start_url": "/start",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "display_override": [

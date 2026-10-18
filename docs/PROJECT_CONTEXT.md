@@ -88,3 +88,5 @@ Delivered foundation: private nickname roster records with staff consent attesta
 - Owner prefers real, reloadable routes for entity detail views. Group membership views now have their own group-ID route and server-loaded metadata. Organization switcher chevrons should sit beside their label rather than at the far edge of a stretched button.
 
 - Owner prefers a mobile app feel: item actions should use recognizable icons with their labels, rather than plain text-only actions. Group assignment pickers must visibly mark and disable existing memberships, with pending indicators limited to the selected action.
+
+- Owner wants compact item rows: one obvious primary action at most; other actions in an icon-and-label dropdown, or all actions in the menu if no primary stands out. The installed PWA should open an app-focused starting point rather than public marketing.

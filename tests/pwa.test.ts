@@ -15,7 +15,7 @@ test("localized install manifests use standalone mode and valid Android/iOS icon
     );
     assert.equal(manifest.lang, locale);
     assert.equal(manifest.id, "/");
-    assert.equal(manifest.start_url, "/start");
+    assert.equal(manifest.start_url, "/app");
     assert.equal(manifest.display, "standalone");
     assert.equal(manifest.background_color, "#12382f");
     assert.ok(

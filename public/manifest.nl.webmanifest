@@ -5,7 +5,7 @@
   "description": "Maak je organisatorenaccount en de eigen werkruimte van je organisatie met Himmah Hub.",
   "lang": "nl",
   "dir": "ltr",
-  "start_url": "/start",
+  "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "display_override": [
