@@ -481,13 +481,18 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
             throw Error();
           },
           get: async (user, id) =>
-            id === orgA && ["owner-a", "volunteer-a"].includes(user)
+            id === orgA && ["owner-a", "admin-a", "volunteer-a"].includes(user)
               ? {
                   id: orgA,
                   name: "Test",
                   slug: "test",
                   timezone: "UTC",
-                  role: user === "owner-a" ? "owner" : "volunteer",
+                  role:
+                    user === "owner-a"
+                      ? "owner"
+                      : user === "admin-a"
+                        ? "admin"
+                        : "volunteer",
                   createdAt: new Date().toISOString(),
                 }
               : null,
@@ -498,6 +503,27 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
           name: "Owner",
           emailVerified: true,
         };
+        const firstPage = await communityApi(
+          new Request(url + "/api/organizations/" + orgA + "/people?limit=1"),
+          identity,
+          organizations,
+          store,
+        );
+        const firstBody = await firstPage!.json();
+        assert.ok(firstBody.nextCursor);
+        const anotherAccount = await communityApi(
+          new Request(
+            url +
+              "/api/organizations/" +
+              orgA +
+              "/people?limit=1&cursor=" +
+              firstBody.nextCursor,
+          ),
+          { ...identity, id: "admin-a" },
+          organizations,
+          store,
+        );
+        assert.equal(anotherAccount!.status, 400);
         const request = (path: string, body: unknown) =>
           new Request(url + path, {
             method: "POST",

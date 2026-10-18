@@ -72,7 +72,7 @@ export async function communityApi(
     if (request.method !== "GET" && !user.emailVerified)
       throw new CommunityError("verify_required", 403);
     if (request.method === "GET" && !id) {
-      const input = pageInput(url, orgId + "/" + kind);
+      const input = pageInput(url, user.id + ":" + orgId + "/" + kind);
       const rows =
         kind === "staff"
           ? await directory.staff(user.id, orgId, input)
