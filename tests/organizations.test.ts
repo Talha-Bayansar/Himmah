@@ -248,6 +248,10 @@ test("auth proxy only forwards pinned endpoints and scopes cookies to the app", 
     "https://auth.example.invalid/auth/sign-in/email",
   );
   assert.equal(new Headers(h.calls[0]?.init?.headers).get("origin"), app);
+  assert.equal(
+    new Headers(h.calls[0]?.init?.headers).get("x-neon-auth-middleware"),
+    "true",
+  );
   assert.ok(r.headers.get("set-cookie")?.includes("Path=/;"));
   assert.ok(!r.headers.get("set-cookie")?.includes("Domain="));
   assert.equal(

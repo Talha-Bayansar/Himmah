@@ -1,6 +1,7 @@
+import { InstallApp } from "../pwa/install";
 import { m } from "../paraglide/messages.js";
 import { LanguageSelector, useLocale } from "../localization/locale";
-import { localizedText, authError } from "../localization/errors";
+import { localizedText, authError, authFailure } from "../localization/errors";
 import { useRef, useState } from "react";
 import { Link, useBlocker } from "@tanstack/react-router";
 import { useForm, useStore } from "@tanstack/react-form";
@@ -214,7 +215,11 @@ export default function OrganizationPortal({
                   {user.emailVerified ? m.verified() : m.verify_email()}
                 </span>
               </div>
-              {logout.isError && <ErrorAlert message={logout.error.message} />}
+              {logout.isError && (
+                <ErrorAlert
+                  message={authFailure(logout.error, m.error_signout())}
+                />
+              )}
               {!user.emailVerified ? (
                 <AuthForm
                   key={user.id}
@@ -302,6 +307,7 @@ export default function OrganizationPortal({
         <footer className="onboarding-footer">
           <Leaf size={14} />
           {m.footer_tagline()}
+          <InstallApp />
         </footer>
       </section>
     </div>
@@ -400,22 +406,26 @@ function AuthForm({
       setNotice("");
       if (screen === "signup") {
         if (!value.adult) throw Error(m.error_adult());
+        if (value.password.length < 12) throw Error(m.error_password_short());
+        if (value.password.length > 128) throw Error(m.error_password_long());
         const result = await (
           await authClient()
         ).signUp.email({
-          email: value.email,
+          email: value.email.trim(),
           password: value.password,
-          name: value.name,
+          name: value.name.trim(),
         });
         if (result.error)
           throw Error(authError(result.error.code, m.error_signup()));
         setScreen("verify");
         const code = await (
           await authClient()
-        ).emailOtp.sendVerificationOtp({
-          email: value.email,
-          type: "email-verification",
-        });
+        ).emailOtp
+          .sendVerificationOtp({
+            email: value.email.trim(),
+            type: "email-verification",
+          })
+          .catch(() => ({ error: true }));
         if (code.error) {
           setNotice(m.notice_account_created());
           return;
@@ -425,7 +435,7 @@ function AuthForm({
         const result = await (
           await authClient()
         ).signIn.email({
-          email: value.email,
+          email: value.email.trim(),
           password: value.password,
         });
         if (result.error)
@@ -436,7 +446,7 @@ function AuthForm({
         const result = await (
           await authClient()
         ).emailOtp.verifyEmail({
-          email: value.email,
+          email: value.email.trim(),
           otp: value.code,
         });
         if (result.error)
@@ -445,7 +455,7 @@ function AuthForm({
           const signed = await (
             await authClient()
           ).signIn.email({
-            email: value.email,
+            email: value.email.trim(),
             password: value.password,
           });
           if (signed.error) {
@@ -464,7 +474,7 @@ function AuthForm({
         const result = await (
           await authClient()
         ).emailOtp.sendVerificationOtp({
-          email: value.email,
+          email: value.email.trim(),
           type: "forget-password",
         });
         if (result.error)
@@ -475,7 +485,7 @@ function AuthForm({
         const result = await (
           await authClient()
         ).emailOtp.resetPassword({
-          email: value.email,
+          email: value.email.trim(),
           otp: value.code,
           password: value.password,
         });
@@ -542,8 +552,12 @@ function AuthForm({
               ? m.verify_intro()
               : m.recovery_intro()}
       </p>
-      {submission.isError && <ErrorAlert message={submission.error.message} />}{" "}
-      {resend.isError && <ErrorAlert message={resend.error.message} />}{" "}
+      {submission.isError && (
+        <ErrorAlert message={authFailure(submission.error)} />
+      )}{" "}
+      {resend.isError && (
+        <ErrorAlert message={authFailure(resend.error, m.error_send_code())} />
+      )}{" "}
       {notice && (
         <Alert className="mb-5" role="status">
           <AlertDescription>{localizedText(notice)}</AlertDescription>
@@ -616,8 +630,21 @@ function AuthForm({
                         ? "email"
                         : undefined
                   }
+                  aria-describedby={
+                    name === "password" && screen !== "signin"
+                      ? "password-help"
+                      : undefined
+                  }
                   className="mt-2"
                 />
+                {name === "password" && screen !== "signin" && (
+                  <p
+                    id="password-help"
+                    className="text-xs text-muted-foreground mt-2"
+                  >
+                    {m.password_help()}
+                  </p>
+                )}
               </div>
             )}
           </form.Field>

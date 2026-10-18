@@ -3276,3 +3276,26 @@ dialog p {
     padding-inline: 0;
   }
 }
+/* Installed app safe areas and installation controls. */
+.landing-nav {
+  padding-top: max(28px, env(safe-area-inset-top));
+}
+.landing-footer {
+  padding-bottom: max(25px, env(safe-area-inset-bottom));
+}
+.onboarding-shell {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.onboarding-footer {
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.onboarding-footer [data-slot="button"] {
+  font-size: 12px;
+}
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior-y: none;
+  }
+}

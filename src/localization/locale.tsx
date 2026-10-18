@@ -30,6 +30,9 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.dir = "ltr";
     document.title = m.page_title();
     document
+      .querySelector('link[rel="manifest"]')
+      ?.setAttribute("href", `/manifest.${locale}.webmanifest`);
+    document
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", m.page_description());
   }, [locale]);

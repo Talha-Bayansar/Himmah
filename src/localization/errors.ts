@@ -35,6 +35,10 @@ const messages = [
   m.error_credentials,
   m.error_expired_code,
   m.error_existing_email,
+  m.error_password_short,
+  m.error_password_long,
+  m.error_auth_network,
+  m.error_verification_required,
 ] as const;
 // Server validation retains stable English messages; translate only known public errors.
 // Unknown upstream text must never leak internal details or untranslated provider messages.
@@ -47,6 +51,15 @@ export function localizedText(text: string) {
 }
 export function authError(code: string | undefined, fallback: string) {
   switch (code) {
+    case "weak_password":
+    case "PASSWORD_TOO_SHORT":
+      return m.error_password_short();
+    case "PASSWORD_TOO_LONG":
+      return m.error_password_long();
+    case "email_not_confirmed":
+    case "EMAIL_NOT_VERIFIED":
+      return m.error_verification_required();
+    case "invalid_credentials":
     case "INVALID_EMAIL_OR_PASSWORD":
     case "INVALID_PASSWORD":
       return m.error_credentials();
@@ -54,12 +67,37 @@ export function authError(code: string | undefined, fallback: string) {
       return m.error_expired_code();
     case "INVALID_OTP":
       return m.error_code();
+    case "user_already_exists":
     case "USER_ALREADY_EXISTS":
     case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL":
       return m.error_existing_email();
+    case "over_request_rate_limit":
     case "TOO_MANY_REQUESTS":
       return m.error_rate_limit();
     default:
       return fallback;
   }
+}
+
+// The Neon wrapper throws AuthApiError for non-2xx responses. It does not
+// reliably return Better Auth's { error } union, and it normalizes codes.
+export function authFailure(error: unknown, fallback = m.error_service()) {
+  if (error && typeof error === "object") {
+    const failure = error as {
+      code?: unknown;
+      status?: unknown;
+      message?: unknown;
+    };
+    if (failure.status === 429) return m.error_rate_limit();
+    if (typeof failure.code === "string") {
+      const result = authError(failure.code, "");
+      if (result) return result;
+    }
+    if (typeof failure.message === "string") {
+      const known = localizedText(failure.message);
+      if (known !== m.error_generic()) return known;
+    }
+    if (error instanceof TypeError) return m.error_auth_network();
+  }
+  return fallback;
 }

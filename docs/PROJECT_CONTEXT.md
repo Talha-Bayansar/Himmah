@@ -68,3 +68,8 @@ Owner requested a refresh of existing UI/copy after the shadcn migration, plus a
 ## Confirmed localization and live-only deployment
 
 Owner requires English, Dutch and Turkish using Paraglide JS and a stack very similar to Kermes Pay. Fix text/button contrast and test the UI. Remove demo parts from deployment and keep only real working features. This supersedes the previous public `/demo` decision; preserve internal fixtures and future product requirements, but do not ship mock screens or promotional unfinished features. Existing organizer identities/workspaces must remain intact.
+
+
+## Audience and installed-app clarification
+
+Owner confirmed the landing page must not impose an age limit: any mosque/community organization sharing the engagement goal should be able to use Himmah. The original 11–15 youth pilot remains historical context, not a platform audience restriction. Preserve youth safeguarding where relevant. Owner requested a PWA with iOS and Android icons/splash screens, plus a fix for signup failing on the initial submit. The exact provider error text and a live signup replay remain unavailable; distinguish verified client/proxy defects from unconfirmed production causes.

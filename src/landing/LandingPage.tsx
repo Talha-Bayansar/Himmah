@@ -1,3 +1,4 @@
+import { InstallApp } from "../pwa/install";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
@@ -71,6 +72,7 @@ export default function LandingPage() {
                   {m.start_organization()} <ArrowRight size={18} />
                 </Link>
               </Button>
+              <InstallApp />
             </div>
             <p className="landing-note">{m.landing_note()}</p>
           </div>

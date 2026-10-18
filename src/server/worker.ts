@@ -113,6 +113,9 @@ export function createHandler(
             return json(
               {
                 error: "Too many requests. Please wait a minute and try again.",
+                message:
+                  "Too many requests. Please wait a minute and try again.",
+                code: "TOO_MANY_REQUESTS",
               },
               429,
             );
@@ -122,6 +125,13 @@ export function createHandler(
         if (body && body.length > 16000)
           return json({ error: "Request too large." }, 413);
         const headers = cookieHeaders(request);
+        // Match the managed SDK's server proxy contract. Origin validation above
+        // still runs before this server-controlled marker is attached.
+        headers.set("x-neon-auth-middleware", "true");
+        for (const name of ["user-agent", "x-neon-client-info"]) {
+          const value = request.headers.get(name);
+          if (value) headers.set(name, value);
+        }
         headers.set("Origin", appOrigin);
         headers.set("Referer", `${appOrigin}/start`);
         if (body) headers.set("Content-Type", "application/json");

@@ -41,3 +41,10 @@ Database migration/constraint checks and Cloudflare build/deployment are verifie
 Organization-scoped staff invitations and member/group management, then persistent activities/attendance/points, all authenticated and authorized on the server. Keep the demo separate; never populate a real workspace with sample children by default. Maintain Hub-only access independent of Futsal licensing.
 
 Development-database integration check passed using the exact parameterized Drizzle creation statement: two retries return the same UUID, with one organization, one owner membership and zero list rows for another user. Cloudflare confirmed the new Worker deployment and secret/rate-limit bindings. No real signup or email was sent as part of automated verification.
+
+
+## Client/proxy error handling
+
+The installed Neon adapter throws normalized AuthApiError objects for non-2xx responses, including snake_case codes. UI handles these with authFailure as well as Better Auth returned error objects. Do not display raw provider errors or hide all failures behind one generic message. Account creation and verification email delivery are separate outcomes; delivery failure must not encourage duplicate signup. Password requirements are visible and validated (12–128 characters).
+
+The same-origin proxy sets x-neon-auth-middleware=true, forwards the SDK client-info/user-agent headers, and supplies the configured Origin/Referer after validating the browser request origin. This follows the installed managed SDK server-proxy contract while retaining endpoint allowlisting and rate limits. Rate-limited proxy responses include a stable code/message understood by the real SDK. Regression tests use the actual client against our actual proxy with a fake upstream; they are not proof of live provider signup or email delivery.

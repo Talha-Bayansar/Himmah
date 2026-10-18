@@ -20,10 +20,12 @@ const mocks = vi.hoisted(() => ({
   signOut: vi.fn(),
   sendVerificationOtp: vi.fn(),
   resetPassword: vi.fn(),
+  signUp: vi.fn(),
 }));
 vi.mock("../src/organization/auth", () => ({
   authClient: () => ({
     signOut: mocks.signOut,
+    signUp: { email: mocks.signUp },
     emailOtp: {
       sendVerificationOtp: mocks.sendVerificationOtp,
       resetPassword: mocks.resetPassword,
@@ -88,6 +90,7 @@ function mount(component: () => React.ReactNode) {
 beforeEach(() => {
   void setLocale("en", { reload: false });
   mocks.signOut.mockReset();
+  mocks.signUp.mockReset().mockResolvedValue({ data: {}, error: null });
   mocks.sendVerificationOtp
     .mockReset()
     .mockResolvedValue({ data: { success: true }, error: null });
@@ -310,7 +313,7 @@ describe("public landing page", () => {
     mount(LandingPage);
     const user = userEvent.setup();
     await screen.findByRole("heading", {
-      name: "A home for your youth community.",
+      name: "A home for your community.",
     });
     expect(screen.queryByText(/demo|futsal|planned add-on/i)).toBeNull();
     expect(screen.queryByRole("link", { name: /demo/i })).toBeNull();
@@ -327,7 +330,7 @@ describe("public landing page", () => {
       "nl",
     );
     await screen.findByRole("heading", {
-      name: "Een thuis voor jouw jongerengemeenschap.",
+      name: "Een thuis voor jouw gemeenschap.",
     });
     expect(document.cookie).toContain("himmah_locale=nl");
     expect(document.documentElement.lang).toBe("nl");
@@ -336,7 +339,7 @@ describe("public landing page", () => {
       "tr",
     );
     await screen.findByRole("heading", {
-      name: "Gençlik topluluğunuz için bir yuva.",
+      name: "Topluluğunuz için bir yuva.",
     });
     expect(
       screen.getByRole("link", { name: "Kuruluşunuzu oluşturun" }),
@@ -403,4 +406,111 @@ it("shows only saved organization details after opening a workspace", async () =
       "Kuruluşunuz kaydedildi ve yeniden giriş yaptığınızda erişilebilir olacak.",
     ),
   ).toBeTruthy();
+});
+
+it("keeps a created account in verification when email delivery fails instead of inviting duplicate signup", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => Response.json({}, { status: 401 })),
+  );
+  mocks.sendVerificationOtp.mockRejectedValueOnce(new Error("Network failure"));
+  mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.type(
+    await screen.findByLabelText("Your name"),
+    "Community Organizer",
+  );
+  await user.type(
+    screen.getByLabelText("Email address"),
+    "organizer@example.invalid",
+  );
+  await user.type(screen.getByLabelText("Password"), "test-only-password-123");
+  await user.click(screen.getByRole("checkbox"));
+  await user.click(
+    screen.getByRole("button", { name: "Create organizer account" }),
+  );
+  await screen.findByText(
+    "Account created. Use Send a new code to verify your email.",
+  );
+  expect(
+    screen.getByRole("button", { name: "Send a new verification code" }),
+  ).toBeTruthy();
+  expect(
+    screen.queryByRole("button", { name: "Create organizer account" }),
+  ).toBeNull();
+  expect(mocks.signUp).toHaveBeenCalledTimes(1);
+});
+
+it("explains thrown Neon signup errors instead of displaying a generic failure", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => Response.json({}, { status: 401 })),
+  );
+  mocks.signUp.mockRejectedValueOnce(
+    Object.assign(new Error("Provider text"), {
+      code: "user_already_exists",
+      status: 422,
+    }),
+  );
+  mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.type(
+    await screen.findByLabelText("Your name"),
+    "Community Organizer",
+  );
+  await user.type(
+    screen.getByLabelText("Email address"),
+    "organizer@example.invalid",
+  );
+  await user.type(screen.getByLabelText("Password"), "test-only-password-123");
+  await user.click(screen.getByRole("checkbox"));
+  await user.click(
+    screen.getByRole("button", { name: "Create organizer account" }),
+  );
+  await screen.findByText(
+    "An account with this email already exists. Sign in instead.",
+  );
+  expect(
+    (screen.getByLabelText("Email address") as HTMLInputElement).value,
+  ).toBe("organizer@example.invalid");
+});
+
+it("shows translated installation guidance without claiming offline account access", async () => {
+  mount(LandingPage);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Install Himmah" }),
+  );
+  let dialog = await screen.findByRole("dialog");
+  expect(
+    within(dialog).getByText(/An internet connection is needed/),
+  ).toBeTruthy();
+  await user.click(within(dialog).getByRole("button", { name: "Close" }));
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Language" }),
+    "nl",
+  );
+  await user.click(screen.getByRole("button", { name: "Himmah installeren" }));
+  dialog = await screen.findByRole("dialog");
+  expect(
+    within(dialog).getByText("Je gemeenschap altijd dichtbij."),
+  ).toBeTruthy();
+});
+
+it("invokes the native install prompt only after the user chooses Install", async () => {
+  mount(LandingPage);
+  const user = userEvent.setup();
+  await screen.findByRole("button", { name: "Install Himmah" });
+  const prompt = vi.fn(async () => {});
+  const event = new Event("beforeinstallprompt", { cancelable: true });
+  Object.assign(event, {
+    prompt,
+    userChoice: Promise.resolve({ outcome: "accepted" }),
+  });
+  window.dispatchEvent(event);
+  await user.click(screen.getByRole("button", { name: "Install Himmah" }));
+  const dialog = await screen.findByRole("dialog");
+  expect(prompt).not.toHaveBeenCalled();
+  await user.click(within(dialog).getByRole("button", { name: "Install app" }));
+  await waitFor(() => expect(prompt).toHaveBeenCalledTimes(1));
 });
