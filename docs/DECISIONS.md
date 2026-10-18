@@ -39,3 +39,7 @@ Owner approved the Hub feature design captured in HUB.md. Prioritize Hub core wo
 ## 2026-10-18 — Owner-created GitHub remote
 
 Owner supplied https://github.com/Talha-Bayansar/Himmah.git and authorized connecting/publishing the local repository. Keep the local folder and dedicated Neon resource names unchanged. Use Git transport; earlier API creation failure is historical, not a general GitHub connectivity failure.
+
+## Detailed Hub design v1
+
+Created detailed interaction specifications and a local static visual board for the three agreed Hub workflows. Layout, styling, default finalization behavior, recurrence support and registration policies are design proposals for review, not newly owner-approved rules or implemented functionality. No infrastructure or application tables changed.

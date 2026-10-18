@@ -62,3 +62,7 @@ An organization can record attendance and award points without any game season, 
 ## Decisions before a real pilot
 
 Enrollment/guardian process; role/group visibility; exact point policies and caps; absence finalization; correction-request handling; recurrence/timezone changes; walk-in eligibility and registration capacity; engagement period overlap; exports/retention; notifications and accessibility/languages. These are not blockers to sketching the three core flows.
+
+## Detailed design deliverable
+
+See [Screen designs v1](HUB_SCREEN_DESIGNS.md) for Youth Home, Volunteer Check-in and Activity Setup, including permissions, failure states and acceptance criteria. The linked static HTML board is a visual proposal, not a working application.

@@ -13,6 +13,8 @@ Project foundation and documentation. The game and account system are not implem
 ## Start here
 
 - [Approved Hub feature design](docs/HUB.md)
+- [Detailed Hub screen designs](docs/HUB_SCREEN_DESIGNS.md)
+- [Visual design board](docs/designs/hub-screens.html)
 - [Agent instructions](AGENTS.md)
 - [Owner preferences and confirmed requirements](docs/PROJECT_CONTEXT.md)
 - [Product specification](docs/PRODUCT.md)
