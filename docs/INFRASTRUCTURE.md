@@ -208,3 +208,9 @@ The Activities navigation entry opens bounded cursor pages with search and a can
 Validation: npm run check passes all 83 tests (41 domain/API/PostgreSQL/localization/PWA, 2 Workerd, 40 component/client), strict types and docs checks; production build and contrast audit pass. Real PostgreSQL-compatible PGlite tests execute migrations and parameterized store queries for tenant/role isolation, duplicate creation, keyset pages, version conflicts, cancellation and atomic audit. UI tests cover pagination failure/retry, confirmed versus cancelled mutations, preserved creation inputs/idempotency keys, discard confirmation and independent volunteer detail reads. Chromium with local synthetic intercepted APIs checks creation, short-viewport form scrolling, 320/390/768px layouts, detail URL reload, editing and cancellation. No actual mobile OS keyboard or real account mutations were used.
 
 Latest Worker: 6eded9d4-4a4f-4a61-8ab7-cc2182f75e24, confirmed active at 100% traffic. Existing dedicated secrets, auth bindings, native fetch wrapper and PWA privacy safeguards retained. Browser checks also verified Dutch/Turkish activity headings and layouts after locale changes.
+
+## Consistent activity description label spacing
+
+Included shared Textarea controls in the directory form's 8px label-to-control spacing rule, matching Input and NativeSelect. Local production Chromium checks all five activity fields at 320/390px for equal 8px gaps and no horizontal overflow; production build and contrast audit pass. This is a CSS-only change with no data/auth/schema changes.
+
+Latest Worker: eb6fd705-cfbf-4ee5-b122-407d2affe9e1, confirmed active at 100% traffic.
