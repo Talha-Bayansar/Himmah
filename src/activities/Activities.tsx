@@ -92,6 +92,10 @@ export default function Activities({
   const date = (value: string, timezone: string) =>
     new Intl.DateTimeFormat(locale?.locale ?? "en", {
       dateStyle: "medium",
+      timeZone: timezone,
+    }).format(new Date(value));
+  const time = (value: string, timezone: string) =>
+    new Intl.DateTimeFormat(locale?.locale ?? "en", {
       timeStyle: "short",
       timeZone: timezone,
     }).format(new Date(value));
@@ -126,9 +130,22 @@ export default function Activities({
   const row = (item: Activity, full = false) => (
     <article key={item.id} className="activity-card">
       <div className="activity-card-heading">
-        <CalendarDays size={22} aria-hidden="true" />
-        <div>
-          {!full && <h2>{item.name}</h2>}
+        <span className="activity-card-icon">
+          <CalendarDays size={22} aria-hidden="true" />
+        </span>
+        <div className="activity-card-heading-copy">
+          {full ? (
+            <h1
+              className="activity-card-title"
+              tabIndex={-1}
+              data-page-heading
+              ref={heading}
+            >
+              {item.name}
+            </h1>
+          ) : (
+            <h2 className="activity-card-title">{item.name}</h2>
+          )}
           {item.cancelled && (
             <p className="activity-status">{m.activities_cancelled()}</p>
           )}
@@ -141,30 +158,46 @@ export default function Activities({
           />
         )}
       </div>
-      <dl className="activity-details">
-        <div>
-          <dt>{m.activities_start()}</dt>
-          <dd>{date(item.startsAt, item.timezone)}</dd>
-        </div>
-        <div>
-          <dt>{m.activities_end()}</dt>
-          <dd>{date(item.endsAt, item.timezone)}</dd>
-        </div>
-      </dl>
-      <p className="activity-timezone">
-        {m.activities_timezone({ timezone: item.timezone })}
-      </p>
+      <div className="activity-schedule">
+        <dl className="activity-details">
+          <div>
+            <dt>{m.activities_start()}</dt>
+            <dd>
+              <time dateTime={item.startsAt}>
+                <span>{date(item.startsAt, item.timezone)}</span>
+                <span className="activity-clock">
+                  {time(item.startsAt, item.timezone)}
+                </span>
+              </time>
+            </dd>
+          </div>
+          <div>
+            <dt>{m.activities_end()}</dt>
+            <dd>
+              <time dateTime={item.endsAt}>
+                <span>{date(item.endsAt, item.timezone)}</span>
+                <span className="activity-clock">
+                  {time(item.endsAt, item.timezone)}
+                </span>
+              </time>
+            </dd>
+          </div>
+        </dl>
+        <p className="activity-timezone">
+          {m.activities_timezone({ timezone: item.timezone })}
+        </p>
+      </div>
       {item.location && (
         <p className="activity-location">
           <MapPin size={16} aria-hidden="true" />
-          {item.location}
+          <span>{item.location}</span>
         </p>
       )}
       {full && item.description && (
         <p className="activity-description">{item.description}</p>
       )}
       {!full && (
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild className="activity-card-primary">
           <Link
             to="/workspace/$organizationId/activities/$activityId"
             params={{ organizationId: organization.id, activityId: item.id }}
@@ -201,12 +234,7 @@ export default function Activities({
               pending={detail.isFetching}
             />
           ) : (
-            <>
-              <h1 tabIndex={-1} data-page-heading ref={heading}>
-                {detail.data.item.name}
-              </h1>
-              {row(detail.data.item, true)}
-            </>
+            row(detail.data.item, true)
           )}
         </>
       ) : (

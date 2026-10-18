@@ -214,3 +214,11 @@ Latest Worker: 6eded9d4-4a4f-4a61-8ab7-cc2182f75e24, confirmed active at 100% tr
 Included shared Textarea controls in the directory form's 8px label-to-control spacing rule, matching Input and NativeSelect. Local production Chromium checks all five activity fields at 320/390px for equal 8px gaps and no horizontal overflow; production build and contrast audit pass. This is a CSS-only change with no data/auth/schema changes.
 
 Latest Worker: eb6fd705-cfbf-4ee5-b122-407d2affe9e1, confirmed active at 100% traffic.
+
+## Activity card layout refinement
+
+Activity list and detail cards now use explicit 16px section spacing instead of inherited paragraph margins. The header aligns a calendar badge, wrapping title and existing action menu; detail pages keep their announced h1 inside the card, removing the previous empty header. Start/end dates and times are grouped in a subtle schedule panel with the timezone directly below; date/time lines remain deliberate across locales. Location and description use readable text, aligned icons and a separate description divider. List cards retain one full-width primary detail link. Very narrow cards stack the schedule columns; long titles/locations wrap without pushing actions outside the card. No forms, authorization, data or schema changes.
+
+Validation: all 83 tests, final strict typecheck, production build, documentation and contrast checks pass. Local Chromium with synthetic APIs verifies consistent section gaps, long titles/locations, 320/390/768px layouts, English/Dutch/Turkish activity views, detail reload and unchanged create/edit/cancel interactions. List/detail screenshots inspected; no real organization data was mutated.
+
+Latest Worker: 2c11861f-9038-45a5-aa3e-0609036acf7d, confirmed active at 100% traffic.
