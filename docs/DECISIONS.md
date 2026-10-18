@@ -35,3 +35,7 @@ Architecture proposal: one audited, append-only engagement ledger and versioned 
 Owner accepted Hub as a standalone attendance/engagement product with Futsal as an optional licensed app and future games sharing the same contribution history. One account across apps; tenant-specific memberships and permissions remain mandatory. Hub records do not require a game license or season. Game-specific eligibility/allocations are separate from authoritative contributions. No universal spendable wallet is implied.
 
 Owner approved the Hub feature design captured in HUB.md. Prioritize Hub core workflows before the Futsal engine milestone. Retain both Futsal modes/formats in its first playable version. Initial implementation may share a repository and tooling, with separate app experiences; no repository, database or infrastructure rename is required by this change. Pricing/tiers/provider and exact UI details are not settled.
+
+## 2026-10-18 — Owner-created GitHub remote
+
+Owner supplied https://github.com/Talha-Bayansar/Himmah.git and authorized connecting/publishing the local repository. Keep the local folder and dedicated Neon resource names unchanged. Use Git transport; earlier API creation failure is historical, not a general GitHub connectivity failure.

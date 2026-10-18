@@ -25,12 +25,12 @@ Domain: reproducible seeded outcomes, equal starting strength, rating caps, fixt
 Services: authorization across users/teams/seasons; quiz scoring; concurrent duplicate awards/training/matches; correction audit trail; frozen results.
 UI: phone viewport, keyboard operation, readable contrast and slow/retried network requests.
 
-## GitHub publication recovery
+## GitHub publication
 
-Remote creation currently requires restored GitHub CLI/API access; see INFRASTRUCTURE.md. Once access works, run from this directory:
+The owner created https://github.com/Talha-Bayansar/Himmah.git. The local `origin` points to it. Publish committed work using normal Git transport:
 
 ```sh
-gh repo create Talha-Bayansar/himmah-futsal --private --description "Mosque youth engagement through two-mode futsal competitions" --source . --remote origin --push
+git push origin main
 ```
 
-If the remote already exists, inspect it before adding origin/pushing. Do not overwrite another repository or mark publication successful without verification.
+API-based creation previously failed because api.github.com was denied. Git transport uses github.com; do not replace credentials or assume the API restriction blocks Git pushes. Inspect the remote and branch state before pushing; never force-push shared history by default.

@@ -6,9 +6,9 @@ Verified 17 October 2026. Resource identifiers only; never commit credentials.
 
 - Name: Himmah Futsal; slug: himmah-futsal.
 - Path: /workspace/himmah-futsal; independent Git repository, branch main.
-- Intended remote: Talha-Bayansar/himmah-futsal, private.
-- GitHub status: NOT CREATED/PUSHED. Repository creation failed with `Get "https://api.github.com/users/Talha-Bayansar": Forbidden`. CLI authentication check also failed. The connected GitHub app identifies the owner but exposes no repository-creation operation. No remote URL is claimed as live.
-- Recovery: enable supported network/API access to api.github.com and restore CLI authentication if still required, then follow DEVELOPMENT.md. Never print or commit a token.
+- Remote: https://github.com/Talha-Bayansar/Himmah.git (private repository created by owner).
+- The owner supplied this remote on 18 October 2026. Git access verified; the repository was empty before connecting. Local origin now points here.
+- Initial publication uses Git over github.com. API-based repository creation was blocked previously by api.github.com returning Forbidden; this does not prevent the Git transport.
 
 ## Neon — provisioned and verified
 
