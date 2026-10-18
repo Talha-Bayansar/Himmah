@@ -11,6 +11,7 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 import { ConfirmationProvider } from "../src/components/shared/confirmation";
+import type { WorkspaceSection } from "../src/organization/WorkspaceNavigation";
 import OrganizationPortal from "../src/organization/OrganizationPortal";
 import Hub from "../src/hub/Hub";
 import LandingPage from "../src/landing/LandingPage";
@@ -64,10 +65,24 @@ function mount(component: () => React.ReactNode) {
     path: "/start",
     component: () => <p>Organizer page</p>,
   });
+  const workspace = createRoute({
+    getParentRoute: () => root,
+    path: "/workspace/$organizationId/$section",
+    component: () => {
+      const { organizationId, section } = workspace.useParams();
+      return (
+        <OrganizationPortal
+          workspaceId={organizationId}
+          workspaceSection={section as WorkspaceSection}
+        />
+      );
+    },
+  });
   const router = createRouter({
     routeTree: root.addChildren([
       index,
       start,
+      workspace,
       createRoute({
         getParentRoute: () => root,
         path: "/demo",
@@ -85,7 +100,7 @@ function mount(component: () => React.ReactNode) {
       </LocaleProvider>
     </QueryClientProvider>,
   );
-  return { queryClient };
+  return { queryClient, router };
 }
 beforeEach(() => {
   void setLocale("en", { reload: false });
@@ -519,4 +534,104 @@ it("invokes the native install prompt only after the user chooses Install", asyn
   expect(prompt).not.toHaveBeenCalled();
   await user.click(within(dialog).getByRole("button", { name: "Install app" }));
   await waitFor(() => expect(prompt).toHaveBeenCalledTimes(1));
+});
+
+it("uses dedicated workspace pages and blocks navigation when a member form is dirty", async () => {
+  const { router } = mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await screen.findByRole("heading", { name: "Noor Youth" });
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/overview`,
+  );
+  expect(screen.queryByRole("button", { name: "Add member" })).toBeNull();
+  await user.click(screen.getByRole("link", { name: "Groups" }));
+  const groupsHeading = await screen.findByRole("heading", {
+    name: "Groups",
+  });
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/groups`,
+  );
+  expect(document.activeElement).toBe(groupsHeading);
+  expect(screen.queryByText(organization.timezone)).toBeNull();
+  await user.click(screen.getByRole("button", { name: "Create group" }));
+  let dialog = await screen.findByRole("dialog");
+  expect(within(dialog).queryByText(/Private roster records/)).toBeNull();
+  expect(document.activeElement).toBe(
+    within(dialog).getByLabelText("Display name"),
+  );
+  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+  await user.click(screen.getByRole("link", { name: "Members" }));
+  await user.click(await screen.findByRole("button", { name: "Add member" }));
+  dialog = await screen.findByRole("dialog");
+  await user.type(
+    within(dialog).getByLabelText("Display name"),
+    "Unfinished nickname",
+  );
+  // A browser Back action can navigate while a modal is open.
+  void router.navigate({
+    to: "/workspace/$organizationId/$section",
+    params: { organizationId: organization.id, section: "staff" },
+  });
+  let confirmation = await screen.findByRole("alertdialog");
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Cancel" }),
+  );
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/members`,
+  );
+  expect(
+    (within(dialog).getByLabelText("Display name") as HTMLInputElement).value,
+  ).toBe("Unfinished nickname");
+  void router.navigate({
+    to: "/workspace/$organizationId/$section",
+    params: { organizationId: organization.id, section: "staff" },
+  });
+  confirmation = await screen.findByRole("alertdialog");
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Discard changes" }),
+  );
+  await screen.findByRole("heading", { name: "Staff access" });
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/staff`,
+  );
+  await router.history.back();
+  await screen.findByRole("heading", { name: "Members" });
+  expect(screen.queryByRole("dialog")).toBeNull();
+});
+
+it("opens a successfully saved workspace without asking to discard its setup", async () => {
+  let created = false;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (String(input) === "/api/account")
+        return Response.json({ user: owner });
+      if (String(input) === "/api/organizations") {
+        if (init?.method === "POST") {
+          created = true;
+          return Response.json({ organization });
+        }
+        return Response.json({ organizations: created ? [organization] : [] });
+      }
+      return Response.json({ organization });
+    }),
+  );
+  const { router } = mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.type(
+    await screen.findByLabelText("Organization name"),
+    "Noor Youth",
+  );
+  await user.click(
+    screen.getByRole("checkbox", {
+      name: "I am authorized to create and manage this organization.",
+    }),
+  );
+  await user.click(screen.getByRole("button", { name: "Create organization" }));
+  await screen.findByRole("heading", { name: "Noor Youth" });
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/overview`,
+  );
+  expect(screen.queryByRole("alertdialog")).toBeNull();
 });

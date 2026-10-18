@@ -1,3 +1,8 @@
+import { useNavigate } from "@tanstack/react-router";
+import {
+  WorkspaceNavigation,
+  type WorkspaceSection,
+} from "./WorkspaceNavigation";
 import Directory from "../community/Directory";
 import AcceptInvite from "../community/AcceptInvite";
 import { InfiniteFooter } from "../components/shared/infinite-list";
@@ -71,15 +76,26 @@ const orgKey = (userId: string) => ["organizations", userId] as const;
 export default function OrganizationPortal({
   initialMode = "signup",
   inviteToken = null,
+  workspaceId = null,
+  workspaceSection = "overview",
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
+  workspaceId?: string | null;
+  workspaceSection?: WorkspaceSection;
 } = {}) {
   const queryClient = useQueryClient();
   useLocale();
   const confirm = useConfirmation();
   const [creating, setCreating] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const selectedId = workspaceId;
+  const openWorkspace = (id: string) =>
+    navigate({
+      to: "/workspace/$organizationId/$section",
+      params: { organizationId: id, section: "overview" },
+    });
+  const closeWorkspace = () => navigate({ to: "/start" });
   const session = useQuery({
     queryKey: accountKey,
     queryFn: account,
@@ -103,10 +119,11 @@ export default function OrganizationPortal({
     organizations.data?.pages.flatMap((page) => page.organizations) ?? [];
   const selected = useQuery({
     queryKey: ["organization", user?.id, selectedId],
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       (
         await api<{ organization: Organization }>(
           `/api/organizations/${selectedId}`,
+          { signal },
         )
       ).organization,
     enabled: !!user && !!selectedId,
@@ -128,7 +145,7 @@ export default function OrganizationPortal({
       queryClient.removeQueries({ queryKey: ["organization"] });
       queryClient.getMutationCache().clear();
       queryClient.setQueryData(accountKey, null);
-      setSelectedId(null);
+      if (workspaceId) void closeWorkspace();
       setCreating(false);
     },
   });
@@ -144,7 +161,11 @@ export default function OrganizationPortal({
   }
   const loading = session.isPending || (!!user && organizations.isPending);
   return (
-    <div className="onboarding-shell">
+    <div
+      className={
+        workspaceId ? "onboarding-shell workspace-shell" : "onboarding-shell"
+      }
+    >
       <aside className="onboarding-story">
         <Link to="/" className="brand">
           <div className="brand-mark">
@@ -247,13 +268,16 @@ export default function OrganizationPortal({
                 />
               ) : inviteToken ? (
                 <AcceptInvite token={inviteToken} userId={user.id} />
-              ) : organizations.isError && !organizations.data ? (
+              ) : organizations.isError &&
+                !organizations.data &&
+                !selectedId ? (
                 <QueryError
                   message={organizations.error.message}
                   pending={organizations.isFetching}
                   retry={() => organizations.refetch()}
                 />
-              ) : creating || organizationItems.length === 0 ? (
+              ) : creating ||
+                (!selectedId && organizationItems.length === 0) ? (
                 <OrganizationSetup
                   canCancel={organizationItems.length > 0}
                   onCancel={() => setCreating(false)}
@@ -265,7 +289,7 @@ export default function OrganizationPortal({
                       ["organization", user.id, org.id],
                       org,
                     );
-                    setSelectedId(org.id);
+                    await openWorkspace(org.id);
                     setCreating(false);
                   }}
                 />
@@ -277,13 +301,14 @@ export default function OrganizationPortal({
                     message={selected.error.message}
                     pending={selected.isFetching}
                     retry={() => selected.refetch()}
-                    onBack={() => setSelectedId(null)}
+                    onBack={() => void closeWorkspace()}
                   />
                 ) : selected.data ? (
                   <Workspace
                     organization={selected.data}
                     userId={user.id}
-                    onBack={() => setSelectedId(null)}
+                    section={workspaceSection}
+                    onBack={() => void closeWorkspace()}
                   />
                 ) : null
               ) : (
@@ -297,7 +322,7 @@ export default function OrganizationPortal({
                         variant="outline"
                         key={org.id}
                         className="organization-choice h-auto"
-                        onClick={() => setSelectedId(org.id)}
+                        onClick={() => void openWorkspace(org.id)}
                       >
                         <span className="avatar">
                           <Building2 size={20} />
@@ -795,6 +820,7 @@ function OrganizationSetup({
   useLocale();
   const confirm = useConfirmation();
   const creationKey = useRef("");
+  const saved = useRef(false);
   const [slugEdited, setSlugEdited] = useState(false);
   const form = useForm({
     defaultValues: {
@@ -822,11 +848,15 @@ function OrganizationSetup({
       );
       return result.organization;
     },
-    onSuccess: onCreated,
+    onSuccess: async (organization) => {
+      saved.current = true;
+      await onCreated(organization);
+    },
   });
   useBlocker({
     shouldBlockFn: async () =>
       dirty &&
+      !saved.current &&
       !creation.isSuccess &&
       !(await confirm({
         title: m.discard_setup_title(),
@@ -834,7 +864,7 @@ function OrganizationSetup({
         confirmLabel: m.discard_setup(),
         destructive: true,
       })),
-    enableBeforeUnload: dirty && !creation.isSuccess,
+    enableBeforeUnload: dirty && !saved.current && !creation.isSuccess,
   });
   async function cancel() {
     if (
@@ -1001,10 +1031,12 @@ function OrganizationSetup({
 function Workspace({
   organization,
   userId,
+  section,
   onBack,
 }: {
   organization: Organization;
   userId: string;
+  section: WorkspaceSection;
   onBack: () => void;
 }) {
   useLocale();
@@ -1014,34 +1046,44 @@ function Workspace({
         <ArrowLeft size={16} />
         {m.my_organizations()}
       </Button>
-      <div className="workspace-welcome">
-        <span className="workspace-monogram">
-          {organization.name.slice(0, 1)}
-        </span>
-        <div className="eyebrow">{m.workspace_heading()}</div>
-        <h1>{organization.name}</h1>
-        <p className="onboarding-intro">{m.workspace_saved()}</p>
-      </div>
-      <div className="workspace-detail-grid">
-        <div>
-          <Building2 size={19} />
-          <span>{m.workspace()}</span>
-          <strong>{organization.slug}</strong>
-        </div>
-        <div>
-          <Clock3 size={19} />
-          <span>{m.timezone()}</span>
-          <strong>{organization.timezone}</strong>
-        </div>
-        <div>
-          <ShieldCheck size={19} />
-          <span>{m.your_role()}</span>
-          <strong>{m[`role_${organization.role}`]()}</strong>
-        </div>
-      </div>
-      {organization.role === "owner" || organization.role === "admin" ? (
+      {section !== "overview" && (
+        <p className="workspace-context">{organization.name}</p>
+      )}
+      <WorkspaceNavigation organization={organization} section={section} />
+      {section === "overview" ? (
+        <>
+          <div className="workspace-welcome">
+            <span className="workspace-monogram">
+              {organization.name.slice(0, 1)}
+            </span>
+            <div className="eyebrow">{m.workspace_heading()}</div>
+            <h1 tabIndex={-1} data-page-heading>
+              {organization.name}
+            </h1>
+            <p className="onboarding-intro">{m.workspace_saved()}</p>
+          </div>
+          <div className="workspace-detail-grid">
+            <div>
+              <Building2 size={19} />
+              <span>{m.workspace()}</span>
+              <strong>{organization.slug}</strong>
+            </div>
+            <div>
+              <Clock3 size={19} />
+              <span>{m.timezone()}</span>
+              <strong>{organization.timezone}</strong>
+            </div>
+            <div>
+              <ShieldCheck size={19} />
+              <span>{m.your_role()}</span>
+              <strong>{m[`role_${organization.role}`]()}</strong>
+            </div>
+          </div>
+        </>
+      ) : organization.role === "owner" || organization.role === "admin" ? (
         <Directory
-          key={organization.id}
+          key={organization.id + section}
+          section={section === "members" ? "people" : section}
           organization={organization}
           userId={userId}
         />

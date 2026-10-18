@@ -62,3 +62,9 @@ JSDOM interaction tests validate confirmation decisions, pending states, Query c
 The managed Better Auth browser wrapper initializes a tab ID on module import. It is loaded lazily inside browser interactions through authClient(), avoiding module-scope crypto initialization in Cloudflare SSR. Do not replace this boundary with a static runtime import in a server-rendered route.
 
 Legacy branded layouts use --app-muted for secondary text so they do not override shadcn’s --muted background token. The shared theme remains the source of component colors.
+
+## Phone navigation and forms
+
+Workspace management uses `/workspace/:organizationId/:section` pages with Router links for overview, members, groups, staff and invitations. Show the organization context, mark the active link with aria-current and focus the new page heading. On phones the icon/text navigation scrolls horizontally; avoid putting the directory below all organization details. Preserve private query keys and bounded infinite pages when changing navigation.
+
+Shared DialogContent and AlertDialogContent use useVisibleViewport to follow keyboard resize/panning with CSS variables and a 100dvh fallback. Keep narrow-screen dialogs near the visible top, scroll overflow and retain Radix focus trapping/restoration. Directory forms use 16px inputs, 48px field height, larger checkboxes, clear focus outlines and sticky Save/Cancel actions. Buttons have at least 44px touch targets. Do not disable zoom or replace shared discard confirmations. Successful workspace creation marks its saved boundary before route navigation.

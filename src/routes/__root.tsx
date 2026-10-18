@@ -23,7 +23,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { name: "referrer", content: "no-referrer" },
         {
           name: "viewport",
-          content: "width=device-width, initial-scale=1, viewport-fit=cover",
+          content:
+            "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
         },
         { name: "theme-color", content: "#12382f" },
         { name: "mobile-web-app-capable", content: "yes" },

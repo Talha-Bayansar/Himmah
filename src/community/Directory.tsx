@@ -43,7 +43,7 @@ import {
 } from "./contracts";
 import type { Organization } from "../organization/contracts";
 
-type Kind = "people" | "groups" | "staff" | "invitations";
+export type DirectoryKind = "people" | "groups" | "staff" | "invitations";
 type EditorState = { kind: "people" | "groups" | "invitations"; item?: Person };
 function ErrorNotice({ error }: { error: unknown }) {
   return (
@@ -63,18 +63,20 @@ function useSearch(value: string) {
 export default function Directory({
   organization,
   userId,
+  section = "people",
 }: {
   organization: Organization;
   userId: string;
+  section?: DirectoryKind;
 }) {
   useLocale();
   const client = useQueryClient();
   const confirm = useConfirmation();
-  const [kind, setKind] = useState<Kind>("people");
   const [search, setSearch] = useState("");
   const query = useSearch(search);
   const [archived, setArchived] = useState(false);
   const [group, setGroup] = useState<Group | null>(null);
+  const kind = group ? "people" : section;
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [assign, setAssign] = useState<Person | null>(null);
   const [link, setLink] = useState<string | null>(null);
@@ -154,31 +156,13 @@ export default function Directory({
         method: "DELETE",
       });
   }
-  function tab(next: Kind) {
-    setKind(next);
-    setSearch("");
-    setArchived(false);
-    setGroup(null);
-    setNotice("");
-    operation.reset();
-  }
   return (
     <section className="directory" aria-label={m.directory_title()}>
-      <nav className="directory-tabs" aria-label={m.directory_title()}>
-        {(Object.keys(names) as Kind[]).map((key) => (
-          <Button
-            key={key}
-            variant={kind === key ? "default" : "outline"}
-            aria-pressed={kind === key}
-            onClick={() => tab(key)}
-          >
-            {names[key]}
-          </Button>
-        ))}
-      </nav>
       <div className="directory-heading">
         <div>
-          <h2>{names[kind]}</h2>
+          <h1 tabIndex={-1} data-page-heading>
+            {names[kind]}
+          </h1>
           <p>
             {kind === "people"
               ? m.directory_roster_help()
@@ -202,7 +186,9 @@ export default function Directory({
         <div className="directory-filter">
           <Button variant="ghost" onClick={() => setGroup(null)}>
             <ArrowLeft size={16} />
-            {m.directory_all_members()}
+            {section === "groups"
+              ? m.directory_groups()
+              : m.directory_all_members()}
           </Button>
           <strong>{group.name}</strong>
         </div>
@@ -294,7 +280,6 @@ export default function Directory({
                                   variant="outline"
                                   onClick={() => {
                                     setGroup(record);
-                                    setKind("people");
                                     setArchived(false);
                                     setSearch("");
                                   }}
@@ -635,7 +620,9 @@ function Editor({
           <DialogDescription>
             {state.kind === "invitations"
               ? m.directory_invite_help()
-              : m.directory_roster_help()}
+              : state.kind === "groups"
+                ? m.directory_groups_help()
+                : m.directory_roster_help()}
           </DialogDescription>
         </DialogHeader>
         {submission.isError && <ErrorNotice error={submission.error} />}
@@ -655,6 +642,9 @@ function Editor({
                     <Input
                       id="invite-email"
                       type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      enterKeyHint="next"
                       required
                       maxLength={254}
                       value={field.state.value}
@@ -694,6 +684,9 @@ function Editor({
                   <Label htmlFor="record-name">{m.directory_name()}</Label>
                   <Input
                     id="record-name"
+                    autoComplete="off"
+                    autoCapitalize="words"
+                    enterKeyHint="done"
                     required
                     minLength={2}
                     maxLength={80}

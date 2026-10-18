@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as StartRouteImport } from './routes/start'
+import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,50 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkspaceOrganizationIdSectionRoute =
+  WorkspaceOrganizationIdSectionRouteImport.update({
+    id: '/workspace/$organizationId/$section',
+    path: '/workspace/$organizationId/$section',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
   '/start': typeof StartRoute
+  '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
   '/start': typeof StartRoute
+  '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/join': typeof JoinRoute
   '/start': typeof StartRoute
+  '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/join' | '/start'
+  fullPaths: '/' | '/join' | '/start' | '/workspace/$organizationId/$section'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/join' | '/start'
-  id: '__root__' | '/' | '/join' | '/start'
+  to: '/' | '/join' | '/start' | '/workspace/$organizationId/$section'
+  id:
+    | '__root__'
+    | '/'
+    | '/join'
+    | '/start'
+    | '/workspace/$organizationId/$section'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   JoinRoute: typeof JoinRoute
   StartRoute: typeof StartRoute
+  WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +98,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/$section': {
+      id: '/workspace/$organizationId/$section'
+      path: '/workspace/$organizationId/$section'
+      fullPath: '/workspace/$organizationId/$section'
+      preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +112,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   JoinRoute: JoinRoute,
   StartRoute: StartRoute,
+  WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

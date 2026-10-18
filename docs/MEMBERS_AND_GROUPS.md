@@ -1,6 +1,6 @@
 # Members, groups and staff access
 
-Open a saved organization at `/start`. Owners/admins see Members, Groups, Staff access and Invitations. Volunteers can access their saved workspace details but cannot administer the directory or read its private roster API.
+Open a saved organization at `/start`. Its overview opens at `/workspace/:organizationId/overview`; Members, Groups, Staff access and Invitations each have their own `/members`, `/groups`, `/staff` and `/invitations` page under the same workspace. Compact icon/text navigation scrolls horizontally on phones, marks the current page and brings it into view. Browser Back, reload and direct links work; the active page heading receives focus without opening the keyboard. Organization details stay on the overview. Owners/admins see all management pages. Volunteers can access their saved workspace details but cannot administer the directory or read its private roster API.
 
 ## Participant records and groups
 
@@ -33,3 +33,7 @@ Migration 0001 adds hub_people, hub_groups, hub_group_people, hub_invitations, h
 PGlite executes the actual parameterized SQL and generated migrations with synthetic in-memory fixtures: isolation, duplicate retries/audits, group foreign keys, archive/restore, stale versions, tied timestamps, search escaping, roles, invitation preview/acceptance/replay/expiry/revocation and required consent. Component tests cover page appending/retry retention, sentinel deduplication, confirmation cancellation and form submission. Workerd auth regression checks remain required.
 
 Development and onboarding receive the same generated migration and journal hash, in that order. Main stays unchanged, and onboarding receives no synthetic participant data. Hosted multi-account/browser flows still need physical testing where the workspace browser/network restrictions prevent it.
+
+## Phone forms
+
+Shared Radix/shadcn dialogs and confirmations fit window.visualViewport, including keyboard resize and panning events, with a 100dvh fallback. Dialogs align near the visible top on narrow screens and scroll when content is taller; focus remains trapped. Directory form actions stay sticky, inputs use 16px text and 48px height, and controls have visible focus outlines and at least 44px button targets. Group creation uses group-specific help instead of the participant consent explanation. Dirty forms preserve values when discard is cancelled, including route/history navigation. Actual iOS/Android keyboards still require phone verification; Chromium viewport resizing checks layout but does not reproduce every device keyboard behavior.
