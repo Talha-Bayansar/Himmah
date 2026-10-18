@@ -2,7 +2,22 @@ import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useBlocker } from "@tanstack/react-router";
-import { Plus, Search, Users, Folder } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Users,
+  Folder,
+  Check,
+  UserPlus,
+  UserMinus,
+  Pencil,
+  Archive,
+  ArchiveRestore,
+  Ban,
+  Save,
+  X,
+  Copy,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -38,6 +53,7 @@ import {
   newToken,
   type Person,
   type Group,
+  type GroupOption,
   type Staff,
   type Invitation,
 } from "./contracts";
@@ -116,6 +132,10 @@ export default function Directory({
       void refresh();
     },
   });
+  const busy = (id: string, method: string) =>
+    operation.isPending &&
+    operation.variables?.method === method &&
+    operation.variables.path.split("/").includes(encodeURIComponent(id));
   const names = {
     people: m.directory_members(),
     groups: m.directory_groups(),
@@ -280,6 +300,7 @@ export default function Directory({
                                       groupId: record.id,
                                     }}
                                   >
+                                    <Users size={17} aria-hidden="true" />
                                     {m.directory_view_members()}
                                   </Link>
                                 </Button>
@@ -289,21 +310,26 @@ export default function Directory({
                                 (group ? (
                                   <ActionButton
                                     variant="outline"
-                                    pending={operation.isPending}
+                                    pending={busy(item.id, "DELETE")}
+                                    disabled={operation.isPending}
                                     onClick={() => removeFromGroup(record)}
                                   >
+                                    <UserMinus size={17} aria-hidden="true" />
                                     {m.directory_remove_group()}
                                   </ActionButton>
                                 ) : (
                                   <Button
                                     variant="outline"
+                                    disabled={operation.isPending}
                                     onClick={() => setAssign(record)}
                                   >
+                                    <UserPlus size={17} aria-hidden="true" />
                                     {m.directory_add_to_group()}
                                   </Button>
                                 ))}
                               <Button
-                                variant="ghost"
+                                variant="outline"
+                                disabled={operation.isPending}
                                 onClick={() =>
                                   setEditor({
                                     kind: kind as "people" | "groups",
@@ -311,13 +337,23 @@ export default function Directory({
                                   })
                                 }
                               >
+                                <Pencil size={17} aria-hidden="true" />
                                 {m.directory_rename()}
                               </Button>
                               <ActionButton
-                                variant="ghost"
-                                pending={operation.isPending}
+                                variant="outline"
+                                pending={busy(item.id, "PATCH")}
+                                disabled={operation.isPending}
                                 onClick={() => archive(record)}
                               >
+                                {record.archived ? (
+                                  <ArchiveRestore
+                                    size={17}
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  <Archive size={17} aria-hidden="true" />
+                                )}
                                 {record.archived
                                   ? m.directory_restore()
                                   : m.directory_archive()}
@@ -386,7 +422,8 @@ export default function Directory({
                                     staff.role === "volunteer") && (
                                     <ActionButton
                                       variant="outline"
-                                      pending={operation.isPending}
+                                      pending={busy(item.id, "DELETE")}
+                                      disabled={operation.isPending}
                                       onClick={async () => {
                                         if (
                                           await confirm({
@@ -407,6 +444,7 @@ export default function Directory({
                                           });
                                       }}
                                     >
+                                      <UserMinus size={17} aria-hidden="true" />
                                       {m.directory_remove_staff()}
                                     </ActionButton>
                                   )}
@@ -448,7 +486,8 @@ export default function Directory({
                                   invite.role === "volunteer") && (
                                   <ActionButton
                                     variant="outline"
-                                    pending={operation.isPending}
+                                    pending={busy(item.id, "DELETE")}
+                                    disabled={operation.isPending}
                                     onClick={async () => {
                                       if (
                                         await confirm({
@@ -465,6 +504,7 @@ export default function Directory({
                                         });
                                     }}
                                   >
+                                    <Ban size={17} aria-hidden="true" />
                                     {m.directory_revoke()}
                                   </ActionButton>
                                 )}
@@ -522,8 +562,8 @@ export default function Directory({
       {assign && (
         <Picker
           title={m.directory_add_to_group()}
-          path={base + "/groups"}
-          scope={[...prefix, "group-picker"]}
+          path={base + `/people/${assign.id}/group-options`}
+          scope={[...prefix, "group-picker", assign.id]}
           onClose={() => setAssign(null)}
           onPick={async (item) => {
             await directoryRequest(
@@ -718,9 +758,11 @@ function Editor({
                 if (await canLeave()) onClose();
               }}
             >
+              <X size={17} aria-hidden="true" />
               {m.cancel()}
             </Button>
             <ActionButton type="submit" pending={submission.isPending}>
+              <Save size={17} aria-hidden="true" />
               {m.directory_save()}
             </ActionButton>
           </div>
@@ -740,16 +782,21 @@ function Picker({
   path: string;
   scope: readonly unknown[];
   onClose: () => void;
-  onPick: (item: Person) => Promise<void>;
+  onPick: (item: GroupOption) => Promise<void>;
 }) {
   useLocale();
   const [search, setSearch] = useState("");
   const query = useSearch(search);
-  const pages = useDirectoryPages<Person>(
+  const pages = useDirectoryPages<GroupOption>(
     [...scope, query],
     path + "?q=" + encodeURIComponent(query),
+    { staleTime: 0, refetchOnMount: "always" },
   );
-  const mutation = useMutation({ mutationFn: onPick });
+  const mutation = useMutation({
+    mutationFn: async (item: GroupOption) => {
+      if (!item.assigned) await onPick(item);
+    },
+  });
   const items = pages.data?.pages.flatMap((p) => p.items) ?? [];
   return (
     <Dialog
@@ -775,6 +822,7 @@ function Picker({
             <ListSkeleton />
           ) : pages.isError &&
             (!pages.data ||
+              !pages.isFetchNextPageError ||
               (pages.error instanceof DirectoryError &&
                 ["forbidden", "not_found", "sign_in"].includes(
                   pages.error.code,
@@ -797,10 +845,33 @@ function Picker({
                   <li key={item.id}>
                     <ActionButton
                       variant="outline"
-                      pending={mutation.isPending}
-                      onClick={() => mutation.mutate(item)}
+                      data-assigned={item.assigned || undefined}
+                      disabled={
+                        item.assigned ||
+                        mutation.isPending ||
+                        (pages.isFetching && !pages.isFetchingNextPage)
+                      }
+                      pending={
+                        mutation.isPending &&
+                        mutation.variables?.id === item.id &&
+                        !item.assigned
+                      }
+                      onClick={() => {
+                        if (!item.assigned && !mutation.isPending)
+                          mutation.mutate(item);
+                      }}
                     >
-                      {item.name}
+                      {item.assigned ? (
+                        <Check size={18} aria-hidden="true" />
+                      ) : (
+                        <Plus size={18} aria-hidden="true" />
+                      )}
+                      <span className="group-option-label">
+                        <strong>{item.name}</strong>{" "}
+                        {item.assigned && (
+                          <small>{m.directory_already_in_group()}</small>
+                        )}
+                      </span>
                     </ActionButton>
                   </li>
                 ))}
@@ -823,6 +894,7 @@ function Picker({
           disabled={mutation.isPending}
           onClick={onClose}
         >
+          <X size={17} aria-hidden="true" />
           {m.close()}
         </Button>
       </DialogContent>
@@ -858,9 +930,11 @@ function ShareInvite({ link, onClose }: { link: string; onClose: () => void }) {
           pending={copied.isPending}
           onClick={() => copied.mutate()}
         >
+          <Copy size={17} aria-hidden="true" />
           {copied.isSuccess ? m.directory_copied() : m.directory_copy()}
         </ActionButton>
         <Button variant="outline" onClick={onClose}>
+          <X size={17} aria-hidden="true" />
           {m.close()}
         </Button>
       </DialogContent>

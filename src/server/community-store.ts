@@ -27,6 +27,21 @@ export function createCommunityStore(
     return (await db.execute(statement)).rows as Record<string, unknown>[];
   }
   return {
+    async person(user: string, org: string, id: string) {
+      return rows(
+        sql`with ${actor(user, org)} select ${projection} from hub_people where organization_id=${org}::uuid and id=${id}::uuid and not archived and exists(select 1 from actor) limit 1`,
+      );
+    },
+    async groupOptions(
+      user: string,
+      org: string,
+      person: string,
+      p: PageInput,
+    ) {
+      return rows(
+        sql`with ${actor(user, org)} select ${projection}, exists(select 1 from hub_group_people gp where gp.organization_id=${org}::uuid and gp.person_id=${person}::uuid and gp.group_id=hub_groups.id) as assigned from hub_groups where organization_id=${org}::uuid and exists(select 1 from actor) and exists(select 1 from hub_people hp where hp.organization_id=${org}::uuid and hp.id=${person}::uuid and not hp.archived) and not archived and name ilike ${pattern(p.query)} ${cursor(p)} order by created_at desc,id desc limit ${p.limit + 1}`,
+      );
+    },
     async group(user: string, org: string, id: string) {
       return rows(
         sql`with ${actor(user, org)} select ${projection} from hub_groups where organization_id=${org}::uuid and id=${id}::uuid and not archived and exists(select 1 from actor) limit 1`,

@@ -30,8 +30,13 @@ export function directoryMessage(error: unknown) {
   const messages = m as unknown as Record<string, () => string>;
   return messages[key]?.() ?? m.error_service();
 }
-export function useDirectoryPages<T>(key: readonly unknown[], path: string) {
+export function useDirectoryPages<T>(
+  key: readonly unknown[],
+  path: string,
+  options: { staleTime?: number; refetchOnMount?: "always" | boolean } = {},
+) {
   return useInfiniteQuery({
+    ...options,
     queryKey: key,
     initialPageParam: null as string | null,
     queryFn: ({ pageParam, signal }) =>

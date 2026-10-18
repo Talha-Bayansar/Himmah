@@ -346,6 +346,154 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
       },
     );
     await t.test(
+      "member group options report assignments on bounded pages with person and tenant isolation",
+      async () => {
+        const [member] = await store.create(
+          "owner-a",
+          orgA,
+          "people",
+          "Picker member",
+          crypto.randomUUID(),
+        );
+        const [another] = await store.create(
+          "owner-a",
+          orgA,
+          "people",
+          "Other picker member",
+          crypto.randomUUID(),
+        );
+        const [joined] = await store.create(
+          "owner-a",
+          orgA,
+          "groups",
+          "Picker joined",
+          crypto.randomUUID(),
+        );
+        const [free] = await store.create(
+          "owner-a",
+          orgA,
+          "groups",
+          "Picker available",
+          crypto.randomUUID(),
+        );
+        await store.setGroup(
+          "owner-a",
+          orgA,
+          String(member!.id),
+          String(joined!.id),
+          true,
+        );
+        const scope = "owner-a:" + orgA + "/group-options/" + member!.id;
+        const input = pageInput(new URL(url + "?limit=1&q=Picker"), scope);
+        const firstPage = pageResult(
+          (await store.groupOptions(
+            "owner-a",
+            orgA,
+            String(member!.id),
+            input,
+          )) as unknown as (Person & { assigned: boolean })[],
+          input,
+        );
+        assert.equal(firstPage.items.length, 1);
+        assert.ok(firstPage.nextCursor);
+        const next = pageInput(
+          new URL(url + "?limit=1&q=Picker&cursor=" + firstPage.nextCursor),
+          scope,
+        );
+        const second = pageResult(
+          (await store.groupOptions(
+            "owner-a",
+            orgA,
+            String(member!.id),
+            next,
+          )) as unknown as (Person & { assigned: boolean })[],
+          next,
+        );
+        const options = [...firstPage.items, ...second.items];
+        assert.equal(options.find((x) => x.id === joined!.id)?.assigned, true);
+        assert.equal(options.find((x) => x.id === free!.id)?.assigned, false);
+        assert.equal(second.nextCursor, null);
+        assert.throws(() =>
+          pageInput(
+            new URL(url + "?q=Picker&cursor=" + firstPage.nextCursor),
+            "owner-a:" + orgA + "/group-options/" + another!.id,
+          ),
+        );
+        assert.equal(
+          (await store.groupOptions("owner-b", orgA, String(member!.id), input))
+            .length,
+          0,
+        );
+        assert.equal(
+          (
+            await store.groupOptions(
+              "volunteer-a",
+              orgA,
+              String(member!.id),
+              input,
+            )
+          ).length,
+          0,
+        );
+        assert.equal(
+          (await store.groupOptions("owner-a", orgB, String(member!.id), input))
+            .length,
+          0,
+        );
+        assert.ok(
+          (
+            await store.groupOptions(
+              "owner-a",
+              orgA,
+              String(another!.id),
+              pageInput(new URL(url + "?q=Picker"), "other"),
+            )
+          ).every((x) => x.assigned === false),
+        );
+        await store.update(
+          "owner-a",
+          orgA,
+          "groups",
+          String(joined!.id),
+          1,
+          null,
+          true,
+        );
+        assert.ok(
+          (
+            await store.groupOptions("owner-a", orgA, String(member!.id), input)
+          ).every((x) => x.id !== joined!.id),
+        );
+        await store.update(
+          "owner-a",
+          orgA,
+          "people",
+          String(member!.id),
+          1,
+          null,
+          true,
+        );
+        assert.equal(
+          (await store.person("owner-a", orgA, String(member!.id))).length,
+          0,
+        );
+        assert.equal(
+          (await store.groupOptions("owner-a", orgA, String(member!.id), input))
+            .length,
+          0,
+        );
+        await store.update(
+          "owner-a",
+          orgA,
+          "people",
+          String(another!.id),
+          1,
+          null,
+          true,
+        );
+      },
+    );
+    await t.test(
       "keyset pagination has no duplicates for equal timestamps and literal wildcard search",
       async () => {
         for (let i = 0; i < 5; i++)
@@ -594,6 +742,67 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
         assert.equal(
           (await communityApi(
             new Request(url + groupPath),
+            identity,
+            organizations,
+            store,
+          ))!.status,
+          404,
+        );
+        const optionsPath =
+          "/api/organizations/" +
+          orgA +
+          "/people/" +
+          person.id +
+          "/group-options";
+        const optionsResponse = await communityApi(
+          new Request(url + optionsPath),
+          identity,
+          organizations,
+          store,
+        );
+        assert.equal(optionsResponse!.status, 200);
+        assert.equal(optionsResponse!.headers.get("Cache-Control"), "no-store");
+        const optionBody = await optionsResponse!.json();
+        assert.ok(
+          optionBody.items.every(
+            (x: { assigned: unknown }) => typeof x.assigned === "boolean",
+          ),
+        );
+        assert.equal(
+          (await communityApi(
+            new Request(url + optionsPath),
+            { ...identity, id: "volunteer-a" },
+            organizations,
+            store,
+          ))!.status,
+          403,
+        );
+        assert.equal(
+          (await communityApi(
+            new Request(
+              url +
+                "/api/organizations/" +
+                orgB +
+                "/people/" +
+                person.id +
+                "/group-options",
+            ),
+            identity,
+            organizations,
+            store,
+          ))!.status,
+          404,
+        );
+        assert.equal(
+          (await communityApi(
+            new Request(
+              url +
+                "/api/organizations/" +
+                orgA +
+                "/people/" +
+                crypto.randomUUID() +
+                "/group-options",
+            ),
             identity,
             organizations,
             store,

@@ -217,3 +217,80 @@ it("scroll sentinel avoids duplicate requests while a page is loading", async ()
     finish({});
   });
 });
+
+it("marks existing memberships as disabled and only spins the group being added across cursor pages", async () => {
+  const group = (id: string, name: string, assigned: boolean) => ({
+    ...first,
+    id,
+    name,
+    assigned,
+  });
+  const assigned = group(
+    "33333333-3333-4333-8333-333333333333",
+    "Study group",
+    true,
+  );
+  const available = group(
+    "44444444-4444-4444-8444-444444444444",
+    "Sports group",
+    false,
+  );
+  const other = group(
+    "55555555-5555-4555-8555-555555555555",
+    "Learning group",
+    false,
+  );
+  const writes = vi.fn();
+  let finish: (value: Response) => void = () => {};
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://himmah.example");
+      if (init?.method === "PUT") {
+        writes(url.pathname);
+        return new Promise<Response>((resolve) => {
+          finish = resolve;
+        });
+      }
+      if (url.pathname.endsWith("/group-options"))
+        return Response.json(
+          url.searchParams.has("cursor")
+            ? { items: [available, other], nextCursor: null }
+            : { items: [assigned], nextCursor: "second-page" },
+        );
+      return Response.json({ items: [first], nextCursor: null });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: "Add to group" }));
+  const dialog = await screen.findByRole("dialog");
+  const existing = await within(dialog).findByRole("button", {
+    name: "Study group Already in this group",
+  });
+  expect((existing as HTMLButtonElement).disabled).toBe(true);
+  expect(existing.querySelector("svg")).toBeTruthy();
+  await user.click(existing);
+  expect(writes).not.toHaveBeenCalled();
+  await user.click(within(dialog).getByRole("button", { name: "Load more" }));
+  const selected = await within(dialog).findByRole("button", {
+    name: "Sports group",
+  });
+  await user.click(selected);
+  await waitFor(() => expect(writes).toHaveBeenCalledTimes(1));
+  expect(selected.getAttribute("aria-busy")).toBe("true");
+  expect(existing.getAttribute("aria-busy")).toBe("false");
+  expect(
+    within(dialog)
+      .getByRole("button", { name: "Learning group" })
+      .getAttribute("aria-busy"),
+  ).toBe("false");
+  expect(
+    within(dialog).getAllByRole("status", { name: "Working" }),
+  ).toHaveLength(1);
+  finish(Response.json({ success: true }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(writes).toHaveBeenCalledWith(
+    `/api/organizations/${org.id}/people/${first.id}/groups/${available.id}`,
+  );
+});

@@ -60,17 +60,37 @@ export async function communityApi(
     const match = url.pathname.match(
       /^\/api\/organizations\/([0-9a-f-]{36})\/(people|groups|staff|invitations)(?:\/([^/]+))?(?:\/groups\/([0-9a-f-]{36}))?$/i,
     );
-    if (!match) return null;
-    const orgId = uuid(match[1]);
-    const kind = match[2]!.toLowerCase();
-    const id = match[3];
-    const groupId = match[4];
+    const options = url.pathname.match(
+      /^\/api\/organizations\/([0-9a-f-]{36})\/people\/([0-9a-f-]{36})\/group-options$/i,
+    );
+    if (!match && !options) return null;
+    const orgId = uuid((match ?? options)![1]);
+    const kind = options ? "group-options" : match![2]!.toLowerCase();
+    const id = options ? options[2] : match![3];
+    const groupId = match?.[4];
     const org = await organizations.get(user.id, orgId);
     if (!org) throw new CommunityError("not_found", 404);
     if (!["owner", "admin"].includes(org.role))
       throw new CommunityError("forbidden", 403);
     if (request.method !== "GET" && !user.emailVerified)
       throw new CommunityError("verify_required", 403);
+    if (kind === "group-options") {
+      if (request.method !== "GET") return respond({ code: "not_found" }, 404);
+      const person = uuid(id);
+      if (!(await directory.person(user.id, orgId, person))[0])
+        throw new CommunityError("not_found", 404);
+      const input = pageInput(
+        url,
+        user.id + ":" + orgId + "/group-options/" + person,
+      );
+      const rows = await directory.groupOptions(user.id, orgId, person, input);
+      return respond(
+        pageResult(
+          rows as unknown as { id: string; createdAt: string }[],
+          input,
+        ),
+      );
+    }
     if (request.method === "GET" && kind === "groups" && id && !groupId) {
       const rows = await directory.group(user.id, orgId, uuid(id));
       if (!rows[0]) throw new CommunityError("not_found", 404);

@@ -7,6 +7,7 @@ export type Person = {
   createdAt: string;
 };
 export type Group = Person;
+export type GroupOption = Group & { assigned: boolean };
 export type Staff = {
   id: string;
   name: string | null;
