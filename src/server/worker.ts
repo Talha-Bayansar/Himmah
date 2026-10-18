@@ -1,3 +1,13 @@
+import { communityApi } from "./community-api.ts";
+import {
+  createCommunityStore,
+  type CommunityStore,
+} from "./community-store.ts";
+import {
+  pageInput,
+  pageResult,
+  CommunityError,
+} from "../community/contracts.ts";
 import { createStore, type OrganizationStore } from "./store.ts";
 import {
   requireSameOrigin,
@@ -8,6 +18,9 @@ export interface Env {
   HIMMAH_DATABASE_URL: string;
   HIMMAH_AUTH_URL: string;
   HIMMAH_APP_ORIGIN: string;
+  DIRECTORY_LIMITER?: {
+    limit(options: { key: string }): Promise<{ success: boolean }>;
+  };
   ONBOARDING_LIMITER: {
     limit(options: { key: string }): Promise<{ success: boolean }>;
   };
@@ -21,6 +34,7 @@ interface Identity {
 type Dependencies = {
   fetch: typeof fetch;
   store: (url: string) => OrganizationStore;
+  directory?: (url: string) => CommunityStore;
 };
 const json = (body: unknown, status = 200) =>
   Response.json(body, {
@@ -187,8 +201,33 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
-      if (url.pathname === "/api/organizations" && request.method === "GET")
-        return json({ organizations: await store.list(user.id) });
+      if (
+        /^\/api\/organizations\/[^/]+\/(people|groups|staff|invitations)(\/|$)/.test(
+          url.pathname,
+        ) ||
+        url.pathname.startsWith("/api/invitations/")
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({
+            key: `directory:${user.id}`,
+          });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await communityApi(
+          request,
+          user,
+          store,
+          (deps.directory ?? createCommunityStore)(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
+      if (url.pathname === "/api/organizations" && request.method === "GET") {
+        const input = pageInput(url, "organizations:" + user.id);
+        const page = pageResult(await store.list(user.id, input), input);
+        return json({ organizations: page.items, nextCursor: page.nextCursor });
+      }
       if (url.pathname === "/api/organizations" && request.method === "POST") {
         if (!user.emailVerified)
           return json(
@@ -245,7 +284,9 @@ export function createHandler(
           : json({ error: "Workspace not found." }, 404);
       }
       return json({ error: "Not found." }, 404);
-    } catch {
+    } catch (error) {
+      if (error instanceof CommunityError)
+        return json({ code: error.code }, error.status);
       return json(
         {
           error:

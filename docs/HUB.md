@@ -1,6 +1,6 @@
 # Himmah Hub — approved feature direction
 
-Status: feature proposal approved by owner. Detailed screen designs and an interactive sample-data prototype now exist. Point values and remaining edge policies require review; production authentication and persistence are not implemented.
+Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Persistent activities, attendance, points and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
 
 ## Purpose and boundaries
 

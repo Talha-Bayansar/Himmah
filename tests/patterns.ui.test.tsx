@@ -103,6 +103,12 @@ beforeEach(() => {
     vi.fn(async (input: string) => {
       if (String(input) === "/api/account")
         return Response.json({ user: owner });
+      if (
+        /\/api\/organizations\/[^/]+\/(people|groups|staff|invitations)/.test(
+          String(input),
+        )
+      )
+        return Response.json({ items: [], nextCursor: null });
       if (String(input) === "/api/organizations")
         return Response.json({ organizations: [organization] });
       return Response.json({ organization });

@@ -4,7 +4,7 @@
 
 `/start` is the organizer portal, reached from the public landing page at `/`. Both support English, Dutch and Turkish. Adult organizers can create an account, request an email verification code, verify it, sign in/out, restore their session, and use email-code password recovery. Verified organizers can create a workspace (name, unique address and timezone), list their memberships and return to a saved workspace. There is no paid checkout yet.
 
-Organization setup is persistent. No demo, mock engagement controls or planned-feature panels are exposed in the deployed UI. Saved workspaces show their actual organization details and membership role. Real youth enrollment and engagement management are not implemented yet.
+Organization setup is persistent. No demo, mock engagement controls or planned-feature panels are exposed in the deployed UI. Saved workspaces show their organization details and, for owners/admins, the persistent member/group directory and staff invitation controls. Roster records do not create logins. Real youth-account enrollment, activities and engagement awards are not implemented yet.
 
 ## Backend and isolation
 
@@ -38,7 +38,7 @@ Database migration/constraint checks and Cloudflare build/deployment are verifie
 
 ## Next milestone
 
-Organization-scoped staff invitations and member/group management, then persistent activities/attendance/points, all authenticated and authorized on the server. Keep the demo separate; never populate a real workspace with sample children by default. Maintain Hub-only access independent of Futsal licensing.
+Persistent activities, attendance and points follow the delivered member/group and staff-invitation milestone. All remain organization-scoped and authorized on the server. Keep the demo separate; never populate a real workspace with sample children by default. Maintain Hub-only access independent of Futsal licensing.
 
 Development-database integration check passed using the exact parameterized Drizzle creation statement: two retries return the same UUID, with one organization, one owner membership and zero list rows for another user. Cloudflare confirmed the new Worker deployment and secret/rate-limit bindings. No real signup or email was sent as part of automated verification.
 

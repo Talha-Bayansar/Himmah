@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as JoinRouteImport } from './routes/join'
 import { Route as StartRouteImport } from './routes/start'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRoute = JoinRouteImport.update({
+  id: '/join',
+  path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StartRoute = StartRouteImport.update({
@@ -25,27 +31,31 @@ const StartRoute = StartRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
   '/start': typeof StartRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
   '/start': typeof StartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/join': typeof JoinRoute
   '/start': typeof StartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/start'
+  fullPaths: '/' | '/join' | '/start'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/start'
-  id: '__root__' | '/' | '/start'
+  to: '/' | '/join' | '/start'
+  id: '__root__' | '/' | '/join' | '/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  JoinRoute: typeof JoinRoute
   StartRoute: typeof StartRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/start': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  JoinRoute: JoinRoute,
   StartRoute: StartRoute,
 }
 export const routeTree = rootRouteImport

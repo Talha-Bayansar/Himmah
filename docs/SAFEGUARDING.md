@@ -1,6 +1,6 @@
 # Youth privacy and safeguarding
 
-Audience: ages 11–15. These are proposed product safeguards; the owner and mosque must confirm enrollment and local requirements before real participants join.
+Youth-program safeguards for the original ages 11–15 pilot; the platform also supports organizations with broader audiences. These are proposed product safeguards; the owner and mosque must confirm enrollment and local requirements before real participants join.
 
 Invite-only membership. Use approved nicknames and illustrated avatars. Standings are visible only to authorized competition members. No real youth photos, public profiles, private messaging, location tracking, advertising or paid competitive advantages in the first release.
 

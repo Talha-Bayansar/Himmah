@@ -25,7 +25,7 @@ Read docs/ENGAGEMENT.md. Each organization defines its own activities and earnin
 
 ## Organizer accounts and production boundary
 
-Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is the public landing page; `/start` is persistent early-access organizer setup. No demo route or fictional youth workflows may be exposed in the deployed app. Keep prototype fixtures/tests as internal development material only. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. No youth enrollment is implemented yet.
+Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is the public landing page; `/start` is persistent early-access organizer setup. No demo route or fictional youth workflows may be exposed in the deployed app. Keep prototype fixtures/tests as internal development material only. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. Participant records are private nickname-only roster entries, separate from login accounts. Their creation requires staff authorization/consent attestation. This is not a complete guardian enrollment process or permission to launch real youth accounts. Staff access uses verified-email-bound, expiring invitation links; never send invitation emails automatically.
 
 ## Engineering defaults
 
@@ -40,6 +40,7 @@ Store UTC timestamps and an explicit season timezone. Keep secrets out of Git, t
 ## Mandatory UI and data patterns (owner preferences)
 
 - Build UI from the installed shadcn primitives in src/components/ui. Preserve the Himmah theme and accessible labels. All 62 registry components are installed; the legacy React Hook Form wrapper is compatibility source only. Application forms use TanStack Form.
+- Growing server-backed lists consistently use cursor pagination and TanStack Query useInfiniteQuery. Bound pages on the server (25 default, 50 maximum), scope keys/cursors by user/organization/filters, use stable created_at+ID ordering, cancel stale fetches, and use the shared InfiniteFooter sentinel plus accessible Load more/retry/end states. Retain loaded records after next-page errors. Never fetch all records for lists or pickers. Fixed enum options and unrouted legacy fixtures are exempt.
 - Use TanStack Router for route navigation and its blockers for unsaved changes. Use TanStack Query for remote reads/mutations; keys include user and organization where relevant. Clear private query/mutation caches on sign-out. Keep server authorization independent of client caches.
 - Page/section loading uses shape-matched Skeleton components. Never use a spinner as the whole page loading UI. Keep loading, empty, error and unauthorized states distinct.
 - Pending interactions (submit, save, sign-in/out, resend, retry, etc.) use the shared ActionButton/Spinner with disabled duplicate submission and aria-busy. Do not add artificial delays to synchronous local demo actions.

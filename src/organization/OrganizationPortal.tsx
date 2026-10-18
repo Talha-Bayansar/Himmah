@@ -1,3 +1,6 @@
+import Directory from "../community/Directory";
+import AcceptInvite from "../community/AcceptInvite";
+import { InfiniteFooter } from "../components/shared/infinite-list";
 import { InstallApp } from "../pwa/install";
 import { m } from "../paraglide/messages.js";
 import { LanguageSelector, useLocale } from "../localization/locale";
@@ -5,7 +8,12 @@ import { localizedText, authError, authFailure } from "../localization/errors";
 import { useRef, useState } from "react";
 import { Link, useBlocker } from "@tanstack/react-router";
 import { useForm, useStore } from "@tanstack/react-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import {
   Leaf,
   ArrowRight,
@@ -62,8 +70,10 @@ const accountKey = ["account"] as const;
 const orgKey = (userId: string) => ["organizations", userId] as const;
 export default function OrganizationPortal({
   initialMode = "signup",
+  inviteToken = null,
 }: {
   initialMode?: "signup" | "signin";
+  inviteToken?: string | null;
 } = {}) {
   const queryClient = useQueryClient();
   useLocale();
@@ -76,14 +86,21 @@ export default function OrganizationPortal({
     retry: false,
   });
   const user = session.data;
-  const organizations = useQuery({
+  const organizations = useInfiniteQuery({
     queryKey: orgKey(user?.id ?? "signed-out"),
-    queryFn: async () =>
-      (await api<{ organizations: Organization[] }>("/api/organizations"))
-        .organizations,
+    initialPageParam: null as string | null,
+    queryFn: async ({ pageParam, signal }) =>
+      api<{ organizations: Organization[]; nextCursor?: string | null }>(
+        "/api/organizations" +
+          (pageParam ? "?cursor=" + encodeURIComponent(pageParam) : ""),
+        { signal },
+      ),
+    getNextPageParam: (page) => page.nextCursor ?? undefined,
     enabled: !!user,
     retry: false,
   });
+  const organizationItems =
+    organizations.data?.pages.flatMap((page) => page.organizations) ?? [];
   const selected = useQuery({
     queryKey: ["organization", user?.id, selectedId],
     queryFn: async () =>
@@ -228,15 +245,17 @@ export default function OrganizationPortal({
                     queryClient.invalidateQueries({ queryKey: accountKey })
                   }
                 />
-              ) : organizations.isError ? (
+              ) : inviteToken ? (
+                <AcceptInvite token={inviteToken} userId={user.id} />
+              ) : organizations.isError && !organizations.data ? (
                 <QueryError
                   message={organizations.error.message}
                   pending={organizations.isFetching}
                   retry={() => organizations.refetch()}
                 />
-              ) : creating || (organizations.data?.length ?? 0) === 0 ? (
+              ) : creating || organizationItems.length === 0 ? (
                 <OrganizationSetup
-                  canCancel={(organizations.data?.length ?? 0) > 0}
+                  canCancel={organizationItems.length > 0}
                   onCancel={() => setCreating(false)}
                   onCreated={async (org) => {
                     await queryClient.invalidateQueries({
@@ -263,6 +282,7 @@ export default function OrganizationPortal({
                 ) : selected.data ? (
                   <Workspace
                     organization={selected.data}
+                    userId={user.id}
                     onBack={() => setSelectedId(null)}
                   />
                 ) : null
@@ -272,7 +292,7 @@ export default function OrganizationPortal({
                   <h1>{m.organizations_title()}</h1>
                   <p className="onboarding-intro">{m.organizations_intro()}</p>
                   <div className="organization-list">
-                    {organizations.data?.map((org) => (
+                    {organizationItems.map((org) => (
                       <Button
                         variant="outline"
                         key={org.id}
@@ -292,6 +312,12 @@ export default function OrganizationPortal({
                       </Button>
                     ))}
                   </div>
+                  <InfiniteFooter
+                    {...organizations}
+                    fetchNextPage={() =>
+                      organizations.fetchNextPage({ cancelRefetch: false })
+                    }
+                  />
                   <Button
                     className="button primary full"
                     onClick={() => setCreating(true)}
@@ -974,9 +1000,11 @@ function OrganizationSetup({
 }
 function Workspace({
   organization,
+  userId,
   onBack,
 }: {
   organization: Organization;
+  userId: string;
   onBack: () => void;
 }) {
   useLocale();
@@ -1011,6 +1039,15 @@ function Workspace({
           <strong>{m[`role_${organization.role}`]()}</strong>
         </div>
       </div>
+      {organization.role === "owner" || organization.role === "admin" ? (
+        <Directory
+          key={organization.id}
+          organization={organization}
+          userId={userId}
+        />
+      ) : (
+        <p>{m.directory_volunteer_access()}</p>
+      )}
     </>
   );
 }

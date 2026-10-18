@@ -73,3 +73,10 @@ Owner requires English, Dutch and Turkish using Paraglide JS and a stack very si
 ## Audience and installed-app clarification
 
 Owner confirmed the landing page must not impose an age limit: any mosque/community organization sharing the engagement goal should be able to use Himmah. The original 11–15 youth pilot remains historical context, not a platform audience restriction. Preserve youth safeguarding where relevant. Owner requested a PWA with iOS and Android icons/splash screens, plus a fix for signup failing on the initial submit. The exact provider error text and a live signup replay remain unavailable; distinguish verified client/proxy defects from unconfirmed production causes.
+
+
+## Confirmed next milestone and pagination convention
+
+Owner authorized building member/group management and explicitly requires consistent infinite scrolling for growing fetched lists. Implement shared bounded cursor APIs and useInfiniteQuery/sentinel + manual Load more fallback for organizations, participants, groups, staff, invitations and group pickers. Keep cursor/query scope tied to tenant/user/filter; preserve loaded rows on page errors.
+
+Delivered foundation: private nickname roster records with staff consent attestation, multi-group assignment, rename/archive/restore, staff invitation links, acceptance and owner-controlled administrator roles. Roster entries do not create logins. Only owners/admins administer the directory; volunteers have a verified workspace membership but no directory administration. Guardian processes and youth account invitations remain a separate milestone. No automatic invitation emails are sent.

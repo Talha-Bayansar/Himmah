@@ -36,7 +36,15 @@ test("English, Dutch and Turkish catalogs are complete and compiled", async () =
             string,
             (inputs: {}, options: { locale: string }) => string
           >
-        )[key]!({}, { locale }),
+        )[key]!(
+          Object.fromEntries(
+            [...catalogs[index]![key]!.matchAll(/\{(\w+)\}/g)].map((match) => [
+              match[1],
+              match[0],
+            ]),
+          ),
+          { locale },
+        ),
         catalogs[index]![key],
       );
     }

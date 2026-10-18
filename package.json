@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.64.0",
+    "@electric-sql/pglite": "^0.5.10",
     "@inlang/paraglide-js": "^2.29.0",
     "@inlang/plugin-message-format": "^4.5.4",
     "@tailwindcss/vite": "^4.3.3",
