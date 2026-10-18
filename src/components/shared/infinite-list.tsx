@@ -57,6 +57,7 @@ export function InfiniteFooter({
       {isFetchNextPageError && <p role="alert">{m.directory_page_error()}</p>}
       {hasNextPage ? (
         <ActionButton
+          type="button"
           variant="outline"
           pending={isFetchingNextPage}
           onClick={() => {

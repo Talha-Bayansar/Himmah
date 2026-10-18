@@ -60,3 +60,7 @@ Runtime migrated to TanStack Start/Router on Cloudflare; Query manages remote ac
 ## Persistent activities checkpoint
 
 Organizer onboarding, staff invitations and private members/groups are live. The next implemented slice adds organization-owned one-off activities with timezone-aware scheduling, independent detail URLs, editing, audited cancellation and bounded infinite lists. This supersedes the older prototype-only checkpoints above. Next: occurrence attendance with volunteer authorization, roster pagination, idempotent saves and explicit corrections; then configurable/manual awards and personal histories. Recurrence, eligibility and registration/capacity remain follow-up work, not shipped controls.
+
+## Session and audience checkpoint
+
+Activities now own reusable defaults and group eligibility; sessions own their saved schedule, details, audience and cancellation reason. Existing one-off records migrate into first sessions. Upcoming/past lists and real session detail routes are implemented with bounded pagination, retry protection and history guards. Next: session-scoped attendance with eligibility-aware rosters and audited corrections, then configurable/manual awards. Draft/publish and recurring scheduling remain later workflow additions.

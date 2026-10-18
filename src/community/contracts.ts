@@ -114,6 +114,7 @@ export function pageInput(url: URL, scope: string): PageInput {
 export function pageResult<T extends { id: string; createdAt: string }>(
   rows: T[],
   input: PageInput,
+  cursorAt?: (row: T) => string,
 ): Page<T> {
   const items = rows.slice(0, input.limit);
   const last = items.at(-1);
@@ -124,7 +125,7 @@ export function pageResult<T extends { id: string; createdAt: string }>(
             ...new TextEncoder().encode(
               JSON.stringify({
                 scope: input.scope,
-                at: last.createdAt,
+                at: cursorAt?.(last) ?? last.createdAt,
                 id: last.id,
               }),
             ),

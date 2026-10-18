@@ -192,7 +192,7 @@ export const audit = pgTable(
   (t) => [index("hub_directory_audit_org").on(t.organizationId, t.createdAt)],
 );
 
-// One-off activity occurrences. Attendance and awards remain separate records.
+// Activity defaults. Legacy dates are retained for migration compatibility only.
 export const activities = pgTable(
   "hub_activities",
   {
@@ -203,8 +203,12 @@ export const activities = pgTable(
     name: text("name").notNull(),
     description: text("description").notNull().default(""),
     location: text("location").notNull().default(""),
-    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
-    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    audienceGroupIds: uuid("audience_group_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
     timezone: text("timezone").notNull(),
     cancelled: boolean("cancelled").notNull().default(false),
     version: integer("version").notNull().default(1),
@@ -230,6 +234,66 @@ export const activities = pgTable(
       "hub_activity_time",
       sql`${t.endsAt} > ${t.startsAt} and ${t.endsAt} <= ${t.startsAt} + interval '7 days'`,
     ),
+    check(
+      "hub_activity_audience_bound",
+      sql`cardinality(${t.audienceGroupIds}) <= 20`,
+    ),
     check("hub_activity_version", sql`${t.version} > 0`),
+  ],
+);
+
+export const activitySessions = pgTable(
+  "hub_activity_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    location: text("location").notNull(),
+    timezone: text("timezone").notNull(),
+    audienceGroupIds: uuid("audience_group_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
+    cancelled: boolean("cancelled").notNull().default(false),
+    cancellationReason: text("cancellation_reason").notNull().default(""),
+    version: integer("version").notNull().default(1),
+    createdBy: text("created_by").notNull(),
+    creationKey: uuid("creation_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.activityId],
+      foreignColumns: [activities.organizationId, activities.id],
+    }),
+    unique("hub_session_scope").on(t.organizationId, t.activityId, t.id),
+    unique("hub_session_creation").on(
+      t.organizationId,
+      t.activityId,
+      t.creationKey,
+    ),
+    index("hub_session_schedule").on(
+      t.organizationId,
+      t.activityId,
+      t.startsAt,
+      t.id,
+    ),
+    check(
+      "hub_session_time",
+      sql`${t.endsAt} > ${t.startsAt} and ${t.endsAt} <= ${t.startsAt} + interval '7 days'`,
+    ),
+    check(
+      "hub_session_audience_bound",
+      sql`cardinality(${t.audienceGroupIds}) <= 20`,
+    ),
+    check("hub_session_reason", sql`length(${t.cancellationReason}) <= 300`),
+    check("hub_session_location", sql`length(${t.location}) <= 160`),
+    check("hub_session_version", sql`${t.version}>0`),
   ],
 );

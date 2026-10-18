@@ -1,4 +1,9 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  notFound,
+  Outlet,
+  useChildMatches,
+} from "@tanstack/react-router";
 import OrganizationPortal from "../organization/OrganizationPortal";
 import { uuid } from "../community/contracts";
 export const Route = createFileRoute(
@@ -15,6 +20,8 @@ export const Route = createFileRoute(
 });
 function ActivityPage() {
   const { organizationId, activityId } = Route.useParams();
+  const children = useChildMatches();
+  if (children.length) return <Outlet />;
   return (
     <OrganizationPortal
       initialMode="signin"
