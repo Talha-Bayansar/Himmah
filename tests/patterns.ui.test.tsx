@@ -14,6 +14,8 @@ import { ConfirmationProvider } from "../src/components/shared/confirmation";
 import OrganizationPortal from "../src/organization/OrganizationPortal";
 import Hub from "../src/hub/Hub";
 import LandingPage from "../src/landing/LandingPage";
+import { LocaleProvider } from "../src/localization/locale";
+import { setLocale } from "../src/paraglide/runtime.js";
 const mocks = vi.hoisted(() => ({
   signOut: vi.fn(),
   sendVerificationOtp: vi.fn(),
@@ -30,7 +32,7 @@ vi.mock("../src/organization/auth", () => ({
 }));
 const owner = {
   id: "owner-a",
-  name: "Demo Organizer",
+  name: "Test Organizer",
   email: "owner@example.invalid",
   emailVerified: true,
 };
@@ -74,14 +76,17 @@ function mount(component: () => React.ReactNode) {
   });
   render(
     <QueryClientProvider client={queryClient}>
-      <ConfirmationProvider>
-        <RouterProvider router={router} />
-      </ConfirmationProvider>
+      <LocaleProvider>
+        <ConfirmationProvider>
+          <RouterProvider router={router} />
+        </ConfirmationProvider>
+      </LocaleProvider>
     </QueryClientProvider>,
   );
   return { queryClient };
 }
 beforeEach(() => {
+  void setLocale("en", { reload: false });
   mocks.signOut.mockReset();
   mocks.sendVerificationOtp
     .mockReset()
@@ -301,27 +306,101 @@ it("requires confirmation before replacing a password", async () => {
 });
 
 describe("public landing page", () => {
-  it("starts organizer onboarding from the main call to action", async () => {
+  it("links to working onboarding without demo or planned feature links", async () => {
     mount(LandingPage);
     const user = userEvent.setup();
-    await screen.findByRole("heading", { name: /Small actions/ });
-    expect(screen.getByText("Planned add-on")).toBeTruthy();
-    expect(
-      screen.getByText(
-        /Member management, activities and points are currently/,
-      ),
-    ).toBeTruthy();
+    await screen.findByRole("heading", {
+      name: "A home for your youth community.",
+    });
+    expect(screen.queryByText(/demo|futsal|planned add-on/i)).toBeNull();
+    expect(screen.queryByRole("link", { name: /demo/i })).toBeNull();
     await user.click(
       screen.getByRole("link", { name: "Start your organization" }),
     );
     await screen.findByText("Organizer page");
   });
-  it("opens the separate sample workspace", async () => {
+  it("translates the landing page and persists the chosen language", async () => {
     mount(LandingPage);
     const user = userEvent.setup();
-    await user.click(
-      await screen.findByRole("link", { name: "Explore the demo" }),
+    await user.selectOptions(
+      await screen.findByRole("combobox", { name: "Language" }),
+      "nl",
     );
-    await screen.findByText("Sample workspace");
+    await screen.findByRole("heading", {
+      name: "Een thuis voor jouw jongerengemeenschap.",
+    });
+    expect(document.cookie).toContain("himmah_locale=nl");
+    expect(document.documentElement.lang).toBe("nl");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Taal" }),
+      "tr",
+    );
+    await screen.findByRole("heading", {
+      name: "Gençlik topluluğunuz için bir yuva.",
+    });
+    expect(
+      screen.getByRole("link", { name: "Kuruluşunuzu oluşturun" }),
+    ).toBeTruthy();
+    expect(document.documentElement.lang).toBe("tr");
   });
+  it("changes language without losing an unfinished signup form", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => Response.json({}, { status: 401 })),
+    );
+    mount(OrganizationPortal);
+    const user = userEvent.setup();
+    const name = await screen.findByLabelText("Your name");
+    await user.type(name, "Volunteer Example");
+    await user.type(
+      screen.getByLabelText("Email address"),
+      "volunteer@example.invalid",
+    );
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Language" }),
+      "tr",
+    );
+    expect((screen.getByLabelText("Adınız") as HTMLInputElement).value).toBe(
+      "Volunteer Example",
+    );
+    expect(
+      (screen.getByLabelText("E-posta adresi") as HTMLInputElement).value,
+    ).toBe("volunteer@example.invalid");
+    expect(
+      screen.getByRole("button", { name: "Organizatör hesabı oluştur" }),
+    ).toBeTruthy();
+  });
+  it("localizes sign-out confirmation and cancellation in Dutch", async () => {
+    mount(OrganizationPortal);
+    const user = userEvent.setup();
+    await screen.findByText("A place for every organization.");
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Language" }),
+      "nl",
+    );
+    await user.click(screen.getByRole("button", { name: "Uitloggen" }));
+    const dialog = await screen.findByRole("alertdialog");
+    expect(within(dialog).getByText("Uitloggen bij Himmah?")).toBeTruthy();
+    await user.click(within(dialog).getByRole("button", { name: "Annuleren" }));
+    expect(mocks.signOut).not.toHaveBeenCalled();
+  });
+});
+
+it("shows only saved organization details after opening a workspace", async () => {
+  mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await screen.findByRole("heading", { name: "Noor Youth" });
+  expect(screen.queryByText(/coming next|demo|futsal/i)).toBeNull();
+  expect(screen.getByText("Owner")).toBeTruthy();
+  await user.selectOptions(
+    screen.getByRole("combobox", { name: "Language" }),
+    "tr",
+  );
+  expect(screen.getByText("Sahip")).toBeTruthy();
+  expect(
+    screen.getByText(
+      "Kuruluşunuz kaydedildi ve yeniden giriş yaptığınızda erişilebilir olacak.",
+    ),
+  ).toBeTruthy();
 });

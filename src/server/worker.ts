@@ -47,7 +47,12 @@ function cookieHeaders(request: Request) {
     Accept: "application/json",
     "Cache-Control": "no-cache",
   });
-  const cookie = request.headers.get("cookie");
+  const cookie = request.headers
+    .get("cookie")
+    ?.split(";")
+    .filter((part) => !part.trim().startsWith("himmah_locale="))
+    .join(";")
+    .trim();
   if (cookie) headers.set("cookie", cookie);
   return headers;
 }
@@ -56,7 +61,7 @@ async function identify(
   env: Env,
   fetcher: typeof fetch,
 ): Promise<Identity | null> {
-  if (!request.headers.get("cookie")) return null;
+  if (!cookieHeaders(request).has("cookie")) return null;
   const result = await fetcher(
     `${env.HIMMAH_AUTH_URL}/get-session?disableCookieCache=true`,
     { headers: cookieHeaders(request), redirect: "manual" },

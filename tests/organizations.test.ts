@@ -312,3 +312,15 @@ test("requests without a session cookie are rejected without an auth network cal
   assert.equal(response.status, 401);
   assert.equal(h.calls.length, 0);
 });
+
+test("a language preference is not treated as an authenticated session", async () => {
+  const h = harness();
+  const response = await h.handler(
+    new Request(app + "/api/account", {
+      headers: { cookie: "himmah_locale=nl" },
+    }),
+    h.env,
+  );
+  assert.equal(response.status, 401);
+  assert.equal(h.calls.length, 0);
+});

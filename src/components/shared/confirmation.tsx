@@ -1,3 +1,5 @@
+import { useLocale } from "@/localization/locale";
+import { m } from "@/paraglide/messages.js";
 import {
   createContext,
   useCallback,
@@ -27,6 +29,7 @@ const Context = createContext<
   ((options: ConfirmationOptions) => Promise<boolean>) | null
 >(null);
 export function ConfirmationProvider({ children }: { children: ReactNode }) {
+  useLocale();
   const [options, setOptions] = useState<ConfirmationOptions | null>(null);
   const resolver = useRef<((value: boolean) => void) | null>(null);
   const settle = useCallback((value: boolean) => {
@@ -67,7 +70,7 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => settle(false)}>
-              Cancel
+              {m.cancel()}
             </AlertDialogCancel>
             <AlertDialogAction
               className={
@@ -77,7 +80,7 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
               }
               onClick={() => settle(true)}
             >
-              {options?.confirmLabel ?? "Continue"}
+              {options?.confirmLabel ?? m.continue_action()}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

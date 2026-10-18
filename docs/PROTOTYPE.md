@@ -1,8 +1,8 @@
-# Hub interactive prototype
+# Archived Hub prototype — internal fixtures only
 
-The public landing page is `/`; the interactive sample workspace is `/demo` and organizer setup is `/start`.
+The fictional Hub UI is no longer a public route. `/demo` returns 404; `/` and `/start` expose the working public introduction and organizer portal. `src/hub/Hub.tsx`, the domain model and their tests remain internal reference material for the future authenticated engagement milestone. Do not re-expose these fixtures in deployment.
 
-Run `npm ci`, then `npm run dev` in the project. Server uses port 3101. The sample-data app can also be published as a TanStack Start Cloudflare Worker using `npm run deploy`. It is a testing prototype, not a service for real youth records.
+Run `npm ci` and `npm test` to exercise the archived component fixtures. The remaining sections document those fixtures, not shipped functionality.
 
 ## Explore the connected flows
 
@@ -30,4 +30,4 @@ Dates and point caps are sample configuration, not final organization policy. Ac
 
 ## Organization registration
 
-The registration link opens a separate persistent organizer portal at `/start/`. Its account and organization records survive refresh. This does not make sample activity/attendance/points records persistent or enroll youth. See [Organization onboarding](ORGANIZATION_ONBOARDING.md).
+The former prototype registration link targeted the persistent organizer portal at `/start`. Its account and organization records survive refresh. This does not make sample activity/attendance/points records persistent or enroll youth. See [Organization onboarding](ORGANIZATION_ONBOARDING.md).

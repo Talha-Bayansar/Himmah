@@ -6,19 +6,15 @@ A mosque youth platform for ages 11–15: take part, learn together, develop you
 
 Himmah Hub is the standalone membership, attendance and points app. Himmah Futsal is an optional connected game; future games can use the same contribution history. Hub and game licenses are organization-level. The existing folder and infrastructure retain their himmah-futsal names for continuity; no resources have been renamed.
 
-Phone-testing prototype: **https://himmah-hub.talha-bayansar.workers.dev/demo** (sample data; resets on refresh).
-
-Organizer early-access portal: **https://himmah-hub.talha-bayansar.workers.dev/start/**. See [organization onboarding](docs/ORGANIZATION_ONBOARDING.md) for scope and testing limits.
-
-Public landing page: **https://himmah-hub.talha-bayansar.workers.dev**. Start organization onboarding or explore the separate sample workspace.
+Live app: **https://himmah-hub.talha-bayansar.workers.dev**. The landing page starts organizer onboarding at `/start`. English, Dutch and Turkish are supported through Paraglide JS.
 
 ## Project status
 
-Runnable Hub prototype with fictional data: youth dashboard, activity registration, attendance review/corrections, manual point awards, personal history, organization switching and a one-off activity builder. Organizer accounts and organization setup are implemented separately; persistent youth/activity management and Futsal gameplay are not implemented yet. See [infrastructure](docs/INFRASTRUCTURE.md) for actual provisioning status.
+The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Persistent youth/activity management and Futsal gameplay are not implemented yet and are not presented as features in the deployed UI. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
 
 ## Start here
 
-- [Run and explore the prototype](docs/PROTOTYPE.md)
+- [Archived prototype and development fixtures](docs/PROTOTYPE.md)
 - [Approved Hub feature design](docs/HUB.md)
 - [Detailed Hub screen designs](docs/HUB_SCREEN_DESIGNS.md)
 - [Visual design board](docs/designs/hub-screens.html)
@@ -38,11 +34,11 @@ Runnable Hub prototype with fictional data: youth dashboard, activity registrati
 ## Local foundation
 
 Requires Node.js 24 and npm. Run `npm ci` then `npm run check`.
-Run `npm run dev` for the TanStack Start app on port **3101**. `npm run build` creates the Cloudflare client/server build in `dist/`; `npm start` previews it on the same port. `npm run deploy` publishes the generated Worker configuration. `npm run check` verifies types, documentation links, domain/API tests and component interaction tests.
+Run `npm run dev` for the TanStack Start app on port **3101**. `npm run build` creates the Cloudflare client/server build in `dist/`; `npm start` previews it on the same port. `npm run test:contrast` audits button colors from the production build. `npm run deploy` publishes the generated Worker configuration. `npm run check` verifies types, documentation links, domain/API tests and component interaction tests.
 
-Required stack: **TanStack Start, Router, Query, Form · Better Auth (managed by Neon) · shadcn/ui · PostgreSQL/Drizzle · Cloudflare Workers**. See [stack and UI conventions](docs/STACK_AND_UI.md).
+Required stack: **TanStack Start, Router, Query, Form · Better Auth (managed by Neon) · Paraglide JS · shadcn/ui · PostgreSQL/Drizzle · Cloudflare Workers**. See [stack and UI conventions](docs/STACK_AND_UI.md).
 
-The demo uses fictional data held in memory and resets on refresh. The separate organizer portal uses managed authentication and a dedicated Neon branch. Neither uses inherited Kermes Pay credentials. Staff/youth and organization switches are demonstration controls, not authentication. Do not enter real youth records. See [Prototype guide](docs/PROTOTYPE.md).
+The organizer portal uses managed Better Auth and a dedicated Neon branch. The archived Hub component and tests use fictional data and are not routed or included in the production JavaScript graph. No real youth enrollment is available. See [prototype archive](docs/PROTOTYPE.md).
 
 This repository is independent of `/workspace/kermes-pay`. Never reuse its credentials, database, auth, deployment, or repository.
 

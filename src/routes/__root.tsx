@@ -1,3 +1,6 @@
+import { LocaleProvider, useLocale } from "../localization/locale";
+import { getLocale, getTextDirection } from "../paraglide/runtime.js";
+import { m } from "@/paraglide/messages.js";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -16,11 +19,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title: "Himmah Hub — Take part. Grow together." },
+        { title: m.page_title() },
         {
           name: "description",
-          content:
-            "A place for youth to connect, contribute and grow with their community.",
+          content: m.page_description(),
         },
       ],
       links: [
@@ -29,23 +31,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ],
     }),
     component: Root,
-    notFoundComponent: () => (
-      <div className="empty-state">
-        <h1>That page isn’t here.</h1>
-        <Button asChild>
-          <Link to="/">Back to Himmah</Link>
-        </Button>
-      </div>
-    ),
-    errorComponent: ({ reset }) => (
-      <div className="empty-state" role="alert">
-        <h1>Something went wrong.</h1>
-        <p>Your request could not be completed.</p>
-        <Button onClick={reset}>Try again</Button>
-      </div>
-    ),
+    notFoundComponent: () => {
+      useLocale();
+      return (
+        <div className="empty-state">
+          <h1>{m.not_found()}</h1>
+          <Button asChild>
+            <Link to="/">{m.back_home()}</Link>
+          </Button>
+        </div>
+      );
+    },
+    errorComponent: ({ reset }) => {
+      useLocale();
+      return (
+        <div className="empty-state" role="alert">
+          <h1>{m.error_title()}</h1>
+          <p>{m.error_description()}</p>
+          <Button onClick={reset}>{m.try_again()}</Button>
+        </div>
+      );
+    },
     shellComponent: ({ children }) => (
-      <html lang="en">
+      <html lang={getLocale()} dir={getTextDirection()}>
         <head>
           <HeadContent />
         </head>
@@ -61,9 +69,11 @@ function Root() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <ConfirmationProvider>
-        <Outlet />
-      </ConfirmationProvider>
+      <LocaleProvider>
+        <ConfirmationProvider>
+          <Outlet />
+        </ConfirmationProvider>
+      </LocaleProvider>
     </QueryClientProvider>
   );
 }

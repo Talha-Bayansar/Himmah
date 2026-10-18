@@ -25,11 +25,11 @@ Read docs/ENGAGEMENT.md. Each organization defines its own activities and earnin
 
 ## Organizer accounts and production boundary
 
-Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is the public landing page; `/demo` is a sample-data demo; `/start/` is persistent early-access organizer setup. Do not confuse demo role/workspace selectors with authorization. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. No youth enrollment is implemented yet.
+Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or database setup. `/` is the public landing page; `/start` is persistent early-access organizer setup. No demo route or fictional youth workflows may be exposed in the deployed app. Keep prototype fixtures/tests as internal development material only. The onboarding database branch contains organizer accounts and must not be reset or used for synthetic seeding. Use development for migrations/tests; keep main untouched unless explicitly authorized. No youth enrollment is implemented yet.
 
 ## Engineering defaults
 
-TypeScript strict mode; mobile-first responsive web app. Required stack: TanStack Start, Router, Query and Form; shadcn/ui components; Better Auth (currently managed by Neon); PostgreSQL on Neon and Drizzle migrations. Do not introduce Next.js or a competing app/form/data framework without an explicit user request. Keep football calculations pure in src/domain with injected, seeded randomness and versioned rules. Match inputs, training outcomes, and results must persist; refreshes and job retries cannot reroll them.
+TypeScript strict mode; mobile-first responsive web app. Required stack: TanStack Start, Router, Query and Form; Paraglide JS localization (English, Dutch, Turkish); shadcn/ui components; Better Auth (currently managed by Neon); PostgreSQL on Neon and Drizzle migrations. Do not introduce Next.js or a competing app/form/data framework without an explicit user request. Keep football calculations pure in src/domain with injected, seeded randomness and versioned rules. Match inputs, training outcomes, and results must persist; refreshes and job retries cannot reroll them.
 
 Enforce permissions, configurable earning rules, manual awards, optional quiz scoring, approvals, rating growth, and prize administration on the server. A participant may not approve their own participation or fetch quiz answer keys before submission. Bound every query by organization, season, membership, and role as relevant. Derive authorized organization scope from verified membership, never trust a client-supplied organization ID alone. Apply tenant scope to jobs, caches, exports and files too. An organization subscription never grants access to another organization or stronger players. Keep safety constraints outside organizer-configurable game settings.
 
@@ -45,6 +45,10 @@ Store UTC timestamps and an explicit season timezone. Keep secrets out of Git, t
 - Pending interactions (submit, save, sign-in/out, resend, retry, etc.) use the shared ActionButton/Spinner with disabled duplicate submission and aria-busy. Do not add artificial delays to synchronous local demo actions.
 - Destructive actions always require the shared shadcn AlertDialog confirmation before mutation: sign-out, delete/remove, reset, cancel registration, discard unsaved changes, replace password, and future destructive operations. Explain impact, provide Cancel, and give the confirm button a specific action label. Do not use window.confirm for app flows. Browser-native beforeunload prompts are the unavoidable fallback when closing/reloading a dirty page.
 - Shared primitives live in src/components/shared. Use their pending/focus/cancel behavior rather than copying another modal or spinner implementation. Test confirm versus cancel and retry behavior for material mutations.
+
+## Localization and live UI
+
+Keep the stack similar to Kermes Pay without modifying that project or sharing its credentials, databases or locale cookie. All shipped user-facing copy, errors, confirmations, loading labels and metadata use Paraglide messages from messages/en.json, nl.json and tr.json. Use request-scoped Paraglide middleware for SSR and the independent himmah_locale cookie. Language changes preserve unfinished forms. Do not hard-code new English UI copy. The deployed app exposes working features only; do not add sample data, mock controls or roadmap promotions. Button-as-link text must retain shadcn token colors; avoid global link inheritance overriding layered utilities. Run the production CSS contrast audit after building.
 
 ## Youth experience
 

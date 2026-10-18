@@ -63,3 +63,8 @@ Owner requires Better Auth, TanStack Start/Router/Query/Form and the complete sh
 ## Public entry and UI refinement
 
 Owner requested a refresh of existing UI/copy after the shadcn migration, plus a landing page that starts organization onboarding. Public entry is `/`, fictional demo is `/demo`, and persistent organizer setup is `/start`. Preserve clear early-access boundaries in public copy; do not present demo engagement workflows or planned games as persistent features.
+
+
+## Confirmed localization and live-only deployment
+
+Owner requires English, Dutch and Turkish using Paraglide JS and a stack very similar to Kermes Pay. Fix text/button contrast and test the UI. Remove demo parts from deployment and keep only real working features. This supersedes the previous public `/demo` decision; preserve internal fixtures and future product requirements, but do not ship mock screens or promotional unfinished features. Existing organizer identities/workspaces must remain intact.

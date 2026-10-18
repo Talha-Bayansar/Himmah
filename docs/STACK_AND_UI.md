@@ -10,13 +10,25 @@ Owner-directed requirements. These supersede earlier Next.js design proposals.
 | Forms | TanStack Form, controlled fields and submission lifecycle |
 | UI | shadcn/ui, Radix primitives, Tailwind CSS 4, Lucide icons |
 | Authentication | Better Auth, currently managed by Neon, through the same-origin protected proxy |
+| Localization | Paraglide JS, English/Dutch/Turkish catalogs, request-scoped SSR and Himmah-only cookie |
 | Database | Neon PostgreSQL, Drizzle schema/migrations |
 
 ## Preserved behavior and accounts
 
 The existing identity service already runs Better Auth; its SDK is Neon's supported Better Auth wrapper. Keep it while Managed Auth is the backend. The TanStack migration does not move password hashes, recreate users, change IDs or revoke existing sessions. Self-hosting Better Auth would be a separate identity migration with its own plan.
 
-`/` remains the synthetic demo; `/start` is the persistent organizer portal. Router handles top-level navigation and unsaved-change blocking; the prototype's internal Hub panels remain local demo state. Query handles account, organization list/detail reads, auth and organization mutations. Form handles credentials, verification/recovery, organization setup, activity drafts and manual awards. The database and API authorization model are unchanged.
+`/` is the public landing page; `/start` is the persistent organizer portal. `/demo` is removed. Internal Hub fixtures are unrouted and excluded from production JavaScript. Query handles account and organization reads/mutations; Form handles credentials, verification/recovery and organization setup. The database and API authorization model are unchanged.
+
+The shared foundation matches Kermes Pay: TanStack Start/Router/Query/Form, shadcn/Radix, Tailwind 4, Paraglide, Drizzle/Neon and Cloudflare/Vite. Himmah preserves its existing Neon-managed Better Auth identities; Kermes Pay’s self-hosted auth and unrelated application features are not copied. No Kermes Pay files, credentials or settings are changed.
+
+## Localization and contrast
+
+Message catalogs live in messages/en.json, nl.json and tr.json. Paraglide compiles before type checks/tests and through its Vite plugin. Its message-format plugin is installed through npm and referenced locally, avoiding a build-time CDN dependency. Generated src/paraglide files are ignored. Never edit generated translations.
+
+The cookie strategy uses `himmah_locale` with English fallback. Server middleware keeps simultaneous locale requests isolated and varies responses by Cookie. LocaleProvider changes language without a reload or form remount, updates HTML language/title/description and refreshes translated consumers. Stored user-entered names, slugs and IANA timezone identifiers are retained. Public API validation and managed-auth errors map to translated known messages; unknown provider details use a safe translated fallback. The locale cookie alone never triggers a managed-auth session request.
+
+Global unlayered link color inheritance must exclude shadcn button links; otherwise it overrides Tailwind’s layered primary-foreground utility. `npm run test:contrast` reads production CSS and checks linked and native button variants at the normal-text WCAG AA threshold (4.5:1), including a reproduction of the original failing global override. This is a programmatic CSS/contrast audit, not a real browser screenshot/layout check. Darker secondary text also improves the organizer page’s labels and supporting text.
+
 
 ## Loading
 

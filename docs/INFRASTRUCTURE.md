@@ -78,3 +78,13 @@ Public introduction now lives at `/`, sample Hub at `/demo`, and organizer onboa
 Validation: 19 domain/API tests and 10 component interaction tests pass, including landing-to-onboarding and landing-to-demo navigation. Type checks, documentation links and production build pass. Local production Workerd serves all three routes and their built assets; anonymous account requests remain 401, disabled auth-admin paths and environment files remain 404. A real browser/phone visual check is still pending because browser tooling is unavailable here.
 
 Latest landing/UI deployment: `0b34d416-da7b-4d53-897c-5da94e15a0c8`. Same dedicated Cloudflare Worker; organizer database secret and managed-auth/origin/rate-limit bindings retained.
+
+## Live-only deployment and localization
+
+The previous public-demo decision is superseded: `/` now introduces only working organizer account/workspace features; `/start` handles registration, verification, sign-in/recovery and saved workspace setup/list/detail. `/demo` and `/demo/` resolve to 404. Internal Hub fixtures remain in source/tests but no demo module or fictional activity content ships in production client JavaScript. No database schema, identity or existing organizer/workspace changes.
+
+Added Paraglide JS 2 with English, Dutch and Turkish, request-scoped SSR middleware and the independent himmah_locale cookie (SameSite=Lax, secure on HTTPS). Language switching preserves form values and updates HTML language/metadata. The message-format compiler plugin is an npm dependency rather than a network CDN fetch. Generated translation/runtime files are ignored and compiled in Vite/type checks/tests. Stack remains aligned with Kermes Pay; that project was inspected read-only and not changed.
+
+Verification: strict types/docs checks, 23 domain/API/localization tests and 13 component interaction tests pass. Catalog completeness, concurrent SSR locale isolation, invalid-locale fallback, localized confirmations/errors, preserved signup values and workspace details are covered. Production Workerd serves translated HTML/metadata and assets in all three languages, varies HTML by Cookie, rejects language-only anonymous sessions with 401 and returns 404 for removed demos/disabled auth-admin paths/environment files. Production CSS button audit reproduces the original global-anchor override at 1.02:1; repaired variants range from 5.87:1 to 11.69:1. CI runs this audit after building. These are component/CSS/HTTP checks: real browser layout, hosted signup and email delivery remain unverified because browser tooling/host access are unavailable here.
+
+Latest live-only/localized Worker version: `f634cc68-9f30-4f5a-a32d-1ff85e27d878`. Organizer database secret, managed-auth origin and rate limiter retained.

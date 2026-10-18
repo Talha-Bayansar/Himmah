@@ -53,7 +53,7 @@ button {
     background 0.15s,
     transform 0.15s;
 }
-a {
+a:not([data-slot="button"]) {
   color: inherit;
 }
 button:hover:not(:disabled) {
@@ -3128,4 +3128,151 @@ dialog p {
 .period-selector [data-slot="native-select"] {
   padding-right: 26px;
   width: 100%;
+}
+
+/* Live organizer experience: readable labels and flexible localized controls. */
+:root {
+  --app-muted: #5c6d60;
+}
+.landing-live-panel {
+  padding: 32px 0;
+  background: var(--forest-dark);
+  color: #f7faed;
+  border: 0;
+  border-radius: 24px 24px 24px 6px;
+  box-shadow: 0 28px 65px -40px #153f3670;
+}
+.landing-live-panel [data-slot="card-content"] {
+  padding-inline: 28px;
+}
+.landing-live-panel .eyebrow {
+  color: #cfdfa9;
+}
+.landing-live-panel h2 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin: 18px 0;
+}
+.landing-live-panel > [data-slot="card-content"] > p {
+  color: #c0d1bf;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.landing-live-steps {
+  list-style: none;
+  padding: 24px 0 0;
+  margin: 0;
+  display: grid;
+  gap: 24px;
+}
+.landing-live-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.landing-live-steps h3 {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.landing-live-steps p {
+  color: #c0d1bf;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 6px;
+}
+.language-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  color: var(--forest);
+}
+.language-selector > [data-slot="native-select-wrapper"] {
+  width: auto;
+  min-width: 0;
+}
+.language-selector [data-slot="native-select"] {
+  width: 115px;
+  min-height: 44px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  padding-right: 28px;
+  color: var(--forest);
+  font-size: 13px;
+}
+.onboarding-form [data-slot="label"] {
+  margin-top: 0;
+  color: #405738;
+}
+.onboarding-form [data-slot="checkbox"] {
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+.onboarding-disclaimer,
+.onboarding-footer,
+.auth-switches {
+  color: #5c6d60;
+}
+.onboarding-shell .eyebrow {
+  color: #52663b;
+}
+.onboarding-story .eyebrow {
+  color: #c2d6a1;
+}
+.onboarding-shell .badge {
+  color: #4f6339;
+}
+.organization-choice {
+  white-space: normal;
+  height: auto;
+}
+.organization-choice > span:nth-child(2) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.onboarding-shell [data-slot="button"] {
+  white-space: normal;
+  height: auto;
+}
+.onboarding-top {
+  column-gap: 8px;
+}
+.onboarding-top > .language-selector {
+  margin-left: auto;
+}
+.landing-nav [data-slot="button"] {
+  white-space: normal;
+  height: auto;
+  text-align: center;
+}
+@media (max-width: 1000px) {
+  .landing-nav {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 760px) {
+  .landing-nav nav {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .landing-nav .language-selector {
+    margin-right: auto;
+  }
+  .landing-nav nav > [data-slot="button"] {
+    flex: 1;
+  }
+  .landing-live-panel {
+    padding: 24px 0;
+  }
+  .landing-live-panel [data-slot="card-content"] {
+    padding-inline: 22px;
+  }
+  .landing-live-panel h2 {
+    font-size: 28px;
+  }
+  .onboarding-top > [data-slot="button"]:first-child {
+    padding-inline: 0;
+  }
 }

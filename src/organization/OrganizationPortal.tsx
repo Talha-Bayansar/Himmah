@@ -1,3 +1,6 @@
+import { m } from "../paraglide/messages.js";
+import { LanguageSelector, useLocale } from "../localization/locale";
+import { localizedText, authError } from "../localization/errors";
 import { useRef, useState } from "react";
 import { Link, useBlocker } from "@tanstack/react-router";
 import { useForm, useStore } from "@tanstack/react-form";
@@ -45,20 +48,24 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { "Content-Type": "application/json", ...init?.headers },
   });
   const body = await response.json();
-  if (!response.ok) throw Error(body.error ?? "Please try again.");
+  if (!response.ok) throw Error(body.error ?? m.error_generic());
   return body as T;
 }
 async function account() {
   const response = await fetch("/api/account", { credentials: "same-origin" });
   if (response.status === 401) return null;
-  if (!response.ok)
-    throw Error("Account services are unavailable. Please try again.");
+  if (!response.ok) throw Error(m.error_account_unavailable());
   return ((await response.json()) as { user: User }).user;
 }
 const accountKey = ["account"] as const;
 const orgKey = (userId: string) => ["organizations", userId] as const;
-export default function OrganizationPortal() {
+export default function OrganizationPortal({
+  initialMode = "signup",
+}: {
+  initialMode?: "signup" | "signin";
+} = {}) {
   const queryClient = useQueryClient();
+  useLocale();
   const confirm = useConfirmation();
   const [creating, setCreating] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -96,7 +103,7 @@ export default function OrganizationPortal() {
     mutationFn: async () => {
       const result = await (await authClient()).signOut();
       if (result.error)
-        throw Error(result.error.message ?? "Could not sign out.");
+        throw Error(authError(result.error.code, m.error_signout()));
     },
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: ["organizations"] });
@@ -110,10 +117,9 @@ export default function OrganizationPortal() {
   async function signOut() {
     if (
       await confirm({
-        title: "Sign out of Himmah?",
-        description:
-          "You’ll need to sign in again to access your organization. Your saved workspaces will stay safe. Unsaved changes will be lost.",
-        confirmLabel: "Sign out",
+        title: m.sign_out_title(),
+        description: m.sign_out_description(),
+        confirmLabel: m.sign_out(),
       })
     )
       logout.mutate();
@@ -127,32 +133,25 @@ export default function OrganizationPortal() {
             <Leaf size={27} />
           </div>
           <span>
-            himmah<span className="brand-sub">GROW TOGETHER</span>
+            himmah<span className="brand-sub">{m.brand_tagline()}</span>
           </span>
         </Link>
         <div className="onboarding-story-copy">
-          <div className="eyebrow">FOR THE PEOPLE WHO SHOW UP</div>
-          <h1>
-            A home for your
-            <br />
-            youth community.
-          </h1>
-          <p>
-            Start with your organizer account and workspace. Together, we’re
-            building a place for your youth community to grow.
-          </p>
+          <div className="eyebrow">{m.story_eyebrow()}</div>
+          <h1>{m.landing_title()}</h1>
+          <p>{m.story_intro()}</p>
           <ul>
             <li>
               <CheckCircle2 size={20} />
-              <span>Your organization. Your own space.</span>
+              <span>{m.workspace_benefit()}</span>
             </li>
             <li>
               <CheckCircle2 size={20} />
-              <span>Activities and points that fit your community.</span>
+              <span>{m.verified_account_benefit()}</span>
             </li>
             <li>
               <CheckCircle2 size={20} />
-              <span>Connected games when you’re ready.</span>
+              <span>{m.saved_benefit()}</span>
             </li>
           </ul>
           <div className="onboarding-orbit" aria-hidden="true">
@@ -161,17 +160,19 @@ export default function OrganizationPortal() {
           </div>
         </div>
         <div className="onboarding-story-footer">
-          <ShieldCheck size={17} />A dedicated space for your organization.
+          <ShieldCheck size={17} />
+          {m.dedicated_space()}
         </div>
       </aside>
       <section className="onboarding-main">
         <header className="onboarding-top">
           <Button variant="link" asChild>
-            <Link to="/demo">
+            <Link to="/">
               <ArrowLeft size={15} />
-              Explore the demo
+              {m.back_home()}
             </Link>
           </Button>
+          <LanguageSelector />
           {user && (
             <ActionButton
               variant="ghost"
@@ -179,7 +180,7 @@ export default function OrganizationPortal() {
               onClick={signOut}
             >
               <LogOut size={16} />
-              Sign out
+              {m.sign_out()}
             </ActionButton>
           )}
         </header>
@@ -194,6 +195,7 @@ export default function OrganizationPortal() {
             />
           ) : !user ? (
             <AuthForm
+              initialMode={initialMode}
               onAuthenticated={() =>
                 queryClient.invalidateQueries({ queryKey: accountKey })
               }
@@ -209,7 +211,7 @@ export default function OrganizationPortal() {
                   <span>{user.email}</span>
                 </div>
                 <span className="badge">
-                  {user.emailVerified ? "Verified" : "Verify email"}
+                  {user.emailVerified ? m.verified() : m.verify_email()}
                 </span>
               </div>
               {logout.isError && <ErrorAlert message={logout.error.message} />}
@@ -261,11 +263,9 @@ export default function OrganizationPortal() {
                 ) : null
               ) : (
                 <>
-                  <div className="eyebrow">YOUR COMMUNITIES</div>
-                  <h1>A place for every organization.</h1>
-                  <p className="onboarding-intro">
-                    Choose a saved workspace or create a new one.
-                  </p>
+                  <div className="eyebrow">{m.your_communities()}</div>
+                  <h1>{m.organizations_title()}</h1>
+                  <p className="onboarding-intro">{m.organizations_intro()}</p>
                   <div className="organization-list">
                     {organizations.data?.map((org) => (
                       <Button
@@ -280,7 +280,7 @@ export default function OrganizationPortal() {
                         <span>
                           <strong>{org.name}</strong>
                           <small>
-                            {org.slug} · {org.role}
+                            {org.slug} · {m[`role_${org.role}`]()}
                           </small>
                         </span>
                         <ArrowRight size={18} />
@@ -292,7 +292,7 @@ export default function OrganizationPortal() {
                     onClick={() => setCreating(true)}
                   >
                     <Plus size={17} />
-                    Create another organization
+                    {m.create_another()}
                   </Button>
                 </>
               )}
@@ -301,16 +301,17 @@ export default function OrganizationPortal() {
         </div>
         <footer className="onboarding-footer">
           <Leaf size={14} />
-          Himmah · Grow together.
+          {m.footer_tagline()}
         </footer>
       </section>
     </div>
   );
 }
 function ErrorAlert({ message }: { message: string }) {
+  useLocale();
   return (
     <Alert variant="destructive" role="alert" className="mb-5">
-      <AlertDescription>{message}</AlertDescription>
+      <AlertDescription>{localizedText(message)}</AlertDescription>
     </Alert>
   );
 }
@@ -325,16 +326,17 @@ function QueryError({
   retry: () => unknown;
   onBack?: () => void;
 }) {
+  useLocale();
   return (
     <Card>
       <CardContent className="space-y-4 pt-6">
         <ErrorAlert message={message} />
         <ActionButton pending={pending} onClick={() => retry()}>
-          Try again
+          {m.try_again()}
         </ActionButton>
         {onBack && (
           <Button variant="ghost" onClick={onBack}>
-            Back to my organizations
+            {m.back_organizations()}
           </Button>
         )}
       </CardContent>
@@ -358,14 +360,17 @@ type AuthScreen =
   "signup" | "signin" | "verify" | "recovery-request" | "recovery-reset";
 function AuthForm({
   verificationEmail,
+  initialMode = "signup",
   onAuthenticated,
 }: {
   verificationEmail?: string;
+  initialMode?: "signup" | "signin";
   onAuthenticated: () => Promise<unknown>;
 }) {
+  useLocale();
   const confirm = useConfirmation();
   const [screen, setScreen] = useState<AuthScreen>(
-    verificationEmail ? "verify" : "signup",
+    verificationEmail ? "verify" : initialMode,
   );
   const [notice, setNotice] = useState("");
   const form = useForm({
@@ -380,10 +385,9 @@ function AuthForm({
       if (
         screen === "recovery-reset" &&
         !(await confirm({
-          title: "Replace your password?",
-          description:
-            "You will use the new password to sign in. Confirm to replace the current password.",
-          confirmLabel: "Replace password",
+          title: m.replace_password_title(),
+          description: m.replace_password_description(),
+          confirmLabel: m.replace_password(),
         }))
       )
         return;
@@ -395,8 +399,7 @@ function AuthForm({
     mutationFn: async (value: AuthValues): Promise<void> => {
       setNotice("");
       if (screen === "signup") {
-        if (!value.adult)
-          throw Error("Confirm that you are an adult organizer.");
+        if (!value.adult) throw Error(m.error_adult());
         const result = await (
           await authClient()
         ).signUp.email({
@@ -405,7 +408,7 @@ function AuthForm({
           name: value.name,
         });
         if (result.error)
-          throw Error(result.error.message ?? "Could not create account.");
+          throw Error(authError(result.error.code, m.error_signup()));
         setScreen("verify");
         const code = await (
           await authClient()
@@ -414,12 +417,10 @@ function AuthForm({
           type: "email-verification",
         });
         if (code.error) {
-          setNotice(
-            "Account created. Use Send a new code to verify your email.",
-          );
+          setNotice(m.notice_account_created());
           return;
         }
-        setNotice("Check your inbox for a verification code.");
+        setNotice(m.notice_check_inbox());
       } else if (screen === "signin") {
         const result = await (
           await authClient()
@@ -428,7 +429,7 @@ function AuthForm({
           password: value.password,
         });
         if (result.error)
-          throw Error(result.error.message ?? "Could not sign in.");
+          throw Error(authError(result.error.code, m.error_signin()));
         form.setFieldValue("password", "");
         await onAuthenticated();
       } else if (screen === "verify") {
@@ -439,9 +440,7 @@ function AuthForm({
           otp: value.code,
         });
         if (result.error)
-          throw Error(
-            result.error.message ?? "That code could not be verified.",
-          );
+          throw Error(authError(result.error.code, m.error_code()));
         if (value.password) {
           const signed = await (
             await authClient()
@@ -452,7 +451,7 @@ function AuthForm({
           if (signed.error) {
             setScreen("signin");
             form.setFieldValue("password", "");
-            setNotice("Email verified. Sign in to continue.");
+            setNotice(m.notice_verified());
             return;
           }
         }
@@ -460,7 +459,7 @@ function AuthForm({
         setScreen("signin");
         form.setFieldValue("password", "");
         form.setFieldValue("code", "");
-        setNotice("Email verified. Sign in if needed to continue.");
+        setNotice(m.notice_verified_continue());
       } else if (screen === "recovery-request") {
         const result = await (
           await authClient()
@@ -469,13 +468,9 @@ function AuthForm({
           type: "forget-password",
         });
         if (result.error)
-          throw Error(
-            result.error.message ?? "Could not request recovery code.",
-          );
+          throw Error(authError(result.error.code, m.error_recovery()));
         setScreen("recovery-reset");
-        setNotice(
-          "If your email belongs to an account, a recovery code has been sent.",
-        );
+        setNotice(m.notice_recovery());
       } else {
         const result = await (
           await authClient()
@@ -485,11 +480,11 @@ function AuthForm({
           password: value.password,
         });
         if (result.error)
-          throw Error(result.error.message ?? "Could not reset password.");
+          throw Error(authError(result.error.code, m.error_reset()));
         setScreen("signin");
         form.setFieldValue("password", "");
         form.setFieldValue("code", "");
-        setNotice("Password updated. Sign in to continue.");
+        setNotice(m.notice_password_updated());
       }
     },
   });
@@ -502,8 +497,8 @@ function AuthForm({
         type: "email-verification",
       });
       if (result.error)
-        throw Error(result.error.message ?? "Could not send code.");
-      setNotice("A new verification code has been sent.");
+        throw Error(authError(result.error.code, m.error_send_code()));
+      setNotice(m.notice_code_sent());
     },
   });
   const pending = submission.isPending || resend.isPending;
@@ -517,12 +512,12 @@ function AuthForm({
   }
   const title =
     screen === "signup"
-      ? "Good things start with you."
+      ? m.signup_title()
       : screen === "signin"
-        ? "Welcome back."
+        ? m.signin_title()
         : screen === "verify"
-          ? "One more little step."
-          : "Let’s get you back in.";
+          ? m.verify_title()
+          : m.recovery_title();
   const fields = (["name", "email", "password", "code"] as const).filter(
     (name) =>
       name === "name"
@@ -535,23 +530,23 @@ function AuthForm({
   );
   return (
     <>
-      <span className="badge">Himmah Hub · Early access</span>
-      <div className="eyebrow mt-6">ORGANIZER ACCOUNT</div>
+      <span className="badge">{m.early_access()}</span>
+      <div className="eyebrow mt-6">{m.organizer_account()}</div>
       <h1>{title}</h1>
       <p className="onboarding-intro">
         {screen === "signup"
-          ? "Create your organizer account, then set up your organization."
+          ? m.signup_intro()
           : screen === "signin"
-            ? "Sign in to your saved organization workspaces."
+            ? m.signin_intro()
             : screen === "verify"
-              ? "Verify your email before creating an organization."
-              : "Recover your account with a code sent to your email."}
+              ? m.verify_intro()
+              : m.recovery_intro()}
       </p>
       {submission.isError && <ErrorAlert message={submission.error.message} />}{" "}
       {resend.isError && <ErrorAlert message={resend.error.message} />}{" "}
       {notice && (
         <Alert className="mb-5" role="status">
-          <AlertDescription>{notice}</AlertDescription>
+          <AlertDescription>{localizedText(notice)}</AlertDescription>
         </Alert>
       )}
       <form
@@ -567,14 +562,14 @@ function AuthForm({
               <div className="mt-5">
                 <Label htmlFor={`auth-${name}`}>
                   {name === "name"
-                    ? "Your name"
+                    ? m.your_name()
                     : name === "email"
-                      ? "Email address"
+                      ? m.email_address()
                       : name === "password"
                         ? screen === "recovery-reset"
-                          ? "New password"
-                          : "Password"
-                        : "Email code"}
+                          ? m.new_password()
+                          : m.password()
+                        : m.email_code()}
                 </Label>
                 <Input
                   id={`auth-${name}`}
@@ -640,7 +635,7 @@ function AuthForm({
                   disabled={pending}
                 />
                 <Label htmlFor="adult-organizer" className="text-xs leading-5">
-                  I’m an adult organizer setting up a youth organization.
+                  {m.adult_organizer()}
                 </Label>
               </div>
             )}
@@ -655,14 +650,14 @@ function AuthForm({
               disabled={resend.isPending}
             >
               {screen === "signup"
-                ? "Create organizer account"
+                ? m.create_account()
                 : screen === "signin"
-                  ? "Sign in"
+                  ? m.sign_in()
                   : screen === "verify"
-                    ? "Verify email"
+                    ? m.verify_email()
                     : screen === "recovery-request"
-                      ? "Send recovery code"
-                      : "Reset password"}
+                      ? m.send_recovery()
+                      : m.reset_password()}
               <ArrowRight size={17} />
             </ActionButton>
           )}
@@ -672,13 +667,13 @@ function AuthForm({
         {screen === "signin" ? (
           <>
             <p>
-              New here?{" "}
+              {m.new_here()}{" "}
               <Button
                 variant="link"
                 onClick={() => navigate("signup")}
                 disabled={pending}
               >
-                Create an account
+                {m.create_an_account()}
               </Button>
             </p>
             <Button
@@ -686,25 +681,25 @@ function AuthForm({
               disabled={pending}
               onClick={() => navigate("recovery-request")}
             >
-              Forgot password?
+              {m.forgot_password()}
             </Button>
             <Button
               variant="link"
               disabled={pending}
               onClick={() => navigate("verify")}
             >
-              Have an unverified account?
+              {m.unverified_account()}
             </Button>
           </>
         ) : screen === "signup" ? (
           <p>
-            Already have an account?{" "}
+            {m.have_account()}{" "}
             <Button
               variant="link"
               disabled={pending}
               onClick={() => navigate("signin")}
             >
-              Sign in
+              {m.sign_in()}
             </Button>
           </p>
         ) : (
@@ -716,7 +711,7 @@ function AuthForm({
                 disabled={submission.isPending || !email}
                 onClick={() => resend.mutate()}
               >
-                Send a new verification code
+                {m.send_new_code()}
               </ActionButton>
             )}
             {!verificationEmail && (
@@ -725,17 +720,13 @@ function AuthForm({
                 disabled={pending}
                 onClick={() => navigate("signin")}
               >
-                Back to sign in
+                {m.back_signin()}
               </Button>
             )}
           </>
         )}
       </div>
-      <p className="onboarding-disclaimer">
-        Early-access organization setup only. Youth enrollment and persistent
-        activity management are being built next. Use the demo to try those
-        screens.
-      </p>
+      <p className="onboarding-disclaimer">{m.setup_scope()}</p>
     </>
   );
 }
@@ -748,6 +739,7 @@ function OrganizationSetup({
   onCancel: () => void;
   onCreated: (organization: Organization) => Promise<void>;
 }) {
+  useLocale();
   const confirm = useConfirmation();
   const creationKey = useRef("");
   const [slugEdited, setSlugEdited] = useState(false);
@@ -765,10 +757,7 @@ function OrganizationSetup({
   const dirty = useStore(form.store, (state) => state.isDirty);
   const creation = useMutation({
     mutationFn: async (value: OrganizationValues): Promise<Organization> => {
-      if (!value.authorized)
-        throw Error(
-          "Confirm that you are authorized to manage this organization.",
-        );
+      if (!value.authorized) throw Error(m.error_authorized());
       creationKey.current ||= crypto.randomUUID();
       const input = validateOrganization({
         ...value,
@@ -787,9 +776,9 @@ function OrganizationSetup({
       dirty &&
       !creation.isSuccess &&
       !(await confirm({
-        title: "Discard organization setup?",
-        description: "Your unsaved organization details will be lost.",
-        confirmLabel: "Discard setup",
+        title: m.discard_setup_title(),
+        description: m.discard_setup_description(),
+        confirmLabel: m.discard_setup(),
         destructive: true,
       })),
     enableBeforeUnload: dirty && !creation.isSuccess,
@@ -798,9 +787,9 @@ function OrganizationSetup({
     if (
       !dirty ||
       (await confirm({
-        title: "Discard organization setup?",
-        description: "Your unsaved organization details will be lost.",
-        confirmLabel: "Discard setup",
+        title: m.discard_setup_title(),
+        description: m.discard_setup_description(),
+        confirmLabel: m.discard_setup(),
         destructive: true,
       }))
     )
@@ -808,12 +797,9 @@ function OrganizationSetup({
   }
   return (
     <>
-      <div className="eyebrow">YOUR ORGANIZATION</div>
-      <h1>Make this space yours.</h1>
-      <p className="onboarding-intro">
-        Start with a name and a timezone. Your organization will have its own
-        members, activities and progress.
-      </p>
+      <div className="eyebrow">{m.your_organization()}</div>
+      <h1>{m.setup_title()}</h1>
+      <p className="onboarding-intro">{m.setup_intro()}</p>
       {creation.isError && <ErrorAlert message={creation.error.message} />}
       <form
         className="onboarding-form"
@@ -825,7 +811,7 @@ function OrganizationSetup({
         <form.Field name="name">
           {(field) => (
             <div className="mt-5">
-              <Label htmlFor="organization-name">Organization name</Label>
+              <Label htmlFor="organization-name">{m.organization_name()}</Label>
               <Input
                 id="organization-name"
                 required
@@ -841,7 +827,7 @@ function OrganizationSetup({
                       organizationSlug(e.target.value),
                     );
                 }}
-                placeholder="e.g. Noor Mosque Youth"
+                placeholder={m.organization_placeholder()}
                 disabled={creation.isPending}
                 className="mt-2"
               />
@@ -851,7 +837,7 @@ function OrganizationSetup({
         <form.Field name="slug">
           {(field) => (
             <div className="mt-5">
-              <Label htmlFor="organization-slug">Workspace address</Label>
+              <Label htmlFor="organization-slug">{m.workspace_address()}</Label>
               <Input
                 id="organization-slug"
                 required
@@ -868,7 +854,7 @@ function OrganizationSetup({
                 className="mt-2"
               />
               <p className="text-xs text-muted-foreground mt-2">
-                A unique name: lowercase letters, numbers and hyphens.
+                {m.slug_help()}
               </p>
             </div>
           )}
@@ -877,7 +863,7 @@ function OrganizationSetup({
           {(field) => (
             <div className="mt-5">
               <Label htmlFor="organization-timezone">
-                Organization timezone
+                {m.organization_timezone()}
               </Label>
               <NativeSelect
                 id="organization-timezone"
@@ -920,16 +906,16 @@ function OrganizationSetup({
                 htmlFor="organization-authorized"
                 className="text-xs leading-5"
               >
-                I am authorized to create and manage this organization.
+                {m.authorized_organizer()}
               </Label>
             </div>
           )}
         </form.Field>
         <Alert className="mt-5">
           <AlertDescription>
-            <strong>Himmah Hub · Early access</strong>
+            <strong>{m.early_access()}</strong>
             <br />
-            No payment or game license is required to create your workspace.
+            {m.no_payment()}
           </AlertDescription>
         </Alert>
         <form.Subscribe selector={(state) => state.isSubmitting}>
@@ -939,7 +925,7 @@ function OrganizationSetup({
               pending={creation.isPending || isSubmitting}
               className="button primary full"
             >
-              Create organization
+              {m.create_organization()}
               <ArrowRight size={17} />
             </ActionButton>
           )}
@@ -952,7 +938,7 @@ function OrganizationSetup({
             disabled={creation.isPending}
             onClick={cancel}
           >
-            Back to my organizations
+            {m.back_organizations()}
           </Button>
         )}
       </form>
@@ -966,60 +952,38 @@ function Workspace({
   organization: Organization;
   onBack: () => void;
 }) {
+  useLocale();
   return (
     <>
       <Button variant="link" onClick={onBack}>
         <ArrowLeft size={16} />
-        My organizations
+        {m.my_organizations()}
       </Button>
       <div className="workspace-welcome">
         <span className="workspace-monogram">
           {organization.name.slice(0, 1)}
         </span>
-        <div className="eyebrow">YOUR ORGANIZATION WORKSPACE</div>
+        <div className="eyebrow">{m.workspace_heading()}</div>
         <h1>{organization.name}</h1>
-        <p className="onboarding-intro">
-          Your organization is saved and stays available when you sign in again.
-        </p>
+        <p className="onboarding-intro">{m.workspace_saved()}</p>
       </div>
       <div className="workspace-detail-grid">
         <div>
           <Building2 size={19} />
-          <span>Workspace</span>
+          <span>{m.workspace()}</span>
           <strong>{organization.slug}</strong>
         </div>
         <div>
           <Clock3 size={19} />
-          <span>Timezone</span>
+          <span>{m.timezone()}</span>
           <strong>{organization.timezone}</strong>
         </div>
         <div>
           <ShieldCheck size={19} />
-          <span>Your role</span>
-          <strong>{organization.role}</strong>
+          <span>{m.your_role()}</span>
+          <strong>{m[`role_${organization.role}`]()}</strong>
         </div>
       </div>
-      <Card>
-        <CardContent className="space-y-4 pt-6">
-          <span className="badge">Coming next</span>
-          <h2>Bring your community in.</h2>
-          <p className="text-muted-foreground text-sm">
-            Member invitations, groups, activities, attendance and points are
-            the next persistent features. They are not connected to this
-            workspace yet.
-          </p>
-          <Button variant="outline" asChild>
-            <Link to="/demo">
-              Explore those flows in the demo
-              <ArrowRight size={17} />
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-      <p className="onboarding-disclaimer">
-        No sample children, attendance or points have been added to your
-        organization. The demo and this saved workspace are separate.
-      </p>
     </>
   );
 }

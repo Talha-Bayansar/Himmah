@@ -66,3 +66,10 @@ The existing identity service is managed Better Auth. Keep its users, sessions, 
 ## Public landing page and component layout refinement
 
 Owner requested a landing page that initiates onboarding and a UI refresh after shadcn migration. Serve the public introduction at `/`, move the fictional interactive workspace to `/demo`, and keep persistent organizer onboarding at `/start`. Use explicit early-access copy: accounts/workspace setup are available, engagement workflows are sample-only and Futsal is planned. Repair wrapped-select flex sizing, navigation alignment, mobile controls and button wrapping while preserving the forest/lime theme. Existing unsaved-change guards, confirmation dialogs and auth boundaries remain in place.
+
+
+## Live-only app, Paraglide localization and contrast fixes
+
+Owner requested removing deployed demos, adding English/Dutch/Turkish with Paraglide JS and keeping the stack close to Kermes Pay. Remove `/demo` and all demo/unfinished-feature links and panels. Keep the working landing page, organizer auth/recovery and persisted workspace setup/list/detail. Internal Hub fixtures and tests remain as future implementation reference; this does not cancel the engagement/Futsal requirements.
+
+Mirror Kermes Pay’s Paraglide cookie/SSR setup using an isolated `himmah_locale` cookie and English fallback. Use a locally installed message-format plugin for reproducible compilation without CDN access. Change language reactively so forms are preserved. Preserve existing managed Better Auth accounts; no identity or database migration. Fix the global anchor color inheritance that overrode shadcn button-link text, improve muted text contrast, and add a production-CSS contrast audit with a regression reproduction. Browser tools are unavailable in this environment; report component/CSS/SSR evidence separately from browser visual verification.
