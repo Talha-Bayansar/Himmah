@@ -17,7 +17,7 @@ Separate account identity from game profile. Avoid mandatory email addresses or 
 ## Integrity requirements
 
 - Unique engagement award per participant/activity/award type.
-- Unique scored attempt per quiz policy; answer keys accessible only through protected server operations.
+- If the optional quiz source is enabled, unique scored attempt per quiz policy; answer keys accessible only through protected server operations.
 - Unique training per player/week/rules version and fixture result per fixture.
 - Transactionally validate eligibility, consume capped credits, record outcomes, and mark jobs complete.
 - Use database locking or compare-and-set status changes for concurrent execution.
@@ -44,3 +44,9 @@ Mode and format are separate fields. Validate a typed draft configuration, produ
 ## Future subscription boundary
 
 Prepare a small provider-neutral organization entitlement interface when implementing the application; do not build billing infrastructure now. Payment records/webhook receipts eventually belong to the platform billing domain and reference an organization, not youth profiles. Providers and actual plans remain undecided. No schema or integration is implemented by this documentation update.
+
+## Source-independent engagement
+
+[Engagement system](ENGAGEMENT.md) supersedes any earlier quiz-centric core-loop assumptions. Add conceptual activity definitions, versioned earning rules, award events, correction events and training allocations. Quiz/question/attempt entities are optional module records, not dependencies of the simulation. Manual, attendance and quiz sources invoke the same authorized award service. Domain training takes eligible point allocations and a season conversion snapshot; it does not query source types.
+
+Ledger events are append-only; calculate balances from grants and linked corrections, with transactional caps and source-scoped deduplication. An optional balance cache must reconcile with the ledger. Track consumed allocations so points cannot fund multiple training runs unintentionally. Corrections after a cutoff preserve completed training/results and apply the published future adjustment policy.

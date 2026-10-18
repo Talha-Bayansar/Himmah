@@ -6,9 +6,9 @@ The engagement-to-development relationship and two modes are confirmed. All numb
 
 Use attack, defence, passing, and goalkeeping attributes; overall rating is a derived display, not a separate editable score. Start everyone with equal competitive strength; role distributions can differ only without creating a hidden advantage.
 
-Proposed training: one guaranteed attribute improvement per eligible weekly training, plus a chance of one additional improvement. Example bonus probabilities: 10% basic, 25% one contribution, 40% activity plus strong quiz, maximum 50%. Final improvement size and weekly caps are undecided. Manager-mode bonuses target a limited number of players; Team League bonuses develop the participant's player.
+Proposed training: one guaranteed attribute improvement per eligible weekly training, plus a chance of one additional improvement. Earlier probability examples are superseded by organization-defined point thresholds and season conversion rules; no quiz-specific tier belongs in the engine. Final improvement size and weekly caps are undecided. Manager-mode bonuses target a limited number of players; Team League bonuses develop the participant's player.
 
-Participation, quiz completion, quiz understanding, and personal improvement can contribute. Define accessible alternative activities and prevent repeat farming. Do not expose a public engagement score as religious merit. Attendance confirmation is server-side and scoped to an activity.
+Each organization chooses earning sources and rules, including manual-only awards. Optional participation, quiz completion, understanding, or improvement sources can all emit normalized engagement awards. Define accessible alternative activities and prevent repeat farming. Do not expose a public engagement score as religious merit. Attendance confirmation is server-side and scoped to an activity.
 
 ## Simulation
 

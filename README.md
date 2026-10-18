@@ -14,6 +14,7 @@ Project foundation and documentation. The game and account system are not implem
 - [Owner preferences and confirmed requirements](docs/PROJECT_CONTEXT.md)
 - [Product specification](docs/PRODUCT.md)
 - [Game rules and balancing proposals](docs/GAME_DESIGN.md)
+- [Dynamic activities and manual points](docs/ENGAGEMENT.md)
 - [Pre-season configuration](docs/SEASON_SETTINGS.md)
 - [Multi-organization platform and future billing](docs/PLATFORM.md)
 - [Architecture and conceptual data model](docs/ARCHITECTURE.md)

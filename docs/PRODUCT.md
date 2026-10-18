@@ -2,7 +2,7 @@
 
 ## Core loop
 
-Activity or Friday lecture → quiz/verified contribution → training allocation → player development → tactics → simulated fixture → table and match report.
+Organization-defined activity or manual contribution → authorized engagement award → configurable training allocation → player development → tactics → simulated fixture → table and match report. Quizzes and attendance are optional sources; a manual-only organization must be fully supported.
 
 ## Competition modes
 
@@ -26,11 +26,11 @@ The engagement/training loop applies to either format. A short tournament can us
 
 ## Organizer capabilities
 
-Create draft seasons with mode, format, timezone, start/end, registration window, schedule, rules, rewards, and tie-breakers or knockout draw resolution. Use the validated settings builder described in [Season settings](SEASON_SETTINGS.md). Preview fixtures/brackets and training opportunities before activation. Save reusable organization templates and duplicate previous seasons into editable drafts. Assign teams and volunteers. Publish quizzes and activities. Approve contributions. Schedule training and fixtures. Inspect job failures and retry safely. Make audited corrections. Finalize standings and record prize decisions separately from sporting results.
+Create draft seasons with mode, format, timezone, start/end, registration window, schedule, rules, rewards, and tie-breakers or knockout draw resolution. Use the validated settings builder described in [Season settings](SEASON_SETTINGS.md). Preview fixtures/brackets and training opportunities before activation. Save reusable organization templates and duplicate previous seasons into editable drafts. Assign teams and volunteers. Create custom activities and earning rules, optionally enable attendance or quizzes, approve contributions, and award points manually to individuals or selected groups with individual ledger entries. Schedule training and fixtures. Inspect job failures and retry safely. Make audited corrections. Finalize standings and record prize decisions separately from sporting results.
 
 ## Participant capabilities
 
-Accept an invite, choose an approved nickname/avatar, see eligible challenges, submit quizzes, see personal confirmation status, train, prepare for matches, view match reports and private league standings. Team League shows teammates' football progress without revealing attendance or private quiz records.
+Accept an invite, choose an approved nickname/avatar, see organization-defined opportunities, optionally submit quizzes when enabled, see personal award/confirmation status, train, prepare for matches, view match reports and private league standings. Team League shows teammates' football progress without revealing attendance or private quiz records.
 
 ## Season lifecycle
 
@@ -38,7 +38,7 @@ Draft → registration → active → completed → archived. Cancellation is an
 
 ## MVP boundaries
 
-Both modes with league and tournament formats, pre-season settings, organization-scoped membership and administration, invitation access, volunteer controls, quizzes, approvals, training, tactics, match reports, fixtures/brackets, standings, and season rewards. Billing activation is a later milestone. No transfer market, chat, public profiles, real-money economy, or live user-controlled football.
+Both modes with league and tournament formats, pre-season settings, organization-scoped membership and administration, invitation access, volunteer controls, configurable activities and manual awards, optional quiz/attendance sources, approvals, training, tactics, match reports, fixtures/brackets, standings, and season rewards. Billing activation is a later milestone. No transfer market, chat, public profiles, real-money economy, or live user-controlled football.
 
 ## Acceptance examples
 
@@ -53,3 +53,7 @@ Future plans may limit seats, active seasons or features at the organization lev
 ## Additional acceptance examples
 
 Each of the two modes can run a league or tournament. A six-entry knockout creates appropriate byes and exactly one final champion, with no replay on job retry. Invalid date/training/rating settings block activation with useful errors. Editing an organization template cannot alter an active season. A volunteer in mosque A cannot inspect mosque B by guessing a season, job or export ID. Future payment status changes affect only the subscribed organization and cannot modify ratings or historical results.
+
+## Organization-defined earning system
+
+See [Engagement system](ENGAGEMENT.md). Configure activity names, points, verification, repeat limits and availability, or award points manually without creating an activity. All sources feed the same audited ledger and capped season conversion rules. Engagement points improve training; they do not directly add football league-table points. A season with no quizzes, and a season with manual awards only, must both complete in either mode/format.

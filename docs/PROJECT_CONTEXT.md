@@ -12,7 +12,7 @@ The owner already has a separate Kermes Pay app in this environment and explicit
 - Two modes: each person manages a virtual club; or people are players in small configurable teams.
 - Team League example: four teams with three participants each. This is an example, not a fixed limit.
 - Equal starting team strength.
-- Mosque participation and scores on the quiz after the weekly Friday lecture improve the chance/rate of player growth on training day.
+- Organization-defined activity points improve the chance/rate of player growth on training day. The weekly Friday lecture quiz is the original use case, not a mandatory app mechanic (clarified 18 October).
 - Better developed players improve the probability of winning simulated fixtures.
 - Football-style league table and points system.
 - Organizer-defined competition periods with a chosen end date and organizer-selected rewards/winners.
@@ -41,3 +41,7 @@ Mosque name and branding; language(s); season timezone; approximate participant 
 - Allow a future organization paywall/subscription; Stripe or Mollie are possible later providers. Billing provider, pricing, tiers, and launch timing remain undecided. Do not provision or integrate payments yet.
 
 “Team League” remains the current mode identifier/name for compatibility. It describes participants playing in shared teams, not a restriction to league format. A clearer display name such as “Team Play” is proposed.
+
+## Confirmed clarification — configurable earning system
+
+Each mosque defines how participants earn engagement points: quizzes, attendance, custom activities, or manual awards for work done at the mosque. A mosque can use manual awards only. Do not require a quiz module, lecture schedule or particular activity category to run any mode/format. Exact awarding rules and conversion to training are configurable; the core game consumes points, not quiz-specific inputs.

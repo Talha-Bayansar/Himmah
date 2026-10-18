@@ -11,9 +11,9 @@ Owner-confirmed: organizers can configure a variety of game parameters before st
 | League | Round-robin legs, win/draw/loss points, ordered tie-breakers |
 | Tournament | Supported variant, seeding/draw policy, byes, tied-match resolution; optional third-place match if implemented |
 | Starting squads | Equal baseline strength, role distribution, supported attribute range, season reset policy |
-| Development | Baseline training, activity/quiz weights, bonus chance and size, weekly caps, maximum attributes |
-| Quiz | Submission window, attempt limits, completion/score/improvement contribution, late policy |
-| Activities | Eligible challenge categories, approval method, frequency limits, alternative contribution paths |
+| Development | Baseline training, engagement-point conversion thresholds, bonus chance and size, weekly caps, maximum attributes |
+| Optional sources | Enable quiz/attendance modules or use manual-only awards; configure module-specific windows and limits only when enabled |
+| Activities | Organization-defined names/categories, earning rules and points, approval method, frequency limits, alternative contribution paths, manual-award permissions |
 | Management | Available formations/tactics, lineup lock, captain/team decision policy |
 | Participation | Entry cutoff, late joins, withdrawal/walkover rules, team assignment and supported substitutions |
 | Rewards | Prize descriptions, eligibility, published criteria, organizer award permissions |
@@ -36,3 +36,7 @@ Competitive rules, baseline ratings and bracket structure are frozen by default.
 ## Non-configurable boundaries
 
 Tenant isolation, participant privacy, server-side scoring, immutable completed results, no paid player advantages and safeguarding requirements cannot be disabled through season settings. Billing controls belong to platform administration and do not change sporting fairness.
+
+## Activity changes during a season
+
+Competition conversion rules and caps are snapshotted at activation. Activities and one-off manual awards can still be created during the season under that policy; do not freeze the activity calendar itself. Version each earning rule and snapshot its points on each award. Editing a rule applies prospectively and never silently recalculates past awards. New earning opportunities must respect the season's limits and access rules. See [Engagement system](ENGAGEMENT.md).
