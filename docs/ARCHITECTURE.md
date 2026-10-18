@@ -2,7 +2,7 @@
 
 ## Current state and intended stack
 
-Current repository: docs, TypeScript domain contracts, project checks, and provisioning records. No UI, authentication, API, scheduler, or application tables exist yet.
+Current repository: a runnable Next.js/React Hub prototype, docs, domain state transitions/tests and provisioning records. Prototype state is browser-memory-only and fictional; no authentication, persistent API, scheduler, or application tables exist yet.
 
 Proposed stack: Next.js App Router and TypeScript, responsive browser UI, server-side application services, Drizzle schema/migrations, Lakebase Postgres on Neon. Hosting is undecided and not provisioned. Do not add hosting, storage, AI services, or payment processing merely because integrations are available.
 

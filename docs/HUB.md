@@ -1,6 +1,6 @@
 # Himmah Hub — approved feature direction
 
-Status: feature proposal approved by owner. Detailed UI, point values and edge policies remain to design; no Hub application is implemented yet.
+Status: feature proposal approved by owner. Detailed screen designs and an interactive sample-data prototype now exist. Point values and remaining edge policies require review; production authentication and persistence are not implemented.
 
 ## Purpose and boundaries
 

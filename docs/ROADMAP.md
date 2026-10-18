@@ -44,3 +44,7 @@ If/when the owner chooses to monetize: agree pricing, trial/limits, cancellation
 ## Engagement acceptance gate
 
 Verify custom activities and manual-only earning before treating the core loop as complete. No mandatory quiz configuration. Exercise a custom rule, attendance award, manual individual/bulk award, optional quiz award, duplicate submission, unauthorized/self-award, correction and training cutoff. Quiz automation may follow the shared award service; the core game must work without it.
+
+## Prototype implementation checkpoint
+
+The first three core flows are now implemented in Next.js with session-memory fictional data, plus activity registration, point/attendance histories, manual awards, organization switching and a connected-app information page. Automated domain tests cover award retries, linked corrections, roster revision conflicts, registration capacity and independent sample workspaces. No production authorization, persistent database integration, recurrence, scheduled activity lifecycle, correction requests or actual Futsal API exists yet. Next: review the runnable prototype, then implement membership/auth and a tenant-scoped persistent Hub data layer.

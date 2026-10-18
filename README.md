@@ -8,10 +8,11 @@ Himmah Hub is the standalone membership, attendance and points app. Himmah Futsa
 
 ## Project status
 
-Project foundation and documentation. The game and account system are not implemented yet. See [infrastructure](docs/INFRASTRUCTURE.md) for actual provisioning status.
+Runnable Hub prototype with fictional data: youth dashboard, activity registration, attendance review/corrections, manual point awards, personal history, organization switching and a one-off activity builder. Real accounts, database persistence and Futsal gameplay are not implemented yet. See [infrastructure](docs/INFRASTRUCTURE.md) for actual provisioning status.
 
 ## Start here
 
+- [Run and explore the prototype](docs/PROTOTYPE.md)
 - [Approved Hub feature design](docs/HUB.md)
 - [Detailed Hub screen designs](docs/HUB_SCREEN_DESIGNS.md)
 - [Visual design board](docs/designs/hub-screens.html)
@@ -31,8 +32,9 @@ Project foundation and documentation. The game and account system are not implem
 ## Local foundation
 
 Requires Node.js 24 and npm. Run `npm ci` then `npm run check`.
-This currently checks TypeScript and the documentation links; no web server is implemented.
-The future app uses port **3101** and its own project-specific secrets.
+Run `npm run dev` for the Hub prototype on port **3101**. `npm run build` creates the production build; `npm start` serves it on the same port. `npm run check` verifies types, documentation links and domain tests.
+
+The prototype uses fictional data held in memory, resets on refresh and never connects to Neon or inherited credentials. Staff/youth and organization switches are demonstration controls, not authentication. Do not enter real youth records. See [Prototype guide](docs/PROTOTYPE.md).
 
 This repository is independent of `/workspace/kermes-pay`. Never reuse its credentials, database, auth, deployment, or repository.
 

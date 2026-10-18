@@ -43,3 +43,7 @@ Owner supplied https://github.com/Talha-Bayansar/Himmah.git and authorized conne
 ## Detailed Hub design v1
 
 Created detailed interaction specifications and a local static visual board for the three agreed Hub workflows. Layout, styling, default finalization behavior, recurrence support and registration policies are design proposals for review, not newly owner-approved rules or implemented functionality. No infrastructure or application tables changed.
+
+## First interactive Hub prototype
+
+Implemented approved core screens as a Next.js application, using fictional in-memory data before production identity and persistence. User-authorized build follows the design handoff sequence. State transitions cover linked attendance awards/corrections, revision validation, manual grants and one-off activity publishing. Two sample workspaces and role/member switches are demo controls, not security boundaries. Do not use real youth records. Recurring activities, authentication, database/API integration and Futsal gameplay remain subsequent work.

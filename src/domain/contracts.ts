@@ -1,6 +1,7 @@
 /** Initial contracts, not an implemented simulation or finalized balancing rules. */
 export type CompetitionMode = "club_manager" | "team_league";
-export type SeasonStatus = "draft" | "registration" | "active" | "completed" | "archived" | "cancelled";
+export type SeasonStatus =
+  "draft" | "registration" | "active" | "completed" | "archived" | "cancelled";
 export type Tactic = "balanced" | "possession" | "pressing" | "counterattack";
 export interface PlayerAttributes {
   attack: number;

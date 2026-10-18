@@ -9,7 +9,7 @@ npm ci
 npm run check
 ```
 
-There is no runnable web app yet. Reserve port 3101 for the future dev server. Never stop Kermes Pay or edit its configuration to free a port.
+Run `npm run dev` to serve the interactive sample-data Hub prototype on port 3101. Run `npm run build` for a production build and `npm start` to serve it. The UI does not call Neon yet. Never stop Kermes Pay or edit its configuration to free a port.
 
 ## Environment isolation
 

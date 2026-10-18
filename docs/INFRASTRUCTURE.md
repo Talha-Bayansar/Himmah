@@ -32,3 +32,7 @@ No hosting, auth provider, storage, email, scheduler, analytics, AI provider, pa
 ## Isolation
 
 Kermes Pay files and settings were not changed. No inherited database, auth or deployment binding is assigned to Himmah Futsal. Reserved app port: 3101. Database and branches belong to this project only.
+
+## Local Hub prototype
+
+Next.js/React application added on reserved port 3101. Uses fictional browser-memory state only; does not read project or inherited database credentials. No hosting or new cloud service was provisioned. The previously created Neon database remains without application tables.
