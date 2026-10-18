@@ -1,4 +1,27 @@
-"use client";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Link, useBlocker } from "@tanstack/react-router";
+import {
+  useForm,
+  useStore,
+  type DeepKeys,
+  type DeepValue,
+} from "@tanstack/react-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
+import {
+  Dialog as ShadcnDialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { ActionButton } from "@/components/shared/action-button";
+import { useConfirmation } from "@/components/shared/confirmation";
 import {
   useState,
   useRef,
@@ -88,40 +111,37 @@ function Dialog({
   children: ReactNode;
   onClose: () => void;
 }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement | null;
-    const dialog = ref.current;
-    dialog?.showModal();
-    return () => {
-      dialog?.close();
-      previous?.focus();
-    };
-  }, []);
   return (
-    <dialog
-      ref={ref}
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
+    <ShadcnDialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose();
       }}
-      aria-labelledby="dialog-title"
     >
-      <div className="dialog-heading">
-        <h2 id="dialog-title">{title}</h2>
-        <button
-          className="icon-button"
-          onClick={onClose}
-          aria-label="Close dialog"
-        >
-          <X size={21} />
-        </button>
-      </div>
-      {children}
-    </dialog>
+      <DialogContent className="hub-dialog" showCloseButton={false}>
+        <div className="dialog-heading">
+          <DialogTitle>{title}</DialogTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            aria-label="Close dialog"
+          >
+            <X size={21} />
+          </Button>
+        </div>
+        <DialogDescription className="sr-only">
+          Review the details and confirm your action.
+        </DialogDescription>
+        {children}
+      </DialogContent>
+    </ShadcnDialog>
   );
 }
+
 export default function Hub() {
+  const confirm = useConfirmation();
+
   const [workspaces, setWorkspaces] = useState(sampleWorkspaces);
   const [workspaceId, setWorkspaceId] = useState("crescent");
   const [staff, setStaff] = useState(false);
@@ -135,10 +155,52 @@ export default function Hub() {
   const [attendanceFilter, setAttendanceFilter] = useState("all");
   const [changes, setChanges] = useState<Record<string, Attendance>>({});
   const [reason, setReason] = useState("");
-  const [awardMembers, setAwardMembers] = useState<string[]>([]);
-  const [awardAmount, setAwardAmount] = useState(10);
-  const [awardReason, setAwardReason] = useState("");
-  const [draft, setDraft] = useState<ActivityDraft>({ ...blank });
+  const activityForm = useForm({
+    defaultValues: { ...blank },
+    onSubmit: async () => {
+      attempt(() => {
+        const next = publishActivity(
+          workspace,
+          activityForm.state.values,
+          crypto.randomUUID(),
+        );
+        update(() => next);
+        activityForm.reset({ ...blank });
+        draftRef.current = null;
+        setDraftSaved(true);
+        setPage("activities");
+        setMessage(
+          "Activity published in this demo. You can now check in participants.",
+        );
+      });
+    },
+  });
+  const draft = useStore(activityForm.store, (state) => state.values);
+  const publishPending = useStore(
+    activityForm.store,
+    (state) => state.isSubmitting,
+  );
+  const setDraft = (value: ActivityDraft) => activityForm.reset(value);
+  const awardForm = useForm({
+    defaultValues: { members: [] as string[], amount: 10, reason: "" },
+    onSubmit: async () => submitAward(),
+  });
+  const awardMembers = useStore(
+    awardForm.store,
+    (state) => state.values.members,
+  );
+  const awardAmount = useStore(awardForm.store, (state) => state.values.amount);
+  const awardReason = useStore(awardForm.store, (state) => state.values.reason);
+  const awardPending = useStore(awardForm.store, (state) => state.isSubmitting);
+  const setAwardMembers = (next: string[] | ((old: string[]) => string[])) =>
+    awardForm.setFieldValue(
+      "members",
+      typeof next === "function" ? next(awardForm.state.values.members) : next,
+    );
+  const setAwardAmount = (value: number) =>
+    awardForm.setFieldValue("amount", value);
+  const setAwardReason = (value: string) =>
+    awardForm.setFieldValue("reason", value);
   const [step, setStep] = useState(0);
   const [period, setPeriod] = useState("all");
   const [progressTab, setProgressTab] = useState("points");
@@ -159,22 +221,27 @@ export default function Hub() {
       (draft.title !== "" ||
         draft.description !== "" ||
         draft.location !== ""));
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      if (dirty) e.preventDefault();
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [dirty]);
+  useBlocker({
+    shouldBlockFn: async () => !(await canLeave()),
+    enableBeforeUnload: dirty,
+  });
   function clearFeedback() {
     setError("");
     setMessage("");
   }
-  function canLeave() {
-    return !dirty || window.confirm("Discard your unsaved changes?");
+  async function canLeave() {
+    return (
+      !dirty ||
+      (await confirm({
+        title: "Discard unsaved changes?",
+        description: "Your unsaved attendance or activity edits will be lost.",
+        confirmLabel: "Discard changes",
+        destructive: true,
+      }))
+    );
   }
-  function go(next: Page) {
-    if (!canLeave()) return;
+  async function go(next: Page) {
+    if (!(await canLeave())) return;
     setPage(next);
     setChanges({});
     setSearch("");
@@ -199,8 +266,8 @@ export default function Hub() {
       );
     }
   }
-  function changeWorkspace(id: string) {
-    if (!canLeave()) return;
+  async function changeWorkspace(id: string) {
+    if (!(await canLeave())) return;
     const w = workspaces.find((w) => w.id === id)!;
     setWorkspaceId(id);
     setMemberId(w.members[0]!.id);
@@ -219,8 +286,8 @@ export default function Hub() {
     setModal("activity");
     clearFeedback();
   }
-  function openCheckin(a: Activity) {
-    if (!canLeave()) return;
+  async function openCheckin(a: Activity) {
+    if (!(await canLeave())) return;
     setActivityId(a.id);
     setPage("checkin");
     setChanges({});
@@ -254,19 +321,19 @@ export default function Hub() {
         { id: "progress" as Page, label: "My progress", icon: TrendingUp },
         { id: "apps" as Page, label: "My apps", icon: LayoutGrid },
       ];
-  function startCreate() {
-    if (!canLeave()) return;
+  async function startCreate() {
+    if (!(await canLeave())) return;
     setDraft(draftRef.current ?? { ...blank });
     setDraftSaved(false);
     setStep(0);
     setPage("create");
     clearFeedback();
   }
-  function field<K extends keyof ActivityDraft>(
+  function field<K extends DeepKeys<ActivityDraft>>(
     key: K,
-    value: ActivityDraft[K],
+    value: DeepValue<ActivityDraft, K>,
   ) {
-    setDraft((old) => ({ ...old, [key]: value }));
+    activityForm.setFieldValue(key, value);
     setDraftSaved(false);
     setError("");
   }
@@ -314,8 +381,7 @@ export default function Hub() {
       );
     });
   }
-  function submitAward(e: FormEvent) {
-    e.preventDefault();
+  function submitAward() {
     if (!previewAward) {
       if (
         !awardMembers.length ||
@@ -386,24 +452,25 @@ export default function Hub() {
         </a>
         <label className="workspace-label">
           YOUR COMMUNITY
-          <select
+          <NativeSelect
             aria-label="Workspace"
             value={workspaceId}
             onChange={(e) => changeWorkspace(e.target.value)}
           >
             {workspaces.map((w) => (
-              <option key={w.id} value={w.id}>
+              <NativeSelectOption key={w.id} value={w.id}>
                 {w.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
+          </NativeSelect>
         </label>
         <div className="sidebar-section">
           {staff ? "YOUR WORKSPACE" : "YOUR SPACE"}
         </div>
         <nav>
           {menu.map((item) => (
-            <button
+            <Button
+              variant="ghost"
               key={item.id}
               className={`nav-item ${page === item.id ? "selected" : ""}`}
               aria-current={page === item.id ? "page" : undefined}
@@ -412,7 +479,7 @@ export default function Hub() {
               <item.icon size={20} />
               {item.label}
               {page === item.id && <span className="nav-dot" />}
-            </button>
+            </Button>
           ))}
         </nav>
         <div className="sidebar-bottom">
@@ -429,10 +496,11 @@ export default function Hub() {
               with every contribution.
             </p>
           </div>
-          <button
+          <Button
+            variant="ghost"
             className="view-switch"
-            onClick={() => {
-              if (!canLeave()) return;
+            onClick={async () => {
+              if (!(await canLeave())) return;
               setStaff(!staff);
               setPage("home");
               setChanges({});
@@ -443,7 +511,7 @@ export default function Hub() {
             <Users size={18} />
             Switch to {staff ? "youth" : "staff"} view
             <ArrowRight size={16} />
-          </button>
+          </Button>
         </div>
       </aside>
       <div className="main-shell">
@@ -456,30 +524,30 @@ export default function Hub() {
             Your community <span>/</span> <strong>Himmah Hub</strong>
           </div>
           <div className="topbar-right">
-            <a href="/start/" className="register-org-link">
+            <Link to="/start" className="register-org-link">
               Register your organization →
-            </a>
+            </Link>
             <span className="demo-pill">
               <span />
               Interactive demo
             </span>
             <label className="member-select">
               <span className="sr-only">Preview member</span>
-              <select
+              <NativeSelect
                 value={member.id}
-                onChange={(e) => {
-                  if (!canLeave()) return;
+                onChange={async (e) => {
+                  if (!(await canLeave())) return;
                   setMemberId(e.target.value);
                   setChanges({});
                   clearFeedback();
                 }}
               >
                 {workspace.members.map((m) => (
-                  <option key={m.id} value={m.id}>
+                  <NativeSelectOption key={m.id} value={m.id}>
                     {m.name}
-                  </option>
+                  </NativeSelectOption>
                 ))}
-              </select>
+              </NativeSelect>
             </label>
             <span className="avatar small">
               {staff ? "V" : member.initials}
@@ -487,40 +555,46 @@ export default function Hub() {
           </div>
         </header>
         <div className="mobile-controls">
-          <a href="/start/" className="register-org-link">
+          <Link to="/start" className="register-org-link">
             Your organization →
-          </a>
-          <select
+          </Link>
+          <NativeSelect
             aria-label="Mobile workspace"
             value={workspaceId}
             onChange={(e) => changeWorkspace(e.target.value)}
           >
             {workspaces.map((w) => (
-              <option key={w.id} value={w.id}>
+              <NativeSelectOption key={w.id} value={w.id}>
                 {w.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-          <button
-            onClick={() => {
-              if (!canLeave()) return;
+          </NativeSelect>
+          <Button
+            variant="ghost"
+            onClick={async () => {
+              if (!(await canLeave())) return;
               setStaff(!staff);
               setChanges({});
               setPage("home");
             }}
           >
             {staff ? "Youth view" : "Staff view"}
-          </button>
+          </Button>
         </div>
         <main>
           <div className="prototype-note">
             <span>Sample data only · Explore the youth and staff views.</span>
-            <button
-              onClick={() => {
+            <Button
+              variant="ghost"
+              onClick={async () => {
                 if (
-                  !window.confirm(
-                    "Reset all sample activities, attendance and points?",
-                  )
+                  !(await confirm({
+                    title: "Reset the demo?",
+                    description:
+                      "All sample activities, attendance and points will return to their starting values. This cannot be undone.",
+                    confirmLabel: "Reset demo",
+                    destructive: true,
+                  }))
                 )
                   return;
                 setWorkspaces(sampleWorkspaces());
@@ -534,18 +608,19 @@ export default function Hub() {
             >
               <RotateCcw size={13} />
               Reset demo
-            </button>
+            </Button>
           </div>
           {message && (
             <div role="status" className="alert success">
               <CheckCircle2 size={18} />
               {message}
-              <button
+              <Button
+                variant="ghost"
                 aria-label="Dismiss message"
                 onClick={() => setMessage("")}
               >
                 <X size={16} />
-              </button>
+              </Button>
             </div>
           )}
           {error && !modal && (
@@ -574,14 +649,18 @@ export default function Hub() {
                 </div>
                 <label className="period-selector">
                   <CalendarDays size={17} />
-                  <select
+                  <NativeSelect
                     aria-label="Reporting period"
                     value={period}
                     onChange={(e) => setPeriod(e.target.value)}
                   >
-                    <option value="all">Autumn program</option>
-                    <option value="recent">Since 12 October</option>
-                  </select>
+                    <NativeSelectOption value="all">
+                      Autumn program
+                    </NativeSelectOption>
+                    <NativeSelectOption value="recent">
+                      Since 12 October
+                    </NativeSelectOption>
+                  </NativeSelect>
                   <ChevronDown size={15} />
                 </label>
               </div>
@@ -628,13 +707,14 @@ export default function Hub() {
                           </span>
                         </div>
                       </div>
-                      <button
+                      <Button
+                        variant="ghost"
                         className="text-link"
                         onClick={() => go("progress")}
                       >
                         {staff ? "View members" : "See my progress"}
                         <ArrowRight size={17} />
-                      </button>
+                      </Button>
                     </div>
                     <div className="hero-art" aria-hidden="true">
                       <div className="orbit orbit-one" />
@@ -651,13 +731,14 @@ export default function Hub() {
                       <h2>Coming up</h2>
                       <p>A chance to connect and take part.</p>
                     </div>
-                    <button
+                    <Button
+                      variant="ghost"
                       className="text-link"
                       onClick={() => go("activities")}
                     >
                       All activities
                       <ArrowRight size={16} />
-                    </button>
+                    </Button>
                   </div>
                   <div className="activity-grid">
                     {(staff ? workspace.activities : personalActivities)
@@ -681,13 +762,14 @@ export default function Hub() {
                           ? "Recent recognition"
                           : "Your recent contributions"}
                       </h2>
-                      <button
+                      <Button
+                        variant="ghost"
                         className="text-link"
                         onClick={() => go("progress")}
                       >
                         View all
                         <ArrowRight size={15} />
-                      </button>
+                      </Button>
                     </div>
                     {(staff ? workspace.awards.slice().reverse() : awards)
                       .slice(0, 3)
@@ -750,20 +832,22 @@ export default function Hub() {
                     <section className="aside-card">
                       <h3>Make good things happen</h3>
                       <p>Plan an activity or recognize someone’s effort.</p>
-                      <button
+                      <Button
+                        variant="ghost"
                         className="button primary full"
                         onClick={startCreate}
                       >
                         <Plus size={17} />
                         Create activity
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="ghost"
                         className="button secondary full"
                         onClick={showAward}
                       >
                         <Gift size={17} />
                         Give points
-                      </button>
+                      </Button>
                     </section>
                   ) : workspace.futsal ? (
                     <section className="game-card">
@@ -781,10 +865,10 @@ export default function Hub() {
                         <br />
                         Bring your community spirit.
                       </p>
-                      <button onClick={() => go("apps")}>
+                      <Button variant="ghost" onClick={() => go("apps")}>
                         Explore Futsal
                         <ArrowRight size={16} />
-                      </button>
+                      </Button>
                       <span className="game-footnote">
                         Game experience coming next
                       </span>
@@ -820,15 +904,19 @@ export default function Hub() {
                   <p>Find your next opportunity to connect and contribute.</p>
                 </div>
                 {staff && (
-                  <button className="button primary" onClick={startCreate}>
+                  <Button
+                    variant="ghost"
+                    className="button primary"
+                    onClick={startCreate}
+                  >
                     <Plus size={18} />
                     Create activity
-                  </button>
+                  </Button>
                 )}
               </div>
               <div className="toolbar">
                 <Search size={18} />
-                <input
+                <Input
                   aria-label="Search activities"
                   placeholder="Find an activity…"
                   value={search}
@@ -883,10 +971,14 @@ export default function Hub() {
                   </p>
                 </div>
                 {staff && (
-                  <button className="button primary" onClick={showAward}>
+                  <Button
+                    variant="ghost"
+                    className="button primary"
+                    onClick={showAward}
+                  >
                     <Plus size={17} />
                     Give points
-                  </button>
+                  </Button>
                 )}
               </div>
               {staff ? (
@@ -927,18 +1019,20 @@ export default function Hub() {
                     </div>
                   </section>
                   <div className="tabs">
-                    <button
+                    <Button
+                      variant="ghost"
                       className={progressTab === "points" ? "active" : ""}
                       onClick={() => setProgressTab("points")}
                     >
                       Point history
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
                       className={progressTab === "attendance" ? "active" : ""}
                       onClick={() => setProgressTab("attendance")}
                     >
                       My attendance
-                    </button>
+                    </Button>
                   </div>
                   <div className="panel">
                     {progressTab === "points" ? (
@@ -1054,18 +1148,22 @@ export default function Hub() {
                   <h1>Good to see everyone.</h1>
                   <p>Confirm participation. Recognize the effort.</p>
                 </div>
-                <button className="button secondary" onClick={showAward}>
+                <Button
+                  variant="ghost"
+                  className="button secondary"
+                  onClick={showAward}
+                >
                   <Gift size={17} />
                   Give points
-                </button>
+                </Button>
               </div>
               <div className="panel checkin-header">
                 <label>
                   Activity
-                  <select
+                  <NativeSelect
                     value={activity.id}
-                    onChange={(e) => {
-                      if (!canLeave()) return;
+                    onChange={async (e) => {
+                      if (!(await canLeave())) return;
                       setActivityId(e.target.value);
                       setChanges({});
                       setSearch("");
@@ -1073,11 +1171,11 @@ export default function Hub() {
                     }}
                   >
                     {workspace.activities.map((a) => (
-                      <option key={a.id} value={a.id}>
+                      <NativeSelectOption key={a.id} value={a.id}>
                         {a.title} · {dateLabel(a.date)}
-                      </option>
+                      </NativeSelectOption>
                     ))}
-                  </select>
+                  </NativeSelect>
                 </label>
                 <div>
                   <MapPin size={16} />
@@ -1111,22 +1209,24 @@ export default function Hub() {
               </div>
               <div className="toolbar">
                 <Search size={18} />
-                <input
+                <Input
                   aria-label="Search participants"
                   placeholder="Search participants…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <select
+                <NativeSelect
                   aria-label="Filter attendance"
                   value={attendanceFilter}
                   onChange={(e) => setAttendanceFilter(e.target.value)}
                 >
-                  <option value="all">All statuses</option>
+                  <NativeSelectOption value="all">
+                    All statuses
+                  </NativeSelectOption>
                   {["present", "absent", "excused", "unmarked"].map((s) => (
-                    <option key={s}>{s}</option>
+                    <NativeSelectOption key={s}>{s}</NativeSelectOption>
                   ))}
-                </select>
+                </NativeSelect>
               </div>
               <div className="panel roster">
                 <div className="roster-heading">
@@ -1137,7 +1237,8 @@ export default function Hub() {
                         .length
                     }
                   </strong>
-                  <button
+                  <Button
+                    variant="ghost"
                     className="text-link"
                     onClick={() => {
                       const visible = workspace.members.filter(
@@ -1163,7 +1264,7 @@ export default function Hub() {
                     }}
                   >
                     Mark visible present
-                  </button>
+                  </Button>
                 </div>
                 {workspace.members
                   .filter(
@@ -1202,7 +1303,8 @@ export default function Hub() {
                             "unmarked",
                           ] as Attendance[]
                         ).map((status) => (
-                          <button
+                          <Button
+                            variant="ghost"
                             aria-pressed={
                               (changes[m.id] ??
                                 activity.attendance[m.id] ??
@@ -1231,7 +1333,7 @@ export default function Hub() {
                           >
                             {status === "present" && <Check size={13} />}
                             <span>{status}</span>
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     </div>
@@ -1245,7 +1347,8 @@ export default function Hub() {
                   </strong>
                   <p>Registration is separate from attendance.</p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
                   className="button primary"
                   disabled={!changeCount}
                   onClick={() => {
@@ -1256,26 +1359,28 @@ export default function Hub() {
                 >
                   Review changes
                   <ArrowRight size={17} />
-                </button>
+                </Button>
               </div>
             </>
           )}
           {page === "create" && staff && (
             <>
-              <button
+              <Button
+                variant="ghost"
                 className="text-link back-link"
                 onClick={() => go("activities")}
               >
                 <ArrowLeft size={16} />
                 Activities
-              </button>
+              </Button>
               <div className="page-heading">
                 <div>
                   <div className="eyebrow">BRING PEOPLE TOGETHER</div>
                   <h1>A little planning. A lot of good.</h1>
                   <p>Create an activity that fits your community.</p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
                   className="button secondary"
                   onClick={() => {
                     draftRef.current = { ...draft };
@@ -1286,7 +1391,7 @@ export default function Hub() {
                   }}
                 >
                   Save draft
-                </button>
+                </Button>
               </div>
               <div className="wizard-layout">
                 <div className="panel wizard">
@@ -1311,7 +1416,7 @@ export default function Hub() {
                       </p>
                       <label>
                         Activity name
-                        <input
+                        <Input
                           autoComplete="off"
                           value={draft.title}
                           onChange={(e) => field("title", e.target.value)}
@@ -1321,7 +1426,7 @@ export default function Hub() {
                       </label>
                       <label>
                         Description
-                        <textarea
+                        <Textarea
                           value={draft.description}
                           onChange={(e) => field("description", e.target.value)}
                           placeholder="What can young people expect?"
@@ -1330,7 +1435,7 @@ export default function Hub() {
                       </label>
                       <label>
                         Location
-                        <input
+                        <Input
                           value={draft.location}
                           onChange={(e) => field("location", e.target.value)}
                           placeholder="e.g. Community hall"
@@ -1339,14 +1444,14 @@ export default function Hub() {
                       </label>
                       <label>
                         Who can join?
-                        <select
+                        <NativeSelect
                           value={draft.group}
                           onChange={(e) => field("group", e.target.value)}
                         >
                           {groups.map((g) => (
-                            <option key={g}>{g}</option>
+                            <NativeSelectOption key={g}>{g}</NativeSelectOption>
                           ))}
-                        </select>
+                        </NativeSelect>
                       </label>
                     </>
                   )}
@@ -1359,7 +1464,7 @@ export default function Hub() {
                       </p>
                       <label>
                         Date
-                        <input
+                        <Input
                           type="date"
                           value={draft.date}
                           onChange={(e) => field("date", e.target.value)}
@@ -1368,7 +1473,7 @@ export default function Hub() {
                       <div className="form-two">
                         <label>
                           Starts
-                          <input
+                          <Input
                             type="time"
                             value={draft.time}
                             onChange={(e) => field("time", e.target.value)}
@@ -1376,19 +1481,22 @@ export default function Hub() {
                         </label>
                         <label>
                           Ends
-                          <input
+                          <Input
                             type="time"
                             value={draft.endTime}
                             onChange={(e) => field("endTime", e.target.value)}
                           />
                         </label>
                       </div>
-                      <label className="checkbox-label">
-                        <input
-                          type="checkbox"
+                      <label
+                        className="checkbox-label"
+                        htmlFor="activity-registration"
+                      >
+                        <Checkbox
+                          id="activity-registration"
                           checked={draft.registration}
-                          onChange={(e) =>
-                            field("registration", e.target.checked)
+                          onCheckedChange={(value) =>
+                            field("registration", value === true)
                           }
                         />
                         Ask participants to register
@@ -1396,7 +1504,7 @@ export default function Hub() {
                       {draft.registration && (
                         <label>
                           Places available
-                          <input
+                          <Input
                             type="number"
                             min={1}
                             max={200}
@@ -1420,50 +1528,57 @@ export default function Hub() {
                         Attendance and points are independent. No quiz or game
                         required.
                       </p>
-                      {(
-                        [
-                          {
-                            id: "none",
-                            title: "No points",
-                            text: "Track attendance only. Participation is enough.",
-                          },
-                          {
-                            id: "attendance",
-                            title: "Automatic attendance award",
-                            text: "Award once when a volunteer confirms presence.",
-                          },
-                          {
-                            id: "custom",
-                            title: "Staff-approved contribution",
-                            text: "Recognize a custom task using manual approval.",
-                          },
-                          {
-                            id: "manual",
-                            title: "Manual awards only",
-                            text: "Volunteers choose who earns points and why.",
-                          },
-                        ] as const
-                      ).map((option) => (
-                        <label
-                          className={`point-option ${draft.mode === option.id ? "selected" : ""}`}
-                          key={option.id}
-                        >
-                          <input
-                            type="radio"
-                            name="points-mode"
-                            checked={draft.mode === option.id}
-                            onChange={() => field("mode", option.id)}
-                          />
-                          <span>
-                            <strong>{option.title}</strong>
-                            <small>{option.text}</small>
-                          </span>
-                        </label>
-                      ))}
+                      <RadioGroup
+                        value={draft.mode}
+                        onValueChange={(value) =>
+                          field("mode", value as ActivityDraft["mode"])
+                        }
+                        aria-label="Points policy"
+                      >
+                        {(
+                          [
+                            {
+                              id: "none",
+                              title: "No points",
+                              text: "Track attendance only. Participation is enough.",
+                            },
+                            {
+                              id: "attendance",
+                              title: "Automatic attendance award",
+                              text: "Award once when a volunteer confirms presence.",
+                            },
+                            {
+                              id: "custom",
+                              title: "Staff-approved contribution",
+                              text: "Recognize a custom task using manual approval.",
+                            },
+                            {
+                              id: "manual",
+                              title: "Manual awards only",
+                              text: "Volunteers choose who earns points and why.",
+                            },
+                          ] as const
+                        ).map((option) => (
+                          <label
+                            className={`point-option ${draft.mode === option.id ? "selected" : ""}`}
+                            key={option.id}
+                            htmlFor={`points-${option.id}`}
+                          >
+                            <RadioGroupItem
+                              id={`points-${option.id}`}
+                              value={option.id}
+                            />
+                            <span>
+                              <strong>{option.title}</strong>
+                              <small>{option.text}</small>
+                            </span>
+                          </label>
+                        ))}
+                      </RadioGroup>
                       {["attendance", "custom"].includes(draft.mode) && (
                         <label>
                           Points per contribution
-                          <input
+                          <Input
                             type="number"
                             min={1}
                             max={100}
@@ -1517,7 +1632,8 @@ export default function Hub() {
                     </>
                   )}
                   <div className="wizard-footer">
-                    <button
+                    <Button
+                      variant="ghost"
                       className="button secondary"
                       disabled={step === 0}
                       onClick={() => {
@@ -1526,36 +1642,25 @@ export default function Hub() {
                       }}
                     >
                       Back
-                    </button>
+                    </Button>
                     {step < 3 ? (
-                      <button className="button primary" onClick={nextStep}>
+                      <Button
+                        variant="ghost"
+                        className="button primary"
+                        onClick={nextStep}
+                      >
                         Continue
                         <ArrowRight size={16} />
-                      </button>
+                      </Button>
                     ) : (
-                      <button
+                      <ActionButton
                         className="button primary"
-                        onClick={() =>
-                          attempt(() => {
-                            const next = publishActivity(
-                              workspace,
-                              draft,
-                              crypto.randomUUID(),
-                            );
-                            update(() => next);
-                            setDraft({ ...blank });
-                            draftRef.current = null;
-                            setDraftSaved(true);
-                            setPage("activities");
-                            setMessage(
-                              "Activity published in this demo. You can now check in participants.",
-                            );
-                          })
-                        }
+                        pending={publishPending}
+                        onClick={() => activityForm.handleSubmit()}
                       >
                         Publish activity
                         <Check size={16} />
-                      </button>
+                      </ActionButton>
                     )}
                   </div>
                 </div>
@@ -1585,7 +1690,8 @@ export default function Hub() {
         </main>
         <nav className="mobile-nav">
           {menu.slice(0, 4).map((item) => (
-            <button
+            <Button
+              variant="ghost"
               key={item.id}
               className={page === item.id ? "active" : ""}
               aria-current={page === item.id ? "page" : undefined}
@@ -1593,7 +1699,7 @@ export default function Hub() {
             >
               <item.icon size={20} />
               <span>{item.label}</span>
-            </button>
+            </Button>
           ))}
         </nav>
       </div>
@@ -1632,13 +1738,25 @@ export default function Hub() {
                   {activity.capacity - activity.registered.length} places
                   available
                 </p>
-                <button
+                <Button
+                  variant="ghost"
                   className="button primary full"
                   disabled={
                     !activity.registered.includes(member.id) &&
                     activity.registered.length >= activity.capacity
                   }
-                  onClick={() =>
+                  onClick={async () => {
+                    if (
+                      activity.registered.includes(member.id) &&
+                      !(await confirm({
+                        title: "Cancel registration?",
+                        description:
+                          "Your place will become available to someone else.",
+                        confirmLabel: "Cancel registration",
+                        destructive: true,
+                      }))
+                    )
+                      return;
                     attempt(() => {
                       const next = register(workspace, activity.id, member.id);
                       update(() => next);
@@ -1648,8 +1766,8 @@ export default function Hub() {
                           : "You’re registered. See you there!",
                       );
                       setModal(null);
-                    })
-                  }
+                    });
+                  }}
                 >
                   {activity.registered.includes(member.id)
                     ? "Cancel registration"
@@ -1657,7 +1775,7 @@ export default function Hub() {
                       ? "Activity full"
                       : "Count me in"}
                   <ArrowRight size={17} />
-                </button>
+                </Button>
               </>
             ) : (
               <p className="hint">No registration needed. Just come along.</p>
@@ -1697,23 +1815,32 @@ export default function Hub() {
               )
                 ? "(required)"
                 : "(optional)"}
-              <input
+              <Input
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Why is saved attendance changing?"
                 maxLength={200}
               />
             </label>
-            <button className="button primary full" onClick={commitAttendance}>
+            <Button
+              variant="ghost"
+              className="button primary full"
+              onClick={commitAttendance}
+            >
               <Check size={17} />
               Confirm and save
-            </button>
+            </Button>
           </>,
           "Review attendance",
         )}
       {modal === "award" &&
         openModal(
-          <form onSubmit={submitAward}>
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              void awardForm.handleSubmit();
+            }}
+          >
             {previewAward ? (
               <>
                 <p>
@@ -1738,13 +1865,14 @@ export default function Hub() {
                   recognizes contributions; it does not change football match
                   results.
                 </div>
-                <button
+                <Button
+                  variant="ghost"
                   type="button"
                   className="button secondary full"
                   onClick={() => setPreviewAward(false)}
                 >
                   Edit recipients or amount
-                </button>
+                </Button>
               </>
             ) : (
               <>
@@ -1755,13 +1883,13 @@ export default function Hub() {
                 <fieldset className="member-checks">
                   <legend>Recipients</legend>
                   {workspace.members.map((m) => (
-                    <label key={m.id}>
-                      <input
-                        type="checkbox"
+                    <label key={m.id} htmlFor={`award-${m.id}`}>
+                      <Checkbox
+                        id={`award-${m.id}`}
                         checked={awardMembers.includes(m.id)}
-                        onChange={(e) =>
+                        onCheckedChange={(checked) =>
                           setAwardMembers((old) =>
-                            e.target.checked
+                            checked === true
                               ? [...old, m.id]
                               : old.filter((id) => id !== m.id),
                           )
@@ -1774,7 +1902,7 @@ export default function Hub() {
                 </fieldset>
                 <label>
                   Points per member
-                  <input
+                  <Input
                     type="number"
                     min={1}
                     max={100}
@@ -1785,7 +1913,7 @@ export default function Hub() {
                 </label>
                 <label>
                   What are you recognizing?
-                  <input
+                  <Input
                     required
                     maxLength={200}
                     placeholder="e.g. Helped prepare the community lunch"
@@ -1795,10 +1923,14 @@ export default function Hub() {
                 </label>
               </>
             )}
-            <button className="button primary full" type="submit">
+            <ActionButton
+              className="button primary full"
+              type="submit"
+              pending={awardPending}
+            >
               {previewAward ? "Confirm awards" : "Review awards"}
               <ArrowRight size={17} />
-            </button>
+            </ActionButton>
           </form>,
           "Give a little recognition",
         )}
@@ -1867,9 +1999,13 @@ function ActivityCard({
             <MapPin size={14} />
             {a.location.split(" · ")[0]}
           </span>
-          <button onClick={onOpen} aria-label={`View ${a.title}`}>
+          <Button
+            variant="ghost"
+            onClick={onOpen}
+            aria-label={`View ${a.title}`}
+          >
             <ArrowUpRight size={20} />
-          </button>
+          </Button>
         </div>
       </div>
     </article>

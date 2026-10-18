@@ -36,7 +36,9 @@ Runnable Hub prototype with fictional data: youth dashboard, activity registrati
 ## Local foundation
 
 Requires Node.js 24 and npm. Run `npm ci` then `npm run check`.
-Run `npm run dev` for the Hub prototype on port **3101**. `npm run build` creates a static export in `out/`; `npm start` previews that export with Wrangler on the same port. `npm run check` verifies types, documentation links and domain tests.
+Run `npm run dev` for the TanStack Start app on port **3101**. `npm run build` creates the Cloudflare client/server build in `dist/`; `npm start` previews it on the same port. `npm run deploy` publishes the generated Worker configuration. `npm run check` verifies types, documentation links, domain/API tests and component interaction tests.
+
+Required stack: **TanStack Start, Router, Query, Form · Better Auth (managed by Neon) · shadcn/ui · PostgreSQL/Drizzle · Cloudflare Workers**. See [stack and UI conventions](docs/STACK_AND_UI.md).
 
 The demo uses fictional data held in memory and resets on refresh. The separate organizer portal uses managed authentication and a dedicated Neon branch. Neither uses inherited Kermes Pay credentials. Staff/youth and organization switches are demonstration controls, not authentication. Do not enter real youth records. See [Prototype guide](docs/PROTOTYPE.md).
 

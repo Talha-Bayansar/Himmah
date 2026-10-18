@@ -55,3 +55,7 @@ Owner approved the Hub feature proposal: youth home/progress/activities/personal
 ## Organization registration priority
 
 Owner reiterated that other organizations must be able to register independently and asked to continue after the prototype deployment. Implemented early-access organizer signup and saved workspace setup as the next increment. Demo activity workflows remain separate until the authenticated membership/data milestone. Youth invitations and consent processes remain prerequisites to real youth enrollment.
+
+## Explicit stack and UI preferences
+
+Owner requires Better Auth, TanStack Start/Router/Query/Form and the complete shadcn component set. Page loading uses skeleton layouts; interaction loading uses spinners. Every destructive action, including sign-out/delete/reset/discard, needs a confirmation modal. These are standing requirements, not optional implementation proposals. Existing accounts are already managed Better Auth; preserve those identities while changing the framework. Self-hosting or an identity-storage cutover was not requested.

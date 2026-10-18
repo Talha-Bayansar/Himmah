@@ -1,0 +1,399 @@
+{
+  "registrySource": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/_registry.ts",
+  "style": "new-york-v4",
+  "components": [
+    "accordion",
+    "alert",
+    "alert-dialog",
+    "aspect-ratio",
+    "avatar",
+    "badge",
+    "breadcrumb",
+    "button",
+    "button-group",
+    "calendar",
+    "card",
+    "carousel",
+    "chart",
+    "checkbox",
+    "collapsible",
+    "combobox",
+    "command",
+    "context-menu",
+    "dialog",
+    "drawer",
+    "dropdown-menu",
+    "empty",
+    "field",
+    "form",
+    "hover-card",
+    "input",
+    "input-group",
+    "input-otp",
+    "item",
+    "label",
+    "menubar",
+    "navigation-menu",
+    "pagination",
+    "popover",
+    "progress",
+    "radio-group",
+    "resizable",
+    "scroll-area",
+    "select",
+    "separator",
+    "sheet",
+    "sidebar",
+    "skeleton",
+    "slider",
+    "sonner",
+    "spinner",
+    "switch",
+    "table",
+    "tabs",
+    "textarea",
+    "toast",
+    "toggle",
+    "toggle-group",
+    "tooltip",
+    "kbd",
+    "native-select",
+    "direction",
+    "attachment",
+    "bubble",
+    "marker",
+    "message",
+    "message-scroller"
+  ],
+  "files": [
+    {
+      "file": "src/components/ui/accordion.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/accordion.tsx",
+      "sha256": "99de242681eb43121969db02bbb102aeeb1865ef52c7635672508a58c5429085"
+    },
+    {
+      "file": "src/components/ui/alert.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/alert.tsx",
+      "sha256": "d03dcae5cdb63c381c1144ca9a0c49ba0e46466967d7deb94662034042acb034"
+    },
+    {
+      "file": "src/components/ui/alert-dialog.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/alert-dialog.tsx",
+      "sha256": "b3dfb83e54ed8c82071df5289e5149628bf573458fc2da2d62f93f8380041b28"
+    },
+    {
+      "file": "src/components/ui/aspect-ratio.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/aspect-ratio.tsx",
+      "sha256": "b1c157886236782cb92d8fbcd4749532aaf6d8aabefd6e157ca40358f902f407"
+    },
+    {
+      "file": "src/components/ui/avatar.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/avatar.tsx",
+      "sha256": "0c5c48b8a1dff4fdc5ff9b6cb79cc9cd138682b7d86868068f571befe9675e88"
+    },
+    {
+      "file": "src/components/ui/badge.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/badge.tsx",
+      "sha256": "13a9380dfff853ee730c14a52df49f22aecd31f40f2998d7c1e7ec458b6e1650"
+    },
+    {
+      "file": "src/components/ui/breadcrumb.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/breadcrumb.tsx",
+      "sha256": "c75fcd3d9e8470188bc0dd4b27a2b26fff3ad42b9c9c534a953dc090ae2cba33"
+    },
+    {
+      "file": "src/components/ui/button.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/button.tsx",
+      "sha256": "79dd6f75f8136394442202d6b8b922fb269eaad0a5dba579397c9d5b41f893bb"
+    },
+    {
+      "file": "src/components/ui/button-group.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/button-group.tsx",
+      "sha256": "a9ac862707ff8d78255f2696baf48f9a87d9e92e21eb476f8f9e9361313c1761"
+    },
+    {
+      "file": "src/components/ui/calendar.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/calendar.tsx",
+      "sha256": "78ed2cc49dafc5bb5df7b1d4a325e5fc314237386747362e5f0761a2c539a934"
+    },
+    {
+      "file": "src/components/ui/card.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/card.tsx",
+      "sha256": "ef8305b12c3112dab42a4708b41b1ebcc042fa5ab4c20f039da8d45b09ed5059"
+    },
+    {
+      "file": "src/components/ui/carousel.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/carousel.tsx",
+      "sha256": "70ba30941a3adb448166ddcf8557c97734b7be09f6fd69512a6e444084365557"
+    },
+    {
+      "file": "src/components/ui/chart.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/chart.tsx",
+      "sha256": "35e2fa755465ef8eb8ff8b483d493204d452152e7a8863474b1a69f5d44484db"
+    },
+    {
+      "file": "src/components/ui/checkbox.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/checkbox.tsx",
+      "sha256": "ba0ac64064e2d8fa7299d53e9e84b9a4772fef8dd4cf6170c56d3030a1d69941"
+    },
+    {
+      "file": "src/components/ui/collapsible.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/collapsible.tsx",
+      "sha256": "c6598e5584f4258b5d9fefadbc5ad6a66888ad58729f4b634a0bb2d9c513188b"
+    },
+    {
+      "file": "src/components/ui/combobox.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/combobox.tsx",
+      "sha256": "4f88734887ed6928ec7f3a78dfc814a48fb0e0c3056fd5825b72b59a61da0d8a"
+    },
+    {
+      "file": "src/components/ui/command.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/command.tsx",
+      "sha256": "319e9264567dd46f04d705028bc345470663ca5919f31292c4ec43ea5ceb9336"
+    },
+    {
+      "file": "src/components/ui/context-menu.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/context-menu.tsx",
+      "sha256": "bcde5df1ed9887bb050f0badabfb5f79912eb53bdc883dbe6c003d05914d99a4"
+    },
+    {
+      "file": "src/components/ui/dialog.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/dialog.tsx",
+      "sha256": "2ade6074e5fad0a4eb171ead44c43d3301a3c83d186d7236fb1fdbea80ee556b"
+    },
+    {
+      "file": "src/components/ui/drawer.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/drawer.tsx",
+      "sha256": "63f04fe50a4bf29b56b0f5e2944c6efe980b895f589923659cc2e8ecc90b16c6"
+    },
+    {
+      "file": "src/components/ui/dropdown-menu.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/dropdown-menu.tsx",
+      "sha256": "d954efb735f13734751207ad22cb0cddd7f6ec53c59d16675d103dae08cb61fb"
+    },
+    {
+      "file": "src/components/ui/empty.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/empty.tsx",
+      "sha256": "54f529ccf72c18c4b5abd5586a7cf1f2a4c8d207aac366029d66ed095cb2965d"
+    },
+    {
+      "file": "src/components/ui/field.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/field.tsx",
+      "sha256": "4a4d17fcb933513f637f9f7e2daf5d8348f7de086b29738337dec7e6dd1819a0"
+    },
+    {
+      "file": "src/components/ui/form.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/form.tsx",
+      "sha256": "dfa22e6614b807df60bbe7e40dd44ef74cf894b358f37c3ed356ebbeef9b4599"
+    },
+    {
+      "file": "src/components/ui/hover-card.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/hover-card.tsx",
+      "sha256": "73f59aa759656501ed615604ac3f2c04ba564acaea4529288fe3a487ad934953"
+    },
+    {
+      "file": "src/components/ui/input.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/input.tsx",
+      "sha256": "0c9457181f6ddc80969bcf854e92c362903a55b6e889fbef3fd85343ecc4af5b"
+    },
+    {
+      "file": "src/components/ui/input-group.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/input-group.tsx",
+      "sha256": "e379899ac50d6cabc9d9eb1668f265176951c62b1fe83a6f23ee97fe8074d526"
+    },
+    {
+      "file": "src/components/ui/input-otp.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/input-otp.tsx",
+      "sha256": "9f81898aeaabbb104cc22ffda551a333eb22608c543c4800412e2faaa802e311"
+    },
+    {
+      "file": "src/components/ui/item.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/item.tsx",
+      "sha256": "9ade8136f010284b7ec0142f52606616dd4b23798012e75a9fc6aac1fb2d792e"
+    },
+    {
+      "file": "src/components/ui/label.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/label.tsx",
+      "sha256": "344bde38b8531615dbf8e14af3895517c24d8ef6ce56ddeda7e2e6fe4b5d0c00"
+    },
+    {
+      "file": "src/components/ui/menubar.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/menubar.tsx",
+      "sha256": "ca1a7f6775f9095183d63faadc6d4ed5ee2097139b4edeeefa60210379c47092"
+    },
+    {
+      "file": "src/components/ui/navigation-menu.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/navigation-menu.tsx",
+      "sha256": "fbe81d7c358df0d21e49b03174ef53be7d66226a3dce1a97ff3d4a260ed833a3"
+    },
+    {
+      "file": "src/components/ui/pagination.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/pagination.tsx",
+      "sha256": "224843c4f509e8b8c9848adefa43d1491846f0851138fa9b51cc6ba1319c5653"
+    },
+    {
+      "file": "src/components/ui/popover.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/popover.tsx",
+      "sha256": "3f99d3add6c9fa4f03721e81297ee10e1310785ee1d9d9d4c82a114d84ab0757"
+    },
+    {
+      "file": "src/components/ui/progress.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/progress.tsx",
+      "sha256": "e012e1f7e6e66d11229d1233eccf91954edcd9179b418ff1d114dc651b86fd35"
+    },
+    {
+      "file": "src/components/ui/radio-group.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/radio-group.tsx",
+      "sha256": "cfc4f99ee68be2fbbd70de3ffad82e1462d5e8e0bb0aecfd190a4f5115325862"
+    },
+    {
+      "file": "src/components/ui/resizable.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/resizable.tsx",
+      "sha256": "aaf3ea20e8060c75dd86e06fedfca053d49f81071123ba647b5699efcbc010ea"
+    },
+    {
+      "file": "src/components/ui/scroll-area.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/scroll-area.tsx",
+      "sha256": "8b73bb9be51300079c7f561bafbe43ee10f6f464cf39c8c1b25123cd4edb94dd"
+    },
+    {
+      "file": "src/components/ui/select.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/select.tsx",
+      "sha256": "962830436bd0b7ee50e556f0747e277d6a86869ed27d167516346b15f26309d8"
+    },
+    {
+      "file": "src/components/ui/separator.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/separator.tsx",
+      "sha256": "ad7d5403fe337160e41dbf04147896e448ae3a747b8d06660d627d74d60021bc"
+    },
+    {
+      "file": "src/components/ui/sheet.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/sheet.tsx",
+      "sha256": "ea473d38a26a9b0b879e5a13139899ad45e9782e896b3fa205c7763a6c506876"
+    },
+    {
+      "file": "src/components/ui/sidebar.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/sidebar.tsx",
+      "sha256": "2ba1a9b9422f4172373f4cd0587b675d2331a41f4fa68f65dab2b23ca98fd9d2"
+    },
+    {
+      "file": "src/components/ui/skeleton.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/skeleton.tsx",
+      "sha256": "f51ce0fcd31e5c31437382e80ea0af94b4fc3d64221d27091d36824546780a43"
+    },
+    {
+      "file": "src/components/ui/slider.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/slider.tsx",
+      "sha256": "6a531f6182de6efec2c25d30a7626b66cbf11cf52d505e47f907124934f7188e"
+    },
+    {
+      "file": "src/components/ui/sonner.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/sonner.tsx",
+      "sha256": "13ccc9b0fe4248e622f83a1d3b2f0566b72b5e04162d7d0c8db8945ecc71b55f"
+    },
+    {
+      "file": "src/components/ui/spinner.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/spinner.tsx",
+      "sha256": "5d040fc49cb54c0296070644053b5a8840ddbfca89a430546bf308df3fffad65"
+    },
+    {
+      "file": "src/components/ui/switch.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/switch.tsx",
+      "sha256": "743676f33f823ffa8008bbd5eb94cb68e227599447d60e132a202291a395f8e4"
+    },
+    {
+      "file": "src/components/ui/table.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/table.tsx",
+      "sha256": "bd1a9fc83a5a2149e504038e274bb7e5a0351af59f6896df52ac4d5b439695ac"
+    },
+    {
+      "file": "src/components/ui/tabs.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/tabs.tsx",
+      "sha256": "e1df6e2f95ece373ca909c1d54b8ba8cf4c47dd425c1784bbb9a01c38dd0936b"
+    },
+    {
+      "file": "src/components/ui/textarea.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/textarea.tsx",
+      "sha256": "5cafcfeeee29534f449387a16b585f5923d2faab1a0cdc50a874416b175f59ce"
+    },
+    {
+      "file": "src/components/ui/toast.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/shadcn@3.0.0/apps/www/registry/new-york/ui/toast.tsx",
+      "sha256": "723d1642dc0505f598126581b27cf8a9f2a1ee383af5b3af06d3b908d9728e4a",
+      "deprecated": true
+    },
+    {
+      "file": "src/hooks/use-toast.ts",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/shadcn@3.0.0/apps/www/registry/new-york/hooks/use-toast.ts",
+      "sha256": "df94b6a6bf873e27d19cf3f04ccb5054b498e00414eb9c295660cd4a5c70d324",
+      "deprecated": true
+    },
+    {
+      "file": "src/components/ui/toaster.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/shadcn@3.0.0/apps/www/registry/new-york/ui/toaster.tsx",
+      "sha256": "c3b9a34af3f071d95974aa1cf53de29ac9a7573987e7f94d6d267267817c51bd",
+      "deprecated": true
+    },
+    {
+      "file": "src/components/ui/toggle.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/toggle.tsx",
+      "sha256": "28ae7d72730890a3ba6c668fd511c63a358ad26534c2c25d5922748d47e1fa99"
+    },
+    {
+      "file": "src/components/ui/toggle-group.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/toggle-group.tsx",
+      "sha256": "45186473eaa30a966adf16e2b0aa0d16522425fda0658e2c85b8dcb1b62956ef"
+    },
+    {
+      "file": "src/components/ui/tooltip.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/tooltip.tsx",
+      "sha256": "611e4305879b2773eafe76bf3c5caa69d8e47367fd97887a71634a27828f4433"
+    },
+    {
+      "file": "src/components/ui/kbd.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/kbd.tsx",
+      "sha256": "c0c0ae6a7d1adb7749b9b34cab8f4d2f5caf333e819b64c2051e77f918d3661f"
+    },
+    {
+      "file": "src/components/ui/native-select.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/native-select.tsx",
+      "sha256": "4bdbce5575dce610fed747df4547a3d494713f4df8d28e09b3ccee62e4d72f93"
+    },
+    {
+      "file": "src/components/ui/direction.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/direction.tsx",
+      "sha256": "84ae2ad658207f0e0f367978e5508cd8027cd00c29c41d3d13db21a708c3d1e6"
+    },
+    {
+      "file": "src/components/ui/attachment.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/attachment.tsx",
+      "sha256": "243feb168430d01288586d2460822e7789ffde8ebf2d0c436fa73c59c3d764e5"
+    },
+    {
+      "file": "src/components/ui/bubble.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/bubble.tsx",
+      "sha256": "df1e461e33e835b7f69296939c2325e8cd76941b5ec69375d80d639793c5c4e2"
+    },
+    {
+      "file": "src/components/ui/marker.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/marker.tsx",
+      "sha256": "036277635df058b8dc6e6dbe5cb738bc595e5035b885be42c60f904263725424"
+    },
+    {
+      "file": "src/components/ui/message.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/message.tsx",
+      "sha256": "64e9ae0f9d1e268b0ed7b738a53d374d273fe1e7e2dd7b35ad7417e50a9bbe6c"
+    },
+    {
+      "file": "src/components/ui/message-scroller.tsx",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/ui/message-scroller.tsx",
+      "sha256": "9f7580a8c9a59d28c30da4974a7d17bfe3a710ee945fc72765e8721cd1a6669a"
+    },
+    {
+      "file": "src/hooks/use-mobile.ts",
+      "source": "https://raw.githubusercontent.com/shadcn-ui/ui/main/apps/v4/registry/new-york-v4/hooks/use-mobile.ts",
+      "sha256": "ad0936f84f1df79d3697bfbff9c18f8ad58431c1cbaf2359c6a853b0fcc9f28b"
+    }
+  ],
+  "note": "Current supported new-york-v4 set, plus legacy Toast from official shadcn@3.0.0 for completeness. Prefer Sonner; application forms use TanStack Form, not the legacy React Hook Form component."
+}

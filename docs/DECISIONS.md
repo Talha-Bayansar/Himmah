@@ -55,3 +55,9 @@ Owner explicitly requested publishing for phone testing. Deploy the current clie
 ## Early-access organization onboarding
 
 Owner reiterated independent organization registration and asked to continue. Add a separate managed-Neon-auth organizer portal with persistent organization ownership/memberships, using a dedicated onboarding branch and a same-origin Cloudflare API. Preserve the sample-data demo. No custom self-managed password storage, billing, new youth enrollment or persistent attendance system is introduced by this increment. Development migration precedes onboarding migration; main remains unchanged.
+
+## Owner-directed TanStack and shadcn migration
+
+Replace Next.js with TanStack Start and Router, use TanStack Query for remote state and mutations, and TanStack Form for application forms. Install the complete official shadcn component set. Preserve the approved Himmah styling. Required interaction patterns: skeleton page loading, spinner pending actions and confirmation dialogs for destructive actions (including sign-out).
+
+The existing identity service is managed Better Auth. Keep its users, sessions, proxy endpoints and database IDs; no identity-storage migration or replacement is needed to satisfy Better Auth. Cloudflare now runs TanStack Start SSR and the existing protected API, with generated Worker configuration. No database schema/data migration is part of this framework change.

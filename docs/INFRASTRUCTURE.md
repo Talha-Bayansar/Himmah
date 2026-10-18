@@ -62,3 +62,11 @@ Cloudflare confirmed successful upload and active deployment. Direct page verifi
 - Browser signup, verification-email delivery and session restoration remain unverified from this workspace due to its network restrictions.
 
 Latest organizer portal deployment: `042d9883-2720-4bdf-be59-9fccf1460383` (Cloudflare confirmed active). The original static-only deployment record above is historical.
+
+## TanStack migration
+
+Next.js/static export is superseded by TanStack Start SSR on the same himmah-hub Worker and URL. Build output is dist/client plus dist/server; deployment uses the generated dist/server/wrangler.json. Existing encrypted database secret, managed Better Auth service, trusted origin, rate limiter and organization rows are retained. There is no database or identity migration. Local Vite/Cloudflare may materialize ignored .dev.vars from the project-local development .env.local; these files are never public client assets or committed. Local mutations still need a deliberately configured matching auth/database branch and allowed local origin.
+
+TanStack migration validation: 19 domain/API tests and 8 component interaction tests pass. Production Workerd preview renders both demo and organizer pages, serves built assets, returns 401 for anonymous account requests, 404 for disabled admin endpoints and local environment files. Managed auth is lazily imported in browser interactions to avoid SDK module-scope crypto initialization during Cloudflare SSR.
+
+Latest TanStack/shadcn deployment: `47f12b0d-7340-4e45-8b84-fd40654d603e`, confirmed active at 100% traffic. Encrypted database binding and auth/origin/rate-limit bindings are retained. Hosted browser/email verification remains unavailable from this workspace; local production Workerd and component tests are recorded above.

@@ -29,13 +29,22 @@ Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or dat
 
 ## Engineering defaults
 
-TypeScript strict mode; mobile-first responsive web app. Proposed application stack: Next.js, PostgreSQL on Neon, Drizzle migrations. Keep football calculations pure in src/domain with injected, seeded randomness and versioned rules. Match inputs, training outcomes, and results must persist; refreshes and job retries cannot reroll them.
+TypeScript strict mode; mobile-first responsive web app. Required stack: TanStack Start, Router, Query and Form; shadcn/ui components; Better Auth (currently managed by Neon); PostgreSQL on Neon and Drizzle migrations. Do not introduce Next.js or a competing app/form/data framework without an explicit user request. Keep football calculations pure in src/domain with injected, seeded randomness and versioned rules. Match inputs, training outcomes, and results must persist; refreshes and job retries cannot reroll them.
 
 Enforce permissions, configurable earning rules, manual awards, optional quiz scoring, approvals, rating growth, and prize administration on the server. A participant may not approve their own participation or fetch quiz answer keys before submission. Bound every query by organization, season, membership, and role as relevant. Derive authorized organization scope from verified membership, never trust a client-supplied organization ID alone. Apply tenant scope to jobs, caches, exports and files too. An organization subscription never grants access to another organization or stronger players. Keep safety constraints outside organizer-configurable game settings.
 
 Use transactions, unique constraints, and idempotency keys for training, match execution, and reward claims. Snapshot rules when a season starts; do not silently change active-season outcomes. Record volunteer corrections with actor, reason, and time.
 
 Store UTC timestamps and an explicit season timezone. Keep secrets out of Git, tool output, logs, screenshots, and documentation. Commit only example variable names and non-secret resource IDs.
+
+## Mandatory UI and data patterns (owner preferences)
+
+- Build UI from the installed shadcn primitives in src/components/ui. Preserve the Himmah theme and accessible labels. All 62 registry components are installed; the legacy React Hook Form wrapper is compatibility source only. Application forms use TanStack Form.
+- Use TanStack Router for route navigation and its blockers for unsaved changes. Use TanStack Query for remote reads/mutations; keys include user and organization where relevant. Clear private query/mutation caches on sign-out. Keep server authorization independent of client caches.
+- Page/section loading uses shape-matched Skeleton components. Never use a spinner as the whole page loading UI. Keep loading, empty, error and unauthorized states distinct.
+- Pending interactions (submit, save, sign-in/out, resend, retry, etc.) use the shared ActionButton/Spinner with disabled duplicate submission and aria-busy. Do not add artificial delays to synchronous local demo actions.
+- Destructive actions always require the shared shadcn AlertDialog confirmation before mutation: sign-out, delete/remove, reset, cancel registration, discard unsaved changes, replace password, and future destructive operations. Explain impact, provide Cancel, and give the confirm button a specific action label. Do not use window.confirm for app flows. Browser-native beforeunload prompts are the unavoidable fallback when closing/reloading a dirty page.
+- Shared primitives live in src/components/shared. Use their pending/focus/cancel behavior rather than copying another modal or spinner implementation. Test confirm versus cancel and retry behavior for material mutations.
 
 ## Youth experience
 

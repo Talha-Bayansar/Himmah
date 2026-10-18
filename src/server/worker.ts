@@ -56,6 +56,7 @@ async function identify(
   env: Env,
   fetcher: typeof fetch,
 ): Promise<Identity | null> {
+  if (!request.headers.get("cookie")) return null;
   const result = await fetcher(
     `${env.HIMMAH_AUTH_URL}/get-session?disableCookieCache=true`,
     { headers: cookieHeaders(request), redirect: "manual" },

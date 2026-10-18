@@ -2,9 +2,9 @@
 
 ## Current state and intended stack
 
-Current repository: a runnable Next.js/React Hub prototype, docs, domain state transitions/tests and provisioning records. Demo state is browser-memory-only and fictional. A separate organizer portal now uses managed authentication, a Cloudflare API and persistent organizations/memberships. Persistent youth/activity data and the scheduler remain future work.
+Current repository: a runnable TanStack Start/React Hub app, docs, domain state transitions/tests and provisioning records. Demo state is browser-memory-only and fictional. A separate organizer portal now uses managed authentication, a Cloudflare API and persistent organizations/memberships. Persistent youth/activity data and the scheduler remain future work.
 
-Proposed stack: Next.js App Router and TypeScript, responsive browser UI, server-side application services, Drizzle schema/migrations, Lakebase Postgres on Neon. Hosting is undecided and not provisioned. Do not add hosting, storage, AI services, or payment processing merely because integrations are available.
+Required stack: TanStack Start/Router/Query/Form and TypeScript, shadcn/ui, Better Auth (managed by Neon), server-side application services, Drizzle schema/migrations and Lakebase Postgres on Neon. Cloudflare Workers hosts SSR, static client assets and the protected API. Do not add hosting, storage, AI services, or payment processing merely because integrations are available.
 
 src/domain holds pure versioned game calculations independent of UI/database. Application services enforce access and orchestrate transactions. Scheduled work calls the same services as audited administrator retries. PostgreSQL stores authoritative state. Browser state is never authoritative for quiz answers, points, ratings, or results.
 
@@ -62,3 +62,11 @@ Organization entitlements include Hub access and optional Futsal access; exact p
 ## Organizer onboarding implementation
 
 See [Organization onboarding](ORGANIZATION_ONBOARDING.md) for the persistent account/workspace boundary, same-origin managed auth proxy, API authorization, Drizzle migrations and onboarding branch. The existing demo is preserved independently. Do not interpret the earlier pending-auth design sections as current setup instructions.
+
+## TanStack runtime and UI conventions
+
+Entry: src/server.ts dispatches /api/* to the existing authorization handler and all other application routes to TanStack Start. Cloudflare serves built client assets before the Worker, except /api/* which always executes server code. Router context creates a fresh QueryClient per router/request, not a shared server cache. File routes live in src/routes; the generated route tree is tooling-owned.
+
+Account queries remain browser-authenticated and return an initial skeleton during SSR; no user-specific data is embedded in a shared public HTML cache. Query keys scope organization lists/details to the signed-in user, and sign-out clears private data. Application forms use TanStack Form. The local Hub demo still owns synthetic state and its internal panel selection; it is not a production authorization boundary.
+
+Shared shadcn Skeleton, Spinner/ActionButton, Dialog and AlertDialog patterns are required. See STACK_AND_UI.md and AGENTS.md. The former Next/static-export descriptions in historical entries are superseded.

@@ -8,7 +8,7 @@ Organization setup is persistent. The attendance, activities and youth records i
 
 ## Backend and isolation
 
-The Cloudflare Worker serves static Next.js assets and handles `/api/*`. A small allowlisted same-origin proxy uses the Neon managed auth service; no passwords are stored by Himmah. The SDK remains the Neon wrapper. Auth cookies are scoped to the app host, sessions are checked against the managed service without cookie-cache reuse, and private API responses use `Cache-Control: no-store`.
+The Cloudflare Worker runs TanStack Start SSR, serves built client assets and handles `/api/*`. A small allowlisted same-origin proxy uses the Neon managed auth service; no passwords are stored by Himmah. The SDK remains the Neon wrapper. Auth cookies are scoped to the app host, sessions are checked against the managed service without cookie-cache reuse, and private API responses use `Cache-Control: no-store`.
 
 `GET /api/account` requires a valid session. `GET /api/organizations` selects memberships for the verified user only. `GET /api/organizations/:id` joins membership and organization and returns 404 for unauthorized IDs. `POST /api/organizations` requires a verified email, same-origin JSON request and a valid input. Ownership is derived from the session, never client role/user IDs. Every create operation has a UUID creation key. Organization plus owner membership are created atomically; retries for the same user/key return the same organization. Unique slugs prevent duplicate addresses.
 
@@ -26,7 +26,7 @@ The onboarding branch is not a disposable development branch: it can contain org
 
 Cloudflare non-secret vars: `HIMMAH_AUTH_URL`, `HIMMAH_APP_ORIGIN`. Dedicated Worker secret: `HIMMAH_DATABASE_URL` for the onboarding branch only. Never assign shared workspace database/auth variables or reuse Kermes Pay credentials. Do not expose the connection string to Next public environment variables.
 
-`npm run dev` serves the static UI in Next but does not provide the Worker API. For an integrated local app, build then use `npm start` (Wrangler). That needs a project-local ignored `.dev.vars` with a dedicated development database/auth setup, and an explicit localhost app-origin override; the production origin does not authorize localhost mutations. Do not copy onboarding credentials into test fixtures or source files.
+`npm run dev` serves the TanStack Start application and Worker API through Vite/Cloudflare. `npm start` previews a completed build. That needs a project-local ignored `.dev.vars` with a dedicated development database/auth setup, and an explicit localhost app-origin override; the production origin does not authorize localhost mutations. Do not copy onboarding credentials into test fixtures or source files.
 
 Neon shared SMTP is suitable for early-access testing; production-branded email delivery, abuse monitoring, legal/privacy information and support/account recovery processes need completion before general rollout. No real registration/email-delivery browser test has been performed from this restricted workspace unless subsequently recorded below.
 

@@ -52,3 +52,7 @@ The first three core flows are now implemented in Next.js with session-memory fi
 ## Organizer onboarding checkpoint
 
 Adult organizer signup/sign-in/email verification/recovery, persistent workspace creation/list/detail and session-derived membership checks are implemented separately at `/start/`. Initial organization/membership migrations are applied to development and a dedicated onboarding branch; demo activities remain in-memory. Next: verify signup/email/session flow on the hosted app, then implement authorized staff invitations and member/group management before connecting persistent activities and points.
+
+## Owner-directed stack migration checkpoint
+
+Runtime migrated to TanStack Start/Router on Cloudflare; Query manages remote account/organization data and mutations; Form manages application forms. All 62 shadcn registry components and helpers are installed, with source provenance. Shared skeleton, interaction spinner and destructive-confirmation patterns are required going forward. Existing managed Better Auth accounts and organization records remain unchanged. Domain/API and component interaction checks cover the migration; browser/email verification limits remain documented.

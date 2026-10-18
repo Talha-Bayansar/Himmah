@@ -2,7 +2,7 @@
   --forest: #153f36;
   --forest-dark: #12382f;
   --text: #233c34;
-  --muted: #738078;
+  --app-muted: #738078;
   --line: #e5e9e0;
   --paper: #f7f8f3;
   --lime: #def19e;
@@ -347,7 +347,7 @@ main {
   margin-bottom: 9px;
 }
 .page-heading p {
-  color: var(--muted);
+  color: var(--app-muted);
   font-size: 12px;
   margin-top: 10px;
 }
@@ -505,7 +505,7 @@ main {
 }
 .section-heading p {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--app-muted);
   margin-top: 5px;
 }
 .activity-grid {
@@ -1014,7 +1014,7 @@ main {
 .empty-inline {
   padding: 20px 0;
   font-size: 12px;
-  color: var(--muted);
+  color: var(--app-muted);
 }
 .badge {
   display: inline-flex;
@@ -1048,7 +1048,7 @@ main {
   margin: 13px 0;
 }
 .app-detail p {
-  color: var(--muted);
+  color: var(--app-muted);
   font-size: 13px;
   margin: 10px 0;
 }
@@ -1063,7 +1063,7 @@ main {
 }
 .checkin-header > div {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--app-muted);
   display: flex;
   gap: 5px;
   align-items: center;
@@ -1093,7 +1093,7 @@ main {
 .attendance-stats span {
   text-transform: capitalize;
   font-size: 11px;
-  color: var(--muted);
+  color: var(--app-muted);
 }
 .roster {
   padding: 0 22px;
@@ -1229,7 +1229,7 @@ main {
   margin-bottom: 10px;
 }
 .muted {
-  color: var(--muted);
+  color: var(--app-muted);
   font-size: 12px;
 }
 .wizard > p {
@@ -1360,7 +1360,7 @@ input[type="radio"] {
 }
 .preview-activity > p {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--app-muted);
   display: flex;
   gap: 7px;
   align-items: center;
@@ -1433,7 +1433,7 @@ dialog::backdrop {
   color: #637857;
 }
 dialog p {
-  color: var(--muted);
+  color: var(--app-muted);
   font-size: 12px;
 }
 .activity-dialog-art {
@@ -1482,7 +1482,7 @@ dialog p {
 }
 .member-checks legend {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--app-muted);
 }
 .member-checks label {
   display: flex;
@@ -2235,7 +2235,7 @@ dialog p {
 }
 .onboarding-intro {
   font-size: 13px;
-  color: var(--muted);
+  color: var(--app-muted);
   margin: 15px 0 27px;
 }
 .onboarding-form label {
@@ -2319,7 +2319,7 @@ dialog p {
 }
 .account-greeting > div span {
   font-size: 10px;
-  color: var(--muted);
+  color: var(--app-muted);
   overflow-wrap: anywhere;
 }
 .organization-list {
@@ -2349,7 +2349,7 @@ dialog p {
 .organization-choice small {
   display: block;
   font-size: 10px;
-  color: var(--muted);
+  color: var(--app-muted);
   margin-top: 5px;
 }
 .workspace-welcome {
@@ -2387,7 +2387,7 @@ dialog p {
 }
 .workspace-detail-grid span {
   font-size: 9px;
-  color: var(--muted);
+  color: var(--app-muted);
 }
 .workspace-detail-grid strong {
   font-size: 11px;
@@ -2399,7 +2399,7 @@ dialog p {
 }
 .onboarding-next p {
   font-size: 12px;
-  color: var(--muted);
+  color: var(--app-muted);
   margin-bottom: 20px;
 }
 .spin {
@@ -2514,3 +2514,15 @@ dialog p {
     font-size: 7px;
   }
 }
+
+/* Shared shadcn primitives retain the approved Himmah visual identity. */
+[data-slot="button"]{min-height:44px}
+.hub-dialog{display:block;max-height:90dvh;overflow-y:auto;background:#fff;width:calc(100% - 30px);max-width:540px;border-radius:20px;padding:27px;color:var(--text)}
+.hub-dialog .dialog-heading{margin-bottom:22px}.hub-dialog p{font-size:12px;color:var(--app-muted)}
+.hub-dialog label{display:block;font-size:12px;color:#5c7050;font-weight:500;margin-top:20px}
+.hub-dialog label>input:not([type=checkbox],[type=radio]){width:100%;margin-top:8px}
+[data-slot="alert-dialog-overlay"]{z-index:70}[data-slot="alert-dialog-content"]{z-index:80}
+[data-slot="native-select-wrapper"]{width:100%}.member-select [data-slot="native-select-wrapper"]{max-width:110px}
+.sidebar [data-slot="native-select-wrapper"]{color:#edf4e8}
+.onboarding-form [data-slot="label"]{font-size:12px}.onboarding-form [data-slot="input"],.onboarding-form [data-slot="native-select"]{font-size:16px;min-height:47px}
+.onboarding-form [data-slot="checkbox"]{width:18px;height:18px;min-height:18px}

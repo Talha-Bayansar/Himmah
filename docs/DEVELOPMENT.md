@@ -9,7 +9,7 @@ npm ci
 npm run check
 ```
 
-Run `npm run dev` to serve the interactive sample-data Hub prototype on port 3101. Run `npm run build` for a static export and `npm start` to preview it with Wrangler. `npm run deploy` builds and publishes the dedicated Cloudflare Worker. The UI does not call Neon yet. Never stop Kermes Pay or edit its configuration to free a port.
+Run `npm run dev` to serve the interactive sample-data Hub prototype on port 3101. Run `npm run build` for a TanStack Start Cloudflare build and `npm start` to preview it. `npm run deploy` builds and publishes the dedicated Cloudflare Worker. The demo is local state; the organizer portal uses its protected API. Never stop Kermes Pay or edit its configuration to free a port.
 
 ## Environment isolation
 
@@ -37,4 +37,4 @@ API-based creation previously failed because api.github.com was denied. Git tran
 
 ## Organizer API development
 
-The new `/start/` account portal needs the Cloudflare Worker API, unlike the demo. Next dev serves UI only. Build then use Wrangler for integrated testing with an explicitly separate local environment; see [Onboarding](ORGANIZATION_ONBOARDING.md). The hosted app uses the onboarding branch, not the development database in .env.local.
+The new `/start/` account portal needs the Cloudflare Worker API, unlike the demo. Vite with the Cloudflare plugin serves UI, SSR and the API in local Workerd. Use an explicitly separate local environment; see [Onboarding](ORGANIZATION_ONBOARDING.md). The hosted app uses the onboarding branch, not the development database in .env.local.

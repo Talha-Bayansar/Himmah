@@ -305,3 +305,10 @@ test("upstream failures do not leak infrastructure errors or credentials", async
   assert.equal(r.status, 503);
   assert.ok(!(await r.text()).includes("connection string"));
 });
+
+test("requests without a session cookie are rejected without an auth network call", async () => {
+  const h = harness();
+  const response = await h.handler(new Request(app + "/api/account"), h.env);
+  assert.equal(response.status, 401);
+  assert.equal(h.calls.length, 0);
+});

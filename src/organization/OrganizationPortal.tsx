@@ -1,21 +1,31 @@
-"use client";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useRef, useState } from "react";
+import { Link, useBlocker } from "@tanstack/react-router";
+import { useForm, useStore } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Leaf,
   ArrowRight,
   ArrowLeft,
-  Check,
   CheckCircle2,
   Building2,
   ShieldCheck,
-  Mail,
   LogOut,
   Plus,
   Clock3,
-  Users,
-  CalendarDays,
-  LoaderCircle,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
+import { Card, CardContent } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ActionButton } from "@/components/shared/action-button";
+import { AccountSkeleton } from "@/components/shared/page-skeleton";
+import { useConfirmation } from "@/components/shared/confirmation";
 import { authClient } from "./auth";
 import {
   organizationSlug,
@@ -28,7 +38,6 @@ interface User {
   email: string;
   emailVerified: boolean;
 }
-type Screen = "signin" | "signup" | "verify" | "forgot";
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
@@ -39,256 +48,88 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) throw Error(body.error ?? "Please try again.");
   return body as T;
 }
+async function account() {
+  const response = await fetch("/api/account", { credentials: "same-origin" });
+  if (response.status === 401) return null;
+  if (!response.ok)
+    throw Error("Account services are unavailable. Please try again.");
+  return ((await response.json()) as { user: User }).user;
+}
+const accountKey = ["account"] as const;
+const orgKey = (userId: string) => ["organizations", userId] as const;
 export default function OrganizationPortal() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
-  const [screen, setScreen] = useState<Screen>("signup");
-  const [organizations, setOrganizations] = useState<Organization[]>([]);
-  const [selected, setSelected] = useState<Organization | null>(null);
+  const queryClient = useQueryClient();
+  const confirm = useConfirmation();
   const [creating, setCreating] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
-  const [slug, setSlug] = useState("");
-  const [slugEdited, setSlugEdited] = useState(false);
-  const [timezone, setTimezone] = useState("Europe/Amsterdam");
-  const [confirmed, setConfirmed] = useState(false);
-  const creationKey = useRef("");
-  async function restore() {
-    const session = await api<{ user: User }>("/api/account");
-    setUser(session.user);
-    setEmail(session.user.email);
-    const data = await api<{ organizations: Organization[] }>(
-      "/api/organizations",
-    );
-    setOrganizations(data.organizations);
-    if (data.organizations.length === 0) setCreating(true);
-    return session.user;
-  }
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const response = await fetch("/api/account", {
-          credentials: "same-origin",
-        });
-        if (cancelled) return;
-        if (response.status === 401) return;
-        if (!response.ok) {
-          setError(
-            "Account services are unavailable right now. You can still explore the sample demo.",
-          );
-          return;
-        }
-        const body = (await response.json()) as { user: User };
-        if (cancelled) return;
-        setUser(body.user);
-        setEmail(body.user.email);
-        const result = await api<{ organizations: Organization[] }>(
-          "/api/organizations",
-        );
-        if (cancelled) return;
-        setOrganizations(result.organizations);
-        setCreating(result.organizations.length === 0);
-      } catch {
-        if (!cancelled)
-          setError("Could not connect to account services. Please try again.");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  async function run(action: () => Promise<void>) {
-    if (pending) return;
-    setPending(true);
-    setError("");
-    setNotice("");
-    try {
-      await action();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Please try again.");
-    } finally {
-      setPending(false);
-    }
-  }
-  function navigate(next: Screen) {
-    setScreen(next);
-    setError("");
-    setNotice("");
-    setCode("");
-    setPassword("");
-  }
-  async function sendCode() {
-    const result = await authClient().emailOtp.sendVerificationOtp({
-      email,
-      type: "email-verification",
-    });
-    if (result.error)
-      throw Error(result.error.message ?? "Could not send verification code.");
-    setScreen("verify");
-    setNotice(
-      "Check your inbox for the verification code. It may take a moment to arrive.",
-    );
-  }
-  async function submitCredentials(event: FormEvent) {
-    event.preventDefault();
-    await run(async () => {
-      if (screen === "signup") {
-        const result = await authClient().signUp.email({
-          email,
-          password,
-          name,
-        });
-        if (result.error)
-          throw Error(result.error.message ?? "Could not create account.");
-        try {
-          await sendCode();
-        } catch {
-          setScreen("verify");
-          setNotice(
-            "Account created. Use Send a new code to verify your email.",
-          );
-        }
-      } else if (screen === "signin") {
-        const result = await authClient().signIn.email({ email, password });
-        if (result.error)
-          throw Error(result.error.message ?? "Could not sign in.");
-        setPassword("");
-        await restore();
-      } else if (screen === "verify") {
-        const result = await authClient().emailOtp.verifyEmail({
-          email,
-          otp: code,
-        });
-        if (result.error)
-          throw Error(
-            result.error.message ?? "That code could not be verified.",
-          );
-        if (password) {
-          const signIn = await authClient().signIn.email({ email, password });
-          if (signIn.error) {
-            setScreen("signin");
-            setPassword("");
-            setNotice("Email verified. Sign in to continue.");
-            return;
-          }
-        }
-        try {
-          await restore();
-          setScreen("signup");
-          setPassword("");
-          setNotice("Email verified. You can now create your organization.");
-        } catch {
-          setScreen("signin");
-          setPassword("");
-          setNotice("Email verified. Sign in to continue.");
-        }
-      } else {
-        // Password recovery code flow uses managed email OTP rather than an external mail provider.
-        const response = await authClient().emailOtp.sendVerificationOtp({
-          email,
-          type: "forget-password",
-        });
-        if (response.error)
-          throw Error(
-            response.error.message ?? "Could not request recovery code.",
-          );
-        setNotice(
-          "If your email belongs to an account, a recovery code has been sent. Enter it below to choose a new password.",
-        );
-      }
-    });
-  }
-  async function resetPassword(e: FormEvent) {
-    e.preventDefault();
-    await run(async () => {
-      const result = await authClient().emailOtp.resetPassword({
-        email,
-        otp: code,
-        password,
-      });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const session = useQuery({
+    queryKey: accountKey,
+    queryFn: account,
+    retry: false,
+  });
+  const user = session.data;
+  const organizations = useQuery({
+    queryKey: orgKey(user?.id ?? "signed-out"),
+    queryFn: async () =>
+      (await api<{ organizations: Organization[] }>("/api/organizations"))
+        .organizations,
+    enabled: !!user,
+    retry: false,
+  });
+  const selected = useQuery({
+    queryKey: ["organization", user?.id, selectedId],
+    queryFn: async () =>
+      (
+        await api<{ organization: Organization }>(
+          `/api/organizations/${selectedId}`,
+        )
+      ).organization,
+    enabled: !!user && !!selectedId,
+    retry: false,
+  });
+  const logout = useMutation({
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: accountKey });
+      await queryClient.cancelQueries({ queryKey: ["organizations"] });
+      await queryClient.cancelQueries({ queryKey: ["organization"] });
+    },
+    mutationFn: async () => {
+      const result = await (await authClient()).signOut();
       if (result.error)
-        throw Error(result.error.message ?? "Could not reset password.");
-      setScreen("signin");
-      setPassword("");
-      setCode("");
-      setNotice("Password updated. Sign in to continue.");
-    });
-  }
-  async function createOrganization(e: FormEvent) {
-    e.preventDefault();
-    await run(async () => {
-      if (!confirmed)
-        throw Error(
-          "Confirm that you are authorized to set up this organization.",
-        );
-      creationKey.current ||= crypto.randomUUID();
-      const input = validateOrganization({
-        name: organizationName,
-        slug,
-        timezone,
-        creationKey: creationKey.current,
-      });
-      const result = await api<{ organization: Organization }>(
-        "/api/organizations",
-        { method: "POST", body: JSON.stringify(input) },
-      );
-      const all = await api<{ organizations: Organization[] }>(
-        "/api/organizations",
-      );
-      setOrganizations(all.organizations);
-      setSelected(result.organization);
+        throw Error(result.error.message ?? "Could not sign out.");
+    },
+    onSuccess: () => {
+      queryClient.removeQueries({ queryKey: ["organizations"] });
+      queryClient.removeQueries({ queryKey: ["organization"] });
+      queryClient.getMutationCache().clear();
+      queryClient.setQueryData(accountKey, null);
+      setSelectedId(null);
       setCreating(false);
-      creationKey.current = "";
-      setNotice("Your organization has been created and saved.");
-    });
-  }
+    },
+  });
   async function signOut() {
-    await run(async () => {
-      const result = await authClient().signOut();
-      if (result.error) throw Error("Could not sign out. Please retry.");
-      setUser(null);
-      setOrganizations([]);
-      setSelected(null);
-      setCreating(false);
-      setPassword("");
-      setScreen("signin");
-      setNotice("You’re signed out.");
-    });
+    if (
+      await confirm({
+        title: "Sign out of Himmah?",
+        description:
+          "You’ll need to sign in again to access your organization. Your saved workspaces will stay safe. Unsaved changes will be lost.",
+        confirmLabel: "Sign out",
+      })
+    )
+      logout.mutate();
   }
-  const feedback = (
-    <>
-      {error && (
-        <div className="alert error" role="alert">
-          {error}
-        </div>
-      )}
-      {notice && (
-        <div className="alert success" role="status">
-          {notice}
-        </div>
-      )}
-    </>
-  );
+  const loading = session.isPending || (!!user && organizations.isPending);
   return (
     <div className="onboarding-shell">
       <aside className="onboarding-story">
-        <a href="/" className="brand">
+        <Link to="/" className="brand">
           <div className="brand-mark">
             <Leaf size={27} />
           </div>
           <span>
             himmah<span className="brand-sub">GROW TOGETHER</span>
           </span>
-        </a>
+        </Link>
         <div className="onboarding-story-copy">
           <div className="eyebrow">FOR THE PEOPLE WHO SHOW UP</div>
           <h1>
@@ -321,234 +162,43 @@ export default function OrganizationPortal() {
         </div>
         <div className="onboarding-story-footer">
           <ShieldCheck size={17} />
-          Organization accounts are separate from the sample demo.
+          Your account is powered by Better Auth.
         </div>
       </aside>
       <section className="onboarding-main">
         <header className="onboarding-top">
-          <a href="/" className="text-link">
-            <ArrowLeft size={15} />
-            Explore the demo
-          </a>
+          <Button variant="link" asChild>
+            <Link to="/">
+              <ArrowLeft size={15} />
+              Explore the demo
+            </Link>
+          </Button>
           {user && (
-            <button className="text-link" onClick={signOut} disabled={pending}>
+            <ActionButton
+              variant="ghost"
+              pending={logout.isPending}
+              onClick={signOut}
+            >
               <LogOut size={16} />
               Sign out
-            </button>
+            </ActionButton>
           )}
         </header>
         <div className="onboarding-content">
           {loading ? (
-            <div className="empty-state">
-              <LoaderCircle className="spin" size={30} />
-              <h2>Finding your workspace…</h2>
-            </div>
+            <AccountSkeleton />
+          ) : session.isError ? (
+            <QueryError
+              message={session.error.message}
+              pending={session.isFetching}
+              retry={() => session.refetch()}
+            />
           ) : !user ? (
-            <>
-              <span className="badge">Himmah Hub · Early access</span>
-              <div className="eyebrow" style={{ marginTop: 24 }}>
-                ORGANIZER ACCOUNT
-              </div>
-              <h1>
-                {screen === "signup"
-                  ? "Good things start with you."
-                  : screen === "signin"
-                    ? "Welcome back."
-                    : screen === "verify"
-                      ? "One more little step."
-                      : "Let’s get you back in."}
-              </h1>
-              <p className="onboarding-intro">
-                {screen === "signup"
-                  ? "Create your organizer account, then set up your organization."
-                  : screen === "signin"
-                    ? "Sign in to your saved organization workspaces."
-                    : screen === "verify"
-                      ? "Verify your email before creating an organization."
-                      : "Request an email code to reset your password."}
-              </p>
-              {feedback}
-              <form onSubmit={submitCredentials} className="onboarding-form">
-                {screen === "signup" && (
-                  <label>
-                    Your name
-                    <input
-                      autoComplete="name"
-                      required
-                      maxLength={100}
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your first and last name"
-                    />
-                  </label>
-                )}
-                <label>
-                  Email address
-                  <input
-                    type="email"
-                    autoComplete="email"
-                    required
-                    maxLength={254}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@your-organization.org"
-                  />
-                </label>
-                {(screen === "signup" || screen === "signin") && (
-                  <label>
-                    Password
-                    <input
-                      type="password"
-                      autoComplete={
-                        screen === "signup"
-                          ? "new-password"
-                          : "current-password"
-                      }
-                      required
-                      minLength={screen === "signup" ? 12 : 1}
-                      maxLength={128}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder={
-                        screen === "signup"
-                          ? "At least 12 characters"
-                          : "Your password"
-                      }
-                    />
-                  </label>
-                )}
-                {screen === "signup" && (
-                  <label className="checkbox-label">
-                    <input type="checkbox" required />
-                    I’m an adult organizer setting up a youth organization.
-                  </label>
-                )}
-                {screen === "verify" && (
-                  <label>
-                    Verification code
-                    <input
-                      autoComplete="one-time-code"
-                      inputMode="numeric"
-                      required
-                      minLength={6}
-                      maxLength={8}
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.trim())}
-                      placeholder="Code from your email"
-                    />
-                  </label>
-                )}
-                <button
-                  className="button primary full"
-                  disabled={pending}
-                  type="submit"
-                >
-                  {pending ? (
-                    <LoaderCircle size={18} className="spin" />
-                  ) : screen === "signup" ? (
-                    "Create organizer account"
-                  ) : screen === "signin" ? (
-                    "Sign in"
-                  ) : screen === "verify" ? (
-                    "Verify email"
-                  ) : (
-                    "Send recovery code"
-                  )}
-                  {!pending && <ArrowRight size={17} />}
-                </button>
-              </form>
-              {screen === "forgot" && (
-                <form className="onboarding-form" onSubmit={resetPassword}>
-                  <label>
-                    Recovery code
-                    <input
-                      autoComplete="one-time-code"
-                      required
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      inputMode="numeric"
-                    />
-                  </label>
-                  <label>
-                    New password
-                    <input
-                      type="password"
-                      autoComplete="new-password"
-                      minLength={12}
-                      maxLength={128}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </label>
-                  <button className="button secondary full" disabled={pending}>
-                    Reset password
-                  </button>
-                </form>
-              )}
-              <div className="auth-switches">
-                {screen === "signin" ? (
-                  <>
-                    <p>
-                      New here?{" "}
-                      <button
-                        onClick={() => navigate("signup")}
-                        disabled={pending}
-                      >
-                        Create an account
-                      </button>
-                    </p>
-                    <button
-                      disabled={pending}
-                      onClick={() => navigate("forgot")}
-                    >
-                      Forgot password?
-                    </button>
-                    <button
-                      disabled={pending}
-                      onClick={() => {
-                        setScreen("verify");
-                        setError("");
-                      }}
-                    >
-                      Have an unverified account?
-                    </button>
-                  </>
-                ) : screen === "signup" ? (
-                  <p>
-                    Already have an account?{" "}
-                    <button
-                      disabled={pending}
-                      onClick={() => navigate("signin")}
-                    >
-                      Sign in
-                    </button>
-                  </p>
-                ) : (
-                  <>
-                    {screen === "verify" && (
-                      <button
-                        disabled={pending || !email}
-                        onClick={() => run(sendCode)}
-                      >
-                        Send a new verification code
-                      </button>
-                    )}
-                    <button
-                      disabled={pending}
-                      onClick={() => navigate("signin")}
-                    >
-                      Back to sign in
-                    </button>
-                  </>
-                )}
-              </div>
-              <p className="onboarding-disclaimer">
-                Early-access organization setup only. Youth enrollment and
-                persistent activity management are being built next. Use the
-                demo to try those screens.
-              </p>
-            </>
+            <AuthForm
+              onAuthenticated={() =>
+                queryClient.invalidateQueries({ queryKey: accountKey })
+              }
+            />
           ) : (
             <>
               <div className="account-greeting">
@@ -563,215 +213,53 @@ export default function OrganizationPortal() {
                   {user.emailVerified ? "Verified" : "Verify email"}
                 </span>
               </div>
-              {feedback}
+              {logout.isError && <ErrorAlert message={logout.error.message} />}
               {!user.emailVerified ? (
-                <section className="panel">
-                  <Mail size={30} />
-                  <h2>Verify your email to continue.</h2>
-                  <p className="muted">
-                    We’ll send a code to {user.email}. After verification you
-                    can create an organization.
-                  </p>
-                  <form
-                    className="onboarding-form"
-                    onSubmit={submitCredentials}
-                  >
-                    <label>
-                      Verification code
-                      <input
-                        value={code}
-                        onChange={(e) => {
-                          setCode(e.target.value);
-                          setScreen("verify");
-                        }}
-                        inputMode="numeric"
-                        required
-                        autoComplete="one-time-code"
-                      />
-                    </label>
-                    <button
-                      type="submit"
-                      className="button primary full"
-                      disabled={pending}
-                      onClick={() => setScreen("verify")}
-                    >
-                      Verify email
-                    </button>
-                  </form>
-                  <button
-                    className="button secondary full"
-                    disabled={pending}
-                    onClick={() => run(sendCode)}
-                  >
-                    Send verification code
-                  </button>
-                </section>
-              ) : creating ? (
-                <>
-                  <div className="eyebrow">YOUR ORGANIZATION</div>
-                  <h1>Make this space yours.</h1>
-                  <p className="onboarding-intro">
-                    Start with a name and a timezone. Your organization will
-                    have its own members, activities and progress.
-                  </p>
-                  <form
-                    className="onboarding-form"
-                    onSubmit={createOrganization}
-                  >
-                    <label>
-                      Organization name
-                      <input
-                        required
-                        minLength={2}
-                        maxLength={100}
-                        value={organizationName}
-                        onChange={(e) => {
-                          setOrganizationName(e.target.value);
-                          if (!slugEdited)
-                            setSlug(organizationSlug(e.target.value));
-                        }}
-                        placeholder="e.g. Noor Mosque Youth"
-                      />
-                    </label>
-                    <label>
-                      Workspace address
-                      <input
-                        required
-                        minLength={3}
-                        maxLength={48}
-                        value={slug}
-                        onChange={(e) => {
-                          setSlugEdited(true);
-                          setSlug(e.target.value.toLowerCase());
-                        }}
-                        placeholder="noor-mosque-youth"
-                      />
-                      <small>
-                        A unique name to identify your workspace. Lowercase
-                        letters, numbers and hyphens.
-                      </small>
-                    </label>
-                    <label>
-                      Organization timezone
-                      <select
-                        value={timezone}
-                        onChange={(e) => setTimezone(e.target.value)}
-                      >
-                        {[
-                          "Europe/Amsterdam",
-                          "Europe/Brussels",
-                          "Europe/London",
-                          "Europe/Berlin",
-                          "Europe/Istanbul",
-                          "Asia/Riyadh",
-                          "Africa/Casablanca",
-                          "America/New_York",
-                          "America/Chicago",
-                          "America/Toronto",
-                          "Asia/Kuala_Lumpur",
-                          "Australia/Sydney",
-                          "UTC",
-                        ].map((t) => (
-                          <option key={t}>{t}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={confirmed}
-                        onChange={(e) => setConfirmed(e.target.checked)}
-                        required
-                      />
-                      I am authorized to create and manage this organization.
-                    </label>
-                    <div className="info-note">
-                      <strong>Himmah Hub · Early access</strong>
-                      <br />
-                      No payment or game license is required to create your
-                      workspace. Paid plans and optional games will come later.
-                    </div>
-                    <button className="button primary full" disabled={pending}>
-                      {pending ? (
-                        <LoaderCircle className="spin" size={18} />
-                      ) : (
-                        <>
-                          Create organization
-                          <ArrowRight size={17} />
-                        </>
-                      )}
-                    </button>
-                    {organizations.length > 0 && (
-                      <button
-                        type="button"
-                        className="button secondary full"
-                        disabled={pending}
-                        onClick={() => setCreating(false)}
-                      >
-                        Back to my organizations
-                      </button>
-                    )}
-                  </form>
-                </>
-              ) : selected ? (
-                <>
-                  <button
-                    className="text-link"
-                    onClick={() => {
-                      setSelected(null);
-                      setNotice("");
-                    }}
-                  >
-                    <ArrowLeft size={16} />
-                    My organizations
-                  </button>
-                  <div className="workspace-welcome">
-                    <span className="workspace-monogram">
-                      {selected.name.slice(0, 1)}
-                    </span>
-                    <div className="eyebrow">YOUR ORGANIZATION WORKSPACE</div>
-                    <h1>{selected.name}</h1>
-                    <p className="onboarding-intro">
-                      Your space is ready. Organization setup is saved securely
-                      and stays available when you sign in again.
-                    </p>
-                  </div>
-                  <div className="workspace-detail-grid">
-                    <div>
-                      <Building2 size={19} />
-                      <span>Workspace</span>
-                      <strong>{selected.slug}</strong>
-                    </div>
-                    <div>
-                      <Clock3 size={19} />
-                      <span>Timezone</span>
-                      <strong>{selected.timezone}</strong>
-                    </div>
-                    <div>
-                      <ShieldCheck size={19} />
-                      <span>Your role</span>
-                      <strong>{selected.role}</strong>
-                    </div>
-                  </div>
-                  <div className="panel onboarding-next">
-                    <span className="badge">Coming next</span>
-                    <h2>Bring your community in.</h2>
-                    <p>
-                      Member invitations, groups, activities, attendance and
-                      points are the next persistent features. They are not
-                      connected to this workspace yet.
-                    </p>
-                    <a href="/" className="button secondary">
-                      Explore those flows in the demo
-                      <ArrowRight size={17} />
-                    </a>
-                  </div>
-                  <p className="onboarding-disclaimer">
-                    No sample children, attendance or points have been added to
-                    your organization. The demo and this saved workspace are
-                    separate.
-                  </p>
-                </>
+                <AuthForm
+                  key={user.id}
+                  verificationEmail={user.email}
+                  onAuthenticated={() =>
+                    queryClient.invalidateQueries({ queryKey: accountKey })
+                  }
+                />
+              ) : organizations.isError ? (
+                <QueryError
+                  message={organizations.error.message}
+                  pending={organizations.isFetching}
+                  retry={() => organizations.refetch()}
+                />
+              ) : creating || (organizations.data?.length ?? 0) === 0 ? (
+                <OrganizationSetup
+                  canCancel={(organizations.data?.length ?? 0) > 0}
+                  onCancel={() => setCreating(false)}
+                  onCreated={async (org) => {
+                    await queryClient.invalidateQueries({
+                      queryKey: orgKey(user.id),
+                    });
+                    queryClient.setQueryData(
+                      ["organization", user.id, org.id],
+                      org,
+                    );
+                    setSelectedId(org.id);
+                    setCreating(false);
+                  }}
+                />
+              ) : selectedId ? (
+                selected.isPending ? (
+                  <AccountSkeleton />
+                ) : selected.isError ? (
+                  <QueryError
+                    message={selected.error.message}
+                    pending={selected.isFetching}
+                    retry={() => selected.refetch()}
+                    onBack={() => setSelectedId(null)}
+                  />
+                ) : selected.data ? (
+                  <Workspace
+                    organization={selected.data}
+                    onBack={() => setSelectedId(null)}
+                  />
+                ) : null
               ) : (
                 <>
                   <div className="eyebrow">YOUR COMMUNITIES</div>
@@ -780,47 +268,33 @@ export default function OrganizationPortal() {
                     Choose a saved workspace or create a new one.
                   </p>
                   <div className="organization-list">
-                    {organizations.map((o) => (
-                      <button
-                        key={o.id}
-                        className="organization-choice"
-                        disabled={pending}
-                        onClick={() =>
-                          run(async () => {
-                            const result = await api<{
-                              organization: Organization;
-                            }>(`/api/organizations/${o.id}`);
-                            setSelected(result.organization);
-                          })
-                        }
+                    {organizations.data?.map((org) => (
+                      <Button
+                        variant="outline"
+                        key={org.id}
+                        className="organization-choice h-auto"
+                        onClick={() => setSelectedId(org.id)}
                       >
                         <span className="avatar">
                           <Building2 size={20} />
                         </span>
                         <span>
-                          <strong>{o.name}</strong>
+                          <strong>{org.name}</strong>
                           <small>
-                            {o.slug} · {o.role}
+                            {org.slug} · {org.role}
                           </small>
                         </span>
                         <ArrowRight size={18} />
-                      </button>
+                      </Button>
                     ))}
                   </div>
-                  <button
+                  <Button
                     className="button primary full"
-                    onClick={() => {
-                      setCreating(true);
-                      setOrganizationName("");
-                      setSlug("");
-                      setSlugEdited(false);
-                      setConfirmed(false);
-                      creationKey.current = "";
-                    }}
+                    onClick={() => setCreating(true)}
                   >
                     <Plus size={17} />
                     Create another organization
-                  </button>
+                  </Button>
                 </>
               )}
             </>
@@ -832,5 +306,721 @@ export default function OrganizationPortal() {
         </footer>
       </section>
     </div>
+  );
+}
+function ErrorAlert({ message }: { message: string }) {
+  return (
+    <Alert variant="destructive" role="alert" className="mb-5">
+      <AlertDescription>{message}</AlertDescription>
+    </Alert>
+  );
+}
+function QueryError({
+  message,
+  pending,
+  retry,
+  onBack,
+}: {
+  message: string;
+  pending: boolean;
+  retry: () => unknown;
+  onBack?: () => void;
+}) {
+  return (
+    <Card>
+      <CardContent className="space-y-4 pt-6">
+        <ErrorAlert message={message} />
+        <ActionButton pending={pending} onClick={() => retry()}>
+          Try again
+        </ActionButton>
+        {onBack && (
+          <Button variant="ghost" onClick={onBack}>
+            Back to my organizations
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+type AuthValues = {
+  name: string;
+  email: string;
+  password: string;
+  code: string;
+  adult: boolean;
+};
+type OrganizationValues = {
+  name: string;
+  slug: string;
+  timezone: string;
+  authorized: boolean;
+};
+type AuthScreen =
+  "signup" | "signin" | "verify" | "recovery-request" | "recovery-reset";
+function AuthForm({
+  verificationEmail,
+  onAuthenticated,
+}: {
+  verificationEmail?: string;
+  onAuthenticated: () => Promise<unknown>;
+}) {
+  const confirm = useConfirmation();
+  const [screen, setScreen] = useState<AuthScreen>(
+    verificationEmail ? "verify" : "signup",
+  );
+  const [notice, setNotice] = useState("");
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      email: verificationEmail ?? "",
+      password: "",
+      code: "",
+      adult: false,
+    },
+    onSubmit: async ({ value }) => {
+      if (
+        screen === "recovery-reset" &&
+        !(await confirm({
+          title: "Replace your password?",
+          description:
+            "You will use the new password to sign in. Confirm to replace the current password.",
+          confirmLabel: "Replace password",
+        }))
+      )
+        return;
+      await submission.mutateAsync(value).catch(() => {});
+    },
+  });
+  const email = useStore(form.store, (s) => s.values.email);
+  const submission = useMutation({
+    mutationFn: async (value: AuthValues): Promise<void> => {
+      setNotice("");
+      if (screen === "signup") {
+        if (!value.adult)
+          throw Error("Confirm that you are an adult organizer.");
+        const result = await (
+          await authClient()
+        ).signUp.email({
+          email: value.email,
+          password: value.password,
+          name: value.name,
+        });
+        if (result.error)
+          throw Error(result.error.message ?? "Could not create account.");
+        setScreen("verify");
+        const code = await (
+          await authClient()
+        ).emailOtp.sendVerificationOtp({
+          email: value.email,
+          type: "email-verification",
+        });
+        if (code.error) {
+          setNotice(
+            "Account created. Use Send a new code to verify your email.",
+          );
+          return;
+        }
+        setNotice("Check your inbox for a verification code.");
+      } else if (screen === "signin") {
+        const result = await (
+          await authClient()
+        ).signIn.email({
+          email: value.email,
+          password: value.password,
+        });
+        if (result.error)
+          throw Error(result.error.message ?? "Could not sign in.");
+        form.setFieldValue("password", "");
+        await onAuthenticated();
+      } else if (screen === "verify") {
+        const result = await (
+          await authClient()
+        ).emailOtp.verifyEmail({
+          email: value.email,
+          otp: value.code,
+        });
+        if (result.error)
+          throw Error(
+            result.error.message ?? "That code could not be verified.",
+          );
+        if (value.password) {
+          const signed = await (
+            await authClient()
+          ).signIn.email({
+            email: value.email,
+            password: value.password,
+          });
+          if (signed.error) {
+            setScreen("signin");
+            form.setFieldValue("password", "");
+            setNotice("Email verified. Sign in to continue.");
+            return;
+          }
+        }
+        await onAuthenticated();
+        setScreen("signin");
+        form.setFieldValue("password", "");
+        form.setFieldValue("code", "");
+        setNotice("Email verified. Sign in if needed to continue.");
+      } else if (screen === "recovery-request") {
+        const result = await (
+          await authClient()
+        ).emailOtp.sendVerificationOtp({
+          email: value.email,
+          type: "forget-password",
+        });
+        if (result.error)
+          throw Error(
+            result.error.message ?? "Could not request recovery code.",
+          );
+        setScreen("recovery-reset");
+        setNotice(
+          "If your email belongs to an account, a recovery code has been sent.",
+        );
+      } else {
+        const result = await (
+          await authClient()
+        ).emailOtp.resetPassword({
+          email: value.email,
+          otp: value.code,
+          password: value.password,
+        });
+        if (result.error)
+          throw Error(result.error.message ?? "Could not reset password.");
+        setScreen("signin");
+        form.setFieldValue("password", "");
+        form.setFieldValue("code", "");
+        setNotice("Password updated. Sign in to continue.");
+      }
+    },
+  });
+  const resend = useMutation({
+    mutationFn: async () => {
+      const result = await (
+        await authClient()
+      ).emailOtp.sendVerificationOtp({
+        email,
+        type: "email-verification",
+      });
+      if (result.error)
+        throw Error(result.error.message ?? "Could not send code.");
+      setNotice("A new verification code has been sent.");
+    },
+  });
+  const pending = submission.isPending || resend.isPending;
+  function navigate(next: AuthScreen) {
+    setScreen(next);
+    setNotice("");
+    submission.reset();
+    resend.reset();
+    form.setFieldValue("password", "");
+    form.setFieldValue("code", "");
+  }
+  const title =
+    screen === "signup"
+      ? "Good things start with you."
+      : screen === "signin"
+        ? "Welcome back."
+        : screen === "verify"
+          ? "One more little step."
+          : "Let’s get you back in.";
+  const fields = (["name", "email", "password", "code"] as const).filter(
+    (name) =>
+      name === "name"
+        ? screen === "signup"
+        : name === "password"
+          ? ["signup", "signin", "recovery-reset"].includes(screen)
+          : name === "code"
+            ? ["verify", "recovery-reset"].includes(screen)
+            : true,
+  );
+  return (
+    <>
+      <span className="badge">Himmah Hub · Early access</span>
+      <div className="eyebrow mt-6">ORGANIZER ACCOUNT</div>
+      <h1>{title}</h1>
+      <p className="onboarding-intro">
+        {screen === "signup"
+          ? "Create your organizer account, then set up your organization."
+          : screen === "signin"
+            ? "Sign in to your saved organization workspaces."
+            : screen === "verify"
+              ? "Verify your email before creating an organization."
+              : "Recover your account with a code sent to your email."}
+      </p>
+      {submission.isError && <ErrorAlert message={submission.error.message} />}{" "}
+      {resend.isError && <ErrorAlert message={resend.error.message} />}{" "}
+      {notice && (
+        <Alert className="mb-5" role="status">
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
+      )}
+      <form
+        className="onboarding-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        {fields.map((name) => (
+          <form.Field key={name} name={name}>
+            {(field) => (
+              <div className="mt-5">
+                <Label htmlFor={`auth-${name}`}>
+                  {name === "name"
+                    ? "Your name"
+                    : name === "email"
+                      ? "Email address"
+                      : name === "password"
+                        ? screen === "recovery-reset"
+                          ? "New password"
+                          : "Password"
+                        : "Email code"}
+                </Label>
+                <Input
+                  id={`auth-${name}`}
+                  name={field.name}
+                  value={field.state.value}
+                  onChange={(event) => field.handleChange(event.target.value)}
+                  onBlur={field.handleBlur}
+                  required
+                  disabled={
+                    pending || (!!verificationEmail && name === "email")
+                  }
+                  type={
+                    name === "password"
+                      ? "password"
+                      : name === "email"
+                        ? "email"
+                        : "text"
+                  }
+                  minLength={
+                    name === "password" && screen !== "signin"
+                      ? 12
+                      : name === "code"
+                        ? 6
+                        : undefined
+                  }
+                  maxLength={
+                    name === "password" ? 128 : name === "code" ? 8 : 254
+                  }
+                  autoComplete={
+                    name === "password"
+                      ? screen === "signin"
+                        ? "current-password"
+                        : "new-password"
+                      : name === "code"
+                        ? "one-time-code"
+                        : name === "name"
+                          ? "name"
+                          : "email"
+                  }
+                  inputMode={
+                    name === "code"
+                      ? "numeric"
+                      : name === "email"
+                        ? "email"
+                        : undefined
+                  }
+                  className="mt-2"
+                />
+              </div>
+            )}
+          </form.Field>
+        ))}
+        {screen === "signup" && (
+          <form.Field name="adult">
+            {(field) => (
+              <div className="mt-5 flex items-start gap-2">
+                <Checkbox
+                  id="adult-organizer"
+                  checked={field.state.value}
+                  onCheckedChange={(value) =>
+                    field.handleChange(value === true)
+                  }
+                  disabled={pending}
+                />
+                <Label htmlFor="adult-organizer" className="text-xs leading-5">
+                  I’m an adult organizer setting up a youth organization.
+                </Label>
+              </div>
+            )}
+          </form.Field>
+        )}
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <ActionButton
+              type="submit"
+              className="button primary full"
+              pending={submission.isPending || isSubmitting}
+              disabled={resend.isPending}
+            >
+              {screen === "signup"
+                ? "Create organizer account"
+                : screen === "signin"
+                  ? "Sign in"
+                  : screen === "verify"
+                    ? "Verify email"
+                    : screen === "recovery-request"
+                      ? "Send recovery code"
+                      : "Reset password"}
+              <ArrowRight size={17} />
+            </ActionButton>
+          )}
+        </form.Subscribe>
+      </form>
+      <div className="auth-switches">
+        {screen === "signin" ? (
+          <>
+            <p>
+              New here?{" "}
+              <Button
+                variant="link"
+                onClick={() => navigate("signup")}
+                disabled={pending}
+              >
+                Create an account
+              </Button>
+            </p>
+            <Button
+              variant="link"
+              disabled={pending}
+              onClick={() => navigate("recovery-request")}
+            >
+              Forgot password?
+            </Button>
+            <Button
+              variant="link"
+              disabled={pending}
+              onClick={() => navigate("verify")}
+            >
+              Have an unverified account?
+            </Button>
+          </>
+        ) : screen === "signup" ? (
+          <p>
+            Already have an account?{" "}
+            <Button
+              variant="link"
+              disabled={pending}
+              onClick={() => navigate("signin")}
+            >
+              Sign in
+            </Button>
+          </p>
+        ) : (
+          <>
+            {screen === "verify" && (
+              <ActionButton
+                variant="link"
+                pending={resend.isPending}
+                disabled={submission.isPending || !email}
+                onClick={() => resend.mutate()}
+              >
+                Send a new verification code
+              </ActionButton>
+            )}
+            {!verificationEmail && (
+              <Button
+                variant="link"
+                disabled={pending}
+                onClick={() => navigate("signin")}
+              >
+                Back to sign in
+              </Button>
+            )}
+          </>
+        )}
+      </div>
+      <p className="onboarding-disclaimer">
+        Early-access organization setup only. Youth enrollment and persistent
+        activity management are being built next. Use the demo to try those
+        screens.
+      </p>
+    </>
+  );
+}
+function OrganizationSetup({
+  canCancel,
+  onCancel,
+  onCreated,
+}: {
+  canCancel: boolean;
+  onCancel: () => void;
+  onCreated: (organization: Organization) => Promise<void>;
+}) {
+  const confirm = useConfirmation();
+  const creationKey = useRef("");
+  const [slugEdited, setSlugEdited] = useState(false);
+  const form = useForm({
+    defaultValues: {
+      name: "",
+      slug: "",
+      timezone: "Europe/Amsterdam",
+      authorized: false,
+    },
+    onSubmit: async ({ value }) => {
+      await creation.mutateAsync(value).catch(() => {});
+    },
+  });
+  const dirty = useStore(form.store, (state) => state.isDirty);
+  const creation = useMutation({
+    mutationFn: async (value: OrganizationValues): Promise<Organization> => {
+      if (!value.authorized)
+        throw Error(
+          "Confirm that you are authorized to manage this organization.",
+        );
+      creationKey.current ||= crypto.randomUUID();
+      const input = validateOrganization({
+        ...value,
+        creationKey: creationKey.current,
+      });
+      const result = await api<{ organization: Organization }>(
+        "/api/organizations",
+        { method: "POST", body: JSON.stringify(input) },
+      );
+      return result.organization;
+    },
+    onSuccess: onCreated,
+  });
+  useBlocker({
+    shouldBlockFn: async () =>
+      dirty &&
+      !creation.isSuccess &&
+      !(await confirm({
+        title: "Discard organization setup?",
+        description: "Your unsaved organization details will be lost.",
+        confirmLabel: "Discard setup",
+        destructive: true,
+      })),
+    enableBeforeUnload: dirty && !creation.isSuccess,
+  });
+  async function cancel() {
+    if (
+      !dirty ||
+      (await confirm({
+        title: "Discard organization setup?",
+        description: "Your unsaved organization details will be lost.",
+        confirmLabel: "Discard setup",
+        destructive: true,
+      }))
+    )
+      onCancel();
+  }
+  return (
+    <>
+      <div className="eyebrow">YOUR ORGANIZATION</div>
+      <h1>Make this space yours.</h1>
+      <p className="onboarding-intro">
+        Start with a name and a timezone. Your organization will have its own
+        members, activities and progress.
+      </p>
+      {creation.isError && <ErrorAlert message={creation.error.message} />}
+      <form
+        className="onboarding-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        <form.Field name="name">
+          {(field) => (
+            <div className="mt-5">
+              <Label htmlFor="organization-name">Organization name</Label>
+              <Input
+                id="organization-name"
+                required
+                minLength={2}
+                maxLength={100}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => {
+                  field.handleChange(e.target.value);
+                  if (!slugEdited)
+                    form.setFieldValue(
+                      "slug",
+                      organizationSlug(e.target.value),
+                    );
+                }}
+                placeholder="e.g. Noor Mosque Youth"
+                disabled={creation.isPending}
+                className="mt-2"
+              />
+            </div>
+          )}
+        </form.Field>
+        <form.Field name="slug">
+          {(field) => (
+            <div className="mt-5">
+              <Label htmlFor="organization-slug">Workspace address</Label>
+              <Input
+                id="organization-slug"
+                required
+                minLength={3}
+                maxLength={48}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => {
+                  setSlugEdited(true);
+                  field.handleChange(e.target.value.toLowerCase());
+                }}
+                placeholder="noor-mosque-youth"
+                disabled={creation.isPending}
+                className="mt-2"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                A unique name: lowercase letters, numbers and hyphens.
+              </p>
+            </div>
+          )}
+        </form.Field>
+        <form.Field name="timezone">
+          {(field) => (
+            <div className="mt-5">
+              <Label htmlFor="organization-timezone">
+                Organization timezone
+              </Label>
+              <NativeSelect
+                id="organization-timezone"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                disabled={creation.isPending}
+                className="w-full mt-2"
+              >
+                {[
+                  "Europe/Amsterdam",
+                  "Europe/Brussels",
+                  "Europe/London",
+                  "Europe/Berlin",
+                  "Europe/Istanbul",
+                  "Asia/Riyadh",
+                  "Africa/Casablanca",
+                  "America/New_York",
+                  "America/Chicago",
+                  "America/Toronto",
+                  "Asia/Kuala_Lumpur",
+                  "Australia/Sydney",
+                  "UTC",
+                ].map((t) => (
+                  <NativeSelectOption key={t}>{t}</NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </div>
+          )}
+        </form.Field>
+        <form.Field name="authorized">
+          {(field) => (
+            <div className="mt-5 flex items-start gap-2">
+              <Checkbox
+                id="organization-authorized"
+                checked={field.state.value}
+                onCheckedChange={(value) => field.handleChange(value === true)}
+                disabled={creation.isPending}
+              />
+              <Label
+                htmlFor="organization-authorized"
+                className="text-xs leading-5"
+              >
+                I am authorized to create and manage this organization.
+              </Label>
+            </div>
+          )}
+        </form.Field>
+        <Alert className="mt-5">
+          <AlertDescription>
+            <strong>Himmah Hub · Early access</strong>
+            <br />
+            No payment or game license is required to create your workspace.
+          </AlertDescription>
+        </Alert>
+        <form.Subscribe selector={(state) => state.isSubmitting}>
+          {(isSubmitting) => (
+            <ActionButton
+              type="submit"
+              pending={creation.isPending || isSubmitting}
+              className="button primary full"
+            >
+              Create organization
+              <ArrowRight size={17} />
+            </ActionButton>
+          )}
+        </form.Subscribe>
+        {canCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            className="button secondary full"
+            disabled={creation.isPending}
+            onClick={cancel}
+          >
+            Back to my organizations
+          </Button>
+        )}
+      </form>
+    </>
+  );
+}
+function Workspace({
+  organization,
+  onBack,
+}: {
+  organization: Organization;
+  onBack: () => void;
+}) {
+  return (
+    <>
+      <Button variant="link" onClick={onBack}>
+        <ArrowLeft size={16} />
+        My organizations
+      </Button>
+      <div className="workspace-welcome">
+        <span className="workspace-monogram">
+          {organization.name.slice(0, 1)}
+        </span>
+        <div className="eyebrow">YOUR ORGANIZATION WORKSPACE</div>
+        <h1>{organization.name}</h1>
+        <p className="onboarding-intro">
+          Your organization is saved and stays available when you sign in again.
+        </p>
+      </div>
+      <div className="workspace-detail-grid">
+        <div>
+          <Building2 size={19} />
+          <span>Workspace</span>
+          <strong>{organization.slug}</strong>
+        </div>
+        <div>
+          <Clock3 size={19} />
+          <span>Timezone</span>
+          <strong>{organization.timezone}</strong>
+        </div>
+        <div>
+          <ShieldCheck size={19} />
+          <span>Your role</span>
+          <strong>{organization.role}</strong>
+        </div>
+      </div>
+      <Card>
+        <CardContent className="space-y-4 pt-6">
+          <span className="badge">Coming next</span>
+          <h2>Bring your community in.</h2>
+          <p className="text-muted-foreground text-sm">
+            Member invitations, groups, activities, attendance and points are
+            the next persistent features. They are not connected to this
+            workspace yet.
+          </p>
+          <Button variant="outline" asChild>
+            <Link to="/">
+              Explore those flows in the demo
+              <ArrowRight size={17} />
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+      <p className="onboarding-disclaimer">
+        No sample children, attendance or points have been added to your
+        organization. The demo and this saved workspace are separate.
+      </p>
+    </>
   );
 }
