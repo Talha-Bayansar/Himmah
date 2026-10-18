@@ -6,7 +6,6 @@ import {
   CalendarDays,
   Pencil,
   Ban,
-  ArrowLeft,
   ArrowRight,
   MapPin,
 } from "lucide-react";
@@ -196,21 +195,16 @@ export default function Sessions({
     );
   };
   return (
-    <section className="activity-sessions" aria-label={m.sessions_title()}>
+    <section
+      className={
+        sessionId
+          ? "activity-sessions activity-session-detail"
+          : "activity-sessions"
+      }
+      aria-label={m.sessions_title()}
+    >
       {sessionId ? (
         <>
-          <Button variant="link" asChild className="settings-back">
-            <Link
-              to="/workspace/$organizationId/activities/$activityId"
-              params={{
-                organizationId: organization.id,
-                activityId: activity.id,
-              }}
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              {activity.name}
-            </Link>
-          </Button>
           {detail.isPending ? (
             <ListSkeleton />
           ) : detail.isError ? (

@@ -181,6 +181,12 @@ it("session detail loads by ID, shows the saved audience and is read-only for vo
   vi.stubGlobal("fetch", fetcher);
   mount("volunteer", item.id, session.id);
   await screen.findByRole("heading", { name: session.name });
+  const back = screen.getByRole("link", { name: item.name });
+  expect(back.getAttribute("href")).toBe(
+    `/workspace/${org.id}/activities/${item.id}`,
+  );
+  expect(screen.getAllByRole("link").length).toBe(1);
+  expect(screen.queryByRole("link", { name: "Activities" })).toBeNull();
   expect(screen.getByText("Saved group")).toBeTruthy();
   expect(screen.queryByRole("button", { name: /Actions for/ })).toBeNull();
   expect(fetcher).toHaveBeenCalledTimes(2);
@@ -295,6 +301,9 @@ it("session tabs load their own paginated view and future session form sends par
   );
   const client = mount("owner", item.id);
   const user = userEvent.setup();
+  const back = await screen.findByRole("link", { name: "Activities" });
+  expect(back.getAttribute("href")).toBe(`/workspace/${org.id}/activities`);
+  expect(screen.getAllByRole("link").length).toBe(1);
   await user.click(await screen.findByRole("tab", { name: "Past" }));
   await waitFor(() => expect(views).toContain("past"));
   await user.click(screen.getByRole("tab", { name: "Upcoming" }));

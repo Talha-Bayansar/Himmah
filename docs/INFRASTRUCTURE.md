@@ -238,3 +238,11 @@ Migration 0003 is now also applied transactionally to onboarding with its standa
 Final validation includes strict type checks, production build and contrast audit, plus a repeat Chromium flow using local synthetic intercepted APIs: activity creation with selected groups, scheduling in a short phone viewport, saved session name/audience after activity edits, direct session reload, cancellation reason with cancel/confirm, Upcoming/Past views, EN/NL/TR and 320/390/768px layouts. Screenshots inspected. Actual iOS/Android keyboard and real user mutations were not exercised. Dedicated auth bindings, native fetch wrapper, rate limits and PWA private-data safeguards are retained.
 
 Latest Worker: 82bb753f-5f72-4ea1-99f5-07b631610e75, confirmed active at 100% traffic.
+
+## One back control per activity/session page
+
+The activity page now owns the single parent-navigation control, including loading/error states. Activity details link to the activity list; session details link to their activity. The nested Sessions component no longer renders its own back control, and its detail layout removes the extra session-section top margin. The owner’s general one-back-control preference is recorded in AGENTS.md. Regression checks assert exactly one parent link and its destination on both detail levels. No data/schema/auth changes.
+
+Validation: all 87 tests, strict types/docs, production build and contrast audit pass. Chromium with synthetic local APIs verifies exactly one back link and its parent destination on both activity and session details, including session reload, mobile layout and existing activity/session interactions. Updated phone screenshot inspected: the session card follows a single left-aligned parent link with no duplicate navigation gap. No real user data was changed.
+
+Latest Worker: 78ec1aa9-3e62-43f9-b375-1917bc5226eb, confirmed active at 100% traffic.

@@ -268,16 +268,26 @@ export default function Activities({
       {activityId ? (
         <>
           <Button variant="link" asChild className="settings-back">
-            <Link
-              to="/workspace/$organizationId/$section"
-              params={{
-                organizationId: organization.id,
-                section: "activities",
-              }}
-            >
-              <ArrowLeft size={16} aria-hidden="true" />
-              {m.activities_title()}
-            </Link>
+            {sessionId ? (
+              <Link
+                to="/workspace/$organizationId/activities/$activityId"
+                params={{ organizationId: organization.id, activityId }}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                {detail.data?.item.name ?? m.activities_view()}
+              </Link>
+            ) : (
+              <Link
+                to="/workspace/$organizationId/$section"
+                params={{
+                  organizationId: organization.id,
+                  section: "activities",
+                }}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                {m.activities_title()}
+              </Link>
+            )}
           </Button>
           {detail.isPending ? (
             <ListSkeleton />

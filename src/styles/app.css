@@ -4271,3 +4271,7 @@ html {
   font-size: 14px;
   color: var(--text);
 }
+
+.activity-session-detail {
+  margin-top: 0;
+}
