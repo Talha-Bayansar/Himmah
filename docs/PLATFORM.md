@@ -31,3 +31,9 @@ On cancellation or overdue invoices, preserve match history and youth records un
 ## Rollout
 
 Build tenant ownership and roles with the first persistent application. Rehearse two synthetic workspaces before onboarding another real mosque. Deliver billing later after provider selection and sandbox testing; no provider SDK, account, webhook or paid service is needed for this requirements update.
+
+## Separate app licenses and standalone Hub
+
+Hub is the foundation product; organizations may license Hub alone. Futsal and future games are optional app entitlements using shared identity and Hub contribution APIs. Youth do not buy licenses. Preserve granular workspace roles as well as app entitlements; a license is not permission to view all organization records.
+
+Proposed packaging: one Hub license plus a Futsal add-on, with bundles possible later. Prices, seat limits, trial rules and payment provider remain undecided. Games do not own Hub contributions and cannot remove them on cancellation. Define active-season/grace/read-only behavior before enabling paid licenses. No billing implementation is included now.

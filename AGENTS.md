@@ -6,7 +6,7 @@ Read README.md, docs/PROJECT_CONTEXT.md, docs/DECISIONS.md, docs/INFRASTRUCTURE.
 
 ## Owner's intent
 
-Build a phone-friendly game for mosque youth aged 11–15. Both Club Manager and Team League belong in the first playable product. Both must support league and tournament formats; mode and format are independent choices. Organizers need a validated pre-season settings builder. Multi-organization isolation is a foundation requirement, even when piloting with one mosque. Future billing is organization-level and provider-neutral; Stripe or Mollie is undecided, not an instruction to integrate payments now. Preserve the football squads, configurable seasons, engagement-to-training loop, simulated matches, league standings, and volunteer control. Do not quietly simplify it into a points-only tracker or remove a mode.
+Build Himmah as a modular platform for mosque youth aged 11–15. Himmah Hub is the standalone engagement app (members, groups, activities, attendance and points); Himmah Futsal is its optional connected game. Read docs/HUB.md before planning implementation. Build Hub workflows first; preserve all Futsal requirements for the connected game milestone. Both Club Manager and Team League belong in the first playable product. Both must support league and tournament formats; mode and format are independent choices. Organizers need a validated pre-season settings builder. Multi-organization isolation is a foundation requirement, even when piloting with one mosque. Future billing is organization-level and provider-neutral; Stripe or Mollie is undecided, not an instruction to integrate payments now. Preserve the football squads, configurable seasons, engagement-to-training loop, simulated matches, league standings, and volunteer control. Do not quietly simplify it into a points-only tracker or remove a mode.
 
 Distinguish owner-confirmed requirements from implementation proposals. Numerical balancing, branding, stack choices, roster fillers, and pilot size are defaults to validate, not owner commitments. Never describe unfinished functionality as shipped.
 
@@ -21,7 +21,7 @@ Distinguish owner-confirmed requirements from implementation proposals. Numerica
 
 ## Configurable engagement is core
 
-Read docs/ENGAGEMENT.md. Each organization defines its own activities and earning rules, or uses manual-only awards. Quizzes and attendance are optional sources, never mandatory game mechanics or hard-coded training inputs. The engine consumes normalized, authorized engagement awards through a ledger and season conversion rules. Keep engagement points separate from football standings points. Manual awards need actor, recipient, season, reason, occurrence time, idempotency and audited corrections; never allow direct rating/total edits as an award shortcut.
+Read docs/ENGAGEMENT.md. Each organization defines its own activities and earning rules, or uses manual-only awards. Quizzes and attendance are optional sources, never mandatory game mechanics or hard-coded training inputs. The engine consumes normalized, authorized engagement awards through a ledger and season conversion rules. Keep engagement points separate from football standings points. Hub awards must not require a game season. They need actor, organization-scoped recipient, optional Hub engagement period, reason, occurrence time, idempotency and audited corrections; game eligibility and allocation are separate records. Never allow direct rating/total edits as an award shortcut.
 
 ## Engineering defaults
 

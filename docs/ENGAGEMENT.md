@@ -45,3 +45,7 @@ Quizzes may supply normalized awards after server-side scoring, with protected a
 ## Acceptance cases
 
 Run all mode/format combinations without a quiz. Two organizations use different activity types and point values without code changes. Manually award one participant, then a group, and retry without double granting. Prevent self-awards and cross-organization awards. Edit an activity rule without changing old entries. Correct an already-consumed award without changing recorded match results. Verify conversion caps for concurrent and backdated awards, and document late-award policy before the pilot.
+
+## Hub ownership — current source of truth
+
+Hub operates independently of games. Award records require organization and member ownership, not a game season; a Hub engagement period is optional. This supersedes the earlier season-required award workflow and fields above. Select participant(s), optional engagement period and reason when awarding manually. Game seasons independently select eligible contributions by an explicit window/rule and keep their own allocation records. Multiple games may use the same contribution without reducing its recorded value. No global spendable balance is introduced.

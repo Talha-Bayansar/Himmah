@@ -24,9 +24,16 @@ Confirm parent/guardian process, religious challenge policy, privacy/retention p
 
 Proposed 12 participants in four teams of three over four to six weeks, Team League first. Both modes remain product requirements. Observe return visits, understanding, encouragement versus pressure, volunteer workload and season balance; tune the next season without silently changing an active one.
 
-## Next agent task
+## Current priority — Hub first (supersedes the sequence above)
 
-Begin milestone 1 with the existing documents. Resolve the few rules that affect the engine, then implement a pure seeded simulation and training model with meaningful tests. Do not start with production deployment or decorative screens.
+1. Design Youth Home, Volunteer Check-in and Activity Setup using HUB.md, including empty, error and correction states.
+2. Build standalone Hub membership/roles/groups, activities/occurrences and attendance; then configurable/manual awards and personal histories.
+3. Add Hub engagement periods and basic reports. Verify a manual-only organization and an attendance-without-points organization using two isolated synthetic workspaces.
+4. Establish the versioned, authorized contribution API and organization app-entitlement boundary; verify Hub works without a Futsal license.
+5. Resume the Futsal game-engine and playable-app milestones above, preserving both modes and formats. Connect training to Hub contributions without reducing original contribution history.
+6. Pilot, extend Hub with optional modules, and add paid billing only when explicitly scheduled.
+
+No runnable Hub UI or API is implemented by this planning update. The next deliverable is the three core screen flows, not production deployment.
 
 ## 6 — Multi-organization rollout and optional billing
 

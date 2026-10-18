@@ -45,3 +45,9 @@ Mosque name and branding; language(s); season timezone; approximate participant 
 ## Confirmed clarification — configurable earning system
 
 Each mosque defines how participants earn engagement points: quizzes, attendance, custom activities, or manual awards for work done at the mosque. A mosque can use manual awards only. Do not require a quiz module, lecture schedule or particular activity category to run any mode/format. Exact awarding rules and conversion to training are configurable; the core game consumes points, not quiz-specific inputs.
+
+## Approved platform and Hub direction
+
+The owner accepted the separation into a standalone engagement app and connected games, with organization licenses for individual apps. Himmah Hub is the working name for the foundation; Himmah Futsal is an optional game add-on. Shared accounts; organization-specific access. Future games can use the same engagement history without erasing or consuming that history. Payment provider, prices, limits and billing integration timing remain undecided.
+
+Owner approved the Hub feature proposal: youth home/progress/activities/personal attendance and points/connected apps; fast volunteer attendance and manual points; organization membership/groups, custom earning rules, independent engagement periods, reports, settings and licenses. First release prioritizes members/roles/groups, activities, attendance, manual/configurable awards, personal history, reporting and the Futsal connection. Quizzes, QR self-check-in, badges, rewards redemption and richer announcements can follow. Detailed screen flows and edge policies remain to design. See HUB.md.
