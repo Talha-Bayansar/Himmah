@@ -10,7 +10,7 @@ src/domain holds pure versioned game calculations independent of UI/database. Ap
 
 ## Conceptual entities (not implemented tables)
 
-Organization; identity; organization membership and role; invitation; participant profile; consent record; season and rules snapshot; season entry; club/team; roster membership; player and attribute snapshot; activity; contribution approval; quiz/question; quiz attempt and answer; engagement ledger; training allocation/result; lineup/tactics; fixture; simulation result/events; reward definition/award; job execution; audit event.
+Organization; identity; organization membership and role; invitation; participant profile; consent record; season, format and settings snapshot; organization settings template; season entry; club/team; roster membership; player and attribute snapshot; activity; contribution approval; quiz/question; quiz attempt and answer; engagement ledger; training allocation/result; lineup/tactics; fixture; tournament round/bracket slot/advancement; simulation result/events; reward definition/award; job execution; audit event.
 
 Separate account identity from game profile. Avoid mandatory email addresses or dates of birth for children until enrollment is agreed. Every mutable row belongs to an organization and relevant season. Use foreign keys and composite constraints to prevent cross-season/team references.
 
@@ -32,3 +32,15 @@ Dedicated Neon project, main reserved for eventual production and development br
 ## Authentication decision pending
 
 Invite-only membership with participant, volunteer, and administrator roles. Select and implement authentication during the enrollment milestone; evaluate Neon managed authentication using its current skill and support constraints then. No auth service is claimed to be configured now.
+
+## Multi-organization foundation
+
+See [Platform architecture](PLATFORM.md). The initial schema must carry organization ownership through all game records and membership-scoped authorization. Use composite foreign keys to block cross-tenant references. Include organization scope in job payloads, idempotency keys, caches, logs, file paths and exports. Never treat a paid subscription as authorization. Verify isolation using at least two synthetic organizations before the pilot.
+
+## Season configuration and format
+
+Mode and format are separate fields. Validate a typed draft configuration, produce a fixture/bracket and training preview, then persist an immutable versioned rules snapshot on activation. Reference that snapshot from every training and match. Use a format-specific result: league table or knockout bracket/champion. Persist bracket advancement in the same transaction as the fixture result.
+
+## Future subscription boundary
+
+Prepare a small provider-neutral organization entitlement interface when implementing the application; do not build billing infrastructure now. Payment records/webhook receipts eventually belong to the platform billing domain and reference an organization, not youth profiles. Providers and actual plans remain undecided. No schema or integration is implemented by this documentation update.

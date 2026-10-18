@@ -32,3 +32,12 @@ Act on authorized work, keep updates concise, preserve decisions in the repo, an
 ## Questions to resolve during design, not blockers to setup
 
 Mosque name and branding; language(s); season timezone; approximate participant count; available rewards and budget; exact training thresholds; parent/guardian enrollment process; Team League captain/tactics permissions; team sizes above five and rotation fairness; quiz retry/accessibility policy; late joining and withdrawal.
+
+## Confirmed additions — 18 October 2026
+
+- Both Club Manager and Team League support a tournament alternative to league competition.
+- Organizers can change a variety of game settings and parameters before starting a season.
+- The platform must support other organizations/mosques running their own youth programs independently.
+- Allow a future organization paywall/subscription; Stripe or Mollie are possible later providers. Billing provider, pricing, tiers, and launch timing remain undecided. Do not provision or integrate payments yet.
+
+“Team League” remains the current mode identifier/name for compatibility. It describes participants playing in shared teams, not a restriction to league format. A clearer display name such as “Team Play” is proposed.

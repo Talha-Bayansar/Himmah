@@ -27,3 +27,13 @@ Run reproducible Monte Carlo experiments before the pilot. Measure equal-team sy
 ## Edges requiring explicit rules
 
 Late joins, withdrawn participants, quiz retries and ties, offline check-in, corrected approvals after training, cancelled activities, postponed fixtures, odd team counts/byes, non-divisible season duration, simultaneous team tactic edits, substitutes and participation above five players, disconnected clients, season closure while jobs are pending. Corrections must not silently reroll completed training or fixtures.
+
+## Tournament format
+
+Mode and format are independent. Propose single-elimination brackets first; consider groups plus knockout later. Freeze the draw/seeding policy at activation, define byes and tied-match resolution, and snapshot round inputs at their cutoff. Persist advancement transactionally with each match result so retries cannot create duplicate entrants or a different bracket. Withdrawal and walkover rules need explicit published policies.
+
+Support an engagement preparation window for a short tournament. Eliminated players keep their recorded progress; do not promise consolation fixtures unless that format is implemented. Tournament winners are determined by bracket results, not league tie-breakers. Season deadline validation must account for every round and any training between rounds.
+
+## Configurable rules
+
+Use a versioned, validated settings snapshot per season; see [Season settings](SEASON_SETTINGS.md). Expose supported safe ranges rather than arbitrary engine constants. Every combination exposed in the organizer UI needs simulation and validation coverage; presets make setup easier but are not a substitute for checks.

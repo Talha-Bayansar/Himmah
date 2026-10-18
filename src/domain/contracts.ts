@@ -18,3 +18,14 @@ export interface SimulationMetadata {
   rulesVersion: string;
   seed: string;
 }
+
+/** Format is independent of the participant's mode; neither implies the other. */
+export type CompetitionFormat = "league" | "tournament";
+/** Scope contract only; runtime authorization and setting validation are not implemented. */
+export interface SeasonIdentity {
+  organizationId: string;
+  seasonId: string;
+  mode: CompetitionMode;
+  format: CompetitionFormat;
+  rulesVersion: string;
+}

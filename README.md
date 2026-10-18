@@ -1,6 +1,6 @@
 # Himmah Futsal
 
-A mosque youth platform for ages 11–15: take part, learn together, develop your players, and compete in simulated five-a-side football seasons.
+A mosque youth platform for ages 11–15: take part, learn together, develop your players, and compete in simulated five-a-side football leagues and tournaments. Both play modes support either format. Built for independent mosque/organization workspaces, with optional organization billing planned for later.
 
 “Himmah” expresses aspiration and determination. Working project name, chosen 17 October 2026; trademark/domain availability has not been checked.
 
@@ -14,6 +14,8 @@ Project foundation and documentation. The game and account system are not implem
 - [Owner preferences and confirmed requirements](docs/PROJECT_CONTEXT.md)
 - [Product specification](docs/PRODUCT.md)
 - [Game rules and balancing proposals](docs/GAME_DESIGN.md)
+- [Pre-season configuration](docs/SEASON_SETTINGS.md)
+- [Multi-organization platform and future billing](docs/PLATFORM.md)
 - [Architecture and conceptual data model](docs/ARCHITECTURE.md)
 - [Delivery roadmap](docs/ROADMAP.md)
 - [Youth privacy and safeguarding](docs/SAFEGUARDING.md)
