@@ -150,3 +150,13 @@ Owner clarified that modals should remain centered rather than top-aligned; scro
 Validation: npm run check passes all 65 tests, strict types and documentation links; production build and contrast audit pass. Extended the visual-viewport test to cover an input inside the screen but clipped by its dialog. Local Chromium with synthetic intercepted APIs checked centering at 390x844, 390x420, 390x280 and 1280x800, overflow in the shortest viewport, and focused input/Save visibility. Screenshots inspected. These viewport simulations do not verify a physical phone keyboard. No database/auth/PWA cache changes or real participant data used.
 
 Latest Worker: 915e96d5-52d6-4e8b-91cb-6fccf004e724, confirmed active at 100% traffic; same dedicated app and infrastructure.
+
+## Compact switcher and persistent group member routes
+
+Group member views now use `/workspace/:organizationId/groups/:groupId`, independent of previously selected component state. The page reads current group metadata from a new bounded `GET /api/organizations/:id/groups/:groupId`, guarded by membership/role checks in both API and SQL, and keeps the existing group-filtered infinite member query. Missing, archived and inaccessible groups are unavailable rather than shown as an empty roster. Real group-list links, Back, direct entry and reload are supported. Group pages explain assigning existing members from Members instead of offering a create action that would leave them unassigned. Group metadata queries are scoped by user/organization/group and receive cancellation signals. No schema, database migration or auth change.
+
+The organization switcher now sizes its trigger to the label/icons, with the chevron adjacent to the text; spare header width remains before the profile shortcut. Long-name truncation and fixed chrome are retained.
+
+Validation: all 68 tests pass (38 domain/API/Postgres/localization/PWA, 2 Workerd, 28 component/client), strict types/docs, production build and contrast audit. Added real SQL/API coverage for group metadata tenant/role isolation and archived/unavailable states, plus UI tests for actual group links, filtered reads, direct entry, Back and errors. Chromium with synthetic local intercepted APIs checked compact label/chevron spacing at 320/390/1280px, group URLs, direct entry, reload with a changed server-supplied group name, filtered member fetching and Back. Screenshots inspected. Hosted multi-account/physical-device checks remain outside these synthetic tests; no real participant data was created.
+
+Latest Worker: 764304e4-c144-4db5-8b24-f27166f8a21d, confirmed active at 100% traffic. Existing dedicated infrastructure, secrets, rate limits, PWA privacy and native fetch receiver fix retained.

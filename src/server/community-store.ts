@@ -27,6 +27,11 @@ export function createCommunityStore(
     return (await db.execute(statement)).rows as Record<string, unknown>[];
   }
   return {
+    async group(user: string, org: string, id: string) {
+      return rows(
+        sql`with ${actor(user, org)} select ${projection} from hub_groups where organization_id=${org}::uuid and id=${id}::uuid and not archived and exists(select 1 from actor) limit 1`,
+      );
+    },
     async list(
       user: string,
       org: string,

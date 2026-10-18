@@ -14,6 +14,7 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
+import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.groups.$groupId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,6 +42,12 @@ const WorkspaceOrganizationIdSectionRoute =
     path: '/workspace/$organizationId/$section',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdGroupsGroupIdRoute =
+  WorkspaceOrganizationIdGroupsGroupIdRouteImport.update({
+    id: '/workspace/$organizationId/groups/$groupId',
+    path: '/workspace/$organizationId/groups/$groupId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -48,6 +55,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -55,6 +63,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -63,6 +72,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -72,6 +82,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/groups/$groupId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -79,6 +90,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/groups/$groupId'
   id:
     | '__root__'
     | '/'
@@ -86,6 +98,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/groups/$groupId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +107,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdGroupsGroupIdRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -133,6 +147,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/groups/$groupId': {
+      id: '/workspace/$organizationId/groups/$groupId'
+      path: '/workspace/$organizationId/groups/$groupId'
+      fullPath: '/workspace/$organizationId/groups/$groupId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -142,6 +163,8 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+  WorkspaceOrganizationIdGroupsGroupIdRoute:
+    WorkspaceOrganizationIdGroupsGroupIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

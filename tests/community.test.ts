@@ -294,6 +294,58 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
       },
     );
     await t.test(
+      "single-group reads enforce tenant and role scope and hide archived groups",
+      async () => {
+        const [group] = await store.create(
+          "owner-a",
+          orgA,
+          "groups",
+          "Routed group",
+          crypto.randomUUID(),
+        );
+        const [other] = await store.create(
+          "owner-b",
+          orgB,
+          "groups",
+          "Other routed group",
+          crypto.randomUUID(),
+        );
+        assert.equal(
+          (await store.group("owner-a", orgA, String(group!.id)))[0]?.name,
+          "Routed group",
+        );
+        assert.equal(
+          (await store.group("owner-b", orgA, String(group!.id))).length,
+          0,
+        );
+        assert.equal(
+          (await store.group("volunteer-a", orgA, String(group!.id))).length,
+          0,
+        );
+        assert.equal(
+          (await store.group("owner-a", orgA, String(other!.id))).length,
+          0,
+        );
+        assert.equal(
+          (await store.group("owner-a", orgB, String(other!.id))).length,
+          0,
+        );
+        await store.update(
+          "owner-a",
+          orgA,
+          "groups",
+          String(group!.id),
+          1,
+          null,
+          true,
+        );
+        assert.equal(
+          (await store.group("owner-a", orgA, String(group!.id))).length,
+          0,
+        );
+      },
+    );
+    await t.test(
       "keyset pagination has no duplicates for equal timestamps and literal wildcard search",
       async () => {
         for (let i = 0; i < 5; i++)
@@ -503,6 +555,51 @@ test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, con
           name: "Owner",
           emailVerified: true,
         };
+        const [routedGroup] = await store.create(
+          "owner-a",
+          orgA,
+          "groups",
+          "API routed group",
+          crypto.randomUUID(),
+        );
+        const groupPath =
+          "/api/organizations/" + orgA + "/groups/" + routedGroup!.id;
+        const detail = await communityApi(
+          new Request(url + groupPath),
+          identity,
+          organizations,
+          store,
+        );
+        assert.equal(detail!.status, 200);
+        assert.equal(detail!.headers.get("Cache-Control"), "no-store");
+        assert.equal((await detail!.json()).item.name, "API routed group");
+        assert.equal(
+          (await communityApi(
+            new Request(url + groupPath),
+            { ...identity, id: "volunteer-a" },
+            organizations,
+            store,
+          ))!.status,
+          403,
+        );
+        await store.update(
+          "owner-a",
+          orgA,
+          "groups",
+          String(routedGroup!.id),
+          1,
+          null,
+          true,
+        );
+        assert.equal(
+          (await communityApi(
+            new Request(url + groupPath),
+            identity,
+            organizations,
+            store,
+          ))!.status,
+          404,
+        );
         const firstPage = await communityApi(
           new Request(url + "/api/organizations/" + orgA + "/people?limit=1"),
           identity,

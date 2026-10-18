@@ -71,6 +71,11 @@ export async function communityApi(
       throw new CommunityError("forbidden", 403);
     if (request.method !== "GET" && !user.emailVerified)
       throw new CommunityError("verify_required", 403);
+    if (request.method === "GET" && kind === "groups" && id && !groupId) {
+      const rows = await directory.group(user.id, orgId, uuid(id));
+      if (!rows[0]) throw new CommunityError("not_found", 404);
+      return respond({ item: rows[0] });
+    }
     if (request.method === "GET" && !id) {
       const input = pageInput(url, user.id + ":" + orgId + "/" + kind);
       const rows =

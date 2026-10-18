@@ -233,5 +233,6 @@
   "current_organization": "Huidige organisatie",
   "manage_organizations": "Organisaties beheren",
   "done": "Klaar",
-  "back_to_settings": "Terug naar instellingen"
+  "back_to_settings": "Terug naar instellingen",
+  "directory_group_members_help": "Leden van deze groep. Open Leden en kies Toevoegen aan groep om iemand toe te voegen."
 }

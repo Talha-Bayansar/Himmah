@@ -47,7 +47,7 @@ const organization = {
   role: "owner",
   createdAt: "2026-10-18T00:00:00Z",
 };
-function mount(component: () => React.ReactNode) {
+function mount(component: () => React.ReactNode, initialEntry = "/") {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false, gcTime: 0, staleTime: Infinity },
@@ -78,11 +78,26 @@ function mount(component: () => React.ReactNode) {
       );
     },
   });
+  const groupPage = createRoute({
+    getParentRoute: () => root,
+    path: "/workspace/$organizationId/groups/$groupId",
+    component: () => {
+      const { organizationId, groupId } = groupPage.useParams();
+      return (
+        <OrganizationPortal
+          workspaceId={organizationId}
+          workspaceSection="groups"
+          groupId={groupId}
+        />
+      );
+    },
+  });
   const router = createRouter({
     routeTree: root.addChildren([
       index,
       start,
       workspace,
+      groupPage,
       createRoute({
         getParentRoute: () => root,
         path: "/settings",
@@ -94,7 +109,7 @@ function mount(component: () => React.ReactNode) {
         component: () => <p>Sample workspace</p>,
       }),
     ]),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
+    history: createMemoryHistory({ initialEntries: [initialEntry] }),
   });
   render(
     <QueryClientProvider client={queryClient}>
@@ -721,4 +736,104 @@ it("paginates the organization switcher and replaces the scoped directory when s
   expect(requests.some((path) => path.includes(other.id + "/groups?"))).toBe(
     true,
   );
+});
+
+it("opens group members through a real URL and restores the group on direct navigation", async () => {
+  const group = {
+    id: "44444444-4444-4444-8444-444444444444",
+    name: "Study Circle",
+    version: 1,
+    archived: false,
+    createdAt: organization.createdAt,
+  };
+  const requests: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const path = String(input);
+      requests.push(path);
+      if (path === "/api/account") return Response.json({ user: owner });
+      if (path === "/api/organizations")
+        return Response.json({ organizations: [organization] });
+      if (path === `/api/organizations/${organization.id}`)
+        return Response.json({ organization });
+      if (path === `/api/organizations/${organization.id}/groups/${group.id}`)
+        return Response.json({ item: group });
+      return Response.json({
+        items: path.includes("/groups?") ? [group] : [],
+        nextCursor: null,
+      });
+    }),
+  );
+  const { router } = mount(OrganizationPortal);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await user.click(await screen.findByRole("link", { name: "Groups" }));
+  const view = await screen.findByRole("link", { name: "View members" });
+  expect(view.getAttribute("href")).toBe(
+    `/workspace/${organization.id}/groups/${group.id}`,
+  );
+  await user.click(view);
+  await screen.findByRole("heading", { name: "Study Circle" });
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${organization.id}/groups/${group.id}`,
+  );
+  expect(screen.queryByRole("button", { name: "Add member" })).toBeNull();
+  expect(
+    requests.some(
+      (path) =>
+        path.includes("/people?") &&
+        new URL(path, "https://himmah.example").searchParams.get("group") ===
+          group.id,
+    ),
+  ).toBe(true);
+  await router.history.back();
+  await screen.findByRole("heading", { name: "Groups" });
+});
+
+it("loads a group directly and shows unavailable groups as errors instead of an empty roster", async () => {
+  const groupId = "44444444-4444-4444-8444-444444444444";
+  let available = true;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const path = String(input);
+      if (path === "/api/account") return Response.json({ user: owner });
+      if (path === "/api/organizations")
+        return Response.json({ organizations: [organization] });
+      if (path === `/api/organizations/${organization.id}`)
+        return Response.json({ organization });
+      if (path === `/api/organizations/${organization.id}/groups/${groupId}`)
+        return available
+          ? Response.json({
+              item: {
+                id: groupId,
+                name: "Direct group",
+                archived: false,
+                version: 1,
+                createdAt: organization.createdAt,
+              },
+            })
+          : Response.json({ code: "not_found" }, { status: 404 });
+      return Response.json({ items: [], nextCursor: null });
+    }),
+  );
+  const { queryClient } = mount(
+    OrganizationPortal,
+    `/workspace/${organization.id}/groups/${groupId}`,
+  );
+  await screen.findByRole("heading", { name: "Direct group" });
+  available = false;
+  await queryClient.invalidateQueries({
+    queryKey: [
+      "organization",
+      owner.id,
+      organization.id,
+      "directory",
+      "group",
+      groupId,
+    ],
+  });
+  await screen.findByRole("alert");
+  expect(screen.queryByRole("heading", { name: "Direct group" })).toBeNull();
 });

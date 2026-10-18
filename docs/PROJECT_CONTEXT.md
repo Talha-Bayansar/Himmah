@@ -84,3 +84,5 @@ Delivered foundation: private nickname roster records with staff consent attesta
 - Owner requests phone-first forms with focused inputs remaining visible above the keyboard, clear accessible focus and separate management pages with mobile navigation. Shared visual-viewport dialogs and routed workspace sections implement this preference.
 
 - Owner wants a minimal header, language/sign-out on a settings/profile page, stable persistent navigation, an organization switcher and no low-purpose Workspace tab. Current design uses fixed phone bottom navigation (Members, Groups, Settings) and places organization details/staff/invitations in Settings.
+
+- Owner prefers real, reloadable routes for entity detail views. Group membership views now have their own group-ID route and server-loaded metadata. Organization switcher chevrons should sit beside their label rather than at the far edge of a stretched button.

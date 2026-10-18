@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useBlocker } from "@tanstack/react-router";
-import { Plus, Search, Users, Folder, ArrowLeft } from "lucide-react";
+import { Link, useBlocker } from "@tanstack/react-router";
+import { Plus, Search, Users, Folder } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -64,10 +64,12 @@ export default function Directory({
   organization,
   userId,
   section = "people",
+  group = null,
 }: {
   organization: Organization;
   userId: string;
   section?: DirectoryKind;
+  group?: Group | null;
 }) {
   useLocale();
   const client = useQueryClient();
@@ -75,7 +77,6 @@ export default function Directory({
   const [search, setSearch] = useState("");
   const query = useSearch(search);
   const [archived, setArchived] = useState(false);
-  const [group, setGroup] = useState<Group | null>(null);
   const kind = group ? "people" : section;
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [assign, setAssign] = useState<Person | null>(null);
@@ -161,17 +162,19 @@ export default function Directory({
       <div className="directory-heading">
         <div>
           <h1 tabIndex={-1} data-page-heading>
-            {names[kind]}
+            {group ? group.name : names[kind]}
           </h1>
           <p>
-            {kind === "people"
-              ? m.directory_roster_help()
-              : kind === "groups"
-                ? m.directory_groups_help()
-                : m.directory_staff_help()}
+            {group
+              ? m.directory_group_members_help()
+              : kind === "people"
+                ? m.directory_roster_help()
+                : kind === "groups"
+                  ? m.directory_groups_help()
+                  : m.directory_staff_help()}
           </p>
         </div>
-        {kind !== "staff" && (
+        {kind !== "staff" && !group && (
           <Button onClick={() => setEditor({ kind })}>
             <Plus size={16} />
             {kind === "people"
@@ -182,17 +185,6 @@ export default function Directory({
           </Button>
         )}
       </div>
-      {group && (
-        <div className="directory-filter">
-          <Button variant="ghost" onClick={() => setGroup(null)}>
-            <ArrowLeft size={16} />
-            {section === "groups"
-              ? m.directory_groups()
-              : m.directory_all_members()}
-          </Button>
-          <strong>{group.name}</strong>
-        </div>
-      )}
       <div className="directory-toolbar">
         <label>
           <Search size={17} />
@@ -246,7 +238,11 @@ export default function Directory({
               <Users size={28} />
               <h3>{m.directory_empty()}</h3>
               <p>
-                {query ? m.directory_no_matches() : m.directory_get_started()}
+                {query
+                  ? m.directory_no_matches()
+                  : group
+                    ? m.directory_group_members_help()
+                    : m.directory_get_started()}
               </p>
             </div>
           ) : (
@@ -276,15 +272,16 @@ export default function Directory({
                             </div>
                             <div className="directory-actions">
                               {kind === "groups" && !record.archived && (
-                                <Button
-                                  variant="outline"
-                                  onClick={() => {
-                                    setGroup(record);
-                                    setArchived(false);
-                                    setSearch("");
-                                  }}
-                                >
-                                  {m.directory_view_members()}
+                                <Button variant="outline" asChild>
+                                  <Link
+                                    to="/workspace/$organizationId/groups/$groupId"
+                                    params={{
+                                      organizationId: organization.id,
+                                      groupId: record.id,
+                                    }}
+                                  >
+                                    {m.directory_view_members()}
+                                  </Link>
                                 </Button>
                               )}
                               {kind === "people" &&

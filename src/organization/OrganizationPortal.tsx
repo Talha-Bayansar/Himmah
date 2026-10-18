@@ -1,3 +1,4 @@
+import GroupMembersPage from "../community/GroupMembersPage";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import { AccountSettings } from "./AccountSettings";
 import { useNavigate } from "@tanstack/react-router";
@@ -80,12 +81,14 @@ export default function OrganizationPortal({
   workspaceId = null,
   workspaceSection = "members",
   accountSettings = false,
+  groupId = null,
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
+  groupId?: string | null;
 } = {}) {
   const queryClient = useQueryClient();
   useLocale();
@@ -372,6 +375,7 @@ export default function OrganizationPortal({
                     organization={selected.data}
                     userId={user.id}
                     section={workspaceSection}
+                    groupId={groupId}
                     user={user}
                     signOutPending={logout.isPending}
                     onSignOut={signOut}
@@ -1103,11 +1107,13 @@ function Workspace({
   user,
   signOutPending,
   onSignOut,
+  groupId,
 }: {
   organization: Organization;
   userId: string;
   section: WorkspaceSection;
   user: User;
+  groupId: string | null;
   signOutPending: boolean;
   onSignOut: () => void;
 }) {
@@ -1117,7 +1123,7 @@ function Workspace({
     page.current
       ?.querySelector<HTMLElement>("[data-page-heading]")
       ?.focus({ preventScroll: true });
-  }, [section, organization.id]);
+  }, [section, organization.id, groupId]);
   return (
     <div ref={page}>
       {section === "settings" ? (
@@ -1144,12 +1150,21 @@ function Workspace({
             </Button>
           )}
           {organization.role === "owner" || organization.role === "admin" ? (
-            <Directory
-              key={organization.id + section}
-              section={section === "members" ? "people" : section}
-              organization={organization}
-              userId={userId}
-            />
+            groupId ? (
+              <GroupMembersPage
+                key={organization.id + groupId}
+                organization={organization}
+                userId={userId}
+                groupId={groupId}
+              />
+            ) : (
+              <Directory
+                key={organization.id + section}
+                section={section === "members" ? "people" : section}
+                organization={organization}
+                userId={userId}
+              />
+            )
           ) : (
             <p>{m.directory_volunteer_access()}</p>
           )}

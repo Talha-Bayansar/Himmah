@@ -3699,7 +3699,7 @@ html {
   border-bottom: 1px solid var(--line);
 }
 .app-header .organization-switcher-trigger {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
   height: 48px;
   justify-content: flex-start;
@@ -3716,9 +3716,10 @@ html {
   flex-shrink: 0;
 }
 .organization-switcher-trigger > svg:last-child {
-  margin-left: auto;
+  margin-left: 0;
 }
 .app-header .profile-shortcut {
+  margin-left: auto;
   width: 48px;
   height: 48px;
   flex-shrink: 0;

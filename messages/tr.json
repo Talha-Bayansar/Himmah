@@ -233,5 +233,6 @@
   "current_organization": "Geçerli kuruluş",
   "manage_organizations": "Kuruluşları yönet",
   "done": "Tamam",
-  "back_to_settings": "Ayarlara dön"
+  "back_to_settings": "Ayarlara dön",
+  "directory_group_members_help": "Bu grubun üyeleri. Birini eklemek için Üyeler sayfasını açıp Gruba ekle seçeneğini kullanın."
 }

@@ -116,3 +116,9 @@ Use `/settings` for account preferences before selecting an organization; anonym
 ## Centered scrollable dialogs
 
 Owner clarified that mobile modals should stay centered, with scrolling when a focused input is obscured; a bottom sheet was an optional alternative. Retain the existing shared Radix dialogs and visual-viewport sizing, remove the narrow-screen top alignment, and center in the visible viewport both before and after keyboard resize. Preserve bounded height, overflow scrolling, sticky form actions and focus trapping/restoration. Focus visibility checks also account for the dialog bounds and sticky action area.
+
+## Routable group membership pages and compact switcher
+
+Owner requested that group member views survive reloads as real pages, and reported the large organization-label/chevron gap. Replace selected-group component state with `/workspace/:organizationId/groups/:groupId`; fetch current group metadata via a bounded, authorized `GET /api/organizations/:id/groups/:groupId` and retain the existing infinite group-filtered member query. Group detail lookup checks tenant and owner/admin role in both API and SQL, with missing/archived groups unavailable. Keep real group-list/back links, loading/error states, localized guidance and query cancellation. Hide the old Add member action in a group view because it created an unassigned roster entry; direct users to the existing Add to group flow. No schema or auth changes.
+
+The switcher button now sizes to its contents with the chevron adjacent to the label; free header space sits before the separate profile shortcut. Keep long-name truncation and fixed header/navigation dimensions. Future entity detail pages must load independently from addressable routes, rather than depend on previously selected records.
