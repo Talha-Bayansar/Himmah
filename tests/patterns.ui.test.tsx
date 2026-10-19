@@ -139,7 +139,7 @@ beforeEach(() => {
       if (String(input) === "/api/account")
         return Response.json({ user: owner });
       if (
-        /\/api\/organizations\/[^/]+\/(people|groups|staff|invitations)/.test(
+        /\/api\/organizations\/[^/]+\/(people|groups|staff|invitations|activities)/.test(
           String(input),
         )
       )
@@ -430,27 +430,27 @@ describe("public landing page", () => {
   });
 });
 
-it("keeps profile controls and organization details on settings", async () => {
+it("separates daily navigation, team administration and personal preferences", async () => {
   mount(OrganizationPortal);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
-  await screen.findByRole("heading", { name: "Members" });
+  await screen.findByRole("heading", { name: "Activities" });
   expect(screen.queryByRole("combobox", { name: "Language" })).toBeNull();
-  expect(screen.queryByRole("button", { name: "Sign out" })).toBeNull();
+  await user.click(screen.getByRole("link", { name: "Manage" }));
+  await screen.findByRole("heading", { name: "Manage" });
+  expect(screen.getByRole("link", { name: /Staff access/ })).toBeTruthy();
+  expect(screen.getByRole("link", { name: /Invitations/ })).toBeTruthy();
+  expect(screen.getByRole("link", { name: /Engagement periods/ })).toBeTruthy();
+  await user.click(screen.getByRole("link", { name: "Your profile" }));
+  await screen.findByRole("heading", { name: "Your profile" });
+  expect(screen.queryByRole("link", { name: /Staff access/ })).toBeNull();
   expect(screen.queryByText(organization.timezone)).toBeNull();
-  expect(screen.queryByRole("link", { name: "Workspace" })).toBeNull();
-  await user.click(screen.getByRole("link", { name: "Settings" }));
-  await screen.findByRole("heading", { name: "Settings" });
-  expect(screen.getByText("Owner")).toBeTruthy();
-  expect(screen.getByText(organization.timezone)).toBeTruthy();
-  expect(screen.getByRole("link", { name: "Staff access" })).toBeTruthy();
-  expect(screen.getByRole("link", { name: "Invitations" })).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Sign out" })).toBeTruthy();
   await user.selectOptions(
     screen.getByRole("combobox", { name: "Language" }),
     "tr",
   );
-  expect(screen.getByText("Sahip")).toBeTruthy();
-  expect(screen.getByRole("heading", { name: "Ayarlar" })).toBeTruthy();
+  expect(screen.getByRole("heading", { name: "Profiliniz" })).toBeTruthy();
 });
 
 it("keeps a created account in verification when email delivery fails instead of inviting duplicate signup", async () => {
@@ -564,6 +564,7 @@ it("uses dedicated workspace pages and blocks navigation when a member form is d
   const { router } = mount(OrganizationPortal);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await user.click(await screen.findByRole("link", { name: "People" }));
   await screen.findByRole("heading", { name: "Members" });
   expect(router.state.location.pathname).toBe(
     `/workspace/${organization.id}/members`,
@@ -634,13 +635,21 @@ it("opens a successfully saved workspace without asking to discard its setup", a
       if (String(input) === "/api/organizations") {
         if (init?.method === "POST") {
           created = true;
-          if (/\/(people|groups|staff|invitations)(\?|$)/.test(String(input)))
+          if (
+            /\/(people|groups|staff|invitations|activities)(\?|$)/.test(
+              String(input),
+            )
+          )
             return Response.json({ items: [], nextCursor: null });
           return Response.json({ organization });
         }
         return Response.json({ organizations: created ? [organization] : [] });
       }
-      if (/\/(people|groups|staff|invitations)(\?|$)/.test(String(input)))
+      if (
+        /\/(people|groups|staff|invitations|activities)(\?|$)/.test(
+          String(input),
+        )
+      )
         return Response.json({ items: [], nextCursor: null });
       return Response.json({ organization });
     }),
@@ -657,9 +666,9 @@ it("opens a successfully saved workspace without asking to discard its setup", a
     }),
   );
   await user.click(screen.getByRole("button", { name: "Create organization" }));
-  await screen.findByRole("heading", { name: "Members" });
+  await screen.findByRole("heading", { name: "Activities" });
   expect(router.state.location.pathname).toBe(
-    `/workspace/${organization.id}/members`,
+    `/workspace/${organization.id}/activities`,
   );
   expect(screen.queryByRole("alertdialog")).toBeNull();
 });
@@ -709,6 +718,7 @@ it("paginates the organization switcher and replaces the scoped directory when s
   const { router } = mount(OrganizationPortal);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await user.click(await screen.findByRole("link", { name: "People" }));
   await user.click(await screen.findByRole("link", { name: "Groups" }));
   await screen.findByText("First group");
   await user.click(screen.getByRole("button", { name: "Switch organization" }));
@@ -776,6 +786,7 @@ it("opens group members through a real URL and restores the group on direct navi
   const { router } = mount(OrganizationPortal);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: /Noor Youth/ }));
+  await user.click(await screen.findByRole("link", { name: "People" }));
   await user.click(await screen.findByRole("link", { name: "Groups" }));
   const view = await screen.findByRole("link", { name: "View members" });
   expect(view.getAttribute("href")).toBe(
@@ -876,4 +887,18 @@ it("participant signup keeps the invitation context and does not require organiz
     }),
   );
   expect(screen.queryByText("Organizer account")).toBeNull();
+});
+
+it("organization details reload independently, link back to Manage, and keep administration active", async () => {
+  mount(OrganizationPortal, `/workspace/${organization.id}/organization`);
+  await screen.findByRole("heading", { name: "Organization details" });
+  expect(screen.getByText(organization.timezone)).toBeTruthy();
+  expect(
+    screen.getByRole("link", { name: "Manage" }).getAttribute("aria-current"),
+  ).toBe("page");
+  await userEvent
+    .setup()
+    .click(screen.getByRole("link", { name: "Back to Manage" }));
+  await screen.findByRole("heading", { name: "Manage" });
+  expect(screen.queryByRole("button", { name: "Sign out" })).toBeNull();
 });

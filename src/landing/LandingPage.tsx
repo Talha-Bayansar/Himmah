@@ -49,9 +49,7 @@ export default function LandingPage() {
         <nav aria-label={m.main_navigation()}>
           <LanguageSelector />
           <Button variant="ghost" asChild>
-            <Link to="/start" search={{ mode: "signin" }}>
-              {m.sign_in()}
-            </Link>
+            <Link to="/hub">{m.sign_in()}</Link>
           </Button>
           <Button asChild>
             <Link to="/start" search={{ mode: "signup" }}>

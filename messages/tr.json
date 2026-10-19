@@ -557,5 +557,21 @@
   "directory_participant_reason": "1–300 karakterlik bir gerekçe girin.",
   "participant_nav_progress": "Puanlar",
   "participant_nav_rewards": "Ödüller",
-  "participant_nav_history": "Geçmiş"
+  "participant_nav_history": "Geçmiş",
+  "manage_title": "Yönetim",
+  "manage_intro": "Kuruluş araçları, raporlar ve ekip erişimi tek bir düzenli yerde.",
+  "manage_engagement": "Raporlar",
+  "manage_team": "Ekip ve erişim",
+  "manage_periods_help": "Dönemlere göre katılımı inceleyin ve sonuç raporlarını kapatın.",
+  "manage_staff_help": "Kuruluşu yönetmeye yardımcı olan kişileri yönetin.",
+  "manage_invites_help": "Organizatör davet edin ve bekleyen ekip davetlerini yönetin.",
+  "manage_access_help": "Gönüllülerin hangi grupları ve etkinlikleri yönetebileceğini seçin.",
+  "manage_organization_help": "Çalışma alanı bilgilerini, saat dilimini ve rolünüzü görün.",
+  "back_to_manage": "Yönetime dön",
+  "nav_people": "Üyeler",
+  "nav_agenda": "Etkinlik",
+  "profile_intro": "Hesabınız, dil ve uygulama tercihleriniz.",
+  "back_to_profile": "Profile dön",
+  "nav_profile": "Profil",
+  "manage_organization": "Kuruluş"
 }

@@ -1,3 +1,4 @@
+import { Management, OrganizationDetails, PeopleTabs } from "./Management";
 import PersonalDashboard from "../participants/PersonalDashboard";
 import ParticipantAccountPage from "../participants/ParticipantAccountPage";
 import AcceptParticipant from "../participants/AcceptParticipant";
@@ -140,14 +141,14 @@ export default function OrganizationPortal({
           role === "participant"
             ? "me"
             : role === "volunteer"
-              ? "settings"
+              ? "activities"
               : workspaceId
                 ? ["me", "my-rewards", "my-redemptions"].includes(
                     workspaceSection,
                   )
-                  ? "members"
+                  ? "activities"
                   : workspaceSection
-                : "members",
+                : "activities",
       },
     });
   const closeWorkspace = () => navigate({ to: "/start" });
@@ -236,12 +237,7 @@ export default function OrganizationPortal({
           to: "/workspace/$organizationId/$section",
           params: {
             organizationId: only.id,
-            section:
-              only.role === "participant"
-                ? "me"
-                : only.role === "volunteer"
-                  ? "settings"
-                  : "members",
+            section: only.role === "participant" ? "me" : "activities",
           },
           replace: true,
         });
@@ -1292,6 +1288,8 @@ function Workspace({
     sessionId,
     attendance,
   ]);
+  if (section === "organization")
+    return <OrganizationDetails organization={organization} />;
   if (organization.role === "participant") {
     if (section === "settings")
       return (
@@ -1339,7 +1337,17 @@ function Workspace({
     );
   return (
     <div ref={page}>
-      {section === "activities" ? (
+      {section === "manage" ? (
+        ["owner", "admin"].includes(organization.role) ? (
+          <Management organization={organization} />
+        ) : (
+          <Navigate
+            to="/workspace/$organizationId/$section"
+            params={{ organizationId: organization.id, section: "activities" }}
+            replace
+          />
+        )
+      ) : section === "activities" ? (
         <Activities
           attendance={attendance}
           sessionId={sessionId}
@@ -1363,11 +1371,11 @@ function Workspace({
                 to="/workspace/$organizationId/$section"
                 params={{
                   organizationId: organization.id,
-                  section: "settings",
+                  section: "manage",
                 }}
               >
                 <ArrowLeft size={16} />
-                {m.back_to_settings()}
+                {m.back_to_manage()}
               </Link>
             </Button>
           )}
@@ -1414,18 +1422,26 @@ function Workspace({
                 groupId={groupId}
               />
             ) : (
-              <Directory
-                key={organization.id + section}
-                section={
-                  section === "groups" ||
-                  section === "staff" ||
-                  section === "invitations"
-                    ? section
-                    : "people"
-                }
-                organization={organization}
-                userId={userId}
-              />
+              <>
+                {(section === "members" || section === "groups") && (
+                  <PeopleTabs
+                    organizationId={organization.id}
+                    section={section}
+                  />
+                )}
+                <Directory
+                  key={organization.id + section}
+                  section={
+                    section === "groups" ||
+                    section === "staff" ||
+                    section === "invitations"
+                      ? section
+                      : "people"
+                  }
+                  organization={organization}
+                  userId={userId}
+                />
+              </>
             )
           ) : memberId ? (
             <MemberPage

@@ -557,5 +557,21 @@
   "directory_participant_reason": "Give a reason of 1–300 characters.",
   "participant_nav_progress": "Progress",
   "participant_nav_rewards": "Rewards",
-  "participant_nav_history": "History"
+  "participant_nav_history": "History",
+  "manage_title": "Manage",
+  "manage_intro": "Organization tools, reports and team access, organized in one place.",
+  "manage_engagement": "Reports",
+  "manage_team": "Team & access",
+  "manage_periods_help": "Review engagement over a period and close final reports.",
+  "manage_staff_help": "Manage the people who help run your organization.",
+  "manage_invites_help": "Invite organizers and manage pending staff invitations.",
+  "manage_access_help": "Choose which groups and activities volunteers can manage.",
+  "manage_organization_help": "View workspace details, timezone and your role.",
+  "back_to_manage": "Back to Manage",
+  "nav_people": "People",
+  "nav_agenda": "Activities",
+  "profile_intro": "Your account, language and app preferences.",
+  "back_to_profile": "Back to profile",
+  "nav_profile": "Profile",
+  "manage_organization": "Organization"
 }

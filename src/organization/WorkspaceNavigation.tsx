@@ -2,8 +2,8 @@ import { Skeleton } from "../components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import {
   Users,
-  Folder,
-  Settings,
+  SlidersHorizontal,
+  CircleUserRound,
   CalendarDays,
   Gift,
   Ticket,
@@ -13,6 +13,8 @@ import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "manage",
+  "organization",
   "me",
   "my-rewards",
   "my-redemptions",
@@ -70,14 +72,23 @@ export function WorkspaceNavigation({
               label: m.participant_nav_history(),
               Icon: Ticket,
             },
-            { section: "settings", label: m.settings(), Icon: Settings },
+            {
+              section: "settings",
+              label: m.nav_profile(),
+              Icon: CircleUserRound,
+            },
           ] as const
         ).map((item) => (
           <Link
             key={item.section}
             to="/workspace/$organizationId/$section"
             params={{ organizationId, section: item.section }}
-            aria-current={section === item.section ? "page" : undefined}
+            aria-current={
+              section === item.section ||
+              (section === "organization" && item.section === "settings")
+                ? "page"
+                : undefined
+            }
           >
             <item.Icon size={20} aria-hidden="true" />
             <span>{item.label}</span>
@@ -86,46 +97,53 @@ export function WorkspaceNavigation({
       </nav>
     );
 
-  const labels = {
-    activities: m.activities_title(),
-    members: m.directory_members(),
-    groups: m.directory_groups(),
-    settings: m.settings(),
-  };
-  const icons = {
-    activities: CalendarDays,
-    members: Users,
-    groups: Folder,
-    settings: Settings,
-  };
+  const admin = role === "owner" || role === "admin";
+  const items = [
+    { section: "activities", label: m.nav_agenda(), Icon: CalendarDays },
+    { section: "members", label: m.nav_people(), Icon: Users },
+    ...(admin
+      ? [
+          {
+            section: "rewards",
+            label: m.participant_nav_rewards(),
+            Icon: Gift,
+          },
+          {
+            section: "manage",
+            label: m.manage_title(),
+            Icon: SlidersHorizontal,
+          },
+        ]
+      : []),
+  ];
   const active =
-    section === "activities" || section === "members" || section === "groups"
-      ? section
-      : "settings";
+    section === "members" || section === "groups"
+      ? "members"
+      : section === "activities" || section === "rewards"
+        ? section
+        : [
+              "manage",
+              "organization",
+              "access",
+              "periods",
+              "staff",
+              "invitations",
+            ].includes(section)
+          ? "manage"
+          : null;
   return (
     <nav className="workspace-navigation" aria-label={m.directory_title()}>
-      {(["activities", "members", "groups", "settings"] as const)
-        .filter(
-          (key) =>
-            key === "settings" ||
-            key === "activities" ||
-            key === "members" ||
-            role !== "volunteer",
-        )
-        .map((key) => {
-          const Icon = icons[key];
-          return (
-            <Link
-              key={key}
-              to="/workspace/$organizationId/$section"
-              params={{ organizationId, section: key }}
-              aria-current={active === key ? "page" : undefined}
-            >
-              <Icon size={20} aria-hidden="true" />
-              <span>{labels[key]}</span>
-            </Link>
-          );
-        })}
+      {items.map(({ section: target, label, Icon }) => (
+        <Link
+          key={target}
+          to="/workspace/$organizationId/$section"
+          params={{ organizationId, section: target }}
+          aria-current={active === target ? "page" : undefined}
+        >
+          <Icon size={20} aria-hidden="true" />
+          <span>{label}</span>
+        </Link>
+      ))}
     </nav>
   );
 }

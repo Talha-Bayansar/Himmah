@@ -1,5 +1,5 @@
 import { beforeEach, it, expect, vi } from "vitest";
-import { render, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createRootRoute,
@@ -32,11 +32,11 @@ beforeEach(() => {
   void setLocale("en", { reload: false });
   vi.stubGlobal("IntersectionObserver", undefined);
 });
-function mountLaunch() {
+function mountLaunch(initialEntry = "/hub") {
   const root = createRootRoute({ component: () => <Outlet /> });
   const launch = createRoute({
     getParentRoute: () => root,
-    path: "/app",
+    path: "/hub",
     component: () => <OrganizationPortal initialMode="signin" launch />,
   });
   const start = createRoute({
@@ -62,7 +62,7 @@ function mountLaunch() {
   });
   const router = createRouter({
     routeTree: root.addChildren([launch, start, workspace]),
-    history: createMemoryHistory({ initialEntries: ["/app"] }),
+    history: createMemoryHistory({ initialEntries: [initialEntry] }),
   });
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -88,18 +88,18 @@ for (const scenario of [
     signin: true,
   },
   {
-    name: "a single organization owner straight to members",
+    name: "a single organization owner straight to activities",
     user: owner,
     organizations: [org],
     nextCursor: null,
-    destination: `/workspace/${org.id}/members`,
+    destination: `/workspace/${org.id}/activities`,
   },
   {
-    name: "a single organization volunteer to settings",
+    name: "a single organization volunteer to activities",
     user: owner,
     organizations: [{ ...org, role: "volunteer" }],
     nextCursor: null,
-    destination: `/workspace/${org.id}/settings`,
+    destination: `/workspace/${org.id}/activities`,
   },
   {
     name: "a single participant straight to personal progress",
@@ -161,4 +161,47 @@ for (const scenario of [
     if (scenario.signin)
       expect(router.state.location.search.mode).toBe("signin");
     expect(requests.some((path) => path.includes("cursor="))).toBe(false);
+  });
+
+for (const role of ["volunteer", "participant"] as const)
+  it(`direct management URLs redirect ${role} without requesting staff data`, async () => {
+    const requests: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input) => {
+        const path = String(input);
+        requests.push(path);
+        if (path === "/api/account") return Response.json({ user: owner });
+        if (path === "/api/organizations")
+          return Response.json({
+            organizations: [{ ...org, role }],
+            nextCursor: null,
+          });
+        if (path === `/api/organizations/${org.id}`)
+          return Response.json({ organization: { ...org, role } });
+        if (path.endsWith("/me"))
+          return Response.json({
+            item: {
+              name: "Nickname",
+              earned: "0",
+              reserved: "0",
+              spent: "0",
+              available: "0",
+            },
+          });
+        return Response.json({ items: [], nextCursor: null });
+      }),
+    );
+    const router = mountLaunch(`/workspace/${org.id}/manage`);
+    await waitFor(() =>
+      expect(router.state.location.pathname).toBe(
+        `/workspace/${org.id}/${role === "participant" ? "me" : "activities"}`,
+      ),
+    );
+    expect(screen.queryByRole("link", { name: "Manage" })).toBeNull();
+    expect(
+      requests.some((p) =>
+        /\/(access|staff|invitations|periods)(\?|$)/.test(p),
+      ),
+    ).toBe(false);
   });

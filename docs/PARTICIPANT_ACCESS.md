@@ -12,7 +12,7 @@ The verified recipient reviews the organization and nickname, then confirms acco
 
 ## Personal experience
 
-`/app` opens **My progress** for a participant with a single organization. Multiple organizations use the normal paginated chooser and switcher. Personal navigation has My progress, Rewards, Redemptions and Settings; bookmarks reload independently. Staff page URLs redirect participants to their home, and all staff APIs independently reject their role.
+`/hub` (with `/app` as a compatibility redirect) opens **My progress** for a participant with a single organization. Multiple organizations use the normal paginated chooser and switcher. Personal navigation has My progress, Rewards, Redemptions and Profile; bookmarks reload independently. Staff page URLs redirect participants to their home, and all staff APIs independently reject their role.
 
 The dashboard shows only the signed-in person's nickname, earned/reserved/spent/available points and paginated point entries. Entry labels identify source and adjustments without exposing staff award reasons, activity names that might disclose other people, actor identities or absence reasons. The reward catalogue shows active names/descriptions, cost and personal availability; redemption history shows only that participant's reward snapshots, status and dates. Organizations must keep catalogue descriptions appropriate for participant viewing. No public rankings, peer records, attendance breakdown or staff-only details are returned.
 

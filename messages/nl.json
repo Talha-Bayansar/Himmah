@@ -557,5 +557,21 @@
   "directory_participant_reason": "Geef een reden van 1–300 tekens.",
   "participant_nav_progress": "Punten",
   "participant_nav_rewards": "Prijzen",
-  "participant_nav_history": "Historiek"
+  "participant_nav_history": "Historiek",
+  "manage_title": "Beheer",
+  "manage_intro": "Organisatietools, rapporten en teamtoegang op één overzichtelijke plek.",
+  "manage_engagement": "Rapporten",
+  "manage_team": "Team en toegang",
+  "manage_periods_help": "Bekijk betrokkenheid per periode en sluit eindrapporten af.",
+  "manage_staff_help": "Beheer de mensen die je organisatie helpen runnen.",
+  "manage_invites_help": "Nodig organisatoren uit en beheer openstaande teamuitnodigingen.",
+  "manage_access_help": "Bepaal welke groepen en activiteiten vrijwilligers mogen beheren.",
+  "manage_organization_help": "Bekijk werkruimtegegevens, tijdzone en je rol.",
+  "back_to_manage": "Terug naar Beheer",
+  "nav_people": "Leden",
+  "nav_agenda": "Agenda",
+  "profile_intro": "Je account, taal en appvoorkeuren.",
+  "back_to_profile": "Terug naar profiel",
+  "nav_profile": "Profiel",
+  "manage_organization": "Organisatie"
 }

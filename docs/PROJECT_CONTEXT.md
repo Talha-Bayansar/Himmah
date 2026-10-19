@@ -120,3 +120,7 @@ The owner approved and we implemented rewards and redemption after scoped volunt
 ## Participant access increment — 19 October 2026
 
 Organizer-attested participant invitation links, verified-email account linking and a private read-only progress/reward area are implemented. See [Participant access](PARTICIPANT_ACCESS.md) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Self-service purchases, QR coupons/validation, peer rankings and gameplay remain future work.
+
+## Navigation redesign — 19 October 2026
+
+Owner requested a clearer information architecture after feature growth. Daily organizer navigation is Activities, People, Rewards and Manage. People groups Members/Groups on real-route tabs; Manage groups reporting, team access and organization details. Profile contains personal preferences only. Volunteers see scoped Activities/People and participants keep personal progress/rewards/history/profile. PWA start_url moves to `/hub`, with `/app` redirecting for compatibility; single-organization staff start in Activities, participants in My progress. Existing feature/detail URLs remain supported. See [Navigation](NAVIGATION.md).

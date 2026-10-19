@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import OrganizationPortal from "../organization/OrganizationPortal";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/app")({
-  component: () => <OrganizationPortal initialMode="signin" launch />,
+  beforeLoad: () => {
+    throw redirect({ to: "/hub", replace: true });
+  },
 });

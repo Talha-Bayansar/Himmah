@@ -10,7 +10,7 @@ Himmah is a progressive web app on the existing Cloudflare HTTPS URL. It uses th
 
 ## Starting page
 
-All localized manifests use `start_url: /app`, retaining the stable `id: /` so the installed app identity does not change. The entry checks the account and one bounded organization page: a verified single-organization organizer opens Members; a volunteer opens Settings; a participant opens My progress; multiple/partial membership pages open the organization chooser; no memberships open setup. Signed-out and unverified accounts enter sign-in/verification. Route replacement avoids a Back loop to the launcher. No private account/workspace data is persisted in local storage for this behavior. Existing installations adopt manifest updates according to their browser/OS update schedule.
+All localized manifests use `start_url: /hub`, retaining the stable `id: /` so the installed app identity does not change. The old `/app` entry redirects to `/hub` for existing links/installations. The entry checks the account and one bounded organization page: a verified single-organization organizer or volunteer opens Activities; a participant opens My progress; multiple/partial membership pages open the organization chooser; no memberships open setup. Signed-out and unverified accounts enter sign-in/verification. Route replacement avoids a Back loop to the launcher. No private account/workspace data is persisted in local storage for this behavior. Existing installations adopt manifest updates according to their browser/OS update schedule.
 
 ## Launch assets and localization
 

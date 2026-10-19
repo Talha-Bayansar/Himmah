@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
+import { Route as HubRouteImport } from './routes/hub'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as ParticipateRouteImport } from './routes/participate'
 import { Route as SettingsRouteImport } from './routes/settings'
@@ -33,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppRoute = AppRouteImport.update({
   id: '/app',
   path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JoinRoute = JoinRouteImport.update({
@@ -118,6 +124,7 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRout
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/hub': typeof HubRoute
   '/join': typeof JoinRoute
   '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/hub': typeof HubRoute
   '/join': typeof JoinRoute
   '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
@@ -153,6 +161,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRoute
+  '/hub': typeof HubRoute
   '/join': typeof JoinRoute
   '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/hub'
     | '/join'
     | '/participate'
     | '/settings'
@@ -189,6 +199,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/app'
+    | '/hub'
     | '/join'
     | '/participate'
     | '/settings'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/hub'
     | '/join'
     | '/participate'
     | '/settings'
@@ -224,6 +236,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
+  HubRoute: typeof HubRoute
   JoinRoute: typeof JoinRoute
   ParticipateRoute: typeof ParticipateRoute
   SettingsRoute: typeof SettingsRoute
@@ -251,6 +264,13 @@ declare module '@tanstack/react-router' {
       path: '/app'
       fullPath: '/app'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/join': {
@@ -380,6 +400,7 @@ const WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
+  HubRoute: HubRoute,
   JoinRoute: JoinRoute,
   ParticipateRoute: ParticipateRoute,
   SettingsRoute: SettingsRoute,

@@ -180,18 +180,20 @@ export default function Rewards({
   const resource = rewardId ? (view === "members" ? members : history) : list;
   return (
     <section className="directory rewards-page">
-      <Button variant="link" asChild className="settings-back">
-        <Link
-          to="/workspace/$organizationId/$section"
-          params={{
-            organizationId: organization.id,
-            section: rewardId ? "rewards" : "settings",
-          }}
-        >
-          <ArrowLeft aria-hidden="true" />
-          {rewardId ? m.rewards_title() : m.back_to_settings()}
-        </Link>
-      </Button>
+      {rewardId && (
+        <Button variant="link" asChild className="settings-back">
+          <Link
+            to="/workspace/$organizationId/$section"
+            params={{
+              organizationId: organization.id,
+              section: "rewards",
+            }}
+          >
+            <ArrowLeft aria-hidden="true" />
+            {m.rewards_title()}
+          </Link>
+        </Button>
+      )}
       {rewardId ? (
         detail.isPending ? (
           <ListSkeleton />

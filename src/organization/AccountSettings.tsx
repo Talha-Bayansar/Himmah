@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, LogOut } from "lucide-react";
+import { ArrowRight, LogOut, Building2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ActionButton } from "../components/shared/action-button";
 import { LanguageSelector, useLocale } from "../localization/locale";
@@ -26,11 +26,13 @@ export function AccountSettings({
   }, []);
   return (
     <div className="settings-page">
-      <h1 ref={heading} tabIndex={-1} data-page-heading>
-        {m.settings()}
-      </h1>
-      <section className="settings-panel" aria-labelledby="profile-heading">
-        <h2 id="profile-heading">{m.profile()}</h2>
+      <header className="profile-heading">
+        <h1 ref={heading} tabIndex={-1} data-page-heading>
+          {m.profile()}
+        </h1>
+        <p>{m.profile_intro()}</p>
+      </header>
+      <section className="settings-panel" aria-label={m.profile()}>
         <div className="settings-identity">
           <span className="avatar" aria-hidden="true">
             {user.name.slice(0, 1)}
@@ -53,64 +55,20 @@ export function AccountSettings({
           {m.sign_out()}
         </ActionButton>
       </section>
-      {organization && (
-        <section
-          className="settings-panel"
-          aria-labelledby="organization-settings-heading"
-        >
-          <h2 id="organization-settings-heading">{m.organization_details()}</h2>
-          <dl className="settings-details">
-            <div>
-              <dt>{m.organization_name()}</dt>
-              <dd>{organization.name}</dd>
-            </div>
-            <div>
-              <dt>{m.workspace_address()}</dt>
-              <dd>{organization.slug}</dd>
-            </div>
-            <div>
-              <dt>{m.timezone()}</dt>
-              <dd>{organization.timezone}</dd>
-            </div>
-            <div>
-              <dt>{m.your_role()}</dt>
-              <dd>{m[`role_${organization.role}`]()}</dd>
-            </div>
-          </dl>
-          {["owner", "admin"].includes(organization.role) && (
-            <div className="settings-links">
-              {(
-                [
-                  "rewards",
-                  "access",
-                  "periods",
-                  "staff",
-                  "invitations",
-                ] as const
-              ).map((section) => (
-                <Button key={section} variant="outline" asChild>
-                  <Link
-                    to="/workspace/$organizationId/$section"
-                    params={{ organizationId: organization.id, section }}
-                  >
-                    <span>
-                      {section === "rewards"
-                        ? m.rewards_title()
-                        : section === "access"
-                          ? m.access_title()
-                          : section === "periods"
-                            ? m.periods_title()
-                            : section === "staff"
-                              ? m.directory_staff()
-                              : m.directory_invitations()}
-                    </span>
-                    <ArrowRight size={18} />
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          )}
-        </section>
+      {organization && !["owner", "admin"].includes(organization.role) && (
+        <Button variant="outline" asChild>
+          <Link
+            to="/workspace/$organizationId/$section"
+            params={{
+              organizationId: organization.id,
+              section: "organization",
+            }}
+          >
+            <Building2 aria-hidden="true" />
+            <span>{m.organization_details()}</span>
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        </Button>
       )}
       {!organization && (
         <Button variant="outline" asChild>

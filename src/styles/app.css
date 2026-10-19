@@ -5003,3 +5003,126 @@ html {
     padding-inline: 0;
   }
 }
+
+/* Daily work is separate from personal preferences and organization administration. */
+.people-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--muted);
+  margin-bottom: 24px;
+}
+.people-tabs a {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--foreground);
+}
+.people-tabs a[aria-current="page"] {
+  background: var(--background);
+  box-shadow: 0 1px 4px #12382f16;
+}
+.people-tabs a:focus-visible,
+.management-links a:focus-visible {
+  outline: 3px solid var(--forest);
+  outline-offset: 3px;
+}
+.management-section {
+  margin-top: 28px;
+}
+.management-section > h2 {
+  font-size: 13px;
+  color: var(--app-muted);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.management-links {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.management-links li + li {
+  border-top: 1px solid var(--line);
+}
+.management-links a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 16px;
+  color: var(--foreground);
+  min-height: 76px;
+}
+.management-links a:hover {
+  background: var(--muted);
+}
+.management-links a > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.management-links strong {
+  display: block;
+  font-size: 15px;
+}
+.management-links a > span:nth-child(2) > span {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--app-muted);
+  line-height: 1.5;
+}
+.management-links svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.management-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: #e8efdf;
+  color: var(--forest);
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .workspace-navigation a {
+    padding-inline: 0;
+  }
+}
+
+.profile-heading p {
+  margin: 8px 0 0;
+  color: var(--app-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+@media (max-width: 360px) {
+  .management-links a {
+    padding: 16px 12px;
+    gap: 10px;
+  }
+  .management-icon {
+    width: 32px;
+    height: 32px;
+  }
+  .management-links a > svg:last-child {
+    width: 16px;
+    height: 16px;
+  }
+}

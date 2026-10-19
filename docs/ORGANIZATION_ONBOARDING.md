@@ -55,3 +55,7 @@ The same-origin proxy sets x-neon-auth-middleware=true, forwards the SDK client-
 Cloudflare’s global fetch requires its original receiver. The former `deps.fetch = globalThis.fetch` default was invoked as `deps.fetch(...)`, which threw “Illegal invocation” inside Workerd before reaching Neon. The generic catch turned it into the service-unavailable message. A forwarding arrow now preserves the receiver. This affects both signup proxy calls and authenticated session lookups. No identity migration is necessary.
 
 `npm run test:worker` bundles the actual API and runs it in Workerd with a second local Worker as the upstream fixture. It proves the old default returns 503 and the repaired default supports signup/verification/session lookup while retaining cookie scoping, no-store responses and CSRF checks. This runtime test complements the SDK/component tests; none sends a real verification email or uses the screenshot’s account details.
+
+## Current navigation
+
+The installed app and landing-page sign-in enter through `/hub`; `/app` redirects there. Single-organization staff start in Activities and participants in My progress. Organizers use Activities, People, Rewards and Manage. Personal account preferences are on Profile; staff invitations, scoped permissions and reports are under Manage. Existing feature URLs remain valid. See [Navigation](NAVIGATION.md).

@@ -84,10 +84,10 @@ export default function Assignments({
       <Button variant="link" asChild className="settings-back">
         <Link
           to="/workspace/$organizationId/$section"
-          params={{ organizationId: organization.id, section: "settings" }}
+          params={{ organizationId: organization.id, section: "manage" }}
         >
           <ArrowLeft aria-hidden="true" />
-          {m.back_to_settings()}
+          {m.back_to_manage()}
         </Link>
       </Button>
       <div className="directory-heading">
