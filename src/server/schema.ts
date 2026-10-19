@@ -1,5 +1,7 @@
 import {
   pgTable,
+  date,
+  bigint,
   jsonb,
   boolean,
   integer,
@@ -511,5 +513,102 @@ export const pointsEntries = pgTable(
       "hub_points_reference",
       sql`${t.sessionId} is null or ${t.activityId} is not null`,
     ),
+  ],
+);
+
+export const engagementPeriods = pgTable(
+  "hub_engagement_periods",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    name: text("name").notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    timezone: text("timezone").notNull(),
+    version: integer("version").notNull().default(1),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
+    closedBy: text("closed_by"),
+    createdBy: text("created_by").notNull(),
+    creationKey: uuid("creation_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_period_scope").on(t.organizationId, t.id),
+    unique("hub_period_creation").on(t.organizationId, t.creationKey),
+    index("hub_period_page").on(t.organizationId, t.createdAt, t.id),
+    check(
+      "hub_period_dates",
+      sql`${t.startDate}>='2000-01-01' and ${t.endDate}<='2100-12-31' and ${t.endDate}>=${t.startDate}`,
+    ),
+    check("hub_period_name", sql`length(trim(${t.name})) between 2 and 80`),
+    check("hub_period_version", sql`${t.version}>0`),
+    check(
+      "hub_period_closed",
+      sql`(${t.closedAt} is null)=(${t.closedBy} is null)`,
+    ),
+  ],
+);
+export const periodMembers = pgTable(
+  "hub_period_members",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    periodId: uuid("period_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    name: text("name").notNull(),
+    archived: boolean("archived").notNull(),
+    personCreatedAt: timestamp("person_created_at", {
+      withTimezone: true,
+    }).notNull(),
+    points: bigint("points", { mode: "bigint" }).notNull(),
+    present: integer("present").notNull(),
+    absent: integer("absent").notNull(),
+    excused: integer("excused").notNull(),
+    unmarked: integer("unmarked").notNull(),
+    groupIds: uuid("group_ids").array().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.periodId, t.personId] }),
+    foreignKey({
+      columns: [t.organizationId, t.periodId],
+      foreignColumns: [engagementPeriods.organizationId, engagementPeriods.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    index("hub_period_member_page").on(
+      t.organizationId,
+      t.periodId,
+      t.personCreatedAt,
+      t.personId,
+    ),
+  ],
+);
+export const periodGroups = pgTable(
+  "hub_period_groups",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    periodId: uuid("period_id").notNull(),
+    groupId: uuid("group_id").notNull(),
+    name: text("name").notNull(),
+    archived: boolean("archived").notNull(),
+    groupCreatedAt: timestamp("group_created_at", {
+      withTimezone: true,
+    }).notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.periodId, t.groupId] }),
+    foreignKey({
+      columns: [t.organizationId, t.periodId],
+      foreignColumns: [engagementPeriods.organizationId, engagementPeriods.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.groupId],
+      foreignColumns: [groups.organizationId, groups.id],
+    }),
   ],
 );

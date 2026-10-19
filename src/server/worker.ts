@@ -1,3 +1,5 @@
+import { periodApi } from "./period-api.ts";
+import { createPeriodStore } from "./period-store.ts";
 import { pointsApi } from "./points-api.ts";
 import { createPointsStore } from "./points-store.ts";
 import { attendanceApi } from "./attendance-api.ts";
@@ -223,6 +225,21 @@ export function createHandler(
           user,
           store,
           createPointsStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
+      if (/^\/api\/organizations\/[^/]+\/periods(\/|$)/.test(url.pathname)) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `periods:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await periodApi(
+          request,
+          user,
+          store,
+          createPeriodStore(env.HIMMAH_DATABASE_URL),
         );
         if (response) return response;
       }

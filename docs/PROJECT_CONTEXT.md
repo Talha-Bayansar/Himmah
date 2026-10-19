@@ -102,3 +102,6 @@ Group pages support adding up to 50 members together through a paginated, search
 
 
 Manual engagement points now support verified owner/admin individual and bulk awards (up to 50), staff-only reasons, organization-timezone contribution dates and optional activity/session links. Member names open real member detail routes with private balances and paginated ledger history. Corrections append linked adjustments with reasons and revision checks; requests are replay-safe and bulk outcomes explicit. Attendance remains independent. See MANUAL_POINTS.md for implementation bounds and remaining account-linking/cap policies.
+
+
+Engagement periods are implemented under Settings for verified owners/admins: create/edit inclusive date windows in a saved timezone, view paginated private member/group points and attendance summaries, and close with confirmation to freeze names/membership/metrics. Period/group views have reloadable URLs. Existing ledger/attendance records supply the reports by date; no award duplication or attendance-to-points rule is introduced. See ENGAGEMENT_PERIODS.md for overlap, archived roster and closing policies.

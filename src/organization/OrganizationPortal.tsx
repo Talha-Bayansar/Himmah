@@ -1,3 +1,4 @@
+import Periods from "../periods/Periods";
 import MemberPage from "../points/MemberPage";
 import Activities from "../activities/Activities";
 import GroupMembersPage from "../community/GroupMembersPage";
@@ -83,6 +84,9 @@ export default function OrganizationPortal({
   workspaceId = null,
   workspaceSection = "members",
   accountSettings = false,
+  periodId = null,
+  periodGroupId = null,
+  periodView = "members",
   memberId = null,
   groupId = null,
   activityId = null,
@@ -95,6 +99,9 @@ export default function OrganizationPortal({
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
+  periodId?: string | null;
+  periodGroupId?: string | null;
+  periodView?: "members" | "groups";
   memberId?: string | null;
   groupId?: string | null;
   activityId?: string | null;
@@ -429,6 +436,9 @@ export default function OrganizationPortal({
                     attendance={attendance}
                     sessionId={sessionId}
                     activityId={activityId}
+                    periodId={periodId}
+                    periodGroupId={periodGroupId}
+                    periodView={periodView}
                     memberId={memberId}
                     groupId={groupId}
                     user={user}
@@ -1162,6 +1172,9 @@ function Workspace({
   user,
   signOutPending,
   onSignOut,
+  periodId,
+  periodGroupId,
+  periodView,
   memberId,
   groupId,
   activityId,
@@ -1172,6 +1185,9 @@ function Workspace({
   userId: string;
   section: WorkspaceSection;
   user: User;
+  periodId: string | null;
+  periodGroupId: string | null;
+  periodView: "members" | "groups";
   memberId: string | null;
   groupId: string | null;
   activityId: string | null;
@@ -1190,6 +1206,8 @@ function Workspace({
     section,
     organization.id,
     memberId,
+    periodId,
+    periodGroupId,
     groupId,
     activityId,
     sessionId,
@@ -1230,7 +1248,16 @@ function Workspace({
             </Button>
           )}
           {organization.role === "owner" || organization.role === "admin" ? (
-            memberId ? (
+            section === "periods" ? (
+              <Periods
+                key={organization.id + (periodId ?? "list")}
+                organization={organization}
+                userId={userId}
+                periodId={periodId}
+                groupId={periodGroupId}
+                view={periodView}
+              />
+            ) : memberId ? (
               <MemberPage
                 key={organization.id + memberId}
                 organization={organization}

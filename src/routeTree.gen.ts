@@ -18,6 +18,7 @@ import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/wor
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
 import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.groups.$groupId'
 import { Route as WorkspaceOrganizationIdMembersMemberIdRouteImport } from './routes/workspace.$organizationId.members.$memberId'
+import { Route as WorkspaceOrganizationIdPeriodsPeriodIdRouteImport } from './routes/workspace.$organizationId.periods.$periodId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
 
@@ -70,6 +71,12 @@ const WorkspaceOrganizationIdMembersMemberIdRoute =
     path: '/workspace/$organizationId/members/$memberId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdPeriodsPeriodIdRoute =
+  WorkspaceOrganizationIdPeriodsPeriodIdRouteImport.update({
+    id: '/workspace/$organizationId/periods/$periodId',
+    path: '/workspace/$organizationId/periods/$periodId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute =
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport.update(
     {
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -111,6 +119,7 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -125,6 +134,7 @@ export interface FileRoutesById {
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
+    | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
+    | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   id:
@@ -166,6 +178,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
+    | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesById: FileRoutesById
@@ -180,6 +193,7 @@ export interface RootRouteChildren {
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   WorkspaceOrganizationIdGroupsGroupIdRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   WorkspaceOrganizationIdMembersMemberIdRoute: typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  WorkspaceOrganizationIdPeriodsPeriodIdRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -247,6 +261,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdMembersMemberIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/periods/$periodId': {
+      id: '/workspace/$organizationId/periods/$periodId'
+      path: '/workspace/$organizationId/periods/$periodId'
+      fullPath: '/workspace/$organizationId/periods/$periodId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': {
       id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
       path: '/sessions/$sessionId'
@@ -307,6 +328,8 @@ const rootRouteChildren: RootRouteChildren = {
     WorkspaceOrganizationIdGroupsGroupIdRoute,
   WorkspaceOrganizationIdMembersMemberIdRoute:
     WorkspaceOrganizationIdMembersMemberIdRoute,
+  WorkspaceOrganizationIdPeriodsPeriodIdRoute:
+    WorkspaceOrganizationIdPeriodsPeriodIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
