@@ -3561,7 +3561,7 @@ dialog p {
   font-size: 14px;
   line-height: 1.5;
 }
-.directory-form > div > [data-slot="label"] {
+.directory-form > div > [data-slot="label"]:not(.directory-check) {
   display: block;
 }
 .directory-form > .directory-actions {

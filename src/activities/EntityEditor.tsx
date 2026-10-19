@@ -234,7 +234,7 @@ export function EntityEditor({
                         field.handleChange(checked ? "1" : "0");
                       }}
                     />
-                    {m.earning_enable()}
+                    <span>{m.earning_enable()}</span>
                   </Label>
                   {earningEnabled && (
                     <>
