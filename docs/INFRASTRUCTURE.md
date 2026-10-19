@@ -373,3 +373,13 @@ Shared buttons now wrap translated labels with a 48px default touch target; pair
 Chromium with synthetic local APIs checked en/nl/tr at 320/390/768px: invitation acceptance/account-switch separation, equal-height paired actions with longer reservation labels, square icon controls, route-tab active states/navigation/reload, reward forms and member menus, pressed scope selectors, sign-out confirmation footers, public landing and signed-out sign-in layouts. Alternative sign-in links retain at least 44px touch targets. Screenshots were visually reviewed. Final strict TypeScript, documentation, build and contrast checks also pass. These checks do not prove physical phone keyboard behavior. No live accounts/data were changed for testing, and all database branches and Kermes Pay remain untouched.
 
 Worker `837b8043-0bfc-464e-b16a-7e2000ef8a5b` is verified active at 100% traffic through Cloudflare's deployments API. Direct workers.dev access remains restricted here; functional browser checks used synthetic local APIs. Existing dedicated bindings and private PWA cache boundaries are unchanged.
+
+## Compact card actions and search filters (2026-10-19)
+
+Card primary/menu rows now allocate the remaining width to the labelled action and keep the more trigger at 44px square, including reward/member detail headers. Radix replaces the trigger data-slot, so CSS targets its stable class directly rather than assuming data-slot=button. Shared directory search/filter toolbars reset label/select margins, use a 12px row gap and keep mobile selects full-width. Attendance filters already have a separate 16px grid gap. No route, backend, database, credential or PWA launch changes are involved.
+
+`npm run check` passes all 152 tests (59 Node/domain/API/PostgreSQL, 2 Worker runtime, 91 UI). Production build and CSS contrast audit pass (minimum 5.87:1). Functional behavior, permissions and confirmations are unchanged.
+
+Production Chromium using synthetic local APIs checked en/nl/tr at 320/390/768px: actual `.item-actions-trigger` boxes are 44×44px with zero flex-grow (including detail headers), labelled card actions fill the remaining row, search/select boxes have a 12px mobile gap, member menus remain compact, and pages have no horizontal overflow. Screenshots were visually reviewed. No live user/data mutations were performed; physical phone keyboard behavior was not tested.
+
+Worker `5b5841e5-cb6b-4895-9d67-3fa42520b973` is verified active at 100% traffic through Cloudflare's deployments API. Direct workers.dev access remains restricted here; functional browser tests used synthetic local APIs. Dedicated bindings and private-cache boundaries are unchanged; all database branches and Kermes Pay remain untouched.

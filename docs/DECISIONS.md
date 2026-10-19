@@ -216,3 +216,7 @@ Owner approved the next increment: self-service reward reservation and private Q
 ## 2026-10-19 — Consistent mobile actions and view navigation
 
 Owner requested an app-wide pass on touching invitation buttons, unequal wrapped action sizes, stretching icon controls and tabs that resemble mutations. Standardize shared button geometry and action-row gaps, keep icon controls square, and replace button-style route switches in People, reward details, period reports, participant access and coupon history with shared underlined RouteTabs. Preserve real routes, roles, confirmations and state. Scope selectors are labelled pressed-state choices; invitation account switching is visually separated.
+
+## 2026-10-19 — Compact more controls and search/filter rhythm
+
+Owner clarified that card primary actions should take the remaining width while the icon-only more control stays smaller. Use an explicitly class-targeted 44px menu trigger, including Radix triggers whose data-slot differs from Button. Prevent primary/menu rows from wrapping the trigger onto another line. Shared directory toolbars now use a 12px row gap, reset label/select margins and put mobile select filters on a full-width row. This corrects the earlier button-marker assumption without changing workflows.

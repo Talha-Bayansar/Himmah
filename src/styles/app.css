@@ -4925,10 +4925,10 @@ html {
   overflow-wrap: anywhere;
 }
 .rewards-page .reward-detail-heading > .item-actions-trigger {
-  flex: 0 0 48px;
-  width: 48px;
-  height: 48px;
-  min-height: 48px;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
 }
 
 .personal-list > li {
@@ -4972,7 +4972,7 @@ html {
   overflow-wrap: anywhere;
 }
 .participant-link-card .item-actions-trigger {
-  flex: 0 0 48px;
+  flex: 0 0 44px;
 }
 .member-header-actions {
   display: flex;
@@ -4982,9 +4982,9 @@ html {
   flex: 1;
 }
 .member-header-actions > .item-actions-trigger {
-  flex: 0 0 48px !important;
-  width: 48px;
-  height: 48px;
+  flex: 0 0 44px !important;
+  width: 44px;
+  height: 44px;
 }
 @media (max-width: 640px) {
   .member-header-actions {
@@ -5322,4 +5322,42 @@ html {
 }
 .auth-switches [data-slot="button"] {
   min-height: 44px;
+}
+
+/* Menu triggers keep their class when Radix replaces the button's data-slot. */
+.directory-actions > button.item-actions-trigger,
+.directory-row-actions > button.item-actions-trigger,
+.directory-list > li > button.item-actions-trigger,
+button.item-actions-trigger {
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  align-self: center;
+}
+.directory-actions:has(> .item-actions-trigger) {
+  flex-wrap: nowrap;
+}
+.directory-actions:has(> .item-actions-trigger)
+  > [data-slot="button"]:not(.item-actions-trigger) {
+  flex: 1 1 0;
+  min-width: 0;
+}
+/* Search rows need the same breathing room for select and checkbox filters. */
+.directory-toolbar {
+  row-gap: 12px;
+}
+.directory-toolbar > label,
+.directory-toolbar > label > [data-slot="native-select-wrapper"],
+.directory-toolbar > label > [data-slot="native-select-wrapper"] > select {
+  margin-block: 0;
+}
+@media (max-width: 639px) {
+  .directory-toolbar > label:has(select) {
+    width: 100%;
+    max-width: 100%;
+  }
 }

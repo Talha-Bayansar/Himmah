@@ -76,3 +76,5 @@ Keep item rows compact with the shared ItemActions dropdown: at most one obvious
 ## Action and navigation consistency
 
 Route-backed view switches use shared `RouteTabs`: real bookmarkable links, aria-current, an active underline, muted navigation background and equal-width wrapping labels. They are not primary action buttons and do not claim tabpanel semantics. In-page panels retain shadcn Tabs; form scope choices use a segmented group with aria-pressed. Default buttons grow with translated text from a 48px minimum. Paired directory actions share a 12px gap and stretch together, while icon-only controls stay square. Participant invitation account switching has its own separated section. Preserve these patterns in new features.
+
+Card primary/menu pairs reserve a fixed 44px square for `.item-actions-trigger`; the labelled primary action fills the remaining row. Target the trigger class, because Radix can replace its data-slot. Search/filter toolbars use a 12px row gap and reset label/select margins; mobile selects occupy their own full-width row. Browser geometry checks must include `.item-actions-trigger` rather than relying only on data-slot=button.
