@@ -1,3 +1,4 @@
+import { EarningRule } from "./EarningRule";
 import Attendance from "../attendance/Attendance";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -242,6 +243,7 @@ export default function Activities({
           <p className="activity-note">{m.sessions_none_scheduled()}</p>
         ))}
       <Audience groups={item.groups} />
+      {full && <EarningRule amount={item.attendancePoints ?? 0} />}
       {full && item.location && (
         <p className="activity-location">
           <MapPin size={16} aria-hidden="true" />

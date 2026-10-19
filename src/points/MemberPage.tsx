@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Coins, Pencil } from "lucide-react";
+import { ArrowLeft, Coins, Pencil, ClipboardCheck } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ItemActions } from "../components/shared/item-actions";
 import {
@@ -137,7 +137,9 @@ export default function MemberPage({
                         <strong>
                           {entry.originalId
                             ? m.points_adjustment()
-                            : m.points_award()}
+                            : entry.source === "attendance"
+                              ? m.earning_source()
+                              : m.points_award()}
                         </strong>
                         <span className="points-entry-amount">
                           {entry.amount > 0 ? "+" : ""}
@@ -145,7 +147,7 @@ export default function MemberPage({
                             entry.amount,
                           )}
                         </span>
-                        {!entry.originalId && (
+                        {!entry.originalId && entry.source !== "attendance" && (
                           <ItemActions
                             name={entry.reason}
                             actions={[
@@ -178,6 +180,23 @@ export default function MemberPage({
                           {entry.sessionName ? " · " + entry.sessionName : ""}
                         </p>
                       )}
+                      {entry.source === "attendance" &&
+                        entry.activityId &&
+                        entry.sessionId && (
+                          <Button variant="link" asChild>
+                            <Link
+                              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+                              params={{
+                                organizationId: organization.id,
+                                activityId: entry.activityId,
+                                sessionId: entry.sessionId,
+                              }}
+                            >
+                              <ClipboardCheck size={16} aria-hidden="true" />
+                              {m.earning_manage()}
+                            </Link>
+                          </Button>
+                        )}
                       <div className="points-entry-meta">
                         <span>
                           {m.points_contribution_date({

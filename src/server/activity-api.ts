@@ -167,7 +167,14 @@ export async function activityApi(
           orgId,
           id,
           versionInput(value),
-          activityInput(value, String(current.timezone)),
+          activityInput(
+            {
+              ...value,
+              attendancePoints:
+                value.attendancePoints ?? current.attendancePoints ?? 0,
+            },
+            String(current.timezone),
+          ),
         );
     }
     if (!rows[0]) throw new CommunityError("conflict", 409);

@@ -4728,3 +4728,64 @@ html {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.earning-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-block: 16px;
+  color: var(--forest);
+  font-size: 14px;
+}
+.earning-rule > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.earning-rule p {
+  margin: 0;
+}
+.earning-rule small {
+  display: block;
+  margin-top: 4px;
+  color: var(--app-muted);
+}
+.earning-rule-field {
+  display: grid;
+  gap: 8px;
+}
+.earning-rule-field > p {
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.earning-preview {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px;
+}
+.earning-preview h3 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+.earning-preview > p {
+  font-size: 13px;
+  color: var(--app-muted);
+}
+.earning-preview ul {
+  max-height: 28dvh;
+  overflow-y: auto;
+  margin-top: 12px;
+}
+.earning-preview li {
+  display: grid;
+  gap: 4px;
+  padding-block: 10px;
+  font-size: 13px;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.attendance-form .directory-actions > button {
+  white-space: normal;
+  height: auto;
+  min-height: 48px;
+}

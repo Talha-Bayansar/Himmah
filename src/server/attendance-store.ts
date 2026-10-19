@@ -50,6 +50,17 @@ export function createAttendanceStore(
         sql`with ${actor(user, org)} select c.id,to_char(c.created_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as "createdAt",c.before_status as "beforeStatus",c.after_status as "afterStatus",c.reason,c.version,m.display_name as "actorName" from hub_attendance_changes c join hub_activity_sessions s on s.organization_id=c.organization_id and s.id=c.session_id left join hub_memberships m on m.organization_id=c.organization_id and m.user_id=c.actor_id where c.organization_id=${org}::uuid and s.activity_id=${activity}::uuid and c.session_id=${session}::uuid and c.person_id=${person}::uuid and exists(select 1 from actor) ${p.after ? sql`and (c.created_at,c.id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by c.created_at desc,c.id desc limit ${p.limit + 1}`,
       );
     },
+    preview(
+      user: string,
+      org: string,
+      activity: string,
+      session: string,
+      v: AttendanceInput,
+    ) {
+      return rows(
+        sql`select hub_preview_attendance(${user},${org}::uuid,${activity}::uuid,${session}::uuid,${v.key}::uuid,${JSON.stringify({ status: v.status, reason: v.reason, items: v.items })}::jsonb) as result`,
+      );
+    },
     save(
       user: string,
       org: string,
@@ -58,7 +69,7 @@ export function createAttendanceStore(
       v: AttendanceInput,
     ) {
       return rows(
-        sql`select hub_save_attendance(${user},${org}::uuid,${activity}::uuid,${session}::uuid,${v.key}::uuid,${JSON.stringify({ status: v.status, reason: v.reason, items: v.items })}::jsonb) as result`,
+        sql`select hub_save_attendance(${user},${org}::uuid,${activity}::uuid,${session}::uuid,${v.key}::uuid,${JSON.stringify({ status: v.status, reason: v.reason, items: v.items, ...(v.confirmPoints ? { confirmPoints: true } : {}) })}::jsonb) as result`,
       );
     },
   };

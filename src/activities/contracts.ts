@@ -7,6 +7,8 @@ export type Activity = {
   location: string;
   timezone: string;
   cancelled: boolean;
+  attendancePoints?: number;
+  earningRuleVersion?: number;
   version: number;
   createdAt: string;
   audienceGroupIds: string[];
@@ -29,6 +31,8 @@ export type Session = {
   endsAt: string;
   cancelled: boolean;
   cancellationReason: string;
+  attendancePoints?: number;
+  earningRuleVersion?: number;
   version: number;
   createdAt: string;
   audienceGroupIds: string[];
@@ -91,6 +95,13 @@ function boundedText(body: Record<string, unknown>, key: string, max: number) {
   return value.trim();
 }
 export function activityInput(body: Record<string, unknown>, timezone: string) {
+  const attendancePoints = body.attendancePoints ?? 0;
+  if (
+    !Number.isSafeInteger(attendancePoints) ||
+    Number(attendancePoints) < 0 ||
+    Number(attendancePoints) > 10000
+  )
+    throw new CommunityError("earning_amount");
   const name = nameInput(body),
     description = boundedText(body, "description", 2000),
     location = boundedText(body, "location", 160);
@@ -100,7 +111,16 @@ export function activityInput(body: Record<string, unknown>, timezone: string) {
   const audienceGroupIds = ids.map((id) => uuid(id)).sort();
   if (new Set(audienceGroupIds).size !== ids.length)
     throw new CommunityError("activity_audience");
-  return { name, description, location, timezone, audienceGroupIds };
+  return {
+    name,
+    description,
+    location,
+    timezone,
+    audienceGroupIds,
+    ...(Number(attendancePoints)
+      ? { attendancePoints: Number(attendancePoints) }
+      : {}),
+  };
 }
 export function sessionInput(body: Record<string, unknown>, timezone: string) {
   const location = boundedText(body, "location", 160),

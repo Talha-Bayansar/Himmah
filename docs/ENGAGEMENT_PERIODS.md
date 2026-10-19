@@ -28,4 +28,4 @@ Drizzle migration `0006_brainy_luke_cage` adds `hub_engagement_periods`, `hub_pe
 
 API reads/writes require a verified owner/admin in the organization, and storage queries/functions repeat tenant/role checks. Writes retain same-origin CSRF validation and the existing per-user limiter. Responses use no-store. Summary metrics are calculated on the server; only bounded report pages cross the network. Source records are never modified by period creation/editing/closing.
 
-This slice does not add public rankings, quiz rules, automatic attendance awards, exports, goals, game licensing, billing or participant accounts.
+Optional [attendance earning rules](ATTENDANCE_EARNING.md) now supply confirmed points to open reports using the session-start occurrence date. Closed snapshots remain frozen. Public rankings, quizzes, exports, goals, game licensing, billing and participant accounts remain separate work.

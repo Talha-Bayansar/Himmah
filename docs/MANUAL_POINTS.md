@@ -1,6 +1,6 @@
 # Manual engagement points
 
-Implemented first slice: owner/admin manual awards, batch entry, private member details and append-only point history. This works without an engagement period, attendance record, quiz, game season or license. Attendance never awards points automatically.
+Implemented first slice: owner/admin manual awards, batch entry, private member details and append-only point history. This works without an engagement period, attendance record, quiz, game season or license. Attendance-only remains the default; [optional attendance earning rules](ATTENDANCE_EARNING.md) now support explicitly confirmed linked awards.
 
 ## Staff workflow
 
@@ -14,7 +14,7 @@ Bulk responses name each saved, unchanged, ineligible or conflicting member; the
 
 An original award is never edited or deleted. **Correct points** sets its desired value from 0–10,000, requires a reason and confirmation, and appends the difference linked to that original award. Zero reverses the award. The event's original contribution time and activity/session references stay attached; correction recording time and actor are new. A stale expected revision returns a conflict rather than replacing another staff member's correction. No-op corrections add no ledger entry. The private history shows both originals and adjustments, original award reasons for linked adjustments, current corrected award values, contribution/recording dates and the organizer's display name (or a generic organizer label if no longer available).
 
-The balance is the sum of ledger deltas, calculated server-side. Corrections cannot make an individual award negative, so ordinary authorized operations cannot produce a negative balance. There is no spendable currency, redemption or direct total edit. Future games must use independent eligibility/allocation records; corrections must never reroll completed training or matches. Dated reporting is now available through [engagement periods](ENGAGEMENT_PERIODS.md), without changing awards. Configurable aggregate/frequency caps, earning rules, automatic sources and game integration remain later work.
+The balance is the sum of ledger deltas, calculated server-side. Corrections cannot make an individual award negative, so ordinary authorized operations cannot produce a negative balance. There is no spendable currency, redemption or direct total edit. Future games must use independent eligibility/allocation records; corrections must never reroll completed training or matches. Dated reporting is now available through [engagement periods](ENGAGEMENT_PERIODS.md), without changing awards. Configurable aggregate/frequency caps, richer earning rules and automatic sources, and game integration remain later work.
 
 ## Persistence and permissions
 
@@ -29,3 +29,6 @@ An uncertain network/server response freezes the original request and fields so 
 ## Verification
 
 PostgreSQL tests execute all real Drizzle migrations and parameterized store SQL in PGlite. They cover scoped reads/writes, positive bounds, canonical recipients, partial outcomes, receipt replay/key mismatch, linked corrections, stale/concurrent revisions, immutable entries, optional context references and private HTTP permissions. UI tests cover award/correction confirm versus cancel, exact uncertain retry payloads, bulk pagination and history retention on next-page errors. Browser checks use synthetic local APIs, never live roster writes.
+
+
+Attendance-source awards are now managed through attendance rather than the manual correction form. Their ledger entries identify the source and link to the session check-in page; the server rejects direct manual corrections to them. Manual extra awards remain independent.

@@ -1,3 +1,4 @@
+import { EarningRule } from "./EarningRule";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
@@ -49,6 +50,9 @@ export function EntityEditor({
   onClose: () => void;
   onSave: (value: Record<string, unknown>, key: string) => Promise<void>;
 }) {
+  const [earningEnabled, setEarningEnabled] = useState(
+    (activity?.attendancePoints ?? 0) > 0,
+  );
   const confirm = useConfirmation(),
     key = useRef(crypto.randomUUID());
   const timezone =
@@ -83,11 +87,17 @@ export function EntityEditor({
       startLocal: session ? localTime(session.startsAt, timezone) : "",
       endLocal: session ? localTime(session.endsAt, timezone) : "",
       reason: "",
+      attendancePoints: String(activity?.attendancePoints ?? 0),
       audienceMode: activity?.audienceGroupIds.length ? "groups" : "everyone",
       audienceGroupIds: activity?.audienceGroupIds ?? [],
     },
     onSubmit: async ({ value }) => {
-      await submit.mutateAsync(value).catch(() => {});
+      await submit
+        .mutateAsync({
+          ...value,
+          attendancePoints: Number(value.attendancePoints),
+        })
+        .catch(() => {});
     },
   });
   const dirty = useStore(form.store, (state) => state.isDirty);
@@ -203,6 +213,53 @@ export function EntityEditor({
               )}
             </form.Field>
           ))}
+          {kind === "session" && (
+            <EarningRule
+              amount={
+                session?.attendancePoints ?? activity?.attendancePoints ?? 0
+              }
+              {...(session ? { version: session.earningRuleVersion ?? 0 } : {})}
+            />
+          )}
+          {kind === "activity" && (
+            <form.Field name="attendancePoints">
+              {(field) => (
+                <div className="earning-rule-field">
+                  <Label className="directory-check">
+                    <Checkbox
+                      checked={earningEnabled}
+                      disabled={submit.isPending}
+                      onCheckedChange={(checked) => {
+                        setEarningEnabled(checked === true);
+                        field.handleChange(checked ? "1" : "0");
+                      }}
+                    />
+                    {m.earning_enable()}
+                  </Label>
+                  {earningEnabled && (
+                    <>
+                      <Label htmlFor="earning-amount">
+                        {m.earning_amount()}
+                      </Label>
+                      <Input
+                        id="earning-amount"
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={10000}
+                        step={1}
+                        required
+                        value={field.state.value}
+                        disabled={submit.isPending}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                      />
+                    </>
+                  )}
+                  <p>{m.earning_help()}</p>
+                </div>
+              )}
+            </form.Field>
+          )}
           {kind === "activity" && (
             <form.Field name="audienceMode">
               {(mode) => (

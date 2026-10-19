@@ -1,6 +1,6 @@
 # Himmah Hub — approved feature direction
 
-Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Activities now have reusable defaults and group audiences, with separate scheduled sessions, preserved details, Upcoming/Past views and cancellation history. Existing one-off activities become their first sessions. Owner/admin attendance now includes paginated eligible rosters, bulk check-in, retry-safe saves and audited corrections. Manual owner/admin point awards, bulk entry, private member histories and audited corrections are now implemented. Engagement periods now provide dated member/group reports and immutable closing snapshots. Configurable earning rules, volunteer assignments, recurring scheduling, draft/publish and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
+Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Activities now have reusable defaults and group audiences, with separate scheduled sessions, preserved details, Upcoming/Past views and cancellation history. Existing one-off activities become their first sessions. Owner/admin attendance now includes paginated eligible rosters, bulk check-in, retry-safe saves and audited corrections. Manual owner/admin point awards, bulk entry, private member histories and audited corrections are now implemented. Engagement periods now provide dated member/group reports and immutable closing snapshots. Optional fixed attendance earning rules are now available with per-session snapshots, point previews and audited reconciliation. Richer earning rules, volunteer assignments, recurring scheduling, draft/publish and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
 
 ## Purpose and boundaries
 
@@ -71,3 +71,5 @@ See [Screen designs v1](HUB_SCREEN_DESIGNS.md) for Youth Home, Volunteer Check-i
 See [Manual points](MANUAL_POINTS.md) for the shipped workflow, bounds, permissions and retry/correction policies.
 
 See [Engagement periods](ENGAGEMENT_PERIODS.md) for the implemented report windows, overlap policy and closing snapshots.
+
+See [Attendance earning](ATTENDANCE_EARNING.md) for optional rule configuration, confirmation and linked award corrections.

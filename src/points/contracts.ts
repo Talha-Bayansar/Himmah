@@ -1,6 +1,8 @@
 import { CommunityError, uuid } from "../community/contracts.ts";
 import { zonedInstant } from "../activities/contracts.ts";
 export type PointsEntry = {
+  source?: "manual" | "attendance";
+  ruleVersion?: number | null;
   id: string;
   personId: string;
   amount: number;
@@ -33,7 +35,7 @@ export type PointsResult = {
   items: {
     personId: string;
     name: string;
-    outcome: "saved" | "ineligible" | "conflict" | "unchanged";
+    outcome: "saved" | "ineligible" | "conflict" | "unchanged" | "managed";
   }[];
 };
 export function pointsInput(

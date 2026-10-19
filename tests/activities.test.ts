@@ -107,6 +107,25 @@ test("PostgreSQL sessions migration, isolation, audience snapshots, pagination, 
         "utf8",
       ),
     );
+    const journal = JSON.parse(
+      await readFile(
+        new URL(
+          "../db/migrations/generated/meta/_journal.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    for (const entry of journal.entries.slice(4))
+      await db.exec(
+        await readFile(
+          new URL(
+            "../db/migrations/generated/" + entry.tag + ".sql",
+            import.meta.url,
+          ),
+          "utf8",
+        ),
+      );
     const dialect = new PgDialect(),
       store = createActivityStore(
         "postgresql://test:test@localhost/test",

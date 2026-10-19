@@ -14,11 +14,11 @@ const validGroups = (org: string, ids: SQL) =>
   sql`(select count(*) from hub_groups where organization_id=${org}::uuid and id=any(${ids}) and not archived)=cardinality(${ids})`;
 const groupProjection = (org: string) =>
   sql`coalesce((select jsonb_agg(jsonb_build_object('id',g.id,'name',g.name,'archived',g.archived) order by g.name,g.id) from hub_groups g where g.organization_id=${org}::uuid and g.id=any(audience_group_ids)), '[]'::jsonb) as groups`;
-const base = sql`id,name,description,location,timezone,cancelled,version,created_at::text as "createdAt",audience_group_ids as "audienceGroupIds"`;
+const base = sql`attendance_points as "attendancePoints",id,name,description,location,timezone,cancelled,version,created_at::text as "createdAt",audience_group_ids as "audienceGroupIds"`;
 const activityFrom = (org: string) =>
   sql`${base},${groupProjection(org)}, (select jsonb_build_object('id',s.id,'startsAt',s.starts_at,'endsAt',s.ends_at,'timezone',s.timezone) from hub_activity_sessions s where s.organization_id=${org}::uuid and s.activity_id=hub_activities.id and not s.cancelled and s.ends_at>now() order by s.starts_at,s.id limit 1) as "nextSession"`;
 const sessionProjection = (org: string) =>
-  sql`${base},activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(org)}`;
+  sql`${base},earning_rule_version as "earningRuleVersion",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(org)}`;
 const logged = (user: string, org: string, action: string) =>
   sql`logged as (insert into hub_directory_audit(organization_id,actor_id,action,entity_id) select ${org}::uuid,${user},${action},id::text from changed returning id)`;
 export type ActivityStore = ReturnType<typeof createActivityStore>;
@@ -45,7 +45,7 @@ export function createActivityStore(
     create(user: string, org: string, key: string, v: ActivityInput) {
       const ids = groupArray(v.audienceGroupIds);
       return rows(
-        sql`with ${actor(user, org, true)}, changed as (insert into hub_activities(organization_id,name,description,location,timezone,audience_group_ids,created_by,creation_key) select ${org}::uuid,${v.name},${v.description},${v.location},${v.timezone},${ids},${user},${key}::uuid where exists(select 1 from actor) and ${validGroups(org, ids)} on conflict(organization_id,creation_key) do nothing returning *), ${logged(user, org, "activity.create")} select ${base},${groupProjection(org)},null::jsonb as "nextSession" from changed union all select ${activityFrom(org)} from hub_activities where organization_id=${org}::uuid and creation_key=${key}::uuid and created_by=${user} and exists(select 1 from actor) and not exists(select 1 from changed) and name=${v.name} and description=${v.description} and location=${v.location} and audience_group_ids=${ids} and timezone=${v.timezone} limit 1`,
+        sql`with ${actor(user, org, true)}, changed as (insert into hub_activities(organization_id,name,description,location,timezone,audience_group_ids,attendance_points,created_by,creation_key) select ${org}::uuid,${v.name},${v.description},${v.location},${v.timezone},${ids},${v.attendancePoints ?? 0},${user},${key}::uuid where exists(select 1 from actor) and ${validGroups(org, ids)} on conflict(organization_id,creation_key) do nothing returning *), ${logged(user, org, "activity.create")} select ${base},${groupProjection(org)},null::jsonb as "nextSession" from changed union all select ${activityFrom(org)} from hub_activities where organization_id=${org}::uuid and creation_key=${key}::uuid and created_by=${user} and exists(select 1 from actor) and not exists(select 1 from changed) and name=${v.name} and description=${v.description} and location=${v.location} and audience_group_ids=${ids} and timezone=${v.timezone} and attendance_points=${v.attendancePoints ?? 0} limit 1`,
       );
     },
     update(
@@ -57,7 +57,7 @@ export function createActivityStore(
     ) {
       const ids = groupArray(v.audienceGroupIds);
       return rows(
-        sql`with ${actor(user, org, true)}, changed as (update hub_activities set name=${v.name},description=${v.description},location=${v.location},audience_group_ids=${ids},version=version+1 where organization_id=${org}::uuid and id=${id}::uuid and version=${version} and not cancelled and timezone=${v.timezone} and exists(select 1 from actor) and ${validGroups(org, ids)} returning *),${logged(user, org, "activity.edit")} select ${base},${groupProjection(org)},null::jsonb as "nextSession" from changed`,
+        sql`with ${actor(user, org, true)}, changed as (update hub_activities set name=${v.name},description=${v.description},location=${v.location},audience_group_ids=${ids},attendance_points=${v.attendancePoints ?? 0},version=version+1 where organization_id=${org}::uuid and id=${id}::uuid and version=${version} and not cancelled and timezone=${v.timezone} and exists(select 1 from actor) and ${validGroups(org, ids)} returning *),${logged(user, org, "activity.edit")} select ${base},${groupProjection(org)},null::jsonb as "nextSession" from changed`,
       );
     },
     cancel(user: string, org: string, id: string, version: number) {
@@ -91,7 +91,7 @@ export function createActivityStore(
       v: SessionInput,
     ) {
       return rows(
-        sql`with ${actor(user, org, true)},parent as(select * from hub_activities where organization_id=${org}::uuid and id=${activity}::uuid and not cancelled and version=${activityVersion} and exists(select 1 from actor) for update),changed as(insert into hub_activity_sessions(organization_id,activity_id,name,description,location,timezone,audience_group_ids,starts_at,ends_at,created_by,creation_key) select ${org}::uuid,id,name,description,${v.location},timezone,audience_group_ids,${v.startsAt}::timestamptz,${v.endsAt}::timestamptz,${user},${key}::uuid from parent where timezone=${v.timezone} and ${v.startsAt}::timestamptz>now() and ${validGroups(org, sql`parent.audience_group_ids`)} on conflict(organization_id,activity_id,creation_key) do nothing returning *),${logged(user, org, "session.create")} select ${sessionProjection(org)} from changed union all select ${sessionProjection(org)} from hub_activity_sessions where organization_id=${org}::uuid and activity_id=${activity}::uuid and creation_key=${key}::uuid and created_by=${user} and exists(select 1 from actor) and not exists(select 1 from changed) and starts_at=${v.startsAt}::timestamptz and ends_at=${v.endsAt}::timestamptz and location=${v.location} and timezone=${v.timezone} limit 1`,
+        sql`with ${actor(user, org, true)},parent as(select * from hub_activities where organization_id=${org}::uuid and id=${activity}::uuid and not cancelled and version=${activityVersion} and exists(select 1 from actor) for update),changed as(insert into hub_activity_sessions(organization_id,activity_id,name,description,location,timezone,audience_group_ids,attendance_points,earning_rule_version,starts_at,ends_at,created_by,creation_key) select ${org}::uuid,id,name,description,${v.location},timezone,audience_group_ids,attendance_points,version,${v.startsAt}::timestamptz,${v.endsAt}::timestamptz,${user},${key}::uuid from parent where timezone=${v.timezone} and ${v.startsAt}::timestamptz>now() and ${validGroups(org, sql`parent.audience_group_ids`)} on conflict(organization_id,activity_id,creation_key) do nothing returning *),${logged(user, org, "session.create")} select ${sessionProjection(org)} from changed union all select ${sessionProjection(org)} from hub_activity_sessions where organization_id=${org}::uuid and activity_id=${activity}::uuid and creation_key=${key}::uuid and created_by=${user} and exists(select 1 from actor) and not exists(select 1 from changed) and starts_at=${v.startsAt}::timestamptz and ends_at=${v.endsAt}::timestamptz and location=${v.location} and timezone=${v.timezone} limit 1`,
       );
     },
     updateSession(

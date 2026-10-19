@@ -21,7 +21,7 @@ export async function attendanceApi(
 ) {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/activities\/([0-9a-f-]{36})\/sessions\/([0-9a-f-]{36})\/attendance(?:\/([0-9a-f-]{36})\/history)?$/i,
+      /^\/api\/organizations\/([0-9a-f-]{36})\/activities\/([0-9a-f-]{36})\/sessions\/([0-9a-f-]{36})\/attendance(?:\/([0-9a-f-]{36})\/history|\/(preview))?$/i,
     );
   if (!match) return null;
   const respond = (body: unknown, status = 200) =>
@@ -44,7 +44,7 @@ export async function attendanceApi(
       throw new CommunityError("forbidden", 403);
     if (!(await activities.session(user.id, org, activity, session))[0])
       throw new CommunityError("not_found", 404);
-    if (request.method === "GET") {
+    if (request.method === "GET" && !match[5]) {
       const status = url.searchParams.get("status") ?? "all";
       if (!["all", ...attendanceStatuses].includes(status))
         throw new CommunityError("invalid_input");
@@ -97,7 +97,7 @@ export async function attendanceApi(
       throw new CommunityError("invalid_input");
     }
     const result = (
-      await attendance.save(
+      await attendance[match[5] ? "preview" : "save"](
         user.id,
         org,
         activity,

@@ -1,3 +1,4 @@
+import { EarningRule } from "../activities/EarningRule";
 import { useState } from "react";
 import {
   useInfiniteQuery,
@@ -117,7 +118,15 @@ export default function Attendance({
     setNotice(result);
     setEditor(null);
     setSelected(new Map());
-    await cache.invalidateQueries({ queryKey: key });
+    await Promise.all([
+      cache.invalidateQueries({ queryKey: key }),
+      cache.invalidateQueries({
+        queryKey: ["organization", userId, organization.id, "points"],
+      }),
+      cache.invalidateQueries({
+        queryKey: ["organization", userId, organization.id, "periods"],
+      }),
+    ]);
   };
   const saved =
       notice?.items.filter(
@@ -147,11 +156,25 @@ export default function Attendance({
         <div className="attendance-context">
           <h2>{session.data.item.name}</h2>
           <Schedule {...session.data.item} />
+          <EarningRule
+            amount={session.data.item.attendancePoints ?? 0}
+            version={session.data.item.earningRuleVersion ?? 0}
+          />
         </div>
       )}
       {notice && (
         <div className="attendance-notice" role={failed ? "alert" : "status"}>
           <p>{m.attendance_saved({ count: String(saved) })}</p>
+          {notice.items.some((item) => (item.pointsDelta ?? 0) !== 0) && (
+            <p>
+              {m.earning_applied({
+                amount: notice.items.reduce(
+                  (sum, item) => sum + (item.pointsDelta ?? 0),
+                  0,
+                ),
+              })}
+            </p>
+          )}
           {!!failed && (
             <>
               <p>{m.attendance_failed({ count: String(failed) })}</p>
@@ -341,6 +364,7 @@ export default function Attendance({
       {editor && (
         <AttendanceEditor
           records={editor}
+          ruleAmount={session.data?.item.attendancePoints ?? 0}
           path={base + "/attendance"}
           onClose={() => {
             setEditor(null);

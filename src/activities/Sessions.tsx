@@ -1,3 +1,4 @@
+import { EarningRule } from "./EarningRule";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -161,6 +162,10 @@ export default function Sessions({
         {full && (
           <>
             <Audience groups={item.groups} />
+            <EarningRule
+              amount={item.attendancePoints ?? 0}
+              version={item.earningRuleVersion ?? 0}
+            />
             {item.location && (
               <p className="activity-location">
                 <MapPin size={16} aria-hidden="true" />

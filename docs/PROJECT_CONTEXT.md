@@ -105,3 +105,6 @@ Manual engagement points now support verified owner/admin individual and bulk aw
 
 
 Engagement periods are implemented under Settings for verified owners/admins: create/edit inclusive date windows in a saved timezone, view paginated private member/group points and attendance summaries, and close with confirmation to freeze names/membership/metrics. Period/group views have reloadable URLs. Existing ledger/attendance records supply the reports by date; no award duplication or attendance-to-points rule is introduced. See ENGAGEMENT_PERIODS.md for overlap, archived roster and closing policies.
+
+
+Optional fixed attendance earning is implemented: activity defaults are off unless enabled; newly created sessions snapshot the amount/revision. Owners/admins review point deltas before confirming attendance saves. Attendance and linked ledger changes are atomic/replay-safe, corrections reverse/restore the same source award, and point history links back to attendance for managed corrections. Existing sessions stay attendance-only after migration, and manual awards remain independent. See ATTENDANCE_EARNING.md.

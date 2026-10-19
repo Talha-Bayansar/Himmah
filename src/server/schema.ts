@@ -214,6 +214,7 @@ export const activities = pgTable(
       .default(sql`'{}'::uuid[]`),
     timezone: text("timezone").notNull(),
     cancelled: boolean("cancelled").notNull().default(false),
+    attendancePoints: integer("attendance_points").notNull().default(0),
     version: integer("version").notNull().default(1),
     createdBy: text("created_by").notNull(),
     creationKey: uuid("creation_key").notNull(),
@@ -241,6 +242,10 @@ export const activities = pgTable(
       "hub_activity_audience_bound",
       sql`cardinality(${t.audienceGroupIds}) <= 20`,
     ),
+    check(
+      "hub_activity_attendance_points",
+      sql`${t.attendancePoints} between 0 and 10000`,
+    ),
     check("hub_activity_version", sql`${t.version} > 0`),
   ],
 );
@@ -263,6 +268,8 @@ export const activitySessions = pgTable(
     endsAt: timestamp("ends_at", { withTimezone: true }).notNull(),
     cancelled: boolean("cancelled").notNull().default(false),
     cancellationReason: text("cancellation_reason").notNull().default(""),
+    attendancePoints: integer("attendance_points").notNull().default(0),
+    earningRuleVersion: integer("earning_rule_version").notNull().default(0),
     version: integer("version").notNull().default(1),
     createdBy: text("created_by").notNull(),
     creationKey: uuid("creation_key").notNull(),
@@ -275,6 +282,10 @@ export const activitySessions = pgTable(
       columns: [t.organizationId, t.activityId],
       foreignColumns: [activities.organizationId, activities.id],
     }),
+    check(
+      "hub_session_attendance_points",
+      sql`${t.attendancePoints} between 0 and 10000 and ${t.earningRuleVersion}>=0`,
+    ),
     unique("hub_session_scope").on(t.organizationId, t.activityId, t.id),
     unique("hub_session_creation").on(
       t.organizationId,
@@ -457,6 +468,8 @@ export const pointsEntries = pgTable(
     personId: uuid("person_id").notNull(),
     requestId: uuid("request_id").notNull(),
     actorId: text("actor_id").notNull(),
+    source: text("source").notNull().default("manual"),
+    ruleVersion: integer("rule_version"),
     amount: integer("amount").notNull(),
     reason: text("reason").notNull(),
     originalId: uuid("original_id"),
@@ -501,6 +514,10 @@ export const pointsEntries = pgTable(
       t.id,
     ),
     index("hub_points_original").on(t.organizationId, t.personId, t.originalId),
+    check(
+      "hub_points_source",
+      sql`${t.source} in ('manual','attendance') and (${t.source}='manual' or (${t.sessionId} is not null and ${t.ruleVersion} is not null and ${t.ruleVersion}>0))`,
+    ),
     check(
       "hub_points_amount",
       sql`${t.amount} between -10000 and 10000 and ${t.amount}<>0 and (${t.originalId} is not null or ${t.amount}>0)`,
@@ -610,5 +627,44 @@ export const periodGroups = pgTable(
       columns: [t.organizationId, t.groupId],
       foreignColumns: [groups.organizationId, groups.id],
     }),
+  ],
+);
+
+export const attendanceAwards = pgTable(
+  "hub_attendance_awards",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    originalId: uuid("original_id").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.sessionId, t.personId] }),
+    foreignKey({
+      columns: [t.organizationId, t.sessionId, t.personId],
+      foreignColumns: [
+        attendance.organizationId,
+        attendance.sessionId,
+        attendance.personId,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId, t.originalId],
+      foreignColumns: [
+        pointsEntries.organizationId,
+        pointsEntries.personId,
+        pointsEntries.id,
+      ],
+    }),
+    unique("hub_attendance_award_root").on(t.organizationId, t.originalId),
   ],
 );
