@@ -759,3 +759,116 @@ export const volunteerAssignmentChanges = pgTable(
     ),
   ],
 );
+
+export const rewards = pgTable(
+  "hub_rewards",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    cost: integer("cost").notNull(),
+    stock: integer("stock"),
+    archived: boolean("archived").notNull().default(false),
+    version: integer("version").notNull().default(1),
+    createdBy: text("created_by").notNull(),
+    creationKey: uuid("creation_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_reward_scope").on(t.organizationId, t.id),
+    unique("hub_reward_creation").on(t.organizationId, t.creationKey),
+    check(
+      "hub_reward_fields",
+      sql`length(${t.name}) between 2 and 80 and length(${t.description})<=1000 and ${t.cost} between 1 and 1000000 and (${t.stock} is null or ${t.stock} between 0 and 1000000) and ${t.version}>0`,
+    ),
+    index("hub_reward_page").on(t.organizationId, t.createdAt, t.id),
+  ],
+);
+export const redemptions = pgTable(
+  "hub_redemptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    rewardId: uuid("reward_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    rewardName: text("reward_name").notNull(),
+    personName: text("person_name").notNull(),
+    cost: integer("cost").notNull(),
+    status: text("status").notNull().default("pending"),
+    version: integer("version").notNull().default(1),
+    request: jsonb("request").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdByName: text("created_by_name").notNull(),
+    creationKey: uuid("creation_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    fulfilledAt: timestamp("fulfilled_at", { withTimezone: true }),
+    fulfilledBy: text("fulfilled_by"),
+    fulfilledByName: text("fulfilled_by_name"),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    cancelledBy: text("cancelled_by"),
+    cancelledByName: text("cancelled_by_name"),
+    cancelReason: text("cancel_reason"),
+  },
+  (t) => [
+    unique("hub_redemption_scope").on(t.organizationId, t.id),
+    unique("hub_redemption_creation").on(t.organizationId, t.creationKey),
+    foreignKey({
+      columns: [t.organizationId, t.rewardId],
+      foreignColumns: [rewards.organizationId, rewards.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    check(
+      "hub_redemption_fields",
+      sql`${t.cost} between 1 and 1000000 and ${t.version}>0 and ((${t.status}='pending' and ${t.fulfilledAt} is null and ${t.cancelledAt} is null) or (${t.status}='fulfilled' and ${t.fulfilledAt} is not null and ${t.fulfilledBy} is not null and ${t.cancelledAt} is null) or (${t.status}='cancelled' and ${t.cancelledAt} is not null and ${t.cancelledBy} is not null and length(${t.cancelReason}) between 1 and 300 and ${t.fulfilledAt} is null))`,
+    ),
+    index("hub_redemption_reward_page").on(
+      t.organizationId,
+      t.rewardId,
+      t.createdAt,
+      t.id,
+    ),
+    index("hub_redemption_person").on(t.organizationId, t.personId, t.status),
+  ],
+);
+export const rewardChanges = pgTable(
+  "hub_reward_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    rewardId: uuid("reward_id").notNull(),
+    redemptionId: uuid("redemption_id"),
+    actorId: text("actor_id").notNull(),
+    action: text("action").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.rewardId],
+      foreignColumns: [rewards.organizationId, rewards.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.redemptionId],
+      foreignColumns: [redemptions.organizationId, redemptions.id],
+    }),
+    index("hub_reward_audit_page").on(
+      t.organizationId,
+      t.rewardId,
+      t.createdAt,
+      t.id,
+    ),
+  ],
+);

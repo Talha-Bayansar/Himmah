@@ -1,3 +1,5 @@
+import { rewardApi } from "./reward-api.ts";
+import { createRewardStore } from "./reward-store.ts";
 import { accessApi } from "./access-api.ts";
 import { createAccessStore } from "./access-store.ts";
 import { periodApi } from "./period-api.ts";
@@ -244,6 +246,25 @@ export function createHandler(
           user,
           store,
           createPointsStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
+      if (
+        /^\/api\/organizations\/[^/]+\/(rewards|reward-wallet)(\/|$)/.test(
+          url.pathname,
+        )
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `rewards:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await rewardApi(
+          request,
+          user,
+          store,
+          createRewardStore(env.HIMMAH_DATABASE_URL),
         );
         if (response) return response;
       }

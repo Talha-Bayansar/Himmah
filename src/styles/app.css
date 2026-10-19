@@ -4804,3 +4804,129 @@ html {
   font-size: 14px;
   line-height: 1.5;
 }
+
+.reward-tabs,
+.reward-record {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.reward-tabs {
+  flex-wrap: wrap;
+  margin-block: 20px;
+}
+.reward-tabs > [data-slot="button"] {
+  flex: 1 1 170px;
+}
+.reward-description,
+.reward-reason {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.reward-description {
+  margin-bottom: 20px;
+}
+.reward-help {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--app-muted);
+  margin-block: 8px 16px;
+}
+.reward-record {
+  min-width: 0;
+  flex: 1 1 180px;
+}
+.reward-record > svg {
+  flex-shrink: 0;
+  color: var(--forest);
+}
+.reward-record p,
+.reward-list p {
+  margin-block: 4px 0;
+  line-height: 1.5;
+}
+.reward-wallet-panel {
+  padding: 20px;
+  margin-block: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+}
+.reward-wallet {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-block: 16px;
+}
+.reward-wallet dt {
+  font-size: 13px;
+  color: var(--app-muted);
+}
+.reward-wallet dd {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.reward-review {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background: var(--secondary);
+  border-radius: 12px;
+}
+.reward-redemption {
+  display: block !important;
+}
+.reward-redemption-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.reward-redemption > .directory-actions {
+  margin-top: 16px;
+}
+.reward-redemption .directory-actions > [data-slot="button"]:first-child {
+  flex: 1;
+  white-space: normal;
+  text-align: center;
+}
+.reward-status {
+  max-width: 100%;
+}
+.reward-status [data-slot="native-select-wrapper"] {
+  margin: 0;
+}
+@media (max-width: 480px) {
+  .reward-tabs > [data-slot="button"] {
+    white-space: normal;
+    height: auto;
+    min-height: 44px;
+    text-align: center;
+  }
+  .reward-list > li > .directory-actions {
+    width: 100%;
+  }
+  .reward-list > li > .directory-actions > [data-slot="button"]:first-child {
+    flex: 1;
+  }
+}
+.rewards-page .reward-detail-heading {
+  flex-direction: row;
+  align-items: flex-start;
+}
+.reward-detail-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.reward-detail-heading h1 {
+  overflow-wrap: anywhere;
+}
+.rewards-page .reward-detail-heading > .item-actions-trigger {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+}

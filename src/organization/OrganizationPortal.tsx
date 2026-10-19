@@ -1,3 +1,4 @@
+import Rewards from "../rewards/Rewards";
 import Assignments from "../access/Assignments";
 import VolunteerMembers from "../access/VolunteerMembers";
 import Periods from "../periods/Periods";
@@ -86,6 +87,8 @@ export default function OrganizationPortal({
   workspaceId = null,
   workspaceSection = "members",
   accountSettings = false,
+  rewardId = null,
+  rewardView = "members",
   periodId = null,
   periodGroupId = null,
   periodView = "members",
@@ -101,6 +104,8 @@ export default function OrganizationPortal({
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
+  rewardId?: string | null;
+  rewardView?: "members" | "redemptions";
   periodId?: string | null;
   periodGroupId?: string | null;
   periodView?: "members" | "groups";
@@ -438,6 +443,8 @@ export default function OrganizationPortal({
                     attendance={attendance}
                     sessionId={sessionId}
                     activityId={activityId}
+                    rewardId={rewardId}
+                    rewardView={rewardView}
                     periodId={periodId}
                     periodGroupId={periodGroupId}
                     periodView={periodView}
@@ -1174,6 +1181,8 @@ function Workspace({
   user,
   signOutPending,
   onSignOut,
+  rewardId,
+  rewardView,
   periodId,
   periodGroupId,
   periodView,
@@ -1187,6 +1196,8 @@ function Workspace({
   userId: string;
   section: WorkspaceSection;
   user: User;
+  rewardId: string | null;
+  rewardView: "members" | "redemptions";
   periodId: string | null;
   periodGroupId: string | null;
   periodView: "members" | "groups";
@@ -1208,6 +1219,8 @@ function Workspace({
     section,
     organization.id,
     memberId,
+    rewardId,
+    rewardView,
     periodId,
     periodGroupId,
     groupId,
@@ -1250,7 +1263,15 @@ function Workspace({
             </Button>
           )}
           {organization.role === "owner" || organization.role === "admin" ? (
-            section === "access" ? (
+            section === "rewards" ? (
+              <Rewards
+                key={organization.id + (rewardId ?? "list") + rewardView}
+                organization={organization}
+                userId={userId}
+                rewardId={rewardId}
+                view={rewardView}
+              />
+            ) : section === "access" ? (
               <Assignments organization={organization} userId={userId} />
             ) : section === "periods" ? (
               <Periods

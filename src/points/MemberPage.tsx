@@ -1,3 +1,4 @@
+import { RewardWallet } from "../rewards/RewardWallet";
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -123,6 +124,13 @@ export default function MemberPage({
               )}
             </strong>
           </div>
+          {organization.role !== "volunteer" && (
+            <RewardWallet
+              organizationId={organization.id}
+              userId={userId}
+              memberId={memberId}
+            />
+          )}
           {result && <PointsResults result={result} />}
           <h2 className="points-history-heading">{m.points_history()}</h2>
           {history.isPending ? (

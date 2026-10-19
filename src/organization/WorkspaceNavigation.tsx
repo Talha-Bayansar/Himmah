@@ -7,6 +7,7 @@ export const workspaceSections = [
   "activities",
   "members",
   "groups",
+  "rewards",
   "access",
   "periods",
   "staff",

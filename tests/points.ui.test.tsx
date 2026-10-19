@@ -256,6 +256,10 @@ it("loads member history independently and preserves entries after a next-page e
   vi.stubGlobal(
     "fetch",
     vi.fn(async (path) => {
+      if (String(path).includes("/reward-wallet/"))
+        return Response.json({
+          item: { earned: "10", reserved: "0", spent: "0", available: "10" },
+        });
       if (String(path).includes("cursor=next"))
         return Response.json({ code: "service" }, { status: 503 });
       if (String(path).includes("/points"))
