@@ -980,3 +980,24 @@ export const participantEvents = pgTable(
     ),
   ],
 );
+
+export const rewardCoupons = pgTable(
+  "hub_reward_coupons",
+  {
+    redemptionId: uuid("redemption_id").primaryKey(),
+    organizationId: uuid("organization_id").notNull(),
+    code: text("code")
+      .notNull()
+      .unique()
+      .default(
+        sql`replace(gen_random_uuid()::text,'-','') || replace(gen_random_uuid()::text,'-','')`,
+      ),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.redemptionId],
+      foreignColumns: [redemptions.organizationId, redemptions.id],
+    }),
+    check("hub_coupon_code", sql`${t.code} ~ '^[0-9a-f]{64}$'`),
+  ],
+);

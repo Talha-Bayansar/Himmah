@@ -84,4 +84,4 @@ The owner approved and we implemented rewards and redemption after scoped volunt
 
 ## Participant access increment — 19 October 2026
 
-Organizer-attested participant invitation links, verified-email account linking and a private read-only progress/reward area are implemented. See [Participant access](PARTICIPANT_ACCESS.md) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Self-service purchases, QR coupons/validation, peer rankings and gameplay remain future work.
+Organizer-attested participant invitation links, verified-email account linking and private progress, reward claims and QR coupons are implemented. See [Participant access](PARTICIPANT_ACCESS.md) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Participants can reserve/cancel their own pending rewards; owners/admins confirm single-use QR collection. See [Rewards](REWARDS.md). Peer rankings and gameplay remain future work.

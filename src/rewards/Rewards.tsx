@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Plus,
   Search,
+  ScanLine,
   Gift,
   Pencil,
   Archive,
@@ -270,6 +271,17 @@ export default function Rewards({
           </Button>
         </div>
       )}
+      {!rewardId && (
+        <Button variant="outline" className="coupon-scan-link" asChild>
+          <Link
+            to="/workspace/$organizationId/$section"
+            params={{ organizationId: organization.id, section: "collect" }}
+          >
+            <ScanLine aria-hidden="true" />
+            {m.coupon_collect_title()}
+          </Link>
+        </Button>
+      )}
       {archive.isError && <PointsError error={archive.error} />}
       {(!rewardId || (!!detail.data && !detail.isError)) && (
         <>
@@ -445,7 +457,9 @@ export default function Rewards({
                                   })}
                                 </p>
                                 <p className="reward-reason">
-                                  {row.cancelReason}
+                                  {row.cancelReason === "participant_cancelled"
+                                    ? m.coupon_cancelled_by_holder()
+                                    : row.cancelReason}
                                 </p>
                               </>
                             )}

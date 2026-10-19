@@ -1,3 +1,5 @@
+import Collection from "../coupons/Collection";
+import MyCoupons from "../coupons/MyCoupons";
 import { Management, OrganizationDetails, PeopleTabs } from "./Management";
 import PersonalDashboard from "../participants/PersonalDashboard";
 import ParticipantAccountPage from "../participants/ParticipantAccountPage";
@@ -88,6 +90,8 @@ const orgKey = (userId: string) => ["organizations", userId] as const;
 export default function OrganizationPortal({
   initialMode = "signup",
   inviteToken = null,
+  couponId = null,
+  couponStatus = "pending",
   participantInviteToken = null,
   participantAccount = false,
   participantAccountView = "invitations",
@@ -108,6 +112,8 @@ export default function OrganizationPortal({
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
+  couponId?: string | null;
+  couponStatus?: "pending" | "all";
   participantInviteToken?: string | null;
   participantAccount?: boolean;
   participantAccountView?: "invitations" | "history";
@@ -143,7 +149,7 @@ export default function OrganizationPortal({
             : role === "volunteer"
               ? "activities"
               : workspaceId
-                ? ["me", "my-rewards", "my-redemptions"].includes(
+                ? ["me", "my-rewards", "my-redemptions", "my-coupons"].includes(
                     workspaceSection,
                   )
                   ? "activities"
@@ -477,6 +483,8 @@ export default function OrganizationPortal({
                     periodId={periodId}
                     periodGroupId={periodGroupId}
                     periodView={periodView}
+                    couponId={couponId}
+                    couponStatus={couponStatus}
                     participantAccount={participantAccount}
                     participantAccountView={participantAccountView}
                     memberId={memberId}
@@ -1242,6 +1250,8 @@ function Workspace({
   periodId,
   periodGroupId,
   periodView,
+  couponId,
+  couponStatus,
   participantAccount,
   participantAccountView,
   memberId,
@@ -1259,6 +1269,8 @@ function Workspace({
   periodId: string | null;
   periodGroupId: string | null;
   periodView: "members" | "groups";
+  couponId: string | null;
+  couponStatus: "pending" | "all";
   participantAccount: boolean;
   participantAccountView: "invitations" | "history";
   memberId: string | null;
@@ -1291,6 +1303,26 @@ function Workspace({
   if (section === "organization")
     return <OrganizationDetails organization={organization} />;
   if (organization.role === "participant") {
+    if (section === "my-redemptions")
+      return (
+        <Navigate
+          to="/workspace/$organizationId/my-coupons"
+          params={{ organizationId: organization.id }}
+          search={{ status: "all" }}
+          replace
+        />
+      );
+    if (section === "my-coupons")
+      return (
+        <MyCoupons
+          key={organization.id + (couponId ?? "list") + couponStatus}
+          organization={organization}
+          userId={userId}
+          couponId={couponId}
+          status={couponStatus}
+        />
+      );
+
     if (section === "settings")
       return (
         <AccountSettings
@@ -1300,7 +1332,7 @@ function Workspace({
           onSignOut={onSignOut}
         />
       );
-    if (!["me", "my-rewards", "my-redemptions"].includes(section))
+    if (!["me", "my-rewards", "my-redemptions", "my-coupons"].includes(section))
       return (
         <Navigate
           to="/workspace/$organizationId/$section"
@@ -1313,20 +1345,15 @@ function Workspace({
         key={organization.id + section}
         organization={organization}
         userId={userId}
-        view={
-          section === "my-rewards"
-            ? "rewards"
-            : section === "my-redemptions"
-              ? "redemptions"
-              : "home"
-        }
+        view={section === "my-rewards" ? "rewards" : "home"}
       />
     );
   }
   if (
     section === "me" ||
     section === "my-rewards" ||
-    section === "my-redemptions"
+    section === "my-redemptions" ||
+    section === "my-coupons"
   )
     return (
       <Navigate
@@ -1337,7 +1364,21 @@ function Workspace({
     );
   return (
     <div ref={page}>
-      {section === "manage" ? (
+      {section === "collect" ? (
+        ["owner", "admin"].includes(organization.role) ? (
+          <Collection
+            key={organization.id}
+            organization={organization}
+            userId={userId}
+          />
+        ) : (
+          <Navigate
+            to="/workspace/$organizationId/$section"
+            params={{ organizationId: organization.id, section: "activities" }}
+            replace
+          />
+        )
+      ) : section === "manage" ? (
         ["owner", "admin"].includes(organization.role) ? (
           <Management organization={organization} />
         ) : (

@@ -203,7 +203,7 @@ it("shows a private read-only wallet, retains loaded points on a page service fa
   await waitFor(() => expect(screen.queryByText("My nickname")).toBeNull());
   expect(screen.queryByText("+25")).toBeNull();
 });
-it("lists available rewards with eligibility but exposes no purchasing or staff controls", async () => {
+it("lists available reward claims without staff management controls", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input) =>
@@ -241,7 +241,7 @@ it("lists available rewards with eligibility but exposes no purchasing or staff 
     />,
   );
   await screen.findByText("Drink coupon");
-  expect(screen.getByText(/Ask an organizer/)).toBeTruthy();
+  expect(screen.getByText(/Choose a reward/)).toBeTruthy();
   expect(
     screen.queryByRole("button", { name: /reserve|purchase|create reward/i }),
   ).toBeNull();

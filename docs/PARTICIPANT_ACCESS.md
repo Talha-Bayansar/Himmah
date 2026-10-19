@@ -12,11 +12,11 @@ The verified recipient reviews the organization and nickname, then confirms acco
 
 ## Personal experience
 
-`/hub` (with `/app` as a compatibility redirect) opens **My progress** for a participant with a single organization. Multiple organizations use the normal paginated chooser and switcher. Personal navigation has My progress, Rewards, Redemptions and Profile; bookmarks reload independently. Staff page URLs redirect participants to their home, and all staff APIs independently reject their role.
+`/hub` (with `/app` as a compatibility redirect) opens **My progress** for a participant with a single organization. Multiple organizations use the normal paginated chooser and switcher. Personal navigation has My progress, Rewards, My coupons and Profile; bookmarks reload independently. Staff page URLs redirect participants to their home, and all staff APIs independently reject their role.
 
 The dashboard shows only the signed-in person's nickname, earned/reserved/spent/available points and paginated point entries. Entry labels identify source and adjustments without exposing staff award reasons, activity names that might disclose other people, actor identities or absence reasons. The reward catalogue shows active names/descriptions, cost and personal availability; redemption history shows only that participant's reward snapshots, status and dates. Organizations must keep catalogue descriptions appropriate for participant viewing. No public rankings, peer records, attendance breakdown or staff-only details are returned.
 
-This milestone is read-only for participants. They ask an organizer to reserve a reward, and owners/admins retain reservation, cancellation and handout authority. Self-service purchases, QR coupons, scanning and physical validation are **not implemented**. Engagement history remains independent of spending.
+Participants can now reserve rewards for themselves, view private QR coupons and cancel pending reservations with confirmation. Owners/admins retain catalogue management and final handout authority through an authenticated scanner/manual-code review. Engagement history remains independent of spending. See [Rewards](REWARDS.md) for balance, stock, privacy and collection policy. The former `/my-redemptions` page redirects to coupon history.
 
 ## Revocation and integrity
 

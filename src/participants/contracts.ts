@@ -16,6 +16,7 @@ export type PersonalPoints = {
   occurredAt: string;
 };
 export type PersonalReward = {
+  version: number;
   id: string;
   name: string;
   description: string;

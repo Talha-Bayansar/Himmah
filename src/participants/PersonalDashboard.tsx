@@ -1,3 +1,5 @@
+import { ClaimDialog } from "../coupons/ClaimDialog";
+import { Button } from "../components/ui/button";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Gift, Coins, Ticket } from "lucide-react";
@@ -38,6 +40,7 @@ export default function PersonalDashboard({
 }) {
   useLocale();
   const heading = useRef<HTMLHeadingElement>(null);
+  const [claim, setClaim] = useState<PersonalReward | null>(null);
   const [search, setSearch] = useState(""),
     [q, setQ] = useState("");
   useEffect(() => {
@@ -198,6 +201,14 @@ export default function PersonalDashboard({
                               ? m.participant_afford()
                               : m.participant_not_enough()}
                         </span>
+                        <Button
+                          className="coupon-redeem-button"
+                          disabled={!reward.eligible || !reward.inStock}
+                          onClick={() => setClaim(reward)}
+                        >
+                          <Gift aria-hidden="true" />
+                          {m.coupon_redeem()}
+                        </Button>
                       </li>
                     ))
                 : history.data?.pages
@@ -232,6 +243,17 @@ export default function PersonalDashboard({
             />
           )}
         </>
+      )}
+      {claim && (
+        <ClaimDialog
+          reward={claim}
+          organizationId={organization.id}
+          userId={userId}
+          onClose={() => {
+            setClaim(null);
+            void rewards.refetch();
+          }}
+        />
       )}
     </section>
   );

@@ -17,9 +17,11 @@ import { Route as ParticipateRouteImport } from './routes/participate'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
+import { Route as WorkspaceOrganizationIdMyCouponsRouteImport } from './routes/workspace.$organizationId.my-coupons'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
 import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.groups.$groupId'
 import { Route as WorkspaceOrganizationIdMembersMemberIdRouteImport } from './routes/workspace.$organizationId.members.$memberId'
+import { Route as WorkspaceOrganizationIdMyCouponsCouponIdRouteImport } from './routes/workspace.$organizationId.my-coupons_.$couponId'
 import { Route as WorkspaceOrganizationIdPeriodsPeriodIdRouteImport } from './routes/workspace.$organizationId.periods.$periodId'
 import { Route as WorkspaceOrganizationIdRewardsRewardIdRouteImport } from './routes/workspace.$organizationId.rewards.$rewardId'
 import { Route as WorkspaceOrganizationIdMembersMemberIdAccountRouteImport } from './routes/workspace.$organizationId.members.$memberId_.account'
@@ -67,6 +69,12 @@ const WorkspaceOrganizationIdSectionRoute =
     path: '/workspace/$organizationId/$section',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdMyCouponsRoute =
+  WorkspaceOrganizationIdMyCouponsRouteImport.update({
+    id: '/workspace/$organizationId/my-coupons',
+    path: '/workspace/$organizationId/my-coupons',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdRoute =
   WorkspaceOrganizationIdActivitiesActivityIdRouteImport.update({
     id: '/workspace/$organizationId/activities/$activityId',
@@ -83,6 +91,12 @@ const WorkspaceOrganizationIdMembersMemberIdRoute =
   WorkspaceOrganizationIdMembersMemberIdRouteImport.update({
     id: '/workspace/$organizationId/members/$memberId',
     path: '/workspace/$organizationId/members/$memberId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const WorkspaceOrganizationIdMyCouponsCouponIdRoute =
+  WorkspaceOrganizationIdMyCouponsCouponIdRouteImport.update({
+    id: '/workspace/$organizationId/my-coupons_/$couponId',
+    path: '/workspace/$organizationId/my-coupons/$couponId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const WorkspaceOrganizationIdPeriodsPeriodIdRoute =
@@ -130,9 +144,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  '/workspace/$organizationId/my-coupons/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
@@ -148,9 +164,11 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  '/workspace/$organizationId/my-coupons/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
@@ -167,9 +185,11 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  '/workspace/$organizationId/my-coupons_/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   '/workspace/$organizationId/members/$memberId_/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
@@ -187,9 +207,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/my-coupons'
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
+    | '/workspace/$organizationId/my-coupons/$couponId'
     | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/rewards/$rewardId'
     | '/workspace/$organizationId/members/$memberId/account'
@@ -205,9 +227,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/my-coupons'
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
+    | '/workspace/$organizationId/my-coupons/$couponId'
     | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/rewards/$rewardId'
     | '/workspace/$organizationId/members/$memberId/account'
@@ -223,9 +247,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/my-coupons'
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
+    | '/workspace/$organizationId/my-coupons_/$couponId'
     | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/rewards/$rewardId'
     | '/workspace/$organizationId/members/$memberId_/account'
@@ -242,9 +268,11 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdMyCouponsRoute: typeof WorkspaceOrganizationIdMyCouponsRoute
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   WorkspaceOrganizationIdGroupsGroupIdRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   WorkspaceOrganizationIdMembersMemberIdRoute: typeof WorkspaceOrganizationIdMembersMemberIdRoute
+  WorkspaceOrganizationIdMyCouponsCouponIdRoute: typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   WorkspaceOrganizationIdPeriodsPeriodIdRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   WorkspaceOrganizationIdRewardsRewardIdRoute: typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   WorkspaceOrganizationIdMembersMemberIdAccountRoute: typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
@@ -308,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/my-coupons': {
+      id: '/workspace/$organizationId/my-coupons'
+      path: '/workspace/$organizationId/my-coupons'
+      fullPath: '/workspace/$organizationId/my-coupons'
+      preLoaderRoute: typeof WorkspaceOrganizationIdMyCouponsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/activities/$activityId': {
       id: '/workspace/$organizationId/activities/$activityId'
       path: '/workspace/$organizationId/activities/$activityId'
@@ -327,6 +362,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace/$organizationId/members/$memberId'
       fullPath: '/workspace/$organizationId/members/$memberId'
       preLoaderRoute: typeof WorkspaceOrganizationIdMembersMemberIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspace/$organizationId/my-coupons_/$couponId': {
+      id: '/workspace/$organizationId/my-coupons_/$couponId'
+      path: '/workspace/$organizationId/my-coupons/$couponId'
+      fullPath: '/workspace/$organizationId/my-coupons/$couponId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdMyCouponsCouponIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/periods/$periodId': {
@@ -406,12 +448,15 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+  WorkspaceOrganizationIdMyCouponsRoute: WorkspaceOrganizationIdMyCouponsRoute,
   WorkspaceOrganizationIdActivitiesActivityIdRoute:
     WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
   WorkspaceOrganizationIdGroupsGroupIdRoute:
     WorkspaceOrganizationIdGroupsGroupIdRoute,
   WorkspaceOrganizationIdMembersMemberIdRoute:
     WorkspaceOrganizationIdMembersMemberIdRoute,
+  WorkspaceOrganizationIdMyCouponsCouponIdRoute:
+    WorkspaceOrganizationIdMyCouponsCouponIdRoute,
   WorkspaceOrganizationIdPeriodsPeriodIdRoute:
     WorkspaceOrganizationIdPeriodsPeriodIdRoute,
   WorkspaceOrganizationIdRewardsRewardIdRoute:

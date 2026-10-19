@@ -13,6 +13,8 @@ import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "collect",
+  "my-coupons",
   "manage",
   "organization",
   "me",
@@ -68,8 +70,8 @@ export function WorkspaceNavigation({
               Icon: Gift,
             },
             {
-              section: "my-redemptions",
-              label: m.participant_nav_history(),
+              section: "my-coupons",
+              label: m.coupons_nav(),
               Icon: Ticket,
             },
             {
@@ -119,18 +121,20 @@ export function WorkspaceNavigation({
   const active =
     section === "members" || section === "groups"
       ? "members"
-      : section === "activities" || section === "rewards"
-        ? section
-        : [
-              "manage",
-              "organization",
-              "access",
-              "periods",
-              "staff",
-              "invitations",
-            ].includes(section)
-          ? "manage"
-          : null;
+      : section === "collect"
+        ? "rewards"
+        : section === "activities" || section === "rewards"
+          ? section
+          : [
+                "manage",
+                "organization",
+                "access",
+                "periods",
+                "staff",
+                "invitations",
+              ].includes(section)
+            ? "manage"
+            : null;
   return (
     <nav className="workspace-navigation" aria-label={m.directory_title()}>
       {items.map(({ section: target, label, Icon }) => (

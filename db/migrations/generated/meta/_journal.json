@@ -78,6 +78,13 @@
       "when": 1792419564574,
       "tag": "0010_sturdy_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792433395840,
+      "tag": "0011_flimsy_komodo",
+      "breakpoints": true
     }
   ]
 }
