@@ -18,6 +18,7 @@ import { m } from "../paraglide/messages.js";
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import {
+  DirectoryError,
   directoryRequest,
   directoryMessage,
   useDirectoryPages,
@@ -373,7 +374,12 @@ export default function Activities({
           </div>
           {query.isPending ? (
             <ListSkeleton />
-          ) : query.isError && !query.data ? (
+          ) : query.isError &&
+            (!query.data ||
+              (query.error instanceof DirectoryError &&
+                ["forbidden", "not_found", "sign_in"].includes(
+                  query.error.code,
+                ))) ? (
             <ErrorNotice
               error={query.error}
               pending={query.isFetching}

@@ -171,7 +171,13 @@ export function PointsEditor({
               {m.directory_selected_count({ count: selected.size })}
             </p>
             <PointsOptions
-              path={base + "/people" + (groupId ? "?group=" + groupId : "")}
+              path={
+                base +
+                (organization.role === "volunteer"
+                  ? "/work/members"
+                  : "/people") +
+                (groupId ? "?group=" + groupId : "")
+              }
               scope={scopeFor("people/" + (groupId ?? "all"))}
               selected={selected}
               multiple

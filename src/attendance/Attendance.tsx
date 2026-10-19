@@ -10,7 +10,7 @@ import { m } from "../paraglide/messages.js";
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import type { Session } from "../activities/contracts";
-import { directoryRequest } from "../community/client";
+import { directoryRequest, DirectoryError } from "../community/client";
 import { ErrorNotice, Schedule } from "../activities/Activities";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -62,8 +62,19 @@ export default function Attendance({
   sessionId: string;
 }) {
   useLocale();
+  const isAdmin = ["owner", "admin"].includes(organization.role);
+  const access = useQuery({
+    queryKey: ["organization", userId, organization.id, "my-access"],
+    enabled: !isAdmin,
+    queryFn: ({ signal }) =>
+      directoryRequest<{ item: { canAttend: boolean; canAward: boolean } }>(
+        `/api/organizations/${organization.id}/access/me`,
+        { signal },
+      ),
+  });
   const cache = useQueryClient(),
-    canManage = ["owner", "admin"].includes(organization.role),
+    canManage =
+      isAdmin || (!access.isError && access.data?.item.canAttend === true),
     [search, setSearch] = useState(""),
     [status, setStatus] = useState("all"),
     [selected, setSelected] = useState<Map<string, AttendancePerson>>(
@@ -133,7 +144,32 @@ export default function Attendance({
         (item) => item.outcome === "saved" || item.outcome === "unchanged",
       ).length ?? 0,
     failed = (notice?.items.length ?? 0) - saved;
+  if (!isAdmin && access.isPending) return <ListSkeleton />;
+  if (!isAdmin && access.isError)
+    return (
+      <ErrorNotice
+        error={access.error}
+        pending={access.isFetching}
+        retry={() => {
+          void access.refetch();
+        }}
+      />
+    );
   if (!canManage) return <p role="alert">{m.attendance_access()}</p>;
+  if (
+    roster.isError &&
+    roster.error instanceof DirectoryError &&
+    ["forbidden", "not_found", "sign_in"].includes(roster.error.code)
+  )
+    return (
+      <ErrorNotice
+        error={roster.error}
+        pending={roster.isFetching}
+        retry={() => {
+          void roster.refetch();
+        }}
+      />
+    );
   return (
     <section className="attendance-page">
       <div className="directory-heading">

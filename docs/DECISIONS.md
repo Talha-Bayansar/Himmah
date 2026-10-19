@@ -190,3 +190,7 @@ Periods are independent dated reports, not award allocations. Whole inclusive lo
 ## Optional attendance earning rules
 
 Activity defaults can enable fixed present awards (1–10,000 whole points); zero remains attendance-only. Sessions snapshot the amount and activity revision on creation, and existing schedules/records are never backfilled. Configured check-in requires a server preview and explicit linked-point confirmation. Saving attendance and its award/reversal/restoration is atomic, with one root source award per organization/session/member, version checks and replay receipts. Attendance-source awards are corrected through attendance, never the manual points form. Session start is their occurrence time; open period reports update and closed snapshots do not. See [Attendance earning](ATTENDANCE_EARNING.md) for exact boundaries and the existing account-linking safeguards.
+
+## Scoped volunteer access
+
+Implemented group/activity assignments with independent attendance and manual-award permissions. This supersedes earlier blanket volunteer restrictions in this document. Owner/admin directory management, manual corrections and period reporting remain restricted. See [Volunteer access](VOLUNTEER_ACCESS.md) for scope, audit and revocation behavior.

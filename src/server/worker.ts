@@ -1,3 +1,5 @@
+import { accessApi } from "./access-api.ts";
+import { createAccessStore } from "./access-store.ts";
 import { periodApi } from "./period-api.ts";
 import { createPeriodStore } from "./period-store.ts";
 import { pointsApi } from "./points-api.ts";
@@ -209,6 +211,23 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (
+        /^\/api\/organizations\/[^/]+\/(access|work)(\/|$)/.test(url.pathname)
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `access:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await accessApi(
+          request,
+          user,
+          store,
+          createAccessStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
       if (
         /^\/api\/organizations\/[^/]+\/(points|members)(\/|$)/.test(
           url.pathname,

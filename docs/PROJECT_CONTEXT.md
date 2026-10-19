@@ -108,3 +108,7 @@ Engagement periods are implemented under Settings for verified owners/admins: cr
 
 
 Optional fixed attendance earning is implemented: activity defaults are off unless enabled; newly created sessions snapshot the amount/revision. Owners/admins review point deltas before confirming attendance saves. Attendance and linked ledger changes are atomic/replay-safe, corrections reverse/restore the same source award, and point history links back to attendance for managed corrections. Existing sessions stay attendance-only after migration, and manual awards remain independent. See ATTENDANCE_EARNING.md.
+
+## Scoped volunteer access
+
+Implemented group/activity assignments with independent attendance and manual-award permissions. This supersedes earlier blanket volunteer restrictions in this document. Owner/admin directory management, manual corrections and period reporting remain restricted. See [Volunteer access](VOLUNTEER_ACCESS.md) for scope, audit and revocation behavior.

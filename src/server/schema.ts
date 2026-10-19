@@ -668,3 +668,94 @@ export const attendanceAwards = pgTable(
     unique("hub_attendance_award_root").on(t.organizationId, t.originalId),
   ],
 );
+
+export const volunteerAssignments = pgTable(
+  "hub_volunteer_assignments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    userId: text("user_id").notNull(),
+    staffName: text("staff_name").notNull(),
+    groupId: uuid("group_id"),
+    activityId: uuid("activity_id"),
+    scopeName: text("scope_name").notNull(),
+    canAttend: boolean("can_attend").notNull(),
+    canAward: boolean("can_award").notNull(),
+    version: integer("version").notNull().default(1),
+    createdBy: text("created_by").notNull(),
+    creationKey: uuid("creation_key").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    revokedBy: text("revoked_by"),
+    revokeReason: text("revoke_reason"),
+  },
+  (t) => [
+    unique("hub_volunteer_assignment_scope").on(t.organizationId, t.id),
+    unique("hub_volunteer_assignment_creation").on(
+      t.organizationId,
+      t.creationKey,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.groupId],
+      foreignColumns: [groups.organizationId, groups.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId],
+      foreignColumns: [activities.organizationId, activities.id],
+    }),
+    check(
+      "hub_volunteer_assignment_target",
+      sql`(${t.groupId} is null) <> (${t.activityId} is null)`,
+    ),
+    check(
+      "hub_volunteer_assignment_capabilities",
+      sql`${t.canAttend} or ${t.canAward}`,
+    ),
+    check("hub_volunteer_assignment_version", sql`${t.version}>0`),
+    uniqueIndex("hub_volunteer_active_group")
+      .on(t.organizationId, t.userId, t.groupId)
+      .where(sql`${t.revokedAt} is null and ${t.groupId} is not null`),
+    uniqueIndex("hub_volunteer_active_activity")
+      .on(t.organizationId, t.userId, t.activityId)
+      .where(sql`${t.revokedAt} is null and ${t.activityId} is not null`),
+    index("hub_volunteer_assignment_page").on(
+      t.organizationId,
+      t.createdAt,
+      t.id,
+    ),
+  ],
+);
+export const volunteerAssignmentChanges = pgTable(
+  "hub_volunteer_assignment_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    assignmentId: uuid("assignment_id").notNull(),
+    actorId: text("actor_id"),
+    action: text("action").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.assignmentId],
+      foreignColumns: [
+        volunteerAssignments.organizationId,
+        volunteerAssignments.id,
+      ],
+    }),
+    index("hub_volunteer_assignment_history").on(
+      t.organizationId,
+      t.assignmentId,
+      t.createdAt,
+      t.id,
+    ),
+  ],
+);

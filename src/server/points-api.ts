@@ -32,7 +32,9 @@ export async function pointsApi(
     const membership = await organizations.get(user.id, org);
     if (!membership) throw new CommunityError("not_found", 404);
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
-    if (!["owner", "admin"].includes(membership.role))
+    if (!["owner", "admin", "volunteer"].includes(membership.role))
+      throw new CommunityError("forbidden", 403);
+    if (!(await points.anyAccess(user.id, org))[0])
       throw new CommunityError("forbidden", 403);
     if (request.method === "GET" && person) {
       const member = (await points.member(user.id, org, person))[0];

@@ -73,3 +73,7 @@ See [Manual points](MANUAL_POINTS.md) for the shipped workflow, bounds, permissi
 See [Engagement periods](ENGAGEMENT_PERIODS.md) for the implemented report windows, overlap policy and closing snapshots.
 
 See [Attendance earning](ATTENDANCE_EARNING.md) for optional rule configuration, confirmation and linked award corrections.
+
+## Scoped volunteer access
+
+Implemented group/activity assignments with independent attendance and manual-award permissions. This supersedes earlier blanket volunteer restrictions in this document. Owner/admin directory management, manual corrections and period reporting remain restricted. See [Volunteer access](VOLUNTEER_ACCESS.md) for scope, audit and revocation behavior.

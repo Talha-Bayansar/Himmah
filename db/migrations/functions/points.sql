@@ -20,10 +20,15 @@ DECLARE
 BEGIN
  -- Organization lock serializes receipts across different staff accounts, including same-key retries.
  PERFORM 1 FROM hub_organizations WHERE id=p_org FOR NO KEY UPDATE;
- PERFORM 1 FROM hub_memberships WHERE organization_id=p_org AND user_id=p_actor AND role IN ('owner','admin') FOR UPDATE;
+ PERFORM 1 FROM hub_memberships WHERE organization_id=p_org AND user_id=p_actor AND role IN ('owner','admin','volunteer') FOR UPDATE;
  IF NOT FOUND THEN RETURN jsonb_build_object('code','forbidden'); END IF;
  IF v_kind IS NULL OR v_kind NOT IN ('award','correct') OR v_amount IS NULL OR v_amount NOT BETWEEN 0 AND 10000 OR (v_kind='award' AND v_amount=0) OR v_reason IS NULL OR length(trim(v_reason)) NOT BETWEEN 1 AND 300 OR jsonb_typeof(p_payload->'people') IS DISTINCT FROM 'array' THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
  IF jsonb_array_length(p_payload->'people') NOT BETWEEN 1 AND 50 OR (SELECT count(DISTINCT value::text::uuid) FROM jsonb_array_elements_text(p_payload->'people'))<>jsonb_array_length(p_payload->'people') THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
+ PERFORM 1 FROM hub_people WHERE organization_id=p_org AND id IN (SELECT value::uuid FROM jsonb_array_elements_text(p_payload->'people')) ORDER BY id FOR UPDATE;
+ PERFORM hub_lock_access(p_actor,p_org);
+ IF NOT hub_is_admin(p_actor,p_org) AND (v_kind<>'award' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(p_payload->'people') item WHERE NOT hub_can_award(p_actor,p_org,item::uuid))) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
+ IF NOT hub_is_admin(p_actor,p_org) AND v_activity IS NOT NULL AND NOT hub_can_view_activity(p_actor,p_org,v_activity) THEN RETURN jsonb_build_object('code','not_found'); END IF;
+ IF NOT hub_is_admin(p_actor,p_org) AND v_session IS NOT NULL AND NOT hub_can_view_session(p_actor,p_org,v_activity,v_session) THEN RETURN jsonb_build_object('code','not_found'); END IF;
  SELECT * INTO v_receipt FROM hub_points_requests WHERE organization_id=p_org AND request_key=p_key;
  IF FOUND THEN
   IF v_receipt.actor_id<>p_actor OR v_receipt.payload<>p_payload THEN RETURN jsonb_build_object('code','points_key_conflict'); END IF;

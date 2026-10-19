@@ -4789,3 +4789,18 @@ html {
   height: auto;
   min-height: 48px;
 }
+
+.access-scope-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.access-scope-buttons > button {
+  flex: 1 1 120px;
+}
+.access-permission-help {
+  margin: 4px 0 0 34px;
+  color: var(--muted-foreground);
+  font-size: 14px;
+  line-height: 1.5;
+}

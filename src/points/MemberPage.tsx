@@ -38,7 +38,9 @@ export default function MemberPage({
     queryKey: [...scope, "member", memberId],
     queryFn: async ({ signal }) =>
       (
-        await directoryRequest<{ item: Person & { balance: string } }>(base, {
+        await directoryRequest<{
+          item: Person & { balance: string; canAward?: boolean };
+        }>(base, {
           signal,
         })
       ).item,
@@ -99,15 +101,22 @@ export default function MemberPage({
                   : m.points_help()}
               </p>
             </div>
-            {!member.data.archived && (
+            {!member.data.archived && member.data.canAward !== false && (
               <Button onClick={() => setEdit("award")}>
                 <Coins aria-hidden="true" />
                 {m.points_award()}
               </Button>
             )}
           </div>
+          {organization.role === "volunteer" && (
+            <p className="period-report-help">{m.access_work_help()}</p>
+          )}
           <div className="points-balance">
-            <span>{m.points_balance()}</span>
+            <span>
+              {organization.role === "volunteer"
+                ? m.access_visible_points()
+                : m.points_balance()}
+            </span>
             <strong>
               {new Intl.NumberFormat(getLocale()).format(
                 BigInt(member.data.balance),
@@ -147,18 +156,21 @@ export default function MemberPage({
                             entry.amount,
                           )}
                         </span>
-                        {!entry.originalId && entry.source !== "attendance" && (
-                          <ItemActions
-                            name={entry.reason}
-                            actions={[
-                              {
-                                label: m.points_correct(),
-                                icon: Pencil,
-                                onSelect: () => setEdit(entry),
-                              },
-                            ]}
-                          />
-                        )}
+                        {!entry.originalId &&
+                          entry.source !== "attendance" &&
+                          entry.canCorrect !== false &&
+                          organization.role !== "volunteer" && (
+                            <ItemActions
+                              name={entry.reason}
+                              actions={[
+                                {
+                                  label: m.points_correct(),
+                                  icon: Pencil,
+                                  onSelect: () => setEdit(entry),
+                                },
+                              ]}
+                            />
+                          )}
                       </div>
                       <p className="points-entry-reason">{entry.reason}</p>
                       {!entry.originalId && entry.version > 1 && (

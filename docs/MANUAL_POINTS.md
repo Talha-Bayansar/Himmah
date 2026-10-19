@@ -32,3 +32,7 @@ PostgreSQL tests execute all real Drizzle migrations and parameterized store SQL
 
 
 Attendance-source awards are now managed through attendance rather than the manual correction form. Their ledger entries identify the source and link to the session check-in page; the server rejects direct manual corrections to them. Manual extra awards remain independent.
+
+## Scoped volunteer access
+
+Implemented group/activity assignments with independent attendance and manual-award permissions. This supersedes earlier blanket volunteer restrictions in this document. Owner/admin directory management, manual corrections and period reporting remain restricted. See [Volunteer access](VOLUNTEER_ACCESS.md) for scope, audit and revocation behavior.

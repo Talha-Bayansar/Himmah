@@ -338,17 +338,19 @@ it("unconfirmed writes keep the same request key and payload on retry without op
   expect(effects).toBe(1);
   expect(screen.getByText("1 saved or already recorded.")).toBeTruthy();
 });
-it("volunteers cannot load private attendance records", async () => {
-  const fetcher = vi.fn();
+it("volunteers without assignments cannot load private attendance records", async () => {
+  const fetcher = vi.fn(async () =>
+    Response.json({ item: { canAttend: false, canAward: false } }),
+  );
   vi.stubGlobal("fetch", fetcher);
   mount("volunteer");
   await screen.findByRole("alert");
   expect(
     screen.getByText(
-      "Attendance is currently available to owners and administrators.",
+      "You do not have permission to manage this session’s attendance.",
     ),
   ).toBeTruthy();
-  expect(fetcher).not.toHaveBeenCalled();
+  expect(fetcher.mock.calls).toHaveLength(1);
 });
 it("future or cancelled sessions show a read-only roster with disabled write controls", async () => {
   vi.stubGlobal(

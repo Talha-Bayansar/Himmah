@@ -1,3 +1,5 @@
+import Assignments from "../access/Assignments";
+import VolunteerMembers from "../access/VolunteerMembers";
 import Periods from "../periods/Periods";
 import MemberPage from "../points/MemberPage";
 import Activities from "../activities/Activities";
@@ -1248,7 +1250,9 @@ function Workspace({
             </Button>
           )}
           {organization.role === "owner" || organization.role === "admin" ? (
-            section === "periods" ? (
+            section === "access" ? (
+              <Assignments organization={organization} userId={userId} />
+            ) : section === "periods" ? (
               <Periods
                 key={organization.id + (periodId ?? "list")}
                 organization={organization}
@@ -1279,6 +1283,15 @@ function Workspace({
                 userId={userId}
               />
             )
+          ) : memberId ? (
+            <MemberPage
+              key={organization.id + memberId}
+              organization={organization}
+              userId={userId}
+              memberId={memberId}
+            />
+          ) : section === "members" ? (
+            <VolunteerMembers organization={organization} userId={userId} />
           ) : (
             <p>{m.directory_volunteer_access()}</p>
           )}

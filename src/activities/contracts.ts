@@ -21,6 +21,7 @@ export type Activity = {
   } | null;
 };
 export type Session = {
+  canAttend?: boolean;
   id: string;
   activityId: string;
   name: string;

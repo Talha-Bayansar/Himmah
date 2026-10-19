@@ -190,7 +190,7 @@ test("PostgreSQL sessions migration, isolation, audience snapshots, pagination, 
       );
     assert.equal((await store.get("owner-b", a, id)).length, 0);
     assert.equal((await store.get("owner-a", b, id)).length, 0);
-    assert.equal((await store.get("volunteer-a", a, id)).length, 1);
+    assert.equal((await store.get("volunteer-a", a, id)).length, 0);
     const sv = sessionInput(times, "Europe/Brussels"),
       sk = crypto.randomUUID();
     const session = (
@@ -343,7 +343,7 @@ test("PostgreSQL sessions migration, isolation, audience snapshots, pagination, 
       0,
     );
     assert.equal(
-      (await store.session("volunteer-a", a, id, sid))[0]!.cancelled,
+      (await store.session("owner-a", a, id, sid))[0]!.cancelled,
       true,
     );
     assert.equal((await store.session("owner-b", a, id, sid)).length, 0);
@@ -432,7 +432,7 @@ test("PostgreSQL sessions migration, isolation, audience snapshots, pagination, 
         key: crypto.randomUUID(),
         version: 3,
       }))!.status,
-      403,
+      404,
     );
     assert.equal(
       (await call("owner-a", "POST", "/" + id + "/sessions", {
@@ -445,7 +445,7 @@ test("PostgreSQL sessions migration, isolation, audience snapshots, pagination, 
     );
     assert.equal(
       (await call("volunteer-a", "GET", "/" + id + "/sessions/" + sid))!.status,
-      200,
+      404,
     );
     assert.equal(
       (await call("owner-a", "GET", "/" + old + "/sessions/" + sid))!.status,

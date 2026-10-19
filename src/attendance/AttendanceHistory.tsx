@@ -1,7 +1,7 @@
 import { History, X } from "lucide-react";
 import { m } from "../paraglide/messages.js";
 import { useLocale } from "../localization/locale";
-import { useDirectoryPages } from "../community/client";
+import { DirectoryError, useDirectoryPages } from "../community/client";
 import { ErrorNotice } from "../activities/Activities";
 import { Button } from "../components/ui/button";
 import {
@@ -52,7 +52,12 @@ export function AttendanceHistory({
         </DialogHeader>
         {query.isPending ? (
           <ListSkeleton />
-        ) : query.isError && !query.data ? (
+        ) : query.isError &&
+          (!query.data ||
+            (query.error instanceof DirectoryError &&
+              ["forbidden", "not_found", "sign_in"].includes(
+                query.error.code,
+              ))) ? (
           <ErrorNotice
             error={query.error}
             pending={query.isFetching}

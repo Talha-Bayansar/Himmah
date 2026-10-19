@@ -79,23 +79,27 @@ export function AccountSettings({
           </dl>
           {organization.role !== "volunteer" && (
             <div className="settings-links">
-              {(["periods", "staff", "invitations"] as const).map((section) => (
-                <Button key={section} variant="outline" asChild>
-                  <Link
-                    to="/workspace/$organizationId/$section"
-                    params={{ organizationId: organization.id, section }}
-                  >
-                    <span>
-                      {section === "periods"
-                        ? m.periods_title()
-                        : section === "staff"
-                          ? m.directory_staff()
-                          : m.directory_invitations()}
-                    </span>
-                    <ArrowRight size={18} />
-                  </Link>
-                </Button>
-              ))}
+              {(["access", "periods", "staff", "invitations"] as const).map(
+                (section) => (
+                  <Button key={section} variant="outline" asChild>
+                    <Link
+                      to="/workspace/$organizationId/$section"
+                      params={{ organizationId: organization.id, section }}
+                    >
+                      <span>
+                        {section === "access"
+                          ? m.access_title()
+                          : section === "periods"
+                            ? m.periods_title()
+                            : section === "staff"
+                              ? m.directory_staff()
+                              : m.directory_invitations()}
+                      </span>
+                      <ArrowRight size={18} />
+                    </Link>
+                  </Button>
+                ),
+              )}
             </div>
           )}
         </section>

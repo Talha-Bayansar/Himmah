@@ -25,12 +25,15 @@ DECLARE
  v_points_reason text;
 BEGIN
  PERFORM 1 FROM hub_organizations WHERE id=p_org FOR NO KEY UPDATE;
- PERFORM 1 FROM hub_memberships WHERE organization_id=p_org AND user_id=p_actor AND role IN ('owner','admin') FOR UPDATE;
+ PERFORM 1 FROM hub_memberships WHERE organization_id=p_org AND user_id=p_actor AND role IN ('owner','admin','volunteer') FOR UPDATE;
  IF NOT FOUND THEN RETURN jsonb_build_object('code','forbidden'); END IF;
  SELECT * INTO v_session FROM hub_activity_sessions WHERE organization_id=p_org AND activity_id=p_activity AND id=p_session FOR UPDATE;
  IF NOT FOUND THEN RETURN jsonb_build_object('code','not_found'); END IF;
  IF jsonb_typeof(p_payload->'items') IS DISTINCT FROM 'array' OR v_status IS NULL OR v_status NOT IN ('unmarked','present','absent','excused') OR v_reason IS NULL OR length(v_reason)>300 THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
  IF jsonb_array_length(p_payload->'items') NOT BETWEEN 1 AND 50 OR (SELECT count(DISTINCT value->>'personId') FROM jsonb_array_elements(p_payload->'items')) <> jsonb_array_length(p_payload->'items') THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
+ PERFORM 1 FROM hub_people WHERE organization_id=p_org AND id IN (SELECT (value->>'personId')::uuid FROM jsonb_array_elements(p_payload->'items')) ORDER BY id FOR UPDATE;
+ PERFORM hub_lock_access(p_actor,p_org);
+ IF NOT hub_can_attend_session(p_actor,p_org,p_activity,p_session) OR EXISTS(SELECT 1 FROM jsonb_array_elements(p_payload->'items') item WHERE NOT hub_can_attend_person(p_actor,p_org,p_activity,p_session,(item->>'personId')::uuid)) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
  SELECT * INTO v_receipt FROM hub_attendance_requests WHERE organization_id=p_org AND session_id=p_session AND request_key=p_key;
  IF FOUND AND NOT p_preview THEN
   IF v_receipt.actor_id <> p_actor OR v_receipt.payload <> p_payload THEN RETURN jsonb_build_object('code','attendance_key_conflict'); END IF;

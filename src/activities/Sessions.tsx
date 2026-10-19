@@ -15,7 +15,11 @@ import { m } from "../paraglide/messages.js";
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import type { Activity, Session } from "./contracts";
-import { directoryRequest, useDirectoryPages } from "../community/client";
+import {
+  DirectoryError,
+  directoryRequest,
+  useDirectoryPages,
+} from "../community/client";
 import { activityKey, ErrorNotice, Audience, Schedule } from "./Activities";
 import { EntityEditor } from "./EntityEditor";
 import { Button } from "../components/ui/button";
@@ -177,7 +181,7 @@ export default function Sessions({
             )}
             <p className="activity-note">{m.sessions_snapshot_help()}</p>
             {past && <p className="activity-note">{m.sessions_past_help()}</p>}
-            {canManage && (
+            {(canManage || item.canAttend === true) && (
               <Button asChild className="activity-card-primary">
                 <Link
                   to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
@@ -263,7 +267,12 @@ export default function Sessions({
           </Tabs>
           {query.isPending ? (
             <ListSkeleton />
-          ) : query.isError && !query.data ? (
+          ) : query.isError &&
+            (!query.data ||
+              (query.error instanceof DirectoryError &&
+                ["forbidden", "not_found", "sign_in"].includes(
+                  query.error.code,
+                ))) ? (
             <ErrorNotice
               error={query.error}
               pending={query.isFetching}

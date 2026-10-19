@@ -7,6 +7,7 @@ export const workspaceSections = [
   "activities",
   "members",
   "groups",
+  "access",
   "periods",
   "staff",
   "invitations",
@@ -44,7 +45,10 @@ export function WorkspaceNavigation({
       {(["activities", "members", "groups", "settings"] as const)
         .filter(
           (key) =>
-            key === "settings" || key === "activities" || role !== "volunteer",
+            key === "settings" ||
+            key === "activities" ||
+            key === "members" ||
+            role !== "volunteer",
         )
         .map((key) => {
           const Icon = icons[key];

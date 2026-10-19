@@ -40,7 +40,9 @@ export async function attendanceApi(
     const membership = await organizations.get(user.id, org);
     if (!membership) throw new CommunityError("not_found", 404);
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
-    if (!["owner", "admin"].includes(membership.role))
+    if (!["owner", "admin", "volunteer"].includes(membership.role))
+      throw new CommunityError("forbidden", 403);
+    if (!(await attendance.canSession(user.id, org, activity, session))[0])
       throw new CommunityError("forbidden", 403);
     if (!(await activities.session(user.id, org, activity, session))[0])
       throw new CommunityError("not_found", 404);

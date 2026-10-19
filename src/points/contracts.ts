@@ -1,6 +1,7 @@
 import { CommunityError, uuid } from "../community/contracts.ts";
 import { zonedInstant } from "../activities/contracts.ts";
 export type PointsEntry = {
+  canCorrect?: boolean;
   source?: "manual" | "attendance";
   ruleVersion?: number | null;
   id: string;
