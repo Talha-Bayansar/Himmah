@@ -99,3 +99,6 @@ Session attendance is implemented for owners/admins through a dedicated route. C
 
 
 Group pages support adding up to 50 members together through a paginated, searchable picker. Existing group members are visible and disabled. Owner preference: search bars must have vertically centered icons/controls; phone search stays full-width with compact filters beneath it.
+
+
+Manual engagement points now support verified owner/admin individual and bulk awards (up to 50), staff-only reasons, organization-timezone contribution dates and optional activity/session links. Member names open real member detail routes with private balances and paginated ledger history. Corrections append linked adjustments with reasons and revision checks; requests are replay-safe and bulk outcomes explicit. Attendance remains independent. See MANUAL_POINTS.md for implementation bounds and remaining account-linking/cap policies.

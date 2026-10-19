@@ -1,3 +1,4 @@
+import MemberPage from "../points/MemberPage";
 import Activities from "../activities/Activities";
 import GroupMembersPage from "../community/GroupMembersPage";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
@@ -82,6 +83,7 @@ export default function OrganizationPortal({
   workspaceId = null,
   workspaceSection = "members",
   accountSettings = false,
+  memberId = null,
   groupId = null,
   activityId = null,
   sessionId = null,
@@ -93,6 +95,7 @@ export default function OrganizationPortal({
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
+  memberId?: string | null;
   groupId?: string | null;
   activityId?: string | null;
   sessionId?: string | null;
@@ -426,6 +429,7 @@ export default function OrganizationPortal({
                     attendance={attendance}
                     sessionId={sessionId}
                     activityId={activityId}
+                    memberId={memberId}
                     groupId={groupId}
                     user={user}
                     signOutPending={logout.isPending}
@@ -1158,6 +1162,7 @@ function Workspace({
   user,
   signOutPending,
   onSignOut,
+  memberId,
   groupId,
   activityId,
   sessionId,
@@ -1167,6 +1172,7 @@ function Workspace({
   userId: string;
   section: WorkspaceSection;
   user: User;
+  memberId: string | null;
   groupId: string | null;
   activityId: string | null;
   sessionId: string | null;
@@ -1180,7 +1186,15 @@ function Workspace({
     page.current
       ?.querySelector<HTMLElement>("[data-page-heading]")
       ?.focus({ preventScroll: true });
-  }, [section, organization.id, groupId, activityId, sessionId, attendance]);
+  }, [
+    section,
+    organization.id,
+    memberId,
+    groupId,
+    activityId,
+    sessionId,
+    attendance,
+  ]);
   return (
     <div ref={page}>
       {section === "activities" ? (
@@ -1216,7 +1230,14 @@ function Workspace({
             </Button>
           )}
           {organization.role === "owner" || organization.role === "admin" ? (
-            groupId ? (
+            memberId ? (
+              <MemberPage
+                key={organization.id + memberId}
+                organization={organization}
+                userId={userId}
+                memberId={memberId}
+              />
+            ) : groupId ? (
               <GroupMembersPage
                 key={organization.id + groupId}
                 organization={organization}

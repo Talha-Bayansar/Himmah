@@ -426,3 +426,90 @@ export const attendanceChanges = pgTable(
     ),
   ],
 );
+
+export const pointsRequests = pgTable(
+  "hub_points_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    requestKey: uuid("request_key").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_points_request_key").on(t.organizationId, t.requestKey),
+    unique("hub_points_request_scope").on(t.organizationId, t.id),
+  ],
+);
+export const pointsEntries = pgTable(
+  "hub_points_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    requestId: uuid("request_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    amount: integer("amount").notNull(),
+    reason: text("reason").notNull(),
+    originalId: uuid("original_id"),
+    activityId: uuid("activity_id"),
+    sessionId: uuid("session_id"),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_points_entry_scope").on(t.organizationId, t.personId, t.id),
+    unique("hub_points_entry_recipient").on(t.requestId, t.personId),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.requestId],
+      foreignColumns: [pointsRequests.organizationId, pointsRequests.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId],
+      foreignColumns: [activities.organizationId, activities.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId, t.originalId],
+      foreignColumns: [t.organizationId, t.personId, t.id],
+    }),
+    index("hub_points_member_page").on(
+      t.organizationId,
+      t.personId,
+      t.createdAt,
+      t.id,
+    ),
+    index("hub_points_original").on(t.organizationId, t.personId, t.originalId),
+    check(
+      "hub_points_amount",
+      sql`${t.amount} between -10000 and 10000 and ${t.amount}<>0 and (${t.originalId} is not null or ${t.amount}>0)`,
+    ),
+    check(
+      "hub_points_reason",
+      sql`length(trim(${t.reason})) between 1 and 300`,
+    ),
+    check(
+      "hub_points_reference",
+      sql`${t.sessionId} is null or ${t.activityId} is not null`,
+    ),
+  ],
+);

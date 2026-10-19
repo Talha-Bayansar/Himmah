@@ -1,9 +1,14 @@
+import { PointsEditor } from "../points/PointsEditor";
+import { PointsResults } from "../points/PointsShared";
+import type { PointsResult } from "../points/contracts";
 import { ItemActions } from "../components/shared/item-actions";
 import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useBlocker } from "@tanstack/react-router";
 import {
+  Coins,
+  ChevronRight,
   Plus,
   Search,
   Users,
@@ -97,6 +102,8 @@ export default function Directory({
   const [archived, setArchived] = useState(false);
   const kind = group ? "people" : section;
   const [editor, setEditor] = useState<EditorState | null>(null);
+  const [award, setAward] = useState(false);
+  const [pointsResult, setPointsResult] = useState<PointsResult | null>(null);
   const [bulk, setBulk] = useState(false);
   const [assign, setAssign] = useState<Person | null>(null);
   const [link, setLink] = useState<string | null>(null);
@@ -214,6 +221,15 @@ export default function Directory({
           </Button>
         )}
       </div>
+      {kind === "people" && (
+        <div className="points-directory-tools">
+          <Button variant="outline" onClick={() => setAward(true)}>
+            <Coins aria-hidden="true" />
+            {m.points_award()}
+          </Button>
+        </div>
+      )}
+      {pointsResult && <PointsResults result={pointsResult} />}
       <div className="directory-toolbar">
         <label>
           <Search size={17} />
@@ -297,7 +313,21 @@ export default function Directory({
                                     .toLocaleUpperCase(getLocale())
                                 )}
                               </span>
-                              <strong>{record.name}</strong>
+                              {kind === "people" ? (
+                                <Link
+                                  className="member-detail-link"
+                                  to="/workspace/$organizationId/members/$memberId"
+                                  params={{
+                                    organizationId: organization.id,
+                                    memberId: record.id,
+                                  }}
+                                >
+                                  <strong>{record.name}</strong>
+                                  <ChevronRight size={16} aria-hidden="true" />
+                                </Link>
+                              ) : (
+                                <strong>{record.name}</strong>
+                              )}
                             </div>
                             <div className="directory-row-actions">
                               {kind === "groups" && !record.archived && (
@@ -572,6 +602,21 @@ export default function Directory({
             await refresh();
             setEditor(null);
             if (invitationLink) setLink(invitationLink);
+          }}
+        />
+      )}
+      {award && (
+        <PointsEditor
+          organization={organization}
+          userId={userId}
+          {...(group ? { groupId: group.id } : {})}
+          onClose={() => setAward(false)}
+          onSaved={async (result) => {
+            setAward(false);
+            setPointsResult(result);
+            await client.invalidateQueries({
+              queryKey: ["organization", userId, organization.id, "points"],
+            });
           }}
         />
       )}

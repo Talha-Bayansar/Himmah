@@ -1,3 +1,5 @@
+import { pointsApi } from "./points-api.ts";
+import { createPointsStore } from "./points-store.ts";
 import { attendanceApi } from "./attendance-api.ts";
 import { createAttendanceStore } from "./attendance-store.ts";
 import { activityApi } from "./activity-api.ts";
@@ -205,6 +207,25 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (
+        /^\/api\/organizations\/[^/]+\/(points|members)(\/|$)/.test(
+          url.pathname,
+        )
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `points:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await pointsApi(
+          request,
+          user,
+          store,
+          createPointsStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
       if (/^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)) {
         if (request.method !== "GET") {
           const allowed = await (

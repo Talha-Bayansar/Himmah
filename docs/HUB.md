@@ -1,6 +1,6 @@
 # Himmah Hub — approved feature direction
 
-Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Activities now have reusable defaults and group audiences, with separate scheduled sessions, preserved details, Upcoming/Past views and cancellation history. Existing one-off activities become their first sessions. Owner/admin attendance now includes paginated eligible rosters, bulk check-in, retry-safe saves and audited corrections. Points, volunteer assignments, recurring scheduling, draft/publish and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
+Status: approved feature direction. Organizer authentication/workspaces and private member/group management are implemented. Activities now have reusable defaults and group audiences, with separate scheduled sessions, preserved details, Upcoming/Past views and cancellation history. Existing one-off activities become their first sessions. Owner/admin attendance now includes paginated eligible rosters, bulk check-in, retry-safe saves and audited corrections. Manual owner/admin point awards, bulk entry, private member histories and audited corrections are now implemented. Configurable earning rules, engagement periods, volunteer assignments, recurring scheduling, draft/publish and connected games remain later milestones. Point values and remaining edge policies require review. The legacy sample-data prototype is internal only.
 
 ## Purpose and boundaries
 
@@ -66,3 +66,6 @@ Enrollment/guardian process; role/group visibility; exact point policies and cap
 ## Detailed design deliverable
 
 See [Screen designs v1](HUB_SCREEN_DESIGNS.md) for Youth Home, Volunteer Check-in and Activity Setup, including permissions, failure states and acceptance criteria. The linked static HTML board is a visual proposal, not a working application.
+
+
+See [Manual points](MANUAL_POINTS.md) for the shipped workflow, bounds, permissions and retry/correction policies.
