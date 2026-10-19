@@ -62,6 +62,7 @@ BEGIN
  ELSE
   SELECT * INTO v_old FROM hub_redemptions WHERE organization_id=p_org AND reward_id=p_reward AND id=p_id FOR UPDATE;
   IF NOT FOUND THEN RETURN jsonb_build_object('code','not_found'); END IF;
+  IF p_payload->>'action'='fulfilled' AND hub_participant_is_self(p_actor,p_org,v_old.person_id) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
   IF v_old.status=p_payload->>'action' AND v_old.status IN ('fulfilled','cancelled') THEN RETURN jsonb_build_object('id',v_old.id); END IF;
   IF v_old.status<>'pending' OR v_old.version IS DISTINCT FROM (p_payload->>'version')::integer THEN RETURN jsonb_build_object('code','conflict'); END IF;
   IF p_payload->>'action'='fulfilled' THEN

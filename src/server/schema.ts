@@ -872,3 +872,111 @@ export const rewardChanges = pgTable(
     ),
   ],
 );
+
+export const participantInvitations = pgTable(
+  "hub_participant_invitations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    email: text("email").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    createdBy: text("created_by").notNull(),
+    creationKey: uuid("creation_key").notNull(),
+    consentAttestedAt: timestamp("consent_attested_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    acceptedBy: text("accepted_by"),
+    acceptedAt: timestamp("accepted_at", { withTimezone: true }),
+  },
+  (t) => [
+    unique("hub_participant_invitation_scope").on(t.organizationId, t.id),
+    unique("hub_participant_invitation_creation").on(
+      t.organizationId,
+      t.creationKey,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    check(
+      "hub_participant_invitation_fields",
+      sql`length(${t.email}) between 3 and 254 and ${t.tokenHash} ~ '^[0-9a-f]{64}$' and ${t.expiresAt}>${t.createdAt} and ((${t.acceptedBy} is null)=(${t.acceptedAt} is null))`,
+    ),
+    index("hub_participant_invitation_page").on(
+      t.organizationId,
+      t.personId,
+      t.createdAt,
+      t.id,
+    ),
+  ],
+);
+export const participantLinks = pgTable(
+  "hub_participant_links",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    userId: text("user_id").notNull(),
+    invitationId: uuid("invitation_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    revokedBy: text("revoked_by"),
+    revokeReason: text("revoke_reason"),
+  },
+  (t) => [
+    unique("hub_participant_link_scope").on(t.organizationId, t.id),
+    unique("hub_participant_link_invitation").on(t.invitationId),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.invitationId],
+      foreignColumns: [
+        participantInvitations.organizationId,
+        participantInvitations.id,
+      ],
+    }),
+    uniqueIndex("hub_participant_active_person")
+      .on(t.organizationId, t.personId)
+      .where(sql`${t.revokedAt} is null`),
+    uniqueIndex("hub_participant_active_user")
+      .on(t.organizationId, t.userId)
+      .where(sql`${t.revokedAt} is null`),
+    index("hub_participant_user").on(t.userId, t.organizationId),
+  ],
+);
+export const participantEvents = pgTable(
+  "hub_participant_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    actorId: text("actor_id"),
+    action: text("action").notNull(),
+    entityId: uuid("entity_id").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    index("hub_participant_event_page").on(
+      t.organizationId,
+      t.personId,
+      t.createdAt,
+      t.id,
+    ),
+  ],
+);

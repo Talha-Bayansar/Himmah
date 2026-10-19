@@ -116,3 +116,7 @@ Implemented group/activity assignments with independent attendance and manual-aw
 ## Staff-managed rewards
 
 The owner approved and we implemented rewards and redemption after scoped volunteer access. This supersedes earlier deferral of spendable rewards. Verified owners/admins manage the private catalogue, member eligibility, point/stock reservations, final handouts and audited pending cancellations. Earned engagement history stays separate from spending. See [Rewards](REWARDS.md) for policy defaults, balances, retries and deferred participant access.
+
+## Participant access increment — 19 October 2026
+
+Organizer-attested participant invitation links, verified-email account linking and a private read-only progress/reward area are implemented. See [Participant access](PARTICIPANT_ACCESS.md) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Self-service purchases, QR coupons/validation, peer rankings and gameplay remain future work.

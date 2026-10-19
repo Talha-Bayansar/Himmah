@@ -3,13 +3,14 @@ export interface OrganizationInput {
   slug: string;
   timezone: string;
   creationKey: string;
+  adultAuthorized: true;
 }
 export interface Organization {
   id: string;
   name: string;
   slug: string;
   timezone: string;
-  role: "owner" | "admin" | "volunteer";
+  role: "owner" | "admin" | "volunteer" | "participant";
   createdAt: string;
 }
 export function organizationSlug(name: string) {
@@ -26,6 +27,10 @@ export function validateOrganization(value: unknown): OrganizationInput {
   if (!value || typeof value !== "object")
     throw Error("Enter your organization details.");
   const v = value as Record<string, unknown>;
+  if (v.adultAuthorized !== true)
+    throw Error(
+      "Confirm that you are an adult authorized to manage this organization.",
+    );
   const name = typeof v.name === "string" ? v.name.trim() : "";
   const slug = typeof v.slug === "string" ? v.slug.trim().toLowerCase() : "";
   const timezone = typeof v.timezone === "string" ? v.timezone : "";
@@ -56,7 +61,13 @@ export function validateOrganization(value: unknown): OrganizationInput {
     )
   )
     throw Error("Refresh the setup page and try again.");
-  return { name, slug, timezone, creationKey: v.creationKey };
+  return {
+    name,
+    slug,
+    timezone,
+    creationKey: v.creationKey,
+    adultAuthorized: true,
+  };
 }
 export function requireSameOrigin(request: Request, appOrigin: string) {
   if (request.headers.get("origin") !== appOrigin)

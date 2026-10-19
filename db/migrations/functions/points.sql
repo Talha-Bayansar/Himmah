@@ -26,6 +26,7 @@ BEGIN
  IF jsonb_array_length(p_payload->'people') NOT BETWEEN 1 AND 50 OR (SELECT count(DISTINCT value::text::uuid) FROM jsonb_array_elements_text(p_payload->'people'))<>jsonb_array_length(p_payload->'people') THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
  PERFORM 1 FROM hub_people WHERE organization_id=p_org AND id IN (SELECT value::uuid FROM jsonb_array_elements_text(p_payload->'people')) ORDER BY id FOR UPDATE;
  PERFORM hub_lock_access(p_actor,p_org);
+ IF EXISTS(SELECT 1 FROM jsonb_array_elements_text(p_payload->'people') item WHERE hub_participant_is_self(p_actor,p_org,item::uuid)) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
  IF NOT hub_is_admin(p_actor,p_org) AND (v_kind<>'award' OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(p_payload->'people') item WHERE NOT hub_can_award(p_actor,p_org,item::uuid))) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
  IF NOT hub_is_admin(p_actor,p_org) AND v_activity IS NOT NULL AND NOT hub_can_view_activity(p_actor,p_org,v_activity) THEN RETURN jsonb_build_object('code','not_found'); END IF;
  IF NOT hub_is_admin(p_actor,p_org) AND v_session IS NOT NULL AND NOT hub_can_view_session(p_actor,p_org,v_activity,v_session) THEN RETURN jsonb_build_object('code','not_found'); END IF;

@@ -26,7 +26,7 @@ The contribution date is the session start, so existing open engagement reports 
 
 ## Permissions, privacy and boundaries
 
-Verified owners/admins manage defaults, preview and save. SQL repeats tenant/role authorization, and source references use composite organization/member/session foreign keys. Volunteers remain blocked until assignment/approval design is implemented. Roster IDs are still separate from login accounts; no-self-approval identity checks remain required before participant/staff identity linking. Reasons and histories are private to authorized staff. The feature creates no messages, public leaderboard, youth login or offline queue.
+Verified owners/admins manage defaults, preview and save. SQL repeats tenant/role authorization, and source references use composite organization/member/session foreign keys. Volunteers require explicit current attendance scope; see [Volunteer access](VOLUNTEER_ACCESS.md). Historical participant account links prevent self-attendance approval even after disconnection. Reasons and histories are private to authorized staff. The earning feature creates no messages, public leaderboard or offline queue. Participant login is a separate [account-access workflow](PARTICIPANT_ACCESS.md).
 
 Migration `0007_true_bloodstrike` adds activity/session defaults, session rule revisions, point source metadata and `hub_attendance_awards`. Existing point entries retain manual source semantics. It installs the shared preview/save operation, immutable-session-rule guard and manual-correction protection. The current readable definitions remain in `db/migrations/functions/attendance.sql` and `points.sql`; historical migration files are unchanged.
 

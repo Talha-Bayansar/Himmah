@@ -1,3 +1,6 @@
+import PersonalDashboard from "../participants/PersonalDashboard";
+import ParticipantAccountPage from "../participants/ParticipantAccountPage";
+import AcceptParticipant from "../participants/AcceptParticipant";
 import Rewards from "../rewards/Rewards";
 import Assignments from "../access/Assignments";
 import VolunteerMembers from "../access/VolunteerMembers";
@@ -7,7 +10,7 @@ import Activities from "../activities/Activities";
 import GroupMembersPage from "../community/GroupMembersPage";
 import { OrganizationSwitcher } from "./OrganizationSwitcher";
 import { AccountSettings } from "./AccountSettings";
-import { useNavigate } from "@tanstack/react-router";
+import { Navigate, useNavigate } from "@tanstack/react-router";
 import {
   WorkspaceNavigation,
   type WorkspaceSection,
@@ -84,6 +87,9 @@ const orgKey = (userId: string) => ["organizations", userId] as const;
 export default function OrganizationPortal({
   initialMode = "signup",
   inviteToken = null,
+  participantInviteToken = null,
+  participantAccount = false,
+  participantAccountView = "invitations",
   workspaceId = null,
   workspaceSection = "members",
   accountSettings = false,
@@ -101,6 +107,9 @@ export default function OrganizationPortal({
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
+  participantInviteToken?: string | null;
+  participantAccount?: boolean;
+  participantAccountView?: "invitations" | "history";
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
@@ -128,11 +137,17 @@ export default function OrganizationPortal({
       params: {
         organizationId: id,
         section:
-          role === "volunteer"
-            ? "settings"
-            : workspaceId
-              ? workspaceSection
-              : "members",
+          role === "participant"
+            ? "me"
+            : role === "volunteer"
+              ? "settings"
+              : workspaceId
+                ? ["me", "my-rewards", "my-redemptions"].includes(
+                    workspaceSection,
+                  )
+                  ? "members"
+                  : workspaceSection
+                : "members",
       },
     });
   const closeWorkspace = () => navigate({ to: "/start" });
@@ -221,7 +236,12 @@ export default function OrganizationPortal({
           to: "/workspace/$organizationId/$section",
           params: {
             organizationId: only.id,
-            section: only.role === "volunteer" ? "settings" : "members",
+            section:
+              only.role === "participant"
+                ? "me"
+                : only.role === "volunteer"
+                  ? "settings"
+                  : "members",
           },
           replace: true,
         });
@@ -260,7 +280,11 @@ export default function OrganizationPortal({
         <div className="onboarding-story-copy">
           <div className="eyebrow">{m.story_eyebrow()}</div>
           <h1>{m.landing_title()}</h1>
-          <p>{m.story_intro()}</p>
+          <p>
+            {participantInviteToken
+              ? m.participant_join_help()
+              : m.story_intro()}
+          </p>
           <ul>
             <li>
               <CheckCircle2 size={20} />
@@ -372,6 +396,7 @@ export default function OrganizationPortal({
             />
           ) : !user ? (
             <AuthForm
+              participant={!!participantInviteToken}
               initialMode={initialMode}
               onAuthenticated={() =>
                 queryClient.invalidateQueries({ queryKey: accountKey })
@@ -394,9 +419,17 @@ export default function OrganizationPortal({
                 <AuthForm
                   key={user.id}
                   verificationEmail={user.email}
+                  participant={!!participantInviteToken}
                   onAuthenticated={() =>
                     queryClient.invalidateQueries({ queryKey: accountKey })
                   }
+                />
+              ) : participantInviteToken ? (
+                <AcceptParticipant
+                  token={participantInviteToken}
+                  userId={user.id}
+                  onSignOut={signOut}
+                  pending={logout.isPending}
                 />
               ) : inviteToken ? (
                 <AcceptInvite token={inviteToken} userId={user.id} />
@@ -448,6 +481,8 @@ export default function OrganizationPortal({
                     periodId={periodId}
                     periodGroupId={periodGroupId}
                     periodView={periodView}
+                    participantAccount={participantAccount}
+                    participantAccountView={participantAccountView}
                     memberId={memberId}
                     groupId={groupId}
                     user={user}
@@ -562,10 +597,12 @@ type OrganizationValues = {
 type AuthScreen =
   "signup" | "signin" | "verify" | "recovery-request" | "recovery-reset";
 function AuthForm({
+  participant = false,
   verificationEmail,
   initialMode = "signup",
   onAuthenticated,
 }: {
+  participant?: boolean;
   verificationEmail?: string;
   initialMode?: "signup" | "signin";
   onAuthenticated: () => Promise<unknown>;
@@ -602,7 +639,7 @@ function AuthForm({
     mutationFn: async (value: AuthValues): Promise<void> => {
       setNotice("");
       if (screen === "signup") {
-        if (!value.adult) throw Error(m.error_adult());
+        if (!participant && !value.adult) throw Error(m.error_adult());
         if (value.password.length < 12) throw Error(m.error_password_short());
         if (value.password.length > 128) throw Error(m.error_password_long());
         const result = await (
@@ -719,7 +756,9 @@ function AuthForm({
   }
   const title =
     screen === "signup"
-      ? m.signup_title()
+      ? participant
+        ? m.participant_signup_title()
+        : m.signup_title()
       : screen === "signin"
         ? m.signin_title()
         : screen === "verify"
@@ -738,13 +777,19 @@ function AuthForm({
   return (
     <>
       <span className="badge">{m.early_access()}</span>
-      <div className="eyebrow mt-6">{m.organizer_account()}</div>
+      <div className="eyebrow mt-6">
+        {participant ? m.participant_account() : m.organizer_account()}
+      </div>
       <h1>{title}</h1>
       <p className="onboarding-intro">
         {screen === "signup"
-          ? m.signup_intro()
+          ? participant
+            ? m.participant_join_help()
+            : m.signup_intro()
           : screen === "signin"
-            ? m.signin_intro()
+            ? participant
+              ? m.participant_join_help()
+              : m.signin_intro()
             : screen === "verify"
               ? m.verify_intro()
               : m.recovery_intro()}
@@ -773,7 +818,9 @@ function AuthForm({
               <div className="mt-5">
                 <Label htmlFor={`auth-${name}`}>
                   {name === "name"
-                    ? m.your_name()
+                    ? participant
+                      ? m.participant_nickname()
+                      : m.your_name()
                     : name === "email"
                       ? m.email_address()
                       : name === "password"
@@ -807,7 +854,13 @@ function AuthForm({
                         : undefined
                   }
                   maxLength={
-                    name === "password" ? 128 : name === "code" ? 8 : 254
+                    name === "password"
+                      ? 128
+                      : name === "code"
+                        ? 8
+                        : name === "name" && participant
+                          ? 80
+                          : 254
                   }
                   autoComplete={
                     name === "password"
@@ -817,7 +870,9 @@ function AuthForm({
                       : name === "code"
                         ? "one-time-code"
                         : name === "name"
-                          ? "name"
+                          ? participant
+                            ? "nickname"
+                            : "name"
                           : "email"
                   }
                   inputMode={
@@ -846,7 +901,7 @@ function AuthForm({
             )}
           </form.Field>
         ))}
-        {screen === "signup" && (
+        {screen === "signup" && !participant && (
           <form.Field name="adult">
             {(field) => (
               <div className="mt-5 flex items-start gap-2">
@@ -874,7 +929,9 @@ function AuthForm({
               disabled={resend.isPending}
             >
               {screen === "signup"
-                ? m.create_account()
+                ? participant
+                  ? m.participant_signup_title()
+                  : m.create_account()
                 : screen === "signin"
                   ? m.sign_in()
                   : screen === "verify"
@@ -950,7 +1007,9 @@ function AuthForm({
           </>
         )}
       </div>
-      <p className="onboarding-disclaimer">{m.setup_scope()}</p>
+      {!participant && (
+        <p className="onboarding-disclaimer">{m.setup_scope()}</p>
+      )}
     </>
   );
 }
@@ -986,6 +1045,7 @@ function OrganizationSetup({
       creationKey.current ||= crypto.randomUUID();
       const input = validateOrganization({
         ...value,
+        adultAuthorized: value.authorized,
         creationKey: creationKey.current,
       });
       const result = await api<{ organization: Organization }>(
@@ -1186,6 +1246,8 @@ function Workspace({
   periodId,
   periodGroupId,
   periodView,
+  participantAccount,
+  participantAccountView,
   memberId,
   groupId,
   activityId,
@@ -1201,6 +1263,8 @@ function Workspace({
   periodId: string | null;
   periodGroupId: string | null;
   periodView: "members" | "groups";
+  participantAccount: boolean;
+  participantAccountView: "invitations" | "history";
   memberId: string | null;
   groupId: string | null;
   activityId: string | null;
@@ -1228,6 +1292,51 @@ function Workspace({
     sessionId,
     attendance,
   ]);
+  if (organization.role === "participant") {
+    if (section === "settings")
+      return (
+        <AccountSettings
+          user={user}
+          organization={organization}
+          pending={signOutPending}
+          onSignOut={onSignOut}
+        />
+      );
+    if (!["me", "my-rewards", "my-redemptions"].includes(section))
+      return (
+        <Navigate
+          to="/workspace/$organizationId/$section"
+          params={{ organizationId: organization.id, section: "me" }}
+          replace
+        />
+      );
+    return (
+      <PersonalDashboard
+        key={organization.id + section}
+        organization={organization}
+        userId={userId}
+        view={
+          section === "my-rewards"
+            ? "rewards"
+            : section === "my-redemptions"
+              ? "redemptions"
+              : "home"
+        }
+      />
+    );
+  }
+  if (
+    section === "me" ||
+    section === "my-rewards" ||
+    section === "my-redemptions"
+  )
+    return (
+      <Navigate
+        to="/workspace/$organizationId/$section"
+        params={{ organizationId: organization.id, section: "members" }}
+        replace
+      />
+    );
   return (
     <div ref={page}>
       {section === "activities" ? (
@@ -1282,6 +1391,14 @@ function Workspace({
                 groupId={periodGroupId}
                 view={periodView}
               />
+            ) : memberId && participantAccount ? (
+              <ParticipantAccountPage
+                key={organization.id + memberId + participantAccountView}
+                organization={organization}
+                userId={userId}
+                memberId={memberId}
+                view={participantAccountView}
+              />
             ) : memberId ? (
               <MemberPage
                 key={organization.id + memberId}
@@ -1299,7 +1416,13 @@ function Workspace({
             ) : (
               <Directory
                 key={organization.id + section}
-                section={section === "members" ? "people" : section}
+                section={
+                  section === "groups" ||
+                  section === "staff" ||
+                  section === "invitations"
+                    ? section
+                    : "people"
+                }
                 organization={organization}
                 userId={userId}
               />

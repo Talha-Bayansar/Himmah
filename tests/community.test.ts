@@ -65,13 +65,22 @@ test("cursor pages are bounded, Unicode-safe and bound to tenant, search and fil
 test("real PostgreSQL directory rules: isolation, keyset pages, idempotency, concurrency, consent, invitations and roles", async (t) => {
   const db = new PGlite();
   try {
-    for (const file of [
-      "0000_wild_iron_monger.sql",
-      "0001_quiet_miracleman.sql",
-    ])
+    const journal = JSON.parse(
+      await readFile(
+        new URL(
+          "../db/migrations/generated/meta/_journal.json",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    for (const entry of journal.entries)
       await db.exec(
         await readFile(
-          new URL("../db/migrations/generated/" + file, import.meta.url),
+          new URL(
+            "../db/migrations/generated/" + entry.tag + ".sql",
+            import.meta.url,
+          ),
           "utf8",
         ),
       );

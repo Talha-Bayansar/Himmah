@@ -1,9 +1,21 @@
+import { Skeleton } from "../components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
-import { Users, Folder, Settings, CalendarDays } from "lucide-react";
+import {
+  Users,
+  Folder,
+  Settings,
+  CalendarDays,
+  Gift,
+  Ticket,
+  TrendingUp,
+} from "lucide-react";
 import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "me",
+  "my-rewards",
+  "my-redemptions",
   "activities",
   "members",
   "groups",
@@ -25,6 +37,55 @@ export function WorkspaceNavigation({
   section: WorkspaceSection;
 }) {
   useLocale();
+  if (!role)
+    return (
+      <nav className="workspace-navigation" aria-label={m.directory_loading()}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className="flex min-w-0 flex-1 justify-center p-2">
+            <Skeleton className="h-10 w-full max-w-14" />
+          </span>
+        ))}
+      </nav>
+    );
+  if (role === "participant")
+    return (
+      <nav
+        className="workspace-navigation participant-navigation"
+        aria-label={m.participant_account()}
+      >
+        {(
+          [
+            {
+              section: "me",
+              label: m.participant_nav_progress(),
+              Icon: TrendingUp,
+            },
+            {
+              section: "my-rewards",
+              label: m.participant_nav_rewards(),
+              Icon: Gift,
+            },
+            {
+              section: "my-redemptions",
+              label: m.participant_nav_history(),
+              Icon: Ticket,
+            },
+            { section: "settings", label: m.settings(), Icon: Settings },
+          ] as const
+        ).map((item) => (
+          <Link
+            key={item.section}
+            to="/workspace/$organizationId/$section"
+            params={{ organizationId, section: item.section }}
+            aria-current={section === item.section ? "page" : undefined}
+          >
+            <item.Icon size={20} aria-hidden="true" />
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+    );
+
   const labels = {
     activities: m.activities_title(),
     members: m.directory_members(),

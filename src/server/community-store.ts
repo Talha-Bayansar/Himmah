@@ -6,8 +6,15 @@ export type DirectoryIdentity = { id: string; name: string; email: string };
 export type CommunityStore = ReturnType<typeof createCommunityStore>;
 const table = (kind: "people" | "groups") =>
   sql.raw(kind === "people" ? "hub_people" : "hub_groups");
-const actor = (user: string, org: string, owner = false) =>
-  sql`actor as (select role from hub_memberships where organization_id=${org}::uuid and user_id=${user} and role in (${owner ? sql`'owner'` : sql`'owner','admin'`}) for update)`;
+const actor = (
+  user: string,
+  org: string,
+  owner = false,
+  lockOrganization = false,
+) =>
+  lockOrganization
+    ? sql`organization_lock as materialized (select id from hub_organizations where id=${org}::uuid for no key update), actor as (select m.role from hub_memberships m join organization_lock l on l.id=m.organization_id where m.user_id=${user} and m.role in (${owner ? sql`'owner'` : sql`'owner','admin'`}) for update of m)`
+    : sql`actor as (select role from hub_memberships where organization_id=${org}::uuid and user_id=${user} and role in (${owner ? sql`'owner'` : sql`'owner','admin'`}) for update)`;
 const audit = (org: string, user: string, action: string) =>
   sql`logged as (insert into hub_directory_audit (organization_id,actor_id,action,entity_id) select ${org}::uuid,${user},${action},id::text from changed returning id)`;
 const projection = sql`id,name,archived,version,created_at::text as "createdAt"`;
@@ -107,7 +114,7 @@ export function createCommunityStore(
       archived: boolean | null,
     ) {
       return rows(
-        sql`with ${actor(user, org)}, changed as (update ${table(kind)} set name=coalesce(${name},name),archived=coalesce(${archived},archived),version=version+1 where organization_id=${org}::uuid and id=${id}::uuid and version=${version} and exists(select 1 from actor) returning *), ${audit(org, user, kind + ".update")} select ${projection} from changed`,
+        sql`with ${actor(user, org, false, true)}, changed as (update ${table(kind)} set name=coalesce(${name},name),archived=coalesce(${archived},archived),version=version+1 where organization_id=${org}::uuid and id=${id}::uuid and version=${version} and exists(select 1 from actor) returning *), ${audit(org, user, kind + ".update")} select ${projection} from changed`,
       );
     },
     async setGroup(
@@ -168,12 +175,12 @@ export function createCommunityStore(
     },
     async preview(user: DirectoryIdentity, hash: string) {
       return rows(
-        sql`select o.name,coalesce(member.role,i.role) as role from hub_invitations i join hub_organizations o on o.id=i.organization_id left join hub_memberships member on member.organization_id=i.organization_id and member.user_id=${user.id} join hub_memberships creator on creator.organization_id=i.organization_id and creator.user_id=i.created_by where i.token_hash=${hash} and lower(i.email)=lower(${user.email}) and not i.revoked and i.expires_at>now() and (i.accepted_by is null or i.accepted_by=${user.id}) and (creator.role='owner' or (creator.role='admin' and i.role='volunteer')) limit 1`,
+        sql`select o.name,coalesce(member.role,i.role) as role from hub_invitations i join hub_organizations o on o.id=i.organization_id left join hub_memberships member on member.organization_id=i.organization_id and member.user_id=${user.id} join hub_memberships creator on creator.organization_id=i.organization_id and creator.user_id=i.created_by where not exists(select 1 from hub_participant_links where organization_id=i.organization_id and user_id=${user.id} and revoked_at is null) and i.token_hash=${hash} and lower(i.email)=lower(${user.email}) and not i.revoked and i.expires_at>now() and (i.accepted_by is null or i.accepted_by=${user.id}) and (creator.role='owner' or (creator.role='admin' and i.role='volunteer')) limit 1`,
       );
     },
     async accept(user: DirectoryIdentity, hash: string) {
       return rows(
-        sql`with eligible as (select i.* from hub_invitations i join hub_memberships creator on creator.organization_id=i.organization_id and creator.user_id=i.created_by where i.token_hash=${hash} and lower(i.email)=lower(${user.email}) and not i.revoked and i.expires_at>now() and i.accepted_by is null and (creator.role='owner' or (creator.role='admin' and i.role='volunteer')) for update of i,creator), joined as (insert into hub_memberships (organization_id,user_id,role,display_name) select organization_id,${user.id},role,${user.name} from eligible on conflict (organization_id,user_id) do nothing returning organization_id), consumed as (update hub_invitations set accepted_by=${user.id},accepted_at=now() where id in (select id from eligible) returning organization_id,id), logged as (insert into hub_directory_audit (organization_id,actor_id,action,entity_id) select organization_id,${user.id},'invite.accept',id::text from consumed returning id) select organization_id as id from consumed union all select i.organization_id as id from hub_invitations i join hub_memberships m on m.organization_id=i.organization_id and m.user_id=${user.id} where i.token_hash=${hash} and i.accepted_by=${user.id} and not exists(select 1 from consumed) limit 1`,
+        sql`with organization_lock as materialized (select o.id from hub_organizations o join hub_invitations i on i.organization_id=o.id where i.token_hash=${hash} and lower(i.email)=lower(${user.email}) for no key update of o), eligible as (select i.* from hub_invitations i join organization_lock l on l.id=i.organization_id join hub_memberships creator on creator.organization_id=i.organization_id and creator.user_id=i.created_by where not exists(select 1 from hub_participant_links where organization_id=i.organization_id and user_id=${user.id} and revoked_at is null) and i.token_hash=${hash} and lower(i.email)=lower(${user.email}) and not i.revoked and i.expires_at>now() and i.accepted_by is null and (creator.role='owner' or (creator.role='admin' and i.role='volunteer')) for update of i,creator), joined as (insert into hub_memberships (organization_id,user_id,role,display_name) select organization_id,${user.id},role,${user.name} from eligible on conflict (organization_id,user_id) do nothing returning organization_id), consumed as (update hub_invitations set accepted_by=${user.id},accepted_at=now() where id in (select id from eligible) returning organization_id,id), logged as (insert into hub_directory_audit (organization_id,actor_id,action,entity_id) select organization_id,${user.id},'invite.accept',id::text from consumed returning id) select organization_id as id from consumed union all select i.organization_id as id from hub_invitations i join hub_memberships m on m.organization_id=i.organization_id and m.user_id=${user.id} where i.token_hash=${hash} and i.accepted_by=${user.id} and not exists(select 1 from consumed) limit 1`,
       );
     },
   };

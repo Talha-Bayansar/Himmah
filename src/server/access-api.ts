@@ -36,6 +36,8 @@ export async function accessApi(
     const membership = await organizations.get(user.id, org);
     if (!membership) throw new CommunityError("not_found", 404);
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
+    if (membership.role === "participant")
+      throw new CommunityError("forbidden", 403);
     if (request.method === "GET" && part === "me")
       return respond({ item: (await access.me(user.id, org))[0] });
     if (request.method === "GET" && work) {

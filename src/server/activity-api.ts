@@ -37,6 +37,7 @@ export async function activityApi(
     const org = await organizations.get(user.id, orgId);
     if (!org) throw new CommunityError("not_found", 404);
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
+    if (org.role === "participant") throw new CommunityError("forbidden", 403);
     const sessions = !!match[3],
       sessionId = match[4] ? uuid(match[4]) : null;
     if (sessions) {

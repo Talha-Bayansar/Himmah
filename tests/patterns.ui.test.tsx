@@ -653,7 +653,7 @@ it("opens a successfully saved workspace without asking to discard its setup", a
   );
   await user.click(
     screen.getByRole("checkbox", {
-      name: "I am authorized to create and manage this organization.",
+      name: "I am an adult authorized to create and manage this organization.",
     }),
   );
   await user.click(screen.getByRole("button", { name: "Create organization" }));
@@ -844,4 +844,36 @@ it("loads a group directly and shows unavailable groups as errors instead of an 
   });
   await screen.findByRole("alert");
   expect(screen.queryByRole("heading", { name: "Direct group" })).toBeNull();
+});
+
+it("participant signup keeps the invitation context and does not require organizer adulthood", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => Response.json({}, { status: 401 })),
+  );
+  mount(() => (
+    <OrganizationPortal
+      participantInviteToken={"a".repeat(43)}
+      initialMode="signup"
+    />
+  ));
+  const user = userEvent.setup();
+  await user.type(await screen.findByLabelText("Nickname"), "Nickname A");
+  await user.type(
+    screen.getByLabelText("Email address"),
+    "participant@example.invalid",
+  );
+  await user.type(screen.getByLabelText("Password"), "test-only-password-123");
+  expect(screen.queryByRole("checkbox")).toBeNull();
+  await user.click(
+    screen.getByRole("button", { name: "Create your participant account" }),
+  );
+  await screen.findByRole("button", { name: "Verify email" });
+  expect(mocks.signUp).toHaveBeenCalledWith(
+    expect.objectContaining({
+      name: "Nickname A",
+      email: "participant@example.invalid",
+    }),
+  );
+  expect(screen.queryByText("Organizer account")).toBeNull();
 });

@@ -77,7 +77,7 @@ export function AccountSettings({
               <dd>{m[`role_${organization.role}`]()}</dd>
             </div>
           </dl>
-          {organization.role !== "volunteer" && (
+          {["owner", "admin"].includes(organization.role) && (
             <div className="settings-links">
               {(
                 [

@@ -13,6 +13,7 @@ const input = {
   name: "Noor Youth",
   slug: "noor-youth",
   timezone: "Europe/Amsterdam",
+  adultAuthorized: true,
   creationKey: key,
 };
 function harness() {
@@ -118,10 +119,12 @@ test("workspace validation rejects invalid or reserved slugs and bad timezones",
   assert.deepEqual(validateOrganization(input), input);
   for (const data of [
     { ...input, name: " " },
+    { ...input, adultAuthorized: false },
+    { ...input, adultAuthorized: undefined },
     { ...input, slug: "api" },
     { ...input, slug: "not valid" },
     { ...input, timezone: "bad-zone" },
-    { ...input, creationKey: "oops" },
+    { ...input, adultAuthorized: true, creationKey: "oops" },
   ])
     assert.throws(() => validateOrganization(data));
 });
@@ -227,7 +230,11 @@ test("another signed-in organization owner cannot list or guess the first organi
   const duplicate = await h.handler(
     h.request("/api/organizations", {
       method: "POST",
-      body: { ...input, creationKey: "c1111111-1111-4111-8111-111111111111" },
+      body: {
+        ...input,
+        adultAuthorized: true,
+        creationKey: "c1111111-1111-4111-8111-111111111111",
+      },
     }),
     h.env,
   );

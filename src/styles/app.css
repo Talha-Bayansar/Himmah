@@ -4930,3 +4930,76 @@ html {
   height: 48px;
   min-height: 48px;
 }
+
+.personal-list > li {
+  display: block;
+}
+.personal-record-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.personal-record-heading > svg {
+  flex: 0 0 20px;
+  color: var(--forest);
+}
+.personal-record-heading > strong {
+  flex: 1;
+  min-width: 0;
+}
+.personal-amount {
+  font-weight: 700;
+}
+.personal-list p {
+  margin-block: 8px;
+  line-height: 1.5;
+}
+.personal-list .badge {
+  white-space: normal;
+}
+.personal-price {
+  font-weight: 600;
+}
+.participant-link-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-block: 20px;
+}
+.participant-link-card > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.participant-link-card .item-actions-trigger {
+  flex: 0 0 48px;
+}
+.member-header-actions {
+  display: flex;
+  gap: 10px;
+}
+.member-header-actions > [data-slot="button"]:first-child {
+  flex: 1;
+}
+.member-header-actions > .item-actions-trigger {
+  flex: 0 0 48px !important;
+  width: 48px;
+  height: 48px;
+}
+@media (max-width: 640px) {
+  .member-header-actions {
+    width: 100%;
+  }
+}
+
+.participant-access-page .directory-list > li > div {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .participant-navigation a {
+    padding-inline: 0;
+  }
+}

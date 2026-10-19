@@ -102,6 +102,13 @@ for (const scenario of [
     destination: `/workspace/${org.id}/settings`,
   },
   {
+    name: "a single participant straight to personal progress",
+    user: owner,
+    organizations: [{ ...org, role: "participant" }],
+    nextCursor: null,
+    destination: `/workspace/${org.id}/me`,
+  },
+  {
     name: "multiple organizations to the chooser",
     user: owner,
     organizations: [

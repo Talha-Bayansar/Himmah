@@ -198,3 +198,9 @@ Implemented group/activity assignments with independent attendance and manual-aw
 ## Staff-managed rewards
 
 The owner approved and we implemented rewards and redemption after scoped volunteer access. This supersedes earlier deferral of spendable rewards. Verified owners/admins manage the private catalogue, member eligibility, point/stock reservations, final handouts and audited pending cancellations. Earned engagement history stays separate from spending. See [Rewards](REWARDS.md) for policy defaults, balances, retries and deferred participant access.
+
+## 2026-10-19 — Participant access foundation
+
+Continue with private participant account access before self-service reward claims. Separate participant links from staff memberships, limit one active member/account pair per organization, and disallow simultaneous staff/participant roles in the same organization for v1. Existing accounts may join multiple organizations. Invitations require organizer identity/consent attestation, exact verified email and a seven-day hashed token; manual link delivery only. This records consent responsibility without claiming guardian verification. Organization creation separately requires server-validated adult authorization.
+
+Participants get read-only personal balances, sanitized point/redemption histories and active rewards through distinct self-scoped endpoints; no peer, staff-note or absence-reason exposure. Disconnect/archive removes access but preserves history; restoring never reactivates links. Historical links block known self-approval of points, attendance and handouts even if that account later becomes staff. Purchases and QR validation remain a later increment. See [Participant access](PARTICIPANT_ACCESS.md).

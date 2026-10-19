@@ -1,3 +1,5 @@
+import { participantApi } from "./participant-api.ts";
+import { createParticipantStore } from "./participant-store.ts";
 import { rewardApi } from "./reward-api.ts";
 import { createRewardStore } from "./reward-store.ts";
 import { accessApi } from "./access-api.ts";
@@ -213,6 +215,26 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (
+        /^\/api\/organizations\/[^/]+\/(me|participants)(\/|$)/.test(
+          url.pathname,
+        ) ||
+        url.pathname.startsWith("/api/participant-invitations/")
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `participants:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await participantApi(
+          request,
+          user,
+          store,
+          createParticipantStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
       if (
         /^\/api\/organizations\/[^/]+\/(access|work)(\/|$)/.test(url.pathname)
       ) {

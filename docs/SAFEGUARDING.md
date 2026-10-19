@@ -11,3 +11,5 @@ Peers see football attributes and team performance, not individual quiz answers,
 Before launch, document guardian consent/enrollment, minimum information needed, authorized access, retention/deletion periods, account recovery, withdrawal, safeguarding escalation contacts and incident response. Handle deletion requests without leaving unnecessary identifiable data in audit logs. Keep synthetic fixtures in source control and test environments.
 
 No betting, entry stakes, loot-box purchases or purchasable boosts. Random training is earned in-game, with published understandable rules and guaranteed baseline progress proposed to limit frustration.
+
+Participant invitations now record organizer identity/consent attestation and require the exact verified email. This does not verify guardian identity or establish legal eligibility. Complete the local process before inviting, use approved nicknames, and disconnect access if consent is withdrawn. The private dashboard omits staff notes, absence reasons, peer data and public rankings. Historical account links enforce no-self-approval. See [Participant access](PARTICIPANT_ACCESS.md) for the implemented boundary.

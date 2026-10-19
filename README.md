@@ -12,7 +12,7 @@ Live app: **https://himmah-hub.talha-bayansar.workers.dev**. The landing page st
 
 ## Project status
 
-The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly pages and keyboard-aware forms. Fixed navigation and a paginated organization switcher keep daily use compact; profile preferences and organization details live in Settings. All growing lists use cursor-based infinite fetching. Activities and scheduled sessions, attendance with optional automatic points, manual point awards, engagement periods, scoped volunteer assignments, and staff-managed rewards/redemptions are implemented. Participant logins and Futsal gameplay remain future work. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
+The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly pages and keyboard-aware forms. Fixed navigation and a paginated organization switcher keep daily use compact; profile preferences and organization details live in Settings. All growing lists use cursor-based infinite fetching. Activities and scheduled sessions, attendance with optional automatic points, manual point awards, engagement periods, scoped volunteer assignments, and staff-managed rewards/redemptions are implemented. Participant invitations, account linking and a private read-only progress/reward dashboard are implemented; self-service claims/QR validation and Futsal gameplay remain future work. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
 
 ## Start here
 
@@ -20,6 +20,7 @@ The deployed app contains working organizer registration, email verification, si
 - [Member/group management and pagination](docs/MEMBERS_AND_GROUPS.md)
 - [Scoped volunteer assignments](docs/VOLUNTEER_ACCESS.md)
 - [Rewards and redemption](docs/REWARDS.md)
+- [Participant invitations and personal dashboard](docs/PARTICIPANT_ACCESS.md)
 - [Approved Hub feature design](docs/HUB.md)
 - [Detailed Hub screen designs](docs/HUB_SCREEN_DESIGNS.md)
 - [Visual design board](docs/designs/hub-screens.html)
@@ -43,7 +44,7 @@ Run `npm run dev` for the TanStack Start app on port **3101**. `npm run build` c
 
 Required stack: **TanStack Start, Router, Query, Form · Better Auth (managed by Neon) · Paraglide JS · shadcn/ui · PostgreSQL/Drizzle · Cloudflare Workers**. See [stack and UI conventions](docs/STACK_AND_UI.md).
 
-The organizer portal uses managed Better Auth and a dedicated Neon branch. The archived Hub component and tests use fictional data and are not routed or included in the production JavaScript graph. No real youth enrollment is available. See [prototype archive](docs/PROTOTYPE.md).
+The organizer portal uses managed Better Auth and a dedicated Neon branch. The archived Hub component and tests use fictional data and are not routed or included in the production JavaScript graph. Participant access requires the organization to complete its enrollment/consent process and attest this when inviting. See [prototype archive](docs/PROTOTYPE.md).
 
 This repository is independent of `/workspace/kermes-pay`. Never reuse its credentials, database, auth, deployment, or repository.
 

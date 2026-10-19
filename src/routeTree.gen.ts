@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as JoinRouteImport } from './routes/join'
+import { Route as ParticipateRouteImport } from './routes/participate'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
@@ -20,6 +21,7 @@ import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './rout
 import { Route as WorkspaceOrganizationIdMembersMemberIdRouteImport } from './routes/workspace.$organizationId.members.$memberId'
 import { Route as WorkspaceOrganizationIdPeriodsPeriodIdRouteImport } from './routes/workspace.$organizationId.periods.$periodId'
 import { Route as WorkspaceOrganizationIdRewardsRewardIdRouteImport } from './routes/workspace.$organizationId.rewards.$rewardId'
+import { Route as WorkspaceOrganizationIdMembersMemberIdAccountRouteImport } from './routes/workspace.$organizationId.members.$memberId_.account'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
 
@@ -36,6 +38,11 @@ const AppRoute = AppRouteImport.update({
 const JoinRoute = JoinRouteImport.update({
   id: '/join',
   path: '/join',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParticipateRoute = ParticipateRouteImport.update({
+  id: '/participate',
+  path: '/participate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SettingsRoute = SettingsRouteImport.update({
@@ -84,6 +91,12 @@ const WorkspaceOrganizationIdRewardsRewardIdRoute =
     path: '/workspace/$organizationId/rewards/$rewardId',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdMembersMemberIdAccountRoute =
+  WorkspaceOrganizationIdMembersMemberIdAccountRouteImport.update({
+    id: '/workspace/$organizationId/members/$memberId_/account',
+    path: '/workspace/$organizationId/members/$memberId/account',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute =
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport.update(
     {
@@ -106,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
   '/join': typeof JoinRoute
+  '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
@@ -114,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
   '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
+  '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -121,6 +136,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
   '/join': typeof JoinRoute
+  '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
@@ -129,6 +145,7 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
   '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
+  '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -137,6 +154,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRoute
   '/join': typeof JoinRoute
+  '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
@@ -145,6 +163,7 @@ export interface FileRoutesById {
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
   '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
+  '/workspace/$organizationId/members/$memberId_/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -154,6 +173,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/join'
+    | '/participate'
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
@@ -162,6 +182,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/members/$memberId'
     | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/rewards/$rewardId'
+    | '/workspace/$organizationId/members/$memberId/account'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesByTo: FileRoutesByTo
@@ -169,6 +190,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/join'
+    | '/participate'
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
@@ -177,6 +199,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/members/$memberId'
     | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/rewards/$rewardId'
+    | '/workspace/$organizationId/members/$memberId/account'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   id:
@@ -184,6 +207,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/join'
+    | '/participate'
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
@@ -192,6 +216,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/members/$memberId'
     | '/workspace/$organizationId/periods/$periodId'
     | '/workspace/$organizationId/rewards/$rewardId'
+    | '/workspace/$organizationId/members/$memberId_/account'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesById: FileRoutesById
@@ -200,6 +225,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRoute
   JoinRoute: typeof JoinRoute
+  ParticipateRoute: typeof ParticipateRoute
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
@@ -208,6 +234,7 @@ export interface RootRouteChildren {
   WorkspaceOrganizationIdMembersMemberIdRoute: typeof WorkspaceOrganizationIdMembersMemberIdRoute
   WorkspaceOrganizationIdPeriodsPeriodIdRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   WorkspaceOrganizationIdRewardsRewardIdRoute: typeof WorkspaceOrganizationIdRewardsRewardIdRoute
+  WorkspaceOrganizationIdMembersMemberIdAccountRoute: typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -231,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/join'
       fullPath: '/join'
       preLoaderRoute: typeof JoinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/participate': {
+      id: '/participate'
+      path: '/participate'
+      fullPath: '/participate'
+      preLoaderRoute: typeof ParticipateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/settings': {
@@ -289,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdRewardsRewardIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/members/$memberId_/account': {
+      id: '/workspace/$organizationId/members/$memberId_/account'
+      path: '/workspace/$organizationId/members/$memberId/account'
+      fullPath: '/workspace/$organizationId/members/$memberId/account'
+      preLoaderRoute: typeof WorkspaceOrganizationIdMembersMemberIdAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': {
       id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
       path: '/sessions/$sessionId'
@@ -340,6 +381,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
   JoinRoute: JoinRoute,
+  ParticipateRoute: ParticipateRoute,
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
@@ -353,6 +395,8 @@ const rootRouteChildren: RootRouteChildren = {
     WorkspaceOrganizationIdPeriodsPeriodIdRoute,
   WorkspaceOrganizationIdRewardsRewardIdRoute:
     WorkspaceOrganizationIdRewardsRewardIdRoute,
+  WorkspaceOrganizationIdMembersMemberIdAccountRoute:
+    WorkspaceOrganizationIdMembersMemberIdAccountRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

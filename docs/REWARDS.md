@@ -1,6 +1,6 @@
 # Staff-managed rewards
 
-The owner approved rewards and redemption after the engagement, reporting and scoped-volunteer workflows. This supersedes earlier roadmap statements deferring spendable rewards. Rewards remain optional; an organization may continue using attendance and points without them. There is no participant login, payment, public catalogue or public ranking in this release.
+The owner approved rewards and redemption after the engagement, reporting and scoped-volunteer workflows. This supersedes earlier roadmap statements deferring spendable rewards. Rewards remain optional; an organization may continue using attendance and points without them. Participant login and a sanitized, private read-only catalogue/history are now available through [Participant access](PARTICIPANT_ACCESS.md). There is no payment, public catalogue, public ranking or self-service claim/QR validation.
 
 ## Workflow
 
@@ -25,7 +25,7 @@ Eligibility currently means active member, active reward, sufficient available p
 
 ## Permissions, integrity and retries
 
-Only verified owners/admins can read wallets, eligibility, catalogue, redemption history or mutate rewards. Scoped volunteer attendance/manual-award grants do not imply spending authority. Every SQL read and write checks organization and role, independently of UI controls. Roster records remain separate from login accounts; future participant linking must introduce appropriate self-approval safeguards before self-service claims.
+Only verified owners/admins can use staff wallet, eligibility, catalogue and redemption management APIs or mutate rewards. Participant APIs separately expose only their own sanitized wallet/history and active catalogue. Scoped volunteer attendance/manual-award grants do not imply spending authority. Every SQL read and write checks organization and role, independently of UI controls. Roster records are linked only through verified participant invitations. Historical identity links prevent staff from fulfilling their own reward, even after disconnection.
 
 Reservation and catalogue writes lock the organization, current actor membership and reward. New reservations also lock the recipient and recompute the wallet and stock inside the same transaction. Engagement award/correction operations take the same organization lock. Requests across different rewards cannot spend the same balance twice; requests for the last item cannot overbook it. A failure writing audit history rolls back the reservation as well.
 

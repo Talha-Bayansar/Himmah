@@ -1,8 +1,8 @@
 import { RewardWallet } from "../rewards/RewardWallet";
 import { useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Coins, Pencil, ClipboardCheck } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Coins, Pencil, ClipboardCheck, Link2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ItemActions } from "../components/shared/item-actions";
 import {
@@ -32,6 +32,7 @@ export default function MemberPage({
   memberId: string;
 }) {
   useLocale();
+  const navigate = useNavigate();
   const client = useQueryClient();
   const scope = ["organization", userId, organization.id, "points"];
   const base = "/api/organizations/" + organization.id + "/members/" + memberId;
@@ -102,12 +103,31 @@ export default function MemberPage({
                   : m.points_help()}
               </p>
             </div>
-            {!member.data.archived && member.data.canAward !== false && (
-              <Button onClick={() => setEdit("award")}>
-                <Coins aria-hidden="true" />
-                {m.points_award()}
-              </Button>
-            )}
+            <div className="directory-actions member-header-actions">
+              {!member.data.archived && member.data.canAward !== false && (
+                <Button onClick={() => setEdit("award")}>
+                  <Coins aria-hidden="true" />
+                  {m.points_award()}
+                </Button>
+              )}
+              {["owner", "admin"].includes(organization.role) && (
+                <ItemActions
+                  name={member.data.name}
+                  actions={[
+                    {
+                      label: m.participant_access(),
+                      icon: Link2,
+                      onSelect: () =>
+                        navigate({
+                          to: "/workspace/$organizationId/members/$memberId/account",
+                          params: { organizationId: organization.id, memberId },
+                          search: { view: "invitations" },
+                        }),
+                    },
+                  ]}
+                />
+              )}
+            </div>
           </div>
           {organization.role === "volunteer" && (
             <p className="period-report-help">{m.access_work_help()}</p>
