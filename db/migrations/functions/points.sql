@@ -57,8 +57,8 @@ BEGIN
    v_date := v_original.occurred_at;
   ELSE v_delta := v_amount;
   END IF;
-  INSERT INTO hub_points_entries(organization_id,person_id,request_id,actor_id,amount,reason,original_id,activity_id,session_id,occurred_at)
-  VALUES(p_org,v_id,v_request,p_actor,v_delta,v_reason,CASE WHEN v_kind='correct' THEN v_original.id ELSE NULL END,CASE WHEN v_kind='correct' THEN v_original.activity_id ELSE v_activity END,CASE WHEN v_kind='correct' THEN v_original.session_id ELSE v_session END,v_date);
+  INSERT INTO hub_points_entries(organization_id,person_id,request_id,actor_id,amount,reason,original_id,activity_id,session_id,occurred_at,source,rule_version)
+  VALUES(p_org,v_id,v_request,p_actor,v_delta,v_reason,CASE WHEN v_kind='correct' THEN v_original.id ELSE NULL END,CASE WHEN v_kind='correct' THEN v_original.activity_id ELSE v_activity END,CASE WHEN v_kind='correct' THEN v_original.session_id ELSE v_session END,v_date,CASE WHEN v_kind='correct' THEN v_original.source ELSE 'manual' END,CASE WHEN v_kind='correct' THEN v_original.rule_version ELSE NULL END);
   v_results := v_results || jsonb_build_array(jsonb_build_object('personId',v_id,'name',v_person.name,'outcome','saved'));
  END LOOP;
  UPDATE hub_points_requests SET response=jsonb_build_object('items',v_results) WHERE id=v_request;

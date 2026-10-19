@@ -18,3 +18,5 @@ The installed app uses `/hub` as its start URL and retains manifest id `/`. The 
 Navigation stays fixed with reserved space and safe-area padding. Fixed feature lists are navigation, not unbounded data fetches; member/activity/reward/report/staff data continues using cursor pagination, query cancellation and user/organization-scoped caches. Existing loading skeletons, keyboard-aware forms, destructive confirmations and en/nl/tr localization remain required. No synthetic counters, empty dashboards or future-feature controls are added.
 
 Participant history is now **My coupons**, with Available/History route tabs and real coupon details. Staff scanning lives under **Rewards → Collect a reward**, with one Back to Rewards. The smart PWA starting point remains `/hub`.
+
+Challenges live on route-backed tabs alongside Activities for owners/admins. Participants now use Progress, Challenges, Rewards and Coupons in daily navigation, with Profile in the header. Challenge/submission detail routes have one parent Back; volunteers retain their current scope and destinations.

@@ -1,3 +1,4 @@
+import Challenges from "../challenges/Challenges";
 import Collection from "../coupons/Collection";
 import MyCoupons from "../coupons/MyCoupons";
 import { Management, OrganizationDetails, PeopleTabs } from "./Management";
@@ -90,6 +91,9 @@ const orgKey = (userId: string) => ["organizations", userId] as const;
 export default function OrganizationPortal({
   initialMode = "signup",
   inviteToken = null,
+  challengeId = null,
+  challengeSubmissionId = null,
+  challengeView,
   couponId = null,
   couponStatus = "pending",
   participantInviteToken = null,
@@ -112,6 +116,9 @@ export default function OrganizationPortal({
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
+  challengeId?: string | null;
+  challengeSubmissionId?: string | null;
+  challengeView?: string | undefined;
   couponId?: string | null;
   couponStatus?: "pending" | "all";
   participantInviteToken?: string | null;
@@ -483,6 +490,9 @@ export default function OrganizationPortal({
                     periodId={periodId}
                     periodGroupId={periodGroupId}
                     periodView={periodView}
+                    challengeId={challengeId}
+                    challengeSubmissionId={challengeSubmissionId}
+                    challengeView={challengeView}
                     couponId={couponId}
                     couponStatus={couponStatus}
                     participantAccount={participantAccount}
@@ -1250,6 +1260,9 @@ function Workspace({
   periodId,
   periodGroupId,
   periodView,
+  challengeId,
+  challengeSubmissionId,
+  challengeView,
   couponId,
   couponStatus,
   participantAccount,
@@ -1269,6 +1282,9 @@ function Workspace({
   periodId: string | null;
   periodGroupId: string | null;
   periodView: "members" | "groups";
+  challengeId: string | null;
+  challengeSubmissionId: string | null;
+  challengeView?: string | undefined;
   couponId: string | null;
   couponStatus: "pending" | "all";
   participantAccount: boolean;
@@ -1300,6 +1316,28 @@ function Workspace({
     sessionId,
     attendance,
   ]);
+  if (section === "challenges")
+    return organization.role === "volunteer" ? (
+      <Navigate
+        to="/workspace/$organizationId/$section"
+        params={{ organizationId: organization.id, section: "activities" }}
+        replace
+      />
+    ) : (
+      <Challenges
+        key={
+          organization.id +
+          (challengeId ?? "list") +
+          (challengeSubmissionId ?? "") +
+          (challengeView ?? "")
+        }
+        organization={organization}
+        userId={userId}
+        challengeId={challengeId}
+        submissionId={challengeSubmissionId}
+        view={challengeView}
+      />
+    );
   if (section === "organization")
     return <OrganizationDetails organization={organization} />;
   if (organization.role === "participant") {

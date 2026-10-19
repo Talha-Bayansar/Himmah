@@ -1,6 +1,7 @@
 import { Skeleton } from "../components/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import {
+  Flag,
   Users,
   SlidersHorizontal,
   CircleUserRound,
@@ -13,6 +14,7 @@ import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "challenges",
   "collect",
   "my-coupons",
   "manage",
@@ -65,6 +67,11 @@ export function WorkspaceNavigation({
               Icon: TrendingUp,
             },
             {
+              section: "challenges",
+              label: m.challenge_nav(),
+              Icon: Flag,
+            },
+            {
               section: "my-rewards",
               label: m.participant_nav_rewards(),
               Icon: Gift,
@@ -74,23 +81,13 @@ export function WorkspaceNavigation({
               label: m.coupons_nav(),
               Icon: Ticket,
             },
-            {
-              section: "settings",
-              label: m.nav_profile(),
-              Icon: CircleUserRound,
-            },
           ] as const
         ).map((item) => (
           <Link
             key={item.section}
             to="/workspace/$organizationId/$section"
             params={{ organizationId, section: item.section }}
-            aria-current={
-              section === item.section ||
-              (section === "organization" && item.section === "settings")
-                ? "page"
-                : undefined
-            }
+            aria-current={section === item.section ? "page" : undefined}
           >
             <item.Icon size={20} aria-hidden="true" />
             <span>{item.label}</span>
@@ -123,18 +120,20 @@ export function WorkspaceNavigation({
       ? "members"
       : section === "collect"
         ? "rewards"
-        : section === "activities" || section === "rewards"
-          ? section
-          : [
-                "manage",
-                "organization",
-                "access",
-                "periods",
-                "staff",
-                "invitations",
-              ].includes(section)
-            ? "manage"
-            : null;
+        : section === "challenges"
+          ? "activities"
+          : section === "activities" || section === "rewards"
+            ? section
+            : [
+                  "manage",
+                  "organization",
+                  "access",
+                  "periods",
+                  "staff",
+                  "invitations",
+                ].includes(section)
+              ? "manage"
+              : null;
   return (
     <nav className="workspace-navigation" aria-label={m.directory_title()}>
       {items.map(({ section: target, label, Icon }) => (

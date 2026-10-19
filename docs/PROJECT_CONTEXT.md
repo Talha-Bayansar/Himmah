@@ -124,3 +124,7 @@ Organizer-attested participant invitation links, verified-email account linking 
 ## Navigation redesign — 19 October 2026
 
 Owner requested a clearer information architecture after feature growth. Daily organizer navigation is Activities, People, Rewards and Manage. People groups Members/Groups on real-route tabs; Manage groups reporting, team access and organization details. Profile contains personal preferences only. Volunteers see scoped Activities/People and participants keep personal progress/rewards/history/profile. PWA start_url moves to `/hub`, with `/app` redirecting for compatibility; single-organization staff start in Activities, participants in My progress. Existing feature/detail URLs remain supported. See [Navigation](NAVIGATION.md).
+
+## Configurable challenges — 19 October 2026
+
+Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See [Challenges](CHALLENGES.md).

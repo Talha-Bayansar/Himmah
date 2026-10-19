@@ -157,9 +157,11 @@ export default function PersonalDashboard({
                         <strong>
                           {entry.isAdjustment
                             ? m.points_adjustment()
-                            : entry.source === "attendance"
-                              ? m.earning_source()
-                              : m.participant_points_manual()}
+                            : entry.source === "challenge"
+                              ? m.challenge_points()
+                              : entry.source === "attendance"
+                                ? m.earning_source()
+                                : m.participant_points_manual()}
                         </strong>
                         <span className="personal-amount">
                           {entry.amount > 0 ? "+" : ""}

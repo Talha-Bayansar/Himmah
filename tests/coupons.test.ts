@@ -73,7 +73,12 @@ test("PostgreSQL coupons: backfill, concurrent stock/wallet claims, receipts, pr
       journal = JSON.parse(
         await readFile(new URL("meta/_journal.json", directory), "utf8"),
       );
-    for (const entry of journal.entries.slice(0, -1))
+    for (const entry of journal.entries.slice(
+      0,
+      journal.entries.findIndex((e: { tag: string }) =>
+        e.tag.startsWith("0011_"),
+      ),
+    ))
       await db.exec(
         await readFile(new URL(entry.tag + ".sql", directory), "utf8"),
       );
@@ -190,7 +195,12 @@ test("PostgreSQL coupons: backfill, concurrent stock/wallet claims, receipts, pr
     });
     await db.exec(
       await readFile(
-        new URL(journal.entries.at(-1).tag + ".sql", directory),
+        new URL(
+          journal.entries.find((e: { tag: string }) =>
+            e.tag.startsWith("0011_"),
+          ).tag + ".sql",
+          directory,
+        ),
         "utf8",
       ),
     );

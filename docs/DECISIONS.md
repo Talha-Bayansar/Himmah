@@ -220,3 +220,7 @@ Owner requested an app-wide pass on touching invitation buttons, unequal wrapped
 ## 2026-10-19 — Compact more controls and search/filter rhythm
 
 Owner clarified that card primary actions should take the remaining width while the icon-only more control stays smaller. Use an explicitly class-targeted 44px menu trigger, including Radix triggers whose data-slot differs from Button. Prevent primary/menu rows from wrapping the trigger onto another line. Shared directory toolbars now use a 12px row gap, reset label/select margins and put mobile select filters on a full-width row. This corrects the earlier button-marker assumption without changing workflows.
+
+## 2026-10-19 — Configurable engagement challenges
+
+Owner approved configurable challenges with optional dates, eligible groups, participant submissions and staff review/direct recording. The first increment assigns management/review to owners/admins; existing volunteer grants do not imply new approval authority. Publication freezes rules and audience IDs. One completion per person can award points once, with resubmission after rejection/withdrawal while open. Approval is a distinct ledger source, correctable through existing owner/admin point history without reopening completion. No uploads or automated quizzes are added. Daily participant Profile moves to the existing header shortcut to retain four navigation items. See [Challenges](CHALLENGES.md).

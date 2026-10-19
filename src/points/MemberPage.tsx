@@ -174,9 +174,11 @@ export default function MemberPage({
                         <strong>
                           {entry.originalId
                             ? m.points_adjustment()
-                            : entry.source === "attendance"
-                              ? m.earning_source()
-                              : m.points_award()}
+                            : entry.source === "challenge"
+                              ? m.challenge_points()
+                              : entry.source === "attendance"
+                                ? m.earning_source()
+                                : m.points_award()}
                         </strong>
                         <span className="points-entry-amount">
                           {entry.amount > 0 ? "+" : ""}

@@ -1,3 +1,8 @@
+import { challengeApi } from "./challenge-api.ts";
+import {
+  createChallengeStore,
+  type ChallengeStore,
+} from "./challenge-store.ts";
 import { couponApi } from "./coupon-api.ts";
 import { createCouponStore, type CouponStore } from "./coupon-store.ts";
 import { participantApi } from "./participant-api.ts";
@@ -51,6 +56,7 @@ type Dependencies = {
   fetch: typeof fetch;
   store: (url: string) => OrganizationStore;
   directory?: (url: string) => CommunityStore;
+  challenges?: (url: string) => ChallengeStore;
   coupons?: (url: string) => CouponStore;
 };
 const json = (body: unknown, status = 200) =>
@@ -218,6 +224,25 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (
+        /^\/api\/organizations\/[^/]+\/(me\/)?challenges(\/|$)/.test(
+          url.pathname,
+        )
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `challenges:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await challengeApi(
+          request,
+          user,
+          store,
+          (deps.challenges ?? createChallengeStore)(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
       if (
         /^\/api\/organizations\/[^/]+\/(me\/(claims|coupons)|coupon-collection)(\/|$)/.test(
           url.pathname,

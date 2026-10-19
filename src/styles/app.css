@@ -5361,3 +5361,29 @@ button.item-actions-trigger {
     max-width: 100%;
   }
 }
+
+.challenges-page > h2 {
+  margin-block: 24px 16px;
+  font-size: 20px;
+}
+.challenge-description {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.challenge-list > li > div {
+  min-width: 0;
+  flex: 1;
+}
+.challenge-list > li > [data-slot="button"] {
+  min-width: 0;
+}
+@media (max-width: 639px) {
+  .challenge-list > li > [data-slot="button"] {
+    width: 100%;
+  }
+}
+.directory-form [data-slot="textarea"],
+[data-slot="dialog-content"] [data-slot="textarea"] {
+  font-size: 16px;
+}

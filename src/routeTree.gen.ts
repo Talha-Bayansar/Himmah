@@ -17,8 +17,10 @@ import { Route as ParticipateRouteImport } from './routes/participate'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
+import { Route as WorkspaceOrganizationIdChallengesRouteImport } from './routes/workspace.$organizationId.challenges'
 import { Route as WorkspaceOrganizationIdMyCouponsRouteImport } from './routes/workspace.$organizationId.my-coupons'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
+import { Route as WorkspaceOrganizationIdChallengesChallengeIdRouteImport } from './routes/workspace.$organizationId.challenges_.$challengeId'
 import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.groups.$groupId'
 import { Route as WorkspaceOrganizationIdMembersMemberIdRouteImport } from './routes/workspace.$organizationId.members.$memberId'
 import { Route as WorkspaceOrganizationIdMyCouponsCouponIdRouteImport } from './routes/workspace.$organizationId.my-coupons_.$couponId'
@@ -26,6 +28,7 @@ import { Route as WorkspaceOrganizationIdPeriodsPeriodIdRouteImport } from './ro
 import { Route as WorkspaceOrganizationIdRewardsRewardIdRouteImport } from './routes/workspace.$organizationId.rewards.$rewardId'
 import { Route as WorkspaceOrganizationIdMembersMemberIdAccountRouteImport } from './routes/workspace.$organizationId.members.$memberId_.account'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
+import { Route as WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRouteImport } from './routes/workspace.$organizationId.challenges_.$challengeId_.submissions.$submissionId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
 
 const IndexRoute = IndexRouteImport.update({
@@ -69,6 +72,12 @@ const WorkspaceOrganizationIdSectionRoute =
     path: '/workspace/$organizationId/$section',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdChallengesRoute =
+  WorkspaceOrganizationIdChallengesRouteImport.update({
+    id: '/workspace/$organizationId/challenges',
+    path: '/workspace/$organizationId/challenges',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspaceOrganizationIdMyCouponsRoute =
   WorkspaceOrganizationIdMyCouponsRouteImport.update({
     id: '/workspace/$organizationId/my-coupons',
@@ -79,6 +88,12 @@ const WorkspaceOrganizationIdActivitiesActivityIdRoute =
   WorkspaceOrganizationIdActivitiesActivityIdRouteImport.update({
     id: '/workspace/$organizationId/activities/$activityId',
     path: '/workspace/$organizationId/activities/$activityId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const WorkspaceOrganizationIdChallengesChallengeIdRoute =
+  WorkspaceOrganizationIdChallengesChallengeIdRouteImport.update({
+    id: '/workspace/$organizationId/challenges_/$challengeId',
+    path: '/workspace/$organizationId/challenges/$challengeId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const WorkspaceOrganizationIdGroupsGroupIdRoute =
@@ -125,6 +140,14 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute =
       getParentRoute: () => WorkspaceOrganizationIdActivitiesActivityIdRoute,
     } as any,
   )
+const WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute =
+  WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRouteImport.update(
+    {
+      id: '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId',
+      path: '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId',
+      getParentRoute: () => rootRouteImport,
+    } as any,
+  )
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute =
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport.update(
     {
@@ -144,8 +167,10 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/challenges': typeof WorkspaceOrganizationIdChallengesRoute
   '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  '/workspace/$organizationId/challenges/$challengeId': typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
   '/workspace/$organizationId/my-coupons/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
@@ -153,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
+  '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId': typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
 export interface FileRoutesByTo {
@@ -164,8 +190,10 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/challenges': typeof WorkspaceOrganizationIdChallengesRoute
   '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  '/workspace/$organizationId/challenges/$challengeId': typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
   '/workspace/$organizationId/my-coupons/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
@@ -173,6 +201,7 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
+  '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId': typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
 export interface FileRoutesById {
@@ -185,8 +214,10 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/challenges': typeof WorkspaceOrganizationIdChallengesRoute
   '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  '/workspace/$organizationId/challenges_/$challengeId': typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
   '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
   '/workspace/$organizationId/my-coupons_/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
@@ -194,6 +225,7 @@ export interface FileRoutesById {
   '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   '/workspace/$organizationId/members/$memberId_/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
+  '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId': typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
 export interface FileRouteTypes {
@@ -207,8 +239,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/challenges'
     | '/workspace/$organizationId/my-coupons'
     | '/workspace/$organizationId/activities/$activityId'
+    | '/workspace/$organizationId/challenges/$challengeId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
     | '/workspace/$organizationId/my-coupons/$couponId'
@@ -216,6 +250,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/rewards/$rewardId'
     | '/workspace/$organizationId/members/$memberId/account'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
+    | '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -227,8 +262,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/challenges'
     | '/workspace/$organizationId/my-coupons'
     | '/workspace/$organizationId/activities/$activityId'
+    | '/workspace/$organizationId/challenges/$challengeId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
     | '/workspace/$organizationId/my-coupons/$couponId'
@@ -236,6 +273,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/rewards/$rewardId'
     | '/workspace/$organizationId/members/$memberId/account'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
+    | '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   id:
     | '__root__'
@@ -247,8 +285,10 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/challenges'
     | '/workspace/$organizationId/my-coupons'
     | '/workspace/$organizationId/activities/$activityId'
+    | '/workspace/$organizationId/challenges_/$challengeId'
     | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/members/$memberId'
     | '/workspace/$organizationId/my-coupons_/$couponId'
@@ -256,6 +296,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/rewards/$rewardId'
     | '/workspace/$organizationId/members/$memberId_/account'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
+    | '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesById: FileRoutesById
 }
@@ -268,14 +309,17 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdChallengesRoute: typeof WorkspaceOrganizationIdChallengesRoute
   WorkspaceOrganizationIdMyCouponsRoute: typeof WorkspaceOrganizationIdMyCouponsRoute
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  WorkspaceOrganizationIdChallengesChallengeIdRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
   WorkspaceOrganizationIdGroupsGroupIdRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   WorkspaceOrganizationIdMembersMemberIdRoute: typeof WorkspaceOrganizationIdMembersMemberIdRoute
   WorkspaceOrganizationIdMyCouponsCouponIdRoute: typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   WorkspaceOrganizationIdPeriodsPeriodIdRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
   WorkspaceOrganizationIdRewardsRewardIdRoute: typeof WorkspaceOrganizationIdRewardsRewardIdRoute
   WorkspaceOrganizationIdMembersMemberIdAccountRoute: typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
+  WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -336,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId/challenges': {
+      id: '/workspace/$organizationId/challenges'
+      path: '/workspace/$organizationId/challenges'
+      fullPath: '/workspace/$organizationId/challenges'
+      preLoaderRoute: typeof WorkspaceOrganizationIdChallengesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/my-coupons': {
       id: '/workspace/$organizationId/my-coupons'
       path: '/workspace/$organizationId/my-coupons'
@@ -348,6 +399,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace/$organizationId/activities/$activityId'
       fullPath: '/workspace/$organizationId/activities/$activityId'
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspace/$organizationId/challenges_/$challengeId': {
+      id: '/workspace/$organizationId/challenges_/$challengeId'
+      path: '/workspace/$organizationId/challenges/$challengeId'
+      fullPath: '/workspace/$organizationId/challenges/$challengeId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/groups/$groupId': {
@@ -399,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport
       parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRoute
     }
+    '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId': {
+      id: '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId'
+      path: '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
+      fullPath: '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': {
       id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
       path: '/attendance'
@@ -448,9 +513,13 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+  WorkspaceOrganizationIdChallengesRoute:
+    WorkspaceOrganizationIdChallengesRoute,
   WorkspaceOrganizationIdMyCouponsRoute: WorkspaceOrganizationIdMyCouponsRoute,
   WorkspaceOrganizationIdActivitiesActivityIdRoute:
     WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
+  WorkspaceOrganizationIdChallengesChallengeIdRoute:
+    WorkspaceOrganizationIdChallengesChallengeIdRoute,
   WorkspaceOrganizationIdGroupsGroupIdRoute:
     WorkspaceOrganizationIdGroupsGroupIdRoute,
   WorkspaceOrganizationIdMembersMemberIdRoute:
@@ -463,6 +532,8 @@ const rootRouteChildren: RootRouteChildren = {
     WorkspaceOrganizationIdRewardsRewardIdRoute,
   WorkspaceOrganizationIdMembersMemberIdAccountRoute:
     WorkspaceOrganizationIdMembersMemberIdAccountRoute,
+  WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute:
+    WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

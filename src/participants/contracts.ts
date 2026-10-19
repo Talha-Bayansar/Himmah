@@ -10,7 +10,7 @@ export type PersonalPoints = {
   id: string;
   amount: number;
   currentAmount: number;
-  source: "manual" | "attendance";
+  source: "manual" | "attendance" | "challenge";
   isAdjustment: boolean;
   createdAt: string;
   occurredAt: string;

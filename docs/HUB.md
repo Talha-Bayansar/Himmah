@@ -85,3 +85,7 @@ The owner approved and we implemented rewards and redemption after scoped volunt
 ## Participant access increment — 19 October 2026
 
 Organizer-attested participant invitation links, verified-email account linking and private progress, reward claims and QR coupons are implemented. See [Participant access](PARTICIPANT_ACCESS.md) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Participants can reserve/cancel their own pending rewards; owners/admins confirm single-use QR collection. See [Rewards](REWARDS.md). Peer rankings and gameplay remain future work.
+
+## Configurable challenges — 19 October 2026
+
+Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See [Challenges](CHALLENGES.md).

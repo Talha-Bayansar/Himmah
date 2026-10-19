@@ -1,3 +1,4 @@
+import { EngagementTabs } from "../challenges/Challenges";
 import { EarningRule } from "./EarningRule";
 import Attendance from "../attendance/Attendance";
 import { useEffect, useRef, useState } from "react";
@@ -271,6 +272,9 @@ export default function Activities({
   );
   return (
     <section className="activity-page">
+      {!activityId && organization.role !== "volunteer" && (
+        <EngagementTabs organizationId={organization.id} current="activities" />
+      )}
       {activityId ? (
         <>
           <Button variant="link" asChild className="settings-back">

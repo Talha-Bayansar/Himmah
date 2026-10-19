@@ -516,7 +516,7 @@ export const pointsEntries = pgTable(
     index("hub_points_original").on(t.organizationId, t.personId, t.originalId),
     check(
       "hub_points_source",
-      sql`${t.source} in ('manual','attendance') and (${t.source}='manual' or (${t.sessionId} is not null and ${t.ruleVersion} is not null and ${t.ruleVersion}>0))`,
+      sql`${t.source} in ('manual','attendance','challenge') and (${t.source}='manual' or (${t.ruleVersion} is not null and ${t.ruleVersion}>0)) and (${t.source}<>'attendance' or ${t.sessionId} is not null)`,
     ),
     check(
       "hub_points_amount",
@@ -999,5 +999,179 @@ export const rewardCoupons = pgTable(
       foreignColumns: [redemptions.organizationId, redemptions.id],
     }),
     check("hub_coupon_code", sql`${t.code} ~ '^[0-9a-f]{64}$'`),
+  ],
+);
+
+export const challenges = pgTable(
+  "hub_challenges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    points: integer("points").notNull(),
+    startsAt: timestamp("starts_at", { withTimezone: true }),
+    endsAt: timestamp("ends_at", { withTimezone: true }),
+    status: text("status").notNull().default("draft"),
+    version: integer("version").notNull().default(1),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_challenge_scope").on(t.organizationId, t.id),
+    index("hub_challenge_page").on(
+      t.organizationId,
+      t.status,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_challenge_fields",
+      sql`length(trim(${t.name})) between 2 and 80 and length(trim(${t.description})) between 1 and 2000 and ${t.points} between 1 and 10000 and ${t.version}>0 and ${t.status} in ('draft','published','archived')`,
+    ),
+    check(
+      "hub_challenge_dates",
+      sql`(${t.startsAt} is null or ${t.startsAt} between '2000-01-01' and '2101-01-01') and (${t.endsAt} is null or ${t.endsAt} between '2000-01-01' and '2101-01-01') and (${t.startsAt} is null or ${t.endsAt} is null or ${t.endsAt}>${t.startsAt})`,
+    ),
+  ],
+);
+export const challengeGroups = pgTable(
+  "hub_challenge_groups",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    challengeId: uuid("challenge_id").notNull(),
+    groupId: uuid("group_id").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.challengeId, t.groupId] }),
+    foreignKey({
+      columns: [t.organizationId, t.challengeId],
+      foreignColumns: [challenges.organizationId, challenges.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.groupId],
+      foreignColumns: [groups.organizationId, groups.id],
+    }),
+  ],
+);
+export const challengeSubmissions = pgTable(
+  "hub_challenge_submissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    challengeId: uuid("challenge_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    challengeName: text("challenge_name").notNull(),
+    personName: text("person_name").notNull(),
+    points: integer("points").notNull(),
+    challengeVersion: integer("challenge_version").notNull(),
+    note: text("note").notNull().default(""),
+    status: text("status").notNull().default("pending"),
+    version: integer("version").notNull().default(1),
+    submittedAt: timestamp("submitted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    submittedBy: text("submitted_by").notNull(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewedBy: text("reviewed_by"),
+    feedback: text("feedback").notNull().default(""),
+    entryId: uuid("entry_id"),
+  },
+  (t) => [
+    unique("hub_challenge_submission_scope").on(
+      t.organizationId,
+      t.challengeId,
+      t.id,
+    ),
+    unique("hub_challenge_once").on(
+      t.organizationId,
+      t.challengeId,
+      t.personId,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.challengeId],
+      foreignColumns: [challenges.organizationId, challenges.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId, t.entryId],
+      foreignColumns: [
+        pointsEntries.organizationId,
+        pointsEntries.personId,
+        pointsEntries.id,
+      ],
+    }),
+    index("hub_challenge_submission_page").on(
+      t.organizationId,
+      t.challengeId,
+      t.createdAt,
+      t.id,
+    ),
+    index("hub_challenge_person_page").on(
+      t.organizationId,
+      t.personId,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_challenge_submission_fields",
+      sql`${t.status} in ('pending','approved','rejected','withdrawn') and ${t.version}>0 and ${t.points} between 1 and 10000 and ${t.challengeVersion}>0 and length(${t.note})<=500 and length(${t.feedback})<=300 and (${t.status}='approved')=(${t.entryId} is not null) and (${t.status} in ('approved','rejected'))=(${t.reviewedAt} is not null and ${t.reviewedBy} is not null)`,
+    ),
+  ],
+);
+export const challengeRequests = pgTable(
+  "hub_challenge_requests",
+  {
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    key: uuid("request_key").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.organizationId, t.key] })],
+);
+export const challengeEvents = pgTable(
+  "hub_challenge_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    challengeId: uuid("challenge_id").notNull(),
+    submissionId: uuid("submission_id"),
+    actorId: text("actor_id").notNull(),
+    action: text("action").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.challengeId],
+      foreignColumns: [challenges.organizationId, challenges.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.challengeId, t.submissionId],
+      foreignColumns: [
+        challengeSubmissions.organizationId,
+        challengeSubmissions.challengeId,
+        challengeSubmissions.id,
+      ],
+    }),
   ],
 );
