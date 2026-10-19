@@ -5209,3 +5209,117 @@ html {
     width: 100%;
   }
 }
+
+/* Shared action geometry: translated labels may grow; peers grow with them. */
+.directory-actions {
+  align-items: stretch;
+  gap: 12px;
+}
+.directory-actions > [data-slot="button"]:not([data-size^="icon"]) {
+  flex: 1 1 120px;
+  height: auto;
+  min-height: 48px;
+  line-height: 1.4;
+  font-size: 14px;
+  text-align: center;
+}
+[data-slot="button"][data-size^="icon"],
+.directory-actions > [data-slot="button"][data-size^="icon"],
+.item-actions-trigger {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  align-self: center;
+}
+.invitation-account-action {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.invitation-page .settings-panel > [data-slot="button"],
+.invitation-account-action > [data-slot="button"] {
+  width: 100%;
+}
+/* Route changes look like navigation, distinct from solid mutation buttons. */
+.route-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  margin-block: 20px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.route-tabs > a {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 48px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  border-bottom: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--app-muted);
+  overflow-wrap: anywhere;
+}
+.route-tabs > a > svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+.route-tabs > a[aria-current="page"] {
+  color: var(--forest);
+  border-bottom-color: var(--forest);
+  font-weight: 700;
+  background: var(--muted);
+  border-radius: 8px 8px 0 0;
+}
+.route-tabs > a:hover {
+  background: var(--muted);
+}
+.route-tabs > a:focus-visible {
+  outline: 3px solid var(--forest);
+  outline-offset: 2px;
+}
+.segmented-choice {
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--muted);
+  align-items: stretch;
+}
+.segmented-choice > [data-slot="button"] {
+  flex: 1 1 0;
+  min-width: 0;
+  height: auto;
+  box-shadow: none;
+  border: 0;
+}
+.segmented-choice > [aria-pressed="true"] {
+  background: var(--background);
+  color: var(--forest);
+  box-shadow: 0 1px 4px #12382f16;
+}
+[data-slot="button"][aria-busy="true"] > svg:not([role="status"]) {
+  display: none;
+}
+[data-slot="dialog-footer"],
+[data-slot="alert-dialog-footer"] {
+  gap: 12px;
+  align-items: stretch;
+}
+[data-slot="dialog-footer"] > [data-slot="button"],
+[data-slot="alert-dialog-footer"] > [data-slot="button"] {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 48px;
+}
+.auth-switches [data-slot="button"] {
+  min-height: 44px;
+}

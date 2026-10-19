@@ -1,3 +1,4 @@
+import { RouteTabs } from "../components/shared/route-tabs";
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import {
@@ -161,7 +162,7 @@ export function PeopleTabs({
 }) {
   useLocale();
   return (
-    <nav className="people-tabs" aria-label={m.nav_people()}>
+    <RouteTabs aria-label={m.nav_people()}>
       {(["members", "groups"] as const).map((tab) => (
         <Link
           key={tab}
@@ -172,6 +173,6 @@ export function PeopleTabs({
           {tab === "members" ? m.directory_members() : m.directory_groups()}
         </Link>
       ))}
-    </nav>
+    </RouteTabs>
   );
 }

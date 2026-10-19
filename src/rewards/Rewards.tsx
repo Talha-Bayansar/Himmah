@@ -1,3 +1,4 @@
+import { RouteTabs } from "../components/shared/route-tabs";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -230,31 +231,26 @@ export default function Rewards({
                 {detail.data.item.description}
               </p>
             )}
-            <nav className="reward-tabs" aria-label={m.rewards_title()}>
+            <RouteTabs aria-label={m.rewards_title()}>
               {(["members", "redemptions"] as const).map((tab) => (
-                <Button
+                <Link
                   key={tab}
-                  variant={view === tab ? "default" : "outline"}
-                  asChild
+                  to="/workspace/$organizationId/rewards/$rewardId"
+                  params={{ organizationId: organization.id, rewardId }}
+                  search={{ view: tab }}
+                  aria-current={view === tab ? "page" : undefined}
                 >
-                  <Link
-                    to="/workspace/$organizationId/rewards/$rewardId"
-                    params={{ organizationId: organization.id, rewardId }}
-                    search={{ view: tab }}
-                    aria-current={view === tab ? "page" : undefined}
-                  >
-                    {tab === "members" ? (
-                      <Gift aria-hidden="true" />
-                    ) : (
-                      <Check aria-hidden="true" />
-                    )}
-                    {tab === "members"
-                      ? m.rewards_members()
-                      : m.rewards_history()}
-                  </Link>
-                </Button>
+                  {tab === "members" ? (
+                    <Gift aria-hidden="true" />
+                  ) : (
+                    <Check aria-hidden="true" />
+                  )}
+                  {tab === "members"
+                    ? m.rewards_members()
+                    : m.rewards_history()}
+                </Link>
               ))}
-            </nav>
+            </RouteTabs>
           </>
         )
       ) : (

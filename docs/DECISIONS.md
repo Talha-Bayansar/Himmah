@@ -212,3 +212,7 @@ Owner requested a clearer information architecture after feature growth. Daily o
 ## 2026-10-19 — Participant reward claims and private collection coupons
 
 Owner approved the next increment: self-service reward reservation and private QR collection. Participants reserve their own points/stock, may cancel pending coupons, and see no peer or staff-only records. Collection remains owner/admin-only with explicit review and historical self-approval protection. No camera permission is requested until Start camera. Codes are private, recoverable random lookup identifiers carried in URL fragments, not standalone handout authorization. Codes are not invitation tokens; sessions, organization scope and final-state checks remain mandatory. Pending staff reservations gain codes without changing balances. No new billing/service, expiration or per-person limit is introduced. See [Rewards](REWARDS.md).
+
+## 2026-10-19 — Consistent mobile actions and view navigation
+
+Owner requested an app-wide pass on touching invitation buttons, unequal wrapped action sizes, stretching icon controls and tabs that resemble mutations. Standardize shared button geometry and action-row gaps, keep icon controls square, and replace button-style route switches in People, reward details, period reports, participant access and coupon history with shared underlined RouteTabs. Preserve real routes, roles, confirmations and state. Scope selectors are labelled pressed-state choices; invitation account switching is visually separated.

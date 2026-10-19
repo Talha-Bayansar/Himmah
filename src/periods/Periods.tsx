@@ -1,3 +1,4 @@
+import { RouteTabs } from "../components/shared/route-tabs";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -361,26 +362,21 @@ export default function Periods({
               <>
                 <Metrics value={summary.data.item} />
                 {!groupId && (
-                  <nav className="period-tabs" aria-label={m.periods_title()}>
+                  <RouteTabs aria-label={m.periods_title()}>
                     {(["members", "groups"] as const).map((tab) => (
-                      <Button
+                      <Link
                         key={tab}
-                        variant={view === tab ? "default" : "outline"}
-                        asChild
+                        to="/workspace/$organizationId/periods/$periodId"
+                        params={{ organizationId: organization.id, periodId }}
+                        search={{ view: tab }}
+                        aria-current={view === tab ? "page" : undefined}
                       >
-                        <Link
-                          to="/workspace/$organizationId/periods/$periodId"
-                          params={{ organizationId: organization.id, periodId }}
-                          search={{ view: tab }}
-                          aria-current={view === tab ? "page" : undefined}
-                        >
-                          {tab === "members"
-                            ? m.periods_members()
-                            : m.periods_groups()}
-                        </Link>
-                      </Button>
+                        {tab === "members"
+                          ? m.periods_members()
+                          : m.periods_groups()}
+                      </Link>
                     ))}
-                  </nav>
+                  </RouteTabs>
                 )}
                 {view === "groups" && (
                   <p className="period-report-help">{m.periods_group_help()}</p>

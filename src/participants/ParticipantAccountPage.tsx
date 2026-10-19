@@ -1,3 +1,4 @@
+import { RouteTabs } from "../components/shared/route-tabs";
 import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -201,31 +202,26 @@ export default function ParticipantAccountPage({
               />
             )}
           </div>
-          <nav className="reward-tabs" aria-label={m.participant_access()}>
+          <RouteTabs aria-label={m.participant_access()}>
             {(["invitations", "history"] as const).map((tab) => (
-              <Button
+              <Link
                 key={tab}
-                variant={view === tab ? "default" : "outline"}
-                asChild
+                to="/workspace/$organizationId/members/$memberId/account"
+                params={{ organizationId: organization.id, memberId }}
+                search={{ view: tab }}
+                aria-current={view === tab ? "page" : undefined}
               >
-                <Link
-                  to="/workspace/$organizationId/members/$memberId/account"
-                  params={{ organizationId: organization.id, memberId }}
-                  search={{ view: tab }}
-                  aria-current={view === tab ? "page" : undefined}
-                >
-                  {tab === "invitations" ? (
-                    <Mail aria-hidden="true" />
-                  ) : (
-                    <History aria-hidden="true" />
-                  )}
-                  {tab === "invitations"
-                    ? m.participant_invitation_history()
-                    : m.participant_access_history()}
-                </Link>
-              </Button>
+                {tab === "invitations" ? (
+                  <Mail aria-hidden="true" />
+                ) : (
+                  <History aria-hidden="true" />
+                )}
+                {tab === "invitations"
+                  ? m.participant_invitation_history()
+                  : m.participant_access_history()}
+              </Link>
             ))}
-          </nav>
+          </RouteTabs>
           {revoke.isError && <PointsError error={revoke.error} />}
           {resource.isPending ? (
             <ListSkeleton />

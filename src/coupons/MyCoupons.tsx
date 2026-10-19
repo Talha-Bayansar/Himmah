@@ -1,3 +1,4 @@
+import { RouteTabs } from "../components/shared/route-tabs";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -219,7 +220,7 @@ export default function MyCoupons({
           <p>{m.coupons_intro()}</p>
         </div>
       </div>
-      <nav className="people-tabs" aria-label={m.coupons_title()}>
+      <RouteTabs aria-label={m.coupons_title()}>
         {(["pending", "all"] as const).map((tab) => (
           <Link
             key={tab}
@@ -231,7 +232,7 @@ export default function MyCoupons({
             {tab === "pending" ? m.coupons_available() : m.coupons_history()}
           </Link>
         ))}
-      </nav>
+      </RouteTabs>
       <div className="directory-toolbar">
         <label>
           <Search aria-hidden="true" size={17} />

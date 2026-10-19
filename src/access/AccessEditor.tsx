@@ -185,10 +185,15 @@ export function AccessEditor({
                   }}
                 />
               )}
-              <div className="access-scope-buttons">
+              <div
+                className="access-scope-buttons segmented-choice"
+                role="group"
+                aria-label={m.access_scope()}
+              >
                 <Button
                   type="button"
-                  variant={mode === "groups" ? "default" : "outline"}
+                  variant="ghost"
+                  aria-pressed={mode === "groups"}
                   disabled={frozen}
                   onClick={() => {
                     setMode("groups");
@@ -201,7 +206,8 @@ export function AccessEditor({
                 </Button>
                 <Button
                   type="button"
-                  variant={mode === "activities" ? "default" : "outline"}
+                  variant="ghost"
+                  aria-pressed={mode === "activities"}
                   disabled={frozen}
                   onClick={() => {
                     setMode("activities");

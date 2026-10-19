@@ -52,7 +52,7 @@ export default function AcceptParticipant({
     },
   });
   return (
-    <section className="directory">
+    <section className="directory invitation-page">
       <h1 tabIndex={-1} data-page-heading>
         {m.participant_join_title()}
       </h1>
@@ -79,15 +79,17 @@ export default function AcceptParticipant({
         </div>
       )}
       {accept.isError && <PointsError error={accept.error} />}
-      <ActionButton
-        variant="outline"
-        pending={pending}
-        disabled={accept.isPending}
-        onClick={onSignOut}
-      >
-        <LogOut aria-hidden="true" />
-        {m.participant_other_account()}
-      </ActionButton>
+      <div className="invitation-account-action">
+        <ActionButton
+          variant="outline"
+          pending={pending}
+          disabled={accept.isPending}
+          onClick={onSignOut}
+        >
+          <LogOut aria-hidden="true" />
+          {m.participant_other_account()}
+        </ActionButton>
+      </div>
     </section>
   );
 }
