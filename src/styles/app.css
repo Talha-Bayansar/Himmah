@@ -5387,3 +5387,20 @@ button.item-actions-trigger {
 [data-slot="dialog-content"] [data-slot="textarea"] {
   font-size: 16px;
 }
+
+.challenges-page .challenge-detail-heading {
+  flex-direction: row;
+  align-items: flex-start;
+}
+.challenge-detail-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.challenge-detail-heading h1 {
+  overflow-wrap: anywhere;
+}
+.challenges-page .challenge-detail-heading > .item-actions-trigger {
+  flex: 0 0 44px;
+  width: 44px;
+  align-self: flex-start;
+}

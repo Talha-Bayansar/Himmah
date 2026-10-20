@@ -251,7 +251,9 @@ export default function Challenges({
         <EngagementTabs organizationId={organization.id} current="challenges" />
       )}
       {challengeId && back}
-      <div className="directory-heading">
+      <div
+        className={`directory-heading${challengeId ? " challenge-detail-heading" : ""}`}
+      >
         <div>
           <h1 ref={heading} tabIndex={-1} data-page-heading>
             {submissionId

@@ -397,3 +397,13 @@ Final focused reruns pass both challenge PostgreSQL/validation tests and all nin
 Chromium with synthetic local APIs verified en/nl/tr at 320/390/768px: draft creation with paginated group selection, 16px inputs/textareas, publication confirmation, real challenge/review URL reloads, participant submission/history, withdrawal and approval cancel-versus-confirm, once-only completion controls, direct completion and canonical result navigation, four readable participant tabs, one Back and no horizontal overflow. Screenshots were visually reviewed. Final review confirmations name the recipient and snapshot points. These checks do not prove physical phone keyboard behavior or hosted email delivery. No hosted participant/challenge mutations were used as tests.
 
 Worker `fd0e7f4d-4f88-4bee-b895-a0daad924a61` is verified active at 100% traffic through Cloudflare's deployments API. Direct workers.dev access remains restricted in this environment; functional browser checks used synthetic local APIs and hosted activation used Cloudflare's API. Existing dedicated database/auth bindings, CSRF/rate limiting, native fetch handling and private PWA cache boundaries remain unchanged.
+
+### 20 October 2026 — challenge detail header alignment
+
+Challenge detail titles and the more menu now stay in one row on phones. The title wraps within the available space and the menu remains a right-aligned 44px square; list-page create actions retain their stacked mobile layout. The preference is recorded in AGENTS.md.
+
+Production build and CSS contrast audit pass (minimum 5.87:1). Chromium checked the production CSS with short, long and unbroken titles at 320/390/768px: all nine cases retain the right-aligned 44px menu without horizontal overflow. A header fixture screenshot was visually reviewed; these are isolated layout checks, not live account tests.
+
+Worker `11668a4e-937b-4da5-bec0-f02971602ed9` is active at 100% traffic, verified through Cloudflare's deployments API. No database, authentication or PWA configuration changed.
+
+`npm run check` passes all 163 tests (61 Node/PostgreSQL/API/domain, 2 Worker runtime and 100 UI), including strict types and documentation validation.
