@@ -5404,3 +5404,18 @@ button.item-actions-trigger {
   width: 44px;
   align-self: flex-start;
 }
+
+/* Detail cards own their internal rhythm; adjacent cards remain distinct. */
+.challenges-page > .challenge-detail-panel + .challenge-detail-panel {
+  margin-top: 20px;
+}
+.challenge-detail-panel {
+  gap: 16px;
+}
+.challenge-detail-panel > p,
+.challenge-detail-panel > h2 {
+  margin: 0;
+}
+.challenge-detail-panel > .badge {
+  justify-self: start;
+}

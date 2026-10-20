@@ -407,3 +407,11 @@ Production build and CSS contrast audit pass (minimum 5.87:1). Chromium checked 
 Worker `11668a4e-937b-4da5-bec0-f02971602ed9` is active at 100% traffic, verified through Cloudflare's deployments API. No database, authentication or PWA configuration changed.
 
 `npm run check` passes all 163 tests (61 Node/PostgreSQL/API/domain, 2 Worker runtime and 100 UI), including strict types and documentation validation.
+
+### 20 October 2026 — challenge detail card spacing
+
+Challenge detail and submission cards now have 20px separation and a consistent 16px internal gap. Submission status badges fit their content instead of stretching across the card. Scoped heading/paragraph margins keep spacing controlled by the card grid; other settings panels retain their existing layout.
+
+Production build and contrast audit pass (minimum 5.87:1). Chromium production-CSS fixtures at 320/390/768px verify card separation, internal gaps, compact badges and no horizontal overflow; the mobile screenshot was visually reviewed. These were isolated layout checks with synthetic content. Worker `21ebf3a3-6d1c-4209-888c-96304a6f81af` is verified active at 100% via Cloudflare's API. No database, auth or PWA configuration changed.
+
+`npm run check` passes all 163 tests (61 Node/PostgreSQL/API/domain, 2 Worker runtime and 100 UI), strict types and documentation links.

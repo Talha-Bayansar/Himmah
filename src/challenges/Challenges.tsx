@@ -380,7 +380,7 @@ export default function Challenges({
         row && (
           <>
             {!submissionId && (
-              <section className="settings-panel">
+              <section className="settings-panel challenge-detail-panel">
                 {field(row)}
                 {!self && (
                   <p>
@@ -420,7 +420,7 @@ export default function Challenges({
                   />
                 ) : (
                   submission && (
-                    <section className="settings-panel">
+                    <section className="settings-panel challenge-detail-panel">
                       <h2>
                         {self
                           ? m.challenge_your_submission()
