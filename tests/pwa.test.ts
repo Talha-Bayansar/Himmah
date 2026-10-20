@@ -231,3 +231,18 @@ test("push notifications validate click routes, focus the centre and preserve un
   assert.equal(shown[1]!.options.body, "Himmah");
   assert.equal(shown[1]!.options.data.url, "/hub");
 });
+
+
+test("Android notification badge has a transparent background and a white leaf silhouette", async () => {
+  const {data,info}=await sharp(new URL("../public/pwa/notification-badge.png",import.meta.url).pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+  assert.equal(info.width,96);assert.equal(info.height,96);
+  let visible=0,transparent=0;
+  for(let i=0;i<data.length;i+=4){
+    if(data[i+3]===0)transparent++;
+    else{visible++;assert.equal(data[i],255);assert.equal(data[i+1],255);assert.equal(data[i+2],255);}
+  }
+  assert.ok(visible>200);assert.ok(transparent>info.width*info.height/2);
+  assert.equal(data[3],0);
+  const worker=await readFile(new URL("../public/sw.js",import.meta.url),"utf8");
+  assert.ok(worker.includes('badge: "/pwa/notification-badge.png"'));
+});

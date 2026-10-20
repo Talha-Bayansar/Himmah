@@ -1,6 +1,11 @@
 import sharp from "sharp";
 import { readFile, writeFile } from "node:fs/promises";
 const source = "public/pwa/icon.svg";
+// Android status-bar badges use the alpha silhouette, never an opaque app tile.
+await sharp("public/pwa/notification-badge.svg")
+  .resize(96, 96)
+  .png()
+  .toFile("public/pwa/notification-badge.png");
 for (const size of [32, 192, 512])
   await sharp(source)
     .flatten({ background: "#12382f" })

@@ -431,3 +431,11 @@ Chromium checked the actual app with synthetic API interception for owner/partic
 Final focused reruns pass both notification PostgreSQL/API tests and all six notification UI tests after account-expiration cleanup, cryptographic subscription-key validation and bounded mark-all responses. Final strict TypeScript, production build and contrast audit pass. The per-device cleanup path handles an expired session by revoking the browser endpoint; authenticated unverified users may remove only their own devices. All-device disable still requires a valid session.
 
 Worker `976be4db-0fec-4e3f-92e2-5cc3c5cfab9d` is active at 100% traffic, verified through Cloudflare's deployments API. The schedules API confirms `* * * * *`; Worker settings confirm both dedicated VAPID secret bindings. Hosted device delivery was not used as a test. Direct workers.dev access remains restricted from this environment, so functional browser validation used local production assets and synthetic APIs.
+
+### 20 October 2026 — Android notification status-bar badge
+
+Android push notifications now use a dedicated 96px white leaf on a transparent background (`notification-badge.png`) rather than the opaque app tile as their badge. The full-color larger notification icon remains unchanged. The asset generator retains the SVG source; public cache v3 preloads the badge and removes the older public cache during normal service-worker activation. New notifications adopt the badge after activation; already displayed alerts may retain the previous image.
+
+All six PWA tests pass, including image dimensions, white-only visible pixels, transparency and service-worker badge reference. The generated leaf was visually inspected. Production build and CSS contrast audit pass (minimum 5.87:1). Worker `bad53298-6545-4c6e-acd0-8250e6de0ba5` is verified active at 100% through Cloudflare's API. No database, push credentials or delivery settings changed. Physical Android status-bar rendering was not tested here.
+
+`npm run check` passes all 174 tests (65 Node/domain/API/PostgreSQL/PWA, three Worker runtime and 106 UI), strict types and documentation checks.

@@ -1,8 +1,9 @@
 /* Himmah caches public static resources only, never pages, sessions or API data. */
-const CACHE = "himmah-public-v2";
+const CACHE = "himmah-public-v3";
 const CORE = [
   "/offline",
   "/pwa/icon-192.png",
+  "/pwa/notification-badge.png",
   "/pwa/icon-512.png",
   "/pwa/apple-touch-icon.png",
 ];
@@ -96,7 +97,7 @@ self.addEventListener("push", (event) => {
       await self.registration.showNotification("Himmah", {
         body,
         icon: "/pwa/icon-192.png",
-        badge: "/pwa/icon-192.png",
+        badge: "/pwa/notification-badge.png",
         tag: "himmah-updates",
         data: { url: path },
       });
