@@ -329,3 +329,67 @@ it("rejects an impossible draft calendar before making a request and reveals adv
   expect(screen.getByLabelText("Equal starting rating")).toBeTruthy();
   expect(fetcher).not.toHaveBeenCalled();
 });
+
+it("previews custom point scales and bonus percentages immediately without saving", async () => {
+  const user = userEvent.setup();
+  vi.stubGlobal("fetch", vi.fn());
+  mount(<SeasonEditor userId="owner" organization={org} />);
+  await user.click(
+    await screen.findByRole("button", { name: "Training and fairness" }),
+  );
+  const step = screen.getByLabelText("Hub points per bonus step"),
+    chance = screen.getByLabelText("Extra bonus chance per step (%)");
+  await user.clear(step);
+  await user.type(step, "100");
+  await user.clear(chance);
+  await user.type(chance, "7");
+  await user.clear(screen.getByLabelText("Try an engagement point amount"));
+  await user.type(
+    screen.getByLabelText("Try an engagement point amount"),
+    "300",
+  );
+  expect(screen.getByRole("status").textContent).toContain("21%");
+  expect(fetch).not.toHaveBeenCalled();
+});
+it("activates only after confirmation and reuses the same receipt after an uncertain outcome", async () => {
+  const { GamePage } = await import("../src/futsal/GamePage");
+  const user = userEvent.setup(),
+    writes: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        writes.push(String(init.body));
+        return Response.json({ code: "service" }, { status: 503 });
+      }
+      return Response.json({ item: null, next: null, cancelled: false });
+    }),
+  );
+  mount(
+    <GamePage
+      userId="owner"
+      organizationId={org.id}
+      season={{ ...season, status: "prepared" }}
+    />,
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Activate season" }),
+  );
+  await user.click(
+    within(screen.getByRole("alertdialog")).getByRole("button", {
+      name: "Cancel",
+    }),
+  );
+  expect(writes).toHaveLength(0);
+  await user.click(screen.getByRole("button", { name: "Activate season" }));
+  await user.click(
+    within(screen.getByRole("alertdialog")).getByRole("button", {
+      name: "Activate season",
+    }),
+  );
+  await screen.findByRole("alert");
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  await waitFor(() => expect(writes).toHaveLength(2));
+  expect(writes[1]).toEqual(writes[0]);
+  expect(JSON.parse(writes[0]!).version).toBe(0);
+});

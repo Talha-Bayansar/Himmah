@@ -236,3 +236,7 @@ Owner approved beginning Futsal with the season setup flow. Preserve a distinct 
 ### 20 October 2026 — keyboard and bottom chrome
 
 Use `interactive-widget=resizes-visual` globally so Android keyboard opening does not shrink the layout viewport and lift fixed app navigation above the keyboard. Navigation stays fixed at the layout bottom; the keyboard can cover it while typing. Page-level Futsal actions and the shared save bar use normal document flow instead of bottom-sticky overlays. Dialog actions retain their bounded scroll container and visible-viewport behavior. Native keyboard behavior still requires physical-device verification.
+
+### 20 October 2026 — gameplay and point-scale preview
+
+Owner authorized gameplay and configurable conversion previews together. Preserve the locked season setup; add separate active/completed game state, organizer-triggered due execution, read-only assigned participant access and an isolated local fast-forward runner. Engine v1 uses equal attributes, capped one-attribute training, fixed first-five lineups and seeded match/penalty outcomes. Late awards/corrections use the first window after both occurrence and recording, without retroactive rerolls or Hub spending. These numerical/lineup defaults remain pilot implementation choices. See [gameplay](FUTSAL_GAMEPLAY.md).

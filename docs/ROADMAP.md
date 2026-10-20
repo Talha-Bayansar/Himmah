@@ -30,7 +30,7 @@ Proposed 12 participants in four teams of three over four to six weeks, Team Lea
 2. Build standalone Hub membership/roles/groups, activities/occurrences and attendance; then configurable/manual awards and personal histories.
 3. Add Hub engagement periods and basic reports. Verify a manual-only organization and an attendance-without-points organization using two isolated synthetic workspaces.
 4. Establish the versioned, authorized contribution API and organization app-entitlement boundary; verify Hub works without a Futsal license.
-5. Resume the Futsal game-engine and playable-app milestones above, preserving both modes and formats. Connect training to Hub contributions without reducing original contribution history.
+5. Futsal gameplay v1 now completes both modes/formats using Hub contributions without reducing history. Next refinements are lineup/tactical choices, automatic due-event execution and a real organization balance pilot.
 6. Pilot, extend Hub with optional modules, and add paid billing only when explicitly scheduled.
 
 No runnable Hub UI or API is implemented by this planning update. The next deliverable is the three core screen flows, not production deployment.
@@ -72,3 +72,5 @@ Session attendance now supports an eligible paginated roster, individual/bulk st
 ## Futsal setup checkpoint — 20 October 2026
 
 Hub's working engagement foundation now includes challenges, rewards/coupons, participant access and notifications. The first persistent Futsal slice adds owner/admin season settings, entry assignment, deterministic schedule/bracket previews and immutable prepared snapshots for both modes and formats. This supersedes the older prototype-only sequence. Next: create persisted equal-strength virtual squads/player identities from a prepared setup; then implement authorized ledger-window allocation, seeded training and match execution with balance experiments. Do not treat `prepared` as a running game. See [Futsal setup](FUTSAL_SETUP.md).
+
+Gameplay v1 now supports organizer-triggered due training/matches and read-only assigned-participant competitions in both modes/formats. See [gameplay](FUTSAL_GAMEPLAY.md) for scope, fixed lineup policy, late-record handling and the isolated full-season runner.

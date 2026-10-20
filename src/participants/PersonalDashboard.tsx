@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { Trophy } from "lucide-react";
 import { ClaimDialog } from "../coupons/ClaimDialog";
 import { Button } from "../components/ui/button";
 import { useState, useEffect, useRef } from "react";
@@ -93,6 +95,15 @@ export default function PersonalDashboard({
     );
   return (
     <section className="directory personal-dashboard">
+      <Button variant="outline" asChild>
+        <Link
+          to="/futsal/$organizationId"
+          params={{ organizationId: organization.id }}
+        >
+          <Trophy aria-hidden="true" />
+          {m.futsal_title()}
+        </Link>
+      </Button>
       <div className="directory-heading">
         <div>
           <h1 ref={heading} tabIndex={-1} data-page-heading>

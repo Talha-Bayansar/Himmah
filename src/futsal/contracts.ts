@@ -15,6 +15,7 @@ export type FutsalSeason = {
   prizeCriteria: string;
   status: "draft" | "prepared" | "cancelled";
   version: number;
+  gameStatus?: "active" | "completed" | null;
   settings: FutsalSettings;
   seed: string;
   createdAt: string;

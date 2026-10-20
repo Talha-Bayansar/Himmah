@@ -92,3 +92,5 @@ Use rg for discovery. Keep changes focused. Run npm run check and meaningful tes
 Before committing, inspect git diff --check and git status. Never commit .env files, credentials, real children's records, database dumps, or local provisioning responses. Keep docs/INFRASTRUCTURE.md and docs/DECISIONS.md accurate.
 
 Keep the viewport on `interactive-widget=resizes-visual`: the keyboard overlays the layout rather than lifting app bottom navigation. Page form actions remain in document flow; do not make them bottom-sticky over editable fields. Dialogs retain visible-viewport sizing and scrollable actions.
+
+Read docs/FUTSAL_GAMEPLAY.md for gameplay. Preserve immutable saved outcomes, exactly-once receipts, current participant-link scope, late-record training windows and source-independent normalized points. Production accepts no clock override; fast-forward exists only in disposable local database tests. Do not replace live Hub balances, auto-issue prizes or expose raw engagement allocations to peers.

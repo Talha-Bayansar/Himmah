@@ -1286,7 +1286,7 @@ export const futsalSeasons = pgTable(
       .defaultNow(),
   },
   (t) => [
-    check("futsal_rules_check",sql`futsal_rules_valid(${t.settings})`),
+    check("futsal_rules_check", sql`futsal_rules_valid(${t.settings})`),
     unique("futsal_season_scope").on(t.organizationId, t.id),
     index("futsal_season_page").on(t.organizationId, t.createdAt, t.id),
     check(
@@ -1381,5 +1381,56 @@ export const futsalEvents = pgTable(
       columns: [t.organizationId, t.seasonId],
       foreignColumns: [futsalSeasons.organizationId, futsalSeasons.id],
     }),
+  ],
+);
+
+export const futsalGames = pgTable(
+  "futsal_games",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    seasonId: uuid("season_id").notNull(),
+    state: jsonb("state").notNull(),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.seasonId] }),
+    foreignKey({
+      columns: [t.organizationId, t.seasonId],
+      foreignColumns: [futsalSeasons.organizationId, futsalSeasons.id],
+    }),
+    check("futsal_game_version", sql`${t.version}>0`),
+  ],
+);
+export const futsalGameEvents = pgTable(
+  "futsal_game_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    seasonId: uuid("season_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    request: jsonb("request").notNull(),
+    version: integer("version").notNull(),
+    event: jsonb("event").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("futsal_game_receipt").on(t.organizationId, t.requestKey),
+    unique("futsal_game_step").on(t.organizationId, t.seasonId, t.version),
+    foreignKey({
+      columns: [t.organizationId, t.seasonId],
+      foreignColumns: [futsalSeasons.organizationId, futsalSeasons.id],
+    }),
+    index("futsal_game_event_page").on(
+      t.organizationId,
+      t.seasonId,
+      t.createdAt,
+      t.id,
+    ),
   ],
 );

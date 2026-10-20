@@ -56,6 +56,7 @@ export function useFutsalWrite({
     deny = useContext(Context);
   const mutation = useMutation({
     mutationFn: (body: Record<string, unknown>) => {
+      saved.current = false;
       attempt.current ??= { ...body, key: crypto.randomUUID() };
       return directoryRequest<{ item: { id: string } }>(path, {
         method,
@@ -64,6 +65,7 @@ export function useFutsalWrite({
     },
     onSuccess: async (data) => {
       saved.current = true;
+      attempt.current = null;
       await cache.invalidateQueries({
         queryKey: futsalKey(userId, organizationId),
       });

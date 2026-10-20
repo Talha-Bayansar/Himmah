@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { sql, type SQL } from "drizzle-orm";
 import type { PageInput } from "../community/contracts.ts";
 const fields = (includeSnapshot = true) =>
-  sql`s.id,s.name,s.description,s.prize_criteria as "prizeCriteria",s.status,s.version,s.settings,s.seed,${includeSnapshot ? sql`s.snapshot` : sql`null::jsonb`} as snapshot,s.prepared_at::text as "preparedAt",s.cancel_reason as "cancelReason",s.created_at::text as "createdAt",(select count(*)::int from futsal_entries e where e.organization_id=s.organization_id and e.season_id=s.id) as "entryCount"`;
+  sql`(select g.state->>'status' from futsal_games g where g.organization_id=s.organization_id and g.season_id=s.id) as "gameStatus",s.id,s.name,s.description,s.prize_criteria as "prizeCriteria",s.status,s.version,s.settings,s.seed,${includeSnapshot ? sql`s.snapshot` : sql`null::jsonb`} as snapshot,s.prepared_at::text as "preparedAt",s.cancel_reason as "cancelReason",s.created_at::text as "createdAt",(select count(*)::int from futsal_entries e where e.organization_id=s.organization_id and e.season_id=s.id) as "entryCount"`;
 const pattern = (s: string) => "%" + s.replace(/[\\%_]/g, "\\$&") + "%";
 const cursor = (p: PageInput, alias: string) =>
   p.after

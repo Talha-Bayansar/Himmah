@@ -1,3 +1,8 @@
+import { futsalGameApi } from "./futsal-game-api.ts";
+import {
+  createFutsalGameStore,
+  type FutsalGameStore,
+} from "./futsal-game-store.ts";
 import { futsalApi } from "./futsal-api.ts";
 import { createFutsalStore, type FutsalStore } from "./futsal-store.ts";
 import { notificationApi } from "./notification-api.ts";
@@ -68,6 +73,7 @@ type Dependencies = {
   challenges?: (url: string) => ChallengeStore;
   notifications?: (url: string) => NotificationStore;
   futsal?: (url: string) => FutsalStore;
+  futsalGame?: (url: string) => FutsalGameStore;
   coupons?: (url: string) => CouponStore;
 };
 const json = (body: unknown, status = 200) =>
@@ -242,6 +248,14 @@ export function createHandler(
           ).limit({ key: `futsal:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
         }
+        const gameResponse = await futsalGameApi(
+          request,
+          user,
+          store,
+          (deps.futsal ?? createFutsalStore)(env.HIMMAH_DATABASE_URL),
+          (deps.futsalGame ?? createFutsalGameStore)(env.HIMMAH_DATABASE_URL),
+        );
+        if (gameResponse) return gameResponse;
         const response = await futsalApi(
           request,
           user,

@@ -135,4 +135,6 @@ Build the notification centre with push notifications as well: private participa
 
 ## Confirmed next increment — Futsal setup, 20 October 2026
 
-Owner approved starting Himmah Futsal with season configuration: both modes/formats, dates, participants, team sizes, equal starting strength, capped engagement-to-training settings and a review before freezing. The implementation distinguishes locking setup from executing a playable season; squads/training/simulation follow. Hub/Futsal remain separate experiences with later independent organization licensing. See [Futsal setup](FUTSAL_SETUP.md).
+Owner approved starting Himmah Futsal with season configuration: both modes/formats, dates, participants, team sizes, equal starting strength, capped engagement-to-training settings and a review before freezing. The implementation distinguishes locking setup from executing a playable season; the subsequent gameplay increment now implements squads/training/simulation separately. Hub/Futsal remain separate experiences with later independent organization licensing. See [Futsal setup](FUTSAL_SETUP.md).
+
+Gameplay v1 now supports organizer-triggered due training/matches and read-only assigned-participant competitions in both modes/formats. See [gameplay](FUTSAL_GAMEPLAY.md) for scope, fixed lineup policy, late-record handling and the isolated full-season runner.

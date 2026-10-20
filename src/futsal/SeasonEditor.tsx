@@ -120,7 +120,8 @@ export function SeasonEditor({
     ).current,
     dirty = useRef(false);
   const [validation, setValidation] = useState<DirectoryError | null>(null),
-    [advanced, setAdvanced] = useState<string[]>([]);
+    [advanced, setAdvanced] = useState<string[]>([]),
+    [previewPoints, setPreviewPoints] = useState("100");
   const back = () => {
     void navigate(
       season
@@ -417,6 +418,50 @@ export function SeasonEditor({
               ])}
             </div>
             <p>{m.futsal_points_help()}</p>
+            <p>
+              {m.game_conversion({
+                step: String(values.pointsPerStep),
+                chance: String(values.chanceStep),
+                cap: String(values.chanceCap),
+              })}
+            </p>
+            <div className="futsal-field">
+              <Label htmlFor="training-preview-points">
+                {m.game_preview_points()}
+              </Label>
+              <Input
+                id="training-preview-points"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                max={1000000000}
+                step={1}
+                value={previewPoints}
+                onChange={(e) => setPreviewPoints(e.target.value)}
+              />
+              <p role="status">
+                {m.futsal_benefit({
+                  points: previewPoints || "0",
+                  chance: String(
+                    trainingBenefit(
+                      Math.max(
+                        0,
+                        Math.min(1000000000, Number(previewPoints) || 0),
+                      ),
+                      {
+                        ...s,
+                        pointsPerStep: Math.max(
+                          1,
+                          Number(values.pointsPerStep) || 1,
+                        ),
+                        chanceStep: Math.max(0, Number(values.chanceStep) || 0),
+                        chanceCap: Math.max(0, Number(values.chanceCap) || 0),
+                      },
+                    ).bonusChance,
+                  ),
+                })}
+              </p>
+            </div>
             <p>{m.futsal_growth_target()}</p>
             <ul>
               {[

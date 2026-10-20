@@ -1,3 +1,5 @@
+import { ParticipantGames } from "./ParticipantGames";
+import { GamePage } from "./GamePage";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -58,7 +60,7 @@ import {
   useFutsalPrivacyGuard,
 } from "./client";
 export type FutsalLocation = {
-  page: "seasons" | "new" | "review" | "settings" | "entries";
+  page: "seasons" | "new" | "review" | "settings" | "entries" | "game";
   seasonId?: string;
   status?: "all" | "draft" | "prepared" | "cancelled";
 };
@@ -80,8 +82,10 @@ const stamp = (s: string, zone: string) =>
   }).format(new Date(s));
 export function FutsalNavigation({
   organizationId,
+  role,
 }: {
   organizationId: string;
+  role?: string | undefined;
 }) {
   useLocale();
   return (
@@ -99,7 +103,10 @@ export function FutsalNavigation({
       </Link>
       <Link
         to="/workspace/$organizationId/$section"
-        params={{ organizationId, section: "manage" }}
+        params={{
+          organizationId,
+          section: role === "participant" ? "me" : "manage",
+        }}
       >
         <LayoutGrid aria-hidden="true" />
         <span>{m.futsal_hub()}</span>
@@ -161,6 +168,21 @@ export function FutsalApp(props: {
   location: FutsalLocation;
 }) {
   useLocale();
+  if (
+    props.organization.role === "participant" &&
+    !["seasons", "game"].includes(props.location.page)
+  )
+    return <PointsError error={new DirectoryError("forbidden")} />;
+  if (props.organization.role === "participant")
+    return (
+      <FutsalPrivacy key={props.userId + props.organization.id}>
+        <ParticipantGames
+          userId={props.userId}
+          organizationId={props.organization.id}
+          seasonId={props.location.seasonId}
+        />
+      </FutsalPrivacy>
+    );
   if (!["owner", "admin"].includes(props.organization.role))
     return <PointsError error={new DirectoryError("forbidden")} />;
   return (
@@ -277,8 +299,22 @@ function FutsalContent({
         >
           {m.futsal_entries_tab()}
         </Link>
+        <Link
+          activeOptions={{ exact: true }}
+          to="/futsal/$organizationId/seasons/$seasonId/game"
+          params={params}
+          aria-current={location.page === "game" ? "page" : undefined}
+        >
+          {m.game_title()}
+        </Link>
       </RouteTabs>
-      {location.page === "settings" ? (
+      {location.page === "game" ? (
+        <GamePage
+          userId={userId}
+          organizationId={organization.id}
+          season={season}
+        />
+      ) : location.page === "settings" ? (
         season.status === "draft" ? (
           <SeasonEditor
             key={season.id}
@@ -393,7 +429,13 @@ function FutsalList({
                   <p>
                     {modeText(season.settings)} · {formatText(season.settings)}
                   </p>
-                  <span className="badge">{statusText(season.status)}</span>
+                  <span className="badge">
+                    {season.status === "prepared" && season.gameStatus
+                      ? season.gameStatus === "completed"
+                        ? m.game_completed()
+                        : m.game_active()
+                      : statusText(season.status)}
+                  </span>
                 </div>
                 <div className="directory-actions">
                   <Button variant="outline" asChild>
@@ -752,7 +794,13 @@ function Review({
           <p>
             {modeText(season.settings)} · {formatText(season.settings)}
           </p>
-          <span className="badge">{statusText(season.status)}</span>
+          <span className="badge">
+            {season.status === "prepared" && season.gameStatus
+              ? season.gameStatus === "completed"
+                ? m.game_completed()
+                : m.game_active()
+              : statusText(season.status)}
+          </span>
         </div>
         {season.status !== "cancelled" && (
           <ItemActions

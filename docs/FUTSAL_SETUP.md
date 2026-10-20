@@ -1,5 +1,7 @@
 # Futsal season setup
 
+Historical setup milestone (superseded for gameplay by [Gameplay v1](FUTSAL_GAMEPLAY.md)).
+
 Owner approved the first Futsal increment on 20 October 2026: mode/format selection, dates, participants/teams, equal starting strength, bounded engagement-to-training rules and a review before freezing settings. This is a persistent organizer setup tool, not the playable game. Training execution, virtual player creation, tactics, match simulation, standings, automatic advancement and prize administration remain subsequent milestones.
 
 ## App boundary and navigation

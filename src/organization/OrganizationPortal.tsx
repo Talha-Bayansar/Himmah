@@ -419,7 +419,10 @@ export default function OrganizationPortal({
         </header>
         {workspaceId &&
           (futsal ? (
-            <FutsalNavigation organizationId={workspaceId} />
+            <FutsalNavigation
+              organizationId={workspaceId}
+              role={selected.data?.role}
+            />
           ) : (
             <WorkspaceNavigation
               organizationId={workspaceId}

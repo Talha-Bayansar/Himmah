@@ -23,7 +23,8 @@
     "i18n:compile": "node scripts/compile-i18n.mjs",
     "test:contrast": "node scripts/check-contrast.mjs",
     "pwa:assets": "node scripts/generate-pwa-assets.mjs",
-    "test:worker": "node --test tests/worker-runtime.test.mjs tests/notifications-runtime.test.mjs"
+    "test:worker": "node --test tests/worker-runtime.test.mjs tests/notifications-runtime.test.mjs",
+    "test:futsal-season": "node --experimental-strip-types --test tests/futsal-game.test.ts"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.64.0",

@@ -5757,3 +5757,88 @@ button.item-actions-trigger {
     align-items: flex-end;
   }
 }
+
+/* Gameplay uses bounded season aggregates; its event history is cursor-paginated. */
+.futsal-game {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.futsal-game > p,
+.futsal-game h1 {
+  margin: 0;
+}
+.futsal-game [data-slot="tabs-content"][data-state="active"] {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.game-tabs {
+  width: 100%;
+  height: auto;
+  min-height: 48px;
+}
+.game-tabs [data-slot="tabs-trigger"] {
+  min-height: 44px;
+  white-space: normal;
+  flex: 1;
+}
+.game-table-scroll {
+  overflow-x: auto;
+}
+.game-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.game-table caption {
+  text-align: start;
+  font-weight: 700;
+  padding-bottom: 12px;
+}
+.game-table th,
+.game-table td {
+  padding: 12px 6px;
+  text-align: start;
+  border-bottom: 1px solid var(--line);
+}
+.game-table th[scope="row"] {
+  overflow-wrap: anywhere;
+}
+.game-matches,
+.game-players {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.game-matches li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.game-matches span {
+  overflow-wrap: anywhere;
+}
+.game-matches small {
+  grid-column: 1 / -1;
+}
+.game-players li {
+  display: grid;
+  gap: 6px;
+  padding-block: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.game-history > li {
+  display: grid;
+  gap: 12px;
+}
+.game-history p,
+.game-history h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
