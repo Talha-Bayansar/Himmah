@@ -1168,8 +1168,7 @@ main {
   padding: 17px 22px;
   background: #e9efdb;
   border-radius: 12px;
-  position: sticky;
-  bottom: 15px;
+  position: static;
   box-shadow: 0 5px 20px #153f3610;
 }
 .save-bar strong {
@@ -5594,8 +5593,7 @@ button.item-actions-trigger {
   line-height: 1.8;
 }
 .futsal-form-actions {
-  position: sticky;
-  bottom: calc(88px + env(safe-area-inset-bottom));
+  position: static;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -5734,11 +5732,6 @@ button.item-actions-trigger {
 @media (max-width: 479px) {
   .futsal-fields-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-}
-@media (min-width: 768px) {
-  .futsal-form-actions {
-    bottom: 12px;
   }
 }
 .connected-apps h2 {

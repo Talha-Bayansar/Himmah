@@ -90,3 +90,5 @@ Carry authorized work through implementation and relevant verification without r
 Use rg for discovery. Keep changes focused. Run npm run check and meaningful tests for changed game rules, authorization, persistence, and retries once implemented. Do not add empty tests or claim nonexistent coverage. Report what changed, evidence of verification, and material blockers.
 
 Before committing, inspect git diff --check and git status. Never commit .env files, credentials, real children's records, database dumps, or local provisioning responses. Keep docs/INFRASTRUCTURE.md and docs/DECISIONS.md accurate.
+
+Keep the viewport on `interactive-widget=resizes-visual`: the keyboard overlays the layout rather than lifting app bottom navigation. Page form actions remain in document flow; do not make them bottom-sticky over editable fields. Dialogs retain visible-viewport sizing and scrollable actions.

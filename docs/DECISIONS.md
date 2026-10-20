@@ -232,3 +232,7 @@ Owner approved the notification centre and explicitly requested push in the same
 ## 2026-10-20 — First Futsal increment: persistent season setup
 
 Owner approved beginning Futsal with the season setup flow. Preserve a distinct app area, both Club Manager/Team Play and league/tournament formats, organization isolation, equal baseline strength and source-independent capped training rules. The first slice saves settings, assigns entries and previews calendars/brackets. **Lock setup** atomically freezes a `prepared` snapshot; actual game activation, squads, training and simulated matches follow. No fake gameplay or season-start button is exposed. Initial numeric bounds and safe defaults are implementation choices requiring balance validation, not new owner commitments. Pilot access is owner/admin-only with no billing requirement; Hub remains standalone. See [Futsal setup](FUTSAL_SETUP.md).
+
+### 20 October 2026 — keyboard and bottom chrome
+
+Use `interactive-widget=resizes-visual` globally so Android keyboard opening does not shrink the layout viewport and lift fixed app navigation above the keyboard. Navigation stays fixed at the layout bottom; the keyboard can cover it while typing. Page-level Futsal actions and the shared save bar use normal document flow instead of bottom-sticky overlays. Dialog actions retain their bounded scroll container and visible-viewport behavior. Native keyboard behavior still requires physical-device verification.
