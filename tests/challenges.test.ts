@@ -223,6 +223,25 @@ test("PostgreSQL challenges: eligibility, frozen rules, private submissions, dec
     }
     record = (await store.submission("owner-a", org, id, sid))[0]!;
     assert.equal(record.status, "approved");
+    const notices = (
+      await db.query<{ kind: string; user_id: string }>(
+        "select kind,user_id from hub_notifications where organization_id=$1",
+        [org],
+      )
+    ).rows;
+    assert.equal(
+      notices.filter(
+        (n) => n.kind === "challenge_approved" && n.user_id === users[0]!.id,
+      ).length,
+      1,
+    );
+    assert.ok(
+      notices.some(
+        (n) => n.kind === "challenge_pending" && n.user_id === "owner-a",
+      ),
+    );
+    assert.ok(!notices.some((n) => n.user_id === "vol-a"));
+
     assert.equal(
       (
         await db.query<{ n: number }>(

@@ -1,3 +1,8 @@
+import {
+  NotificationBell,
+  Notifications,
+} from "../notifications/Notifications";
+import { disablePush } from "../notifications/push-client";
 import Challenges from "../challenges/Challenges";
 import Collection from "../coupons/Collection";
 import MyCoupons from "../coupons/MyCoupons";
@@ -205,14 +210,13 @@ export default function OrganizationPortal({
       await queryClient.cancelQueries({ queryKey: ["organization"] });
     },
     mutationFn: async () => {
+      await disablePush();
       const result = await (await authClient()).signOut();
       if (result.error)
         throw Error(authError(result.error.code, m.error_signout()));
     },
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ["organizations"] });
-      queryClient.removeQueries({ queryKey: ["organization"] });
-      queryClient.getMutationCache().clear();
+      queryClient.clear();
       queryClient.setQueryData(accountKey, null);
       if (workspaceId || accountSettings) void closeWorkspace();
       setCreating(false);
@@ -351,6 +355,16 @@ export default function OrganizationPortal({
                   void closeWorkspace();
                 }}
               />
+              {workspaceId &&
+                selected.data &&
+                user?.emailVerified &&
+                !selected.isError && (
+                  <NotificationBell
+                    key={user.id + workspaceId}
+                    userId={user.id}
+                    organizationId={workspaceId}
+                  />
+                )}
               <Button
                 variant="ghost"
                 size="icon"
@@ -1316,6 +1330,14 @@ function Workspace({
     sessionId,
     attendance,
   ]);
+  if (section === "notifications")
+    return (
+      <Notifications
+        key={userId + organization.id}
+        userId={userId}
+        organizationId={organization.id}
+      />
+    );
   if (section === "challenges")
     return organization.role === "volunteer" ? (
       <Navigate

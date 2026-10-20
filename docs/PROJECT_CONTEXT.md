@@ -128,3 +128,7 @@ Owner requested a clearer information architecture after feature growth. Daily o
 ## Configurable challenges — 19 October 2026
 
 Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See [Challenges](CHALLENGES.md).
+
+## Confirmed addition — 20 October 2026
+
+Build the notification centre with push notifications as well: private participant updates and organizer work alerts, unread/read states and links to existing workflows. Push is explicitly opt-in per device, with generic lock-screen text and personal controls. See [Notifications](NOTIFICATIONS.md).

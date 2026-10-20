@@ -29,3 +29,7 @@ Registration is production-only and optional: failure cannot block login. Servic
 ## Verification boundaries
 
 Automated checks exercise native install event handling, translated instructions, asset dimensions, generated manifests and private-data cache exclusion. Local production HTTP checks verify assets/metadata/MIME types and removed demo routes. Actual installation and splash display on physical iOS/Android devices, live email delivery and hosted sign-up remain unverified in this environment.
+
+## Opt-in push notifications
+
+Profile now offers per-device push permission and confirmed device/all-device disable. iOS/iPadOS users need a compatible installed Home Screen app; in-app notifications remain available without push. Lock-screen alerts contain generic localized text only. Notification clicks open the private notification centre without replacing another window's unfinished form. See [Notifications](NOTIFICATIONS.md) for supported providers, delivery retries and credential maintenance.

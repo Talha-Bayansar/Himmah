@@ -1,3 +1,4 @@
+import { PushSettings } from "../notifications/PushSettings";
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, LogOut, Building2 } from "lucide-react";
@@ -14,7 +15,7 @@ export function AccountSettings({
   pending,
   onSignOut,
 }: {
-  user: { name: string; email: string; emailVerified: boolean };
+  user: { id: string; name: string; email: string; emailVerified: boolean };
   organization?: Organization;
   pending: boolean;
   onSignOut: () => void;
@@ -55,6 +56,7 @@ export function AccountSettings({
           {m.sign_out()}
         </ActionButton>
       </section>
+      {user.emailVerified && <PushSettings key={user.id} userId={user.id} />}
       {organization && !["owner", "admin"].includes(organization.role) && (
         <Button variant="outline" asChild>
           <Link

@@ -224,3 +224,7 @@ Owner clarified that card primary actions should take the remaining width while 
 ## 2026-10-19 — Configurable engagement challenges
 
 Owner approved configurable challenges with optional dates, eligible groups, participant submissions and staff review/direct recording. The first increment assigns management/review to owners/admins; existing volunteer grants do not imply new approval authority. Publication freezes rules and audience IDs. One completion per person can award points once, with resubmission after rejection/withdrawal while open. Approval is a distinct ledger source, correctable through existing owner/admin point history without reopening completion. No uploads or automated quizzes are added. Daily participant Profile moves to the existing header shortcut to retain four navigation items. See [Challenges](CHALLENGES.md).
+
+## 2026-10-20 — Private notifications with opt-in Web Push
+
+Owner approved the notification centre and explicitly requested push in the same increment. Keep a private organization-scoped history and header bell, with device-specific consent in Profile. Use transactional database event triggers and a durable outbox dispatched by the existing Cloudflare Worker cron. Push is generic on lock screens, rechecks current access and never contains private notes or codes. Exact participant-link snapshots prevent history crossing a later relink. No new paid delivery service, automatic permission prompts or historical backfill. See [Notifications](NOTIFICATIONS.md).

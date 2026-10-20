@@ -14,6 +14,7 @@ import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "notifications",
   "challenges",
   "collect",
   "my-coupons",

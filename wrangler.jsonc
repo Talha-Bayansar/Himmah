@@ -9,6 +9,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2026-10-18",
   "workers_dev": true,
+  "triggers": { "crons": ["* * * * *"] },
   "ratelimits": [{ "name": "ONBOARDING_LIMITER", "namespace_id": "2847131", "simple": { "limit": 10, "period": 60 } },{ "name": "DIRECTORY_LIMITER", "namespace_id": "693875421", "simple": { "limit": 60, "period": 60 } }],
   "assets": {
     "directory": "./dist/client",

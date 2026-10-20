@@ -1,0 +1,31 @@
+# Notifications and Web Push
+
+The owner approved an in-app notification centre with opt-in push notifications on 20 October 2026. Notifications are organization-scoped and private to their recipient. The header bell opens a real `/workspace/:organizationId/notifications` page, with a capped unread count, cursor-paginated history, mark-as-read and mark-all-as-read. The PWA still starts at `/hub`.
+
+## Events and visibility
+
+Participants receive point awards/corrections, challenge approval or feedback, and reward reservation/collection/cancellation updates. Owners/admins receive challenge submissions needing review and reward reservations awaiting collection; the initiating staff member is excluded from staff alerts. Volunteers do not gain review access through notifications. Challenge awards use the challenge decision notification rather than sending a second points notification. An unlinked participant has no account recipient; linking later does not backfill private history.
+
+Database triggers create recipient-specific notifications and push outbox entries in the same transaction as ledger/audit events. Existing receipt retries do not repeat events. Notifications snapshot the exact participant link, not only the user ID. Every history/count/read query and every push send checks current access: a revoked link, archived participant, different linked person, removed staff member or demoted admin loses access to earlier restricted notifications. Notifications contain an event category and an internal destination, never staff notes, quiz answers, coupon codes or invitation tokens. Destinations retain their own authorization checks.
+
+The notification bell refreshes every 30 seconds while active, on normal Query focus refresh, and on a service-worker push message. Growing history uses the shared bounded infinite-query pattern. Authorization failures hide cached private rows. Read actions are idempotent; marking all read affects the current authorized organization history at the server transaction snapshot.
+
+## Device opt-in
+
+Profile contains push settings. Permission is requested only after pressing Enable on this device, with an explanation of generic alerts. Supported browsers need HTTPS, service workers, Notifications and PushManager. iOS/iPadOS users need a compatible installed Home Screen app (Web Push requires iOS/iPadOS 16.4 or later); browser/OS support remains authoritative. Unsupported or denied permission states retain the in-app centre and give guidance. There is no automatic permission prompt or silent resubscription. Explicit push opt-in activates a waiting push-capable service worker without reloading any open forms; other updates retain normal activation.
+
+Device endpoints are account-bound, unique, capped at ten per account, and validated against known HTTPS browser push providers (Google, Mozilla, Apple and Windows). Arbitrary URLs, credentials, ports and fragments are rejected. The public P-256 key and 16-byte authentication secret are validated before registration. Locale is saved per device and updated from Profile. Reusing an endpoint belonging to another account conflicts rather than silently transferring alerts. No endpoint or key is exposed in list APIs or logs.
+
+Disable on this device and Disable on all devices require confirmation. All-device disable is available even if the current browser does not support push. Sign-out removes the current browser's server subscription before unsubscribing locally and signing out, closes displayed Himmah notifications and clears private Query caches. A failed server cleanup keeps sign-out retryable so the device is not silently left subscribed. If the session has already expired, the browser endpoint is revoked locally; stale server rows are removed on the provider’s expiration response. Authenticated users may revoke their own push devices even if email verification has changed, without gaining notification-history access. Other devices remain signed in and enabled unless explicitly disabled.
+
+## Delivery and privacy
+
+The existing Cloudflare Worker runs a once-per-minute Cron Trigger. It claims at most 20 deliveries using row locks and a five-minute lease, sends four at a time, and acknowledges only the matching lease. Sending uses Web Crypto RFC 8291 aes128gcm encryption and RFC 8292 VAPID authentication, via `@block65/webcrypto-web-push`. Native fetch is wrapped with its global receiver; redirects are forbidden and sends have a ten-second timeout.
+
+Push payloads use localized generic text and the notification-centre URL. Names, points, challenge/reward labels, private notes and redemption secrets never appear on the lock screen. The service worker validates notification-click paths, focuses an already-open centre or opens a new window without replacing an unfinished form. OS notifications are coalesced under one Himmah tag. Authenticated HTML and API data remain excluded from PWA caches; no offline mutation queue is added.
+
+Unread/currently authorized events only are sent. Read, revoked or expired deliveries are discarded. Provider 404/410 removes the device and its queue. Transient/network errors, throttling and provider auth failures retry with bounded backoff up to five attempts; deliveries expire after 24 hours, with a provider TTL of one hour. The queue survives Worker restarts; duplicate OS delivery remains possible after an ambiguous provider response, so notifications never mutate points or rewards. Browser/OS delivery is best effort, not a guarantee of immediate receipt.
+
+Dedicated `HIMMAH_VAPID_PUBLIC_KEY` and `HIMMAH_VAPID_PRIVATE_KEY` bindings belong to Himmah only. Private keys live in encrypted Worker secret storage and ignored local configuration, never source control or client assets. The app HTTPS origin is the VAPID contact subject. Keep the key pair stable; rotating it requires existing devices to opt in again. No Firebase account, paid push provider, email broadcast or additional database project is needed.
+
+Migration `0013_hard_pestilence` adds notifications, devices and durable deliveries, event triggers, access predicates and atomic registration limits. It does not backfill notifications or send alerts for old records. Test synthetic fixture endpoints only; never enable, enroll or send test alerts to real participant devices.

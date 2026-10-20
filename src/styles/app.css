@@ -5419,3 +5419,108 @@ button.item-actions-trigger {
 .challenge-detail-panel > .badge {
   justify-self: start;
 }
+
+.app-header > .notification-shortcut {
+  flex: 0 0 48px;
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+.notification-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  padding: 1px 4px;
+  border-radius: 10px;
+  background: var(--forest);
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+.notification-count-skeleton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+.notifications-mark-all {
+  margin-bottom: 20px;
+}
+.notification-list {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+.notification-list > li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  min-width: 0;
+}
+.notification-list > li > a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  color: var(--forest);
+  text-decoration: none;
+}
+.notification-list > li > a > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.notification-list strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.notification-list time {
+  display: block;
+  margin-top: 6px;
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.notification-list .is-read strong {
+  font-weight: 400;
+}
+.notification-indicator {
+  flex: 0 0 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--forest);
+}
+.is-read .notification-indicator {
+  background: transparent;
+}
+.notification-list button {
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+}
+.push-settings h2 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.push-settings > p {
+  margin: 0;
+}
+.app-header > .notification-shortcut {
+  margin-left: auto;
+}
+.app-header:has(.notification-shortcut) .profile-shortcut {
+  margin-left: 0;
+}

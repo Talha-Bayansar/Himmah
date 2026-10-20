@@ -19,6 +19,7 @@ The deployed app contains working organizer registration, email verification, si
 - [Archived prototype and development fixtures](docs/PROTOTYPE.md)
 - [Member/group management and pagination](docs/MEMBERS_AND_GROUPS.md)
 - [Scoped volunteer assignments](docs/VOLUNTEER_ACCESS.md)
+- [Private notifications and opt-in push](docs/NOTIFICATIONS.md)
 - [Rewards and redemption](docs/REWARDS.md)
 - [Participant invitations and personal dashboard](docs/PARTICIPANT_ACCESS.md)
 - [Approved Hub feature design](docs/HUB.md)

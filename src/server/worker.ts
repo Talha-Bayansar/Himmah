@@ -1,3 +1,8 @@
+import { notificationApi } from "./notification-api.ts";
+import {
+  createNotificationStore,
+  type NotificationStore,
+} from "./notification-store.ts";
 import { challengeApi } from "./challenge-api.ts";
 import {
   createChallengeStore,
@@ -37,6 +42,8 @@ import {
 export interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   HIMMAH_DATABASE_URL: string;
+  HIMMAH_VAPID_PUBLIC_KEY?: string;
+  HIMMAH_VAPID_PRIVATE_KEY?: string;
   HIMMAH_AUTH_URL: string;
   HIMMAH_APP_ORIGIN: string;
   DIRECTORY_LIMITER?: {
@@ -57,6 +64,7 @@ type Dependencies = {
   store: (url: string) => OrganizationStore;
   directory?: (url: string) => CommunityStore;
   challenges?: (url: string) => ChallengeStore;
+  notifications?: (url: string) => NotificationStore;
   coupons?: (url: string) => CouponStore;
 };
 const json = (body: unknown, status = 200) =>
@@ -224,6 +232,31 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (
+        /^\/api\/(organizations\/[^/]+\/notifications|notifications\/push)(\/|$)/.test(
+          url.pathname,
+        )
+      ) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `notifications:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await notificationApi(
+          request,
+          user,
+          store,
+          (deps.notifications ?? createNotificationStore)(
+            env.HIMMAH_DATABASE_URL,
+          ),
+          env.HIMMAH_VAPID_PRIVATE_KEY
+            ? (env.HIMMAH_VAPID_PUBLIC_KEY ?? null)
+            : null,
+        );
+        if (response) return response;
+      }
+
       if (
         /^\/api\/organizations\/[^/]+\/(me\/)?challenges(\/|$)/.test(
           url.pathname,

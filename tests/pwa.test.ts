@@ -135,3 +135,99 @@ test("service worker never caches API calls, authenticated HTML or mutations", a
   );
   assert.equal(writes, 0);
 });
+
+test("push notifications validate click routes, focus the centre and preserve unfinished windows", async () => {
+  const source = await readFile(
+    new URL("../public/sw.js", import.meta.url),
+    "utf8",
+  );
+  type Event = {
+    data?: { json: () => unknown };
+    notification: { data: { url: string }; close: () => void };
+    waitUntil: (promise: Promise<unknown>) => void;
+  };
+  const listeners: Record<string, (event: Event) => void> = {};
+  const shown: {
+      title: string;
+      options: { body: string; data: { url: string } };
+    }[] = [],
+    opened: string[] = [],
+    messages: unknown[] = [];
+  let focused = 0,
+    closed = 0,
+    exact = false;
+  const destination =
+    "https://himmah.example/workspace/11111111-1111-4111-8111-111111111111/notifications";
+  runInNewContext(source, {
+    self: {
+      location: { origin: "https://himmah.example" },
+      addEventListener: (name: string, handler: (event: Event) => void) => {
+        listeners[name] = handler;
+      },
+      registration: {
+        showNotification: async (
+          title: string,
+          options: (typeof shown)[number]["options"],
+        ) => {
+          shown.push({ title, options });
+        },
+      },
+      clients: {
+        matchAll: async () => [
+          {
+            url: exact ? destination : "https://himmah.example/workspace/form",
+            focus: async () => {
+              focused++;
+            },
+            postMessage: (value: unknown) => messages.push(value),
+          },
+        ],
+        openWindow: async (url: string) => {
+          opened.push(url);
+        },
+      },
+    },
+    URL,
+    Response,
+  });
+  async function dispatch(
+    kind: string,
+    data: unknown,
+    url = "https://evil.invalid/",
+  ) {
+    let work: Promise<unknown> | undefined;
+    listeners[kind]!({
+      data: { json: () => data },
+      notification: {
+        data: { url },
+        close: () => {
+          closed++;
+        },
+      },
+      waitUntil: (p) => {
+        work = p;
+      },
+    });
+    await work;
+  }
+  await dispatch("push", {
+    body: "Generic update",
+    url: "/workspace/11111111-1111-4111-8111-111111111111/notifications",
+  });
+  assert.equal(shown[0]!.title, "Himmah");
+  assert.equal(shown[0]!.options.body, "Generic update");
+  assert.equal(messages.length, 1);
+  await dispatch("notificationclick", null, shown[0]!.options.data.url);
+  assert.deepEqual(opened, [destination]);
+  assert.equal(focused, 0);
+  exact = true;
+  await dispatch("notificationclick", null, shown[0]!.options.data.url);
+  assert.equal(focused, 1);
+  assert.equal(opened.length, 1);
+  await dispatch("notificationclick", null);
+  assert.equal(opened[1], "https://himmah.example/hub");
+  assert.equal(closed, 3);
+  await dispatch("push", { body: "x".repeat(500), url: "//evil.invalid/" });
+  assert.equal(shown[1]!.options.body, "Himmah");
+  assert.equal(shown[1]!.options.data.url, "/hub");
+});

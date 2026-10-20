@@ -23,7 +23,7 @@
     "i18n:compile": "node scripts/compile-i18n.mjs",
     "test:contrast": "node scripts/check-contrast.mjs",
     "pwa:assets": "node scripts/generate-pwa-assets.mjs",
-    "test:worker": "node --test tests/worker-runtime.test.mjs"
+    "test:worker": "node --test tests/worker-runtime.test.mjs tests/notifications-runtime.test.mjs"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.64.0",
@@ -37,6 +37,7 @@
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "@types/web-push": "^3.6.4",
     "@vitejs/plugin-react": "^6.1.2",
     "drizzle-kit": "^0.31.11",
     "esbuild": "^0.28.2",
@@ -48,10 +49,12 @@
     "typescript": "~5.9.3",
     "vite": "^8.3.4",
     "vitest": "^5.0.5",
+    "web-push": "^3.6.7",
     "wrangler": "^4.151.1"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@block65/webcrypto-web-push": "^2.0.0",
     "@hookform/resolvers": "^5.9.2",
     "@neondatabase/auth": "^0.6.0-beta",
     "@neondatabase/serverless": "^1.2.0",

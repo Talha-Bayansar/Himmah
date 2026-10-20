@@ -209,6 +209,22 @@ test("PostgreSQL coupons: backfill, concurrent stock/wallet claims, receipts, pr
       /^[0-9a-f]{64}$/,
     );
     assert.equal((await store.get("child-a", org, legacyUsed))[0]!.code, null);
+    for (const entry of journal.entries.slice(
+      journal.entries.findIndex((e: { tag: string }) =>
+        e.tag.startsWith("0012_"),
+      ),
+    ))
+      await db.exec(
+        await readFile(new URL(entry.tag + ".sql", directory), "utf8"),
+      );
+    assert.equal(
+      (
+        await db.query<{ n: number }>(
+          "select count(*)::int n from hub_notifications",
+        )
+      ).rows[0]!.n,
+      0,
+    );
     const changed = await reward("Changed catalogue", 10);
     await rewards.save("owner-a", org, changed, null, {
       action: "edit",
@@ -372,6 +388,25 @@ test("PostgreSQL coupons: backfill, concurrent stock/wallet claims, receipts, pr
     });
     assert.equal(collected!.status, 200);
     assert.equal((await collected!.json()).item.status, "fulfilled");
+    const notices = (
+      await db.query<{ kind: string; user_id: string }>(
+        "select kind,user_id from hub_notifications where href like $1",
+        ["%/my-coupons/" + claimId],
+      )
+    ).rows;
+    assert.equal(
+      notices.filter(
+        (n) => n.kind === "reward_collected" && n.user_id === winner.id,
+      ).length,
+      1,
+    );
+    assert.equal(
+      notices.filter(
+        (n) => n.kind === "reward_reserved" && n.user_id === winner.id,
+      ).length,
+      1,
+    );
+
     await call(staff, collection, "PATCH", {
       code: coupon.code,
       action: "fulfilled",

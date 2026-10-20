@@ -1175,3 +1175,88 @@ export const challengeEvents = pgTable(
     }),
   ],
 );
+
+export const notifications = pgTable(
+  "hub_notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    userId: text("user_id").notNull(),
+    participantLinkId: uuid("participant_link_id").references(
+      () => participantLinks.id,
+    ),
+    adminOnly: boolean("admin_only").notNull().default(false),
+    eventId: uuid("event_id").notNull(),
+    kind: text("kind").notNull(),
+    href: text("href").notNull(),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_notification_event").on(
+      t.organizationId,
+      t.userId,
+      t.eventId,
+      t.kind,
+    ),
+    index("hub_notification_page").on(
+      t.userId,
+      t.organizationId,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_notification_audience",
+      sql`${t.adminOnly}=(${t.participantLinkId} is null)`,
+    ),
+  ],
+);
+export const pushDevices = pgTable(
+  "hub_push_devices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    endpoint: text("endpoint").notNull().unique(),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    locale: text("locale").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("hub_push_user").on(t.userId),
+    check("hub_push_locale", sql`${t.locale} in ('en','nl','tr')`),
+  ],
+);
+export const pushDeliveries = pgTable(
+  "hub_push_deliveries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    notificationId: uuid("notification_id")
+      .notNull()
+      .references(() => notifications.id, { onDelete: "cascade" }),
+    deviceId: uuid("device_id")
+      .notNull()
+      .references(() => pushDevices.id, { onDelete: "cascade" }),
+    state: text("state").notNull().default("pending"),
+    attempts: integer("attempts").notNull().default(0),
+    nextAt: timestamp("next_at", { withTimezone: true }).notNull().defaultNow(),
+    lease: uuid("lease"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_push_delivery").on(t.notificationId, t.deviceId),
+    index("hub_push_due").on(t.state, t.nextAt),
+    check(
+      "hub_push_state",
+      sql`${t.state} in ('pending','sending','sent','dead') and ${t.attempts} between 0 and 5`,
+    ),
+  ],
+);
