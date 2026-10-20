@@ -61,3 +61,5 @@ Daily organizer navigation is Activities, People, Rewards and Manage. People gro
 Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See [Challenges](docs/CHALLENGES.md).
 
 Gameplay v1 now supports organizer-triggered due training/matches and read-only assigned-participant competitions in both modes/formats. See [gameplay](docs/FUTSAL_GAMEPLAY.md) for scope, fixed lineup policy, late-record handling and the isolated full-season runner.
+
+Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See [Futsal app](docs/FUTSAL_APP.md).

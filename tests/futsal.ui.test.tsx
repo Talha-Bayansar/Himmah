@@ -393,3 +393,83 @@ it("activates only after confirmation and reuses the same receipt after an uncer
   expect(writes[1]).toEqual(writes[0]);
   expect(JSON.parse(writes[0]!).version).toBe(0);
 });
+
+it("uses the assigned club in the clubhouse and reveals saved scores without a write", async () => {
+  const { FutsalExperience } = await import("../src/futsal/FutsalExperience");
+  const player = (id: string) => ({
+    id,
+    personId: null,
+    name: "",
+    attack: 50,
+    defence: 50,
+    control: 50,
+  });
+  const entries = [
+    {
+      id: "55555555-5555-4555-8555-555555555551",
+      name: "Atlas",
+      players: Array.from({ length: 5 }, (_, i) => player("a" + i)),
+    },
+    {
+      id: "55555555-5555-4555-8555-555555555552",
+      name: "Hilal",
+      players: Array.from({ length: 5 }, (_, i) => player("b" + i)),
+    },
+  ];
+  const state = {
+    engineVersion: "futsal-game-v1",
+    status: "completed",
+    step: 2,
+    entries,
+    results: [
+      {
+        id: "r1m1",
+        round: 1,
+        home: entries[0]!.id,
+        away: entries[1]!.id,
+        homeGoals: 3,
+        awayGoals: 2,
+        winner: entries[0]!.id,
+        penalties: false,
+        inputs: null,
+      },
+    ],
+  };
+  const requests: RequestInit[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
+      requests.push(init ?? {});
+      return Response.json({
+        item: {
+          id,
+          name: "Community season",
+          settings: season.settings,
+          ownEntryId: entries[1]!.id,
+          state,
+        },
+      });
+    }),
+  );
+  const user = userEvent.setup();
+  mount(
+    <FutsalExperience
+      userId="player"
+      organization={{ ...org, role: "participant" }}
+      seasonId={id}
+      page="matchday"
+    />,
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Reveal result" }),
+  );
+  expect(screen.getByText("3–2")).toBeTruthy();
+  await user.click(screen.getByRole("button", { name: "Replay reveal" }));
+  await user.click(screen.getByRole("button", { name: "Reveal result" }));
+  expect(screen.getByText("3–2")).toBeTruthy();
+  expect(requests.every((r) => !r.method || r.method === "GET")).toBe(true);
+  expect(screen.queryByRole("link", { name: "Manage" })).toBeNull();
+  expect((screen.getByLabelText("View club") as HTMLSelectElement).value).toBe(
+    entries[1]!.id,
+  );
+});

@@ -20,7 +20,16 @@ export function createFutsalGameStore(
       ),
     participantGet: (user: string, org: string, id: string) =>
       rows(
-        sql`select s.id,s.name,s.settings,g.state,s.created_at::text as "createdAt" from futsal_seasons s join futsal_games g on g.organization_id=s.organization_id and g.season_id=s.id where s.organization_id=${org}::uuid and s.id=${id}::uuid and s.status='prepared' and ${eligible(user, org)}`,
+        sql`select s.id,s.name,s.settings,s.snapshot->'plan' as plan,(select m.entry_id from futsal_entry_members m where m.organization_id=s.organization_id and m.season_id=s.id and m.person_id=hub_participant_person(${user},${org}::uuid)) as "ownEntryId",g.state,s.created_at::text as "createdAt" from futsal_seasons s join futsal_games g on g.organization_id=s.organization_id and g.season_id=s.id where s.organization_id=${org}::uuid and s.id=${id}::uuid and s.status='prepared' and ${eligible(user, org)}`,
+      ),
+    participantTraining: (
+      user: string,
+      org: string,
+      id: string,
+      p: PageInput,
+    ) =>
+      rows(
+        sql`select e.id,e.created_at::text as "createdAt",jsonb_build_object('at',e.event->'at','growth',coalesce((select jsonb_agg(item-'personId') from jsonb_array_elements(e.event->'growth') item where item->>'personId'=hub_participant_person(${user},${org}::uuid)::text),'[]'::jsonb)) as event from futsal_game_events e join futsal_seasons s on s.organization_id=e.organization_id and s.id=e.season_id where e.organization_id=${org}::uuid and e.season_id=${id}::uuid and s.status='prepared' and ${eligible(user, org)} and e.event->>'kind'='training' ${p.after ? sql`and(e.created_at,e.id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by e.created_at desc,e.id desc limit ${p.limit + 1}`,
       ),
     get: (user: string, org: string, id: string) =>
       rows(

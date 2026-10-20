@@ -17,49 +17,66 @@ import themeCss from "../styles/theme.css?url";
 import appCss from "../styles/app.css?url";
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
-    head: () => ({
-      meta: [
-        { charSet: "utf-8" },
-        { name: "referrer", content: "no-referrer" },
-        {
-          name: "viewport",
-          content:
-            "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual",
-        },
-        { name: "theme-color", content: "#12382f" },
-        { name: "mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-capable", content: "yes" },
-        { name: "apple-mobile-web-app-title", content: "Himmah" },
-        { name: "apple-mobile-web-app-status-bar-style", content: "default" },
-        { title: m.page_title() },
-        {
-          name: "description",
-          content: m.page_description(),
-        },
-      ],
-      links: [
-        { rel: "manifest", href: `/manifest.${getLocale()}.webmanifest` },
-        { rel: "icon", href: "/pwa/icon.svg", type: "image/svg+xml" },
-        {
-          rel: "icon",
-          href: "/pwa/icon-32.png",
-          type: "image/png",
-          sizes: "32x32",
-        },
-        {
-          rel: "apple-touch-icon",
-          href: "/pwa/apple-touch-icon.png",
-          sizes: "180x180",
-        },
-        ...splashScreens.map(({ href, media }) => ({
-          rel: "apple-touch-startup-image",
-          href,
-          media,
-        })),
-        { rel: "stylesheet", href: themeCss },
-        { rel: "stylesheet", href: appCss },
-      ],
-    }),
+    head: ({ matches }) => {
+      const futsal = matches.some((match) =>
+        match.pathname.startsWith("/futsal"),
+      );
+      return {
+        meta: [
+          { charSet: "utf-8" },
+          { name: "referrer", content: "no-referrer" },
+          {
+            name: "viewport",
+            content:
+              "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-visual",
+          },
+          { name: "theme-color", content: "#12382f" },
+          { name: "mobile-web-app-capable", content: "yes" },
+          { name: "apple-mobile-web-app-capable", content: "yes" },
+          {
+            name: "apple-mobile-web-app-title",
+            content: futsal ? "Himmah Futsal" : "Himmah",
+          },
+          { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+          { title: futsal ? m.futsal_title() : m.page_title() },
+          {
+            name: "description",
+            content: m.page_description(),
+          },
+        ],
+        links: [
+          {
+            rel: "manifest",
+            href: `${futsal ? "/futsal" : ""}/manifest.${getLocale()}.webmanifest`,
+          },
+          {
+            rel: "icon",
+            href: futsal ? "/pwa/futsal/icon.svg" : "/pwa/icon.svg",
+            type: "image/svg+xml",
+          },
+          {
+            rel: "icon",
+            href: futsal ? "/pwa/futsal/icon-32.png" : "/pwa/icon-32.png",
+            type: "image/png",
+            sizes: "32x32",
+          },
+          {
+            rel: "apple-touch-icon",
+            href: futsal
+              ? "/pwa/futsal/icon-180.png"
+              : "/pwa/apple-touch-icon.png",
+            sizes: "180x180",
+          },
+          ...splashScreens.map(({ href, media }) => ({
+            rel: "apple-touch-startup-image",
+            href: futsal ? href.replace("/pwa/", "/pwa/futsal/") : href,
+            media,
+          })),
+          { rel: "stylesheet", href: themeCss },
+          { rel: "stylesheet", href: appCss },
+        ],
+      };
+    },
     component: Root,
     notFoundComponent: () => {
       useLocale();

@@ -232,17 +232,85 @@ test("push notifications validate click routes, focus the centre and preserve un
   assert.equal(shown[1]!.options.data.url, "/hub");
 });
 
-
 test("Android notification badge has a transparent background and a white leaf silhouette", async () => {
-  const {data,info}=await sharp(new URL("../public/pwa/notification-badge.png",import.meta.url).pathname).ensureAlpha().raw().toBuffer({resolveWithObject:true});
-  assert.equal(info.width,96);assert.equal(info.height,96);
-  let visible=0,transparent=0;
-  for(let i=0;i<data.length;i+=4){
-    if(data[i+3]===0)transparent++;
-    else{visible++;assert.equal(data[i],255);assert.equal(data[i+1],255);assert.equal(data[i+2],255);}
+  const { data, info } = await sharp(
+    new URL("../public/pwa/notification-badge.png", import.meta.url).pathname,
+  )
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  assert.equal(info.width, 96);
+  assert.equal(info.height, 96);
+  let visible = 0,
+    transparent = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    if (data[i + 3] === 0) transparent++;
+    else {
+      visible++;
+      assert.equal(data[i], 255);
+      assert.equal(data[i + 1], 255);
+      assert.equal(data[i + 2], 255);
+    }
   }
-  assert.ok(visible>200);assert.ok(transparent>info.width*info.height/2);
-  assert.equal(data[3],0);
-  const worker=await readFile(new URL("../public/sw.js",import.meta.url),"utf8");
+  assert.ok(visible > 200);
+  assert.ok(transparent > (info.width * info.height) / 2);
+  assert.equal(data[3], 0);
+  const worker = await readFile(
+    new URL("../public/sw.js", import.meta.url),
+    "utf8",
+  );
   assert.ok(worker.includes('badge: "/pwa/notification-badge.png"'));
+});
+
+test("Futsal has a distinct install identity, scoped launcher and leaf-shield icons without changing Hub identity", async () => {
+  for (const locale of ["en", "nl", "tr"]) {
+    const hub = JSON.parse(
+      await readFile(
+        new URL(`../public/manifest.${locale}.webmanifest`, import.meta.url),
+        "utf8",
+      ),
+    );
+    const game = JSON.parse(
+      await readFile(
+        new URL(
+          `../public/futsal/manifest.${locale}.webmanifest`,
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+    );
+    assert.notEqual(game.id, hub.id);
+    assert.equal(game.id, "/futsal");
+    assert.equal(game.start_url, "/futsal");
+    assert.equal(game.scope, "/futsal");
+    assert.equal(hub.start_url, "/hub");
+    assert.equal(game.name, "Himmah Futsal");
+    assert.equal(game.lang, locale);
+    for (const icon of game.icons) {
+      const meta = await sharp(
+        new URL("../public" + icon.src, import.meta.url).pathname,
+      ).metadata();
+      assert.equal(`${meta.width}x${meta.height}`, icon.sizes);
+      assert.equal(meta.hasAlpha, false);
+    }
+  }
+  const svg = await readFile(
+    new URL("../public/pwa/futsal/icon.svg", import.meta.url),
+    "utf8",
+  );
+  assert.ok(svg.includes("#12382f"));
+  assert.ok(svg.includes("#def19e"));
+  for (const item of splashScreens) {
+    const meta = await sharp(
+      new URL(
+        "../public" + item.href.replace("/pwa/", "/pwa/futsal/"),
+        import.meta.url,
+      ).pathname,
+    ).metadata();
+    const original = await sharp(
+      new URL("../public" + item.href, import.meta.url).pathname,
+    ).metadata();
+    assert.equal(meta.width, original.width);
+    assert.equal(meta.height, original.height);
+  }
 });

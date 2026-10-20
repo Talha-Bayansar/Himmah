@@ -1,7 +1,7 @@
 import { PushSettings } from "../notifications/PushSettings";
 import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, LogOut, Building2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, LogOut, Building2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ActionButton } from "../components/shared/action-button";
 import { LanguageSelector, useLocale } from "../localization/locale";
@@ -11,12 +11,14 @@ import type { Organization } from "./contracts";
 
 export function AccountSettings({
   user,
+  futsal = false,
   organization,
   pending,
   onSignOut,
 }: {
   user: { id: string; name: string; email: string; emailVerified: boolean };
   organization?: Organization;
+  futsal?: boolean;
   pending: boolean;
   onSignOut: () => void;
 }) {
@@ -27,6 +29,14 @@ export function AccountSettings({
   }, []);
   return (
     <div className="settings-page">
+      {futsal && (
+        <Button variant="link" className="settings-back" asChild>
+          <Link to="/futsal">
+            <ArrowLeft aria-hidden="true" />
+            {m.futsal_title()}
+          </Link>
+        </Button>
+      )}
       <header className="profile-heading">
         <h1 ref={heading} tabIndex={-1} data-page-heading>
           {m.profile()}
@@ -50,7 +60,7 @@ export function AccountSettings({
           <span>{m.language()}</span>
           <LanguageSelector />
         </div>
-        <InstallApp />
+        <InstallApp futsal={futsal} />
         <ActionButton variant="outline" pending={pending} onClick={onSignOut}>
           <LogOut size={18} />
           {m.sign_out()}
@@ -72,7 +82,7 @@ export function AccountSettings({
           </Link>
         </Button>
       )}
-      {!organization && (
+      {!organization && !futsal && (
         <Button variant="outline" asChild>
           <Link to="/start">{m.my_organizations()}</Link>
         </Button>

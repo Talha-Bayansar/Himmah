@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+import { Button } from "../components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Play, FastForward, Trophy } from "lucide-react";
@@ -124,6 +126,15 @@ export function GamePage({
       <h1 data-page-heading tabIndex={-1}>
         {m.game_title()}
       </h1>
+      <Button variant="outline" asChild>
+        <Link
+          to="/futsal/$organizationId/seasons/$seasonId/clubhouse"
+          params={{ organizationId, seasonId: season.id }}
+        >
+          <Trophy aria-hidden="true" />
+          {m.arena_enter()}
+        </Link>
+      </Button>
       <p>
         {season.name} ·{" "}
         {state?.status === "completed"

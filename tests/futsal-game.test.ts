@@ -489,6 +489,21 @@ test("real SQL/API fast-forward: all four complete seasons, clock gates, exact r
           (await call(id, "events", undefined, participant))?.status,
           403,
         );
+        const personalTraining = await play("/" + id + "/training?limit=1");
+        assert.equal(personalTraining?.status, 200);
+        const trainingData = await personalTraining!.json();
+        assert.equal(trainingData.items.length, 1);
+        assert.equal(trainingData.items[0].event.growth.length, 1);
+        assert.ok(!JSON.stringify(trainingData).includes("personId"));
+        assert.ok(!JSON.stringify(trainingData).includes("allocations"));
+        for (const peer of saved.entries
+          .flatMap((e) => e.members)
+          .filter((p) => p.id !== person))
+          assert.ok(!JSON.stringify(trainingData).includes(peer.id));
+        assert.equal(
+          (await play("/" + id + "/training", "other"))?.status,
+          404,
+        );
         const ownList = await (await play())!.json();
         assert.equal(ownList.items.length, 1);
         await db.query(
@@ -514,6 +529,7 @@ test("real SQL/API fast-forward: all four complete seasons, clock gates, exact r
         );
         assert.equal((await play("/" + id))?.status, 404);
         assert.equal((await (await play())!.json()).items.length, 0);
+        assert.equal((await play("/" + id + "/training"))?.status, 404);
         summary.push({
           mode,
           format,

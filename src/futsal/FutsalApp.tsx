@@ -1,8 +1,14 @@
+import { InstallApp } from "../pwa/install";
+import {
+  FutsalExperience,
+  ArenaLobby,
+  ArenaNavigation,
+} from "./FutsalExperience";
 import { ParticipantGames } from "./ParticipantGames";
 import { GamePage } from "./GamePage";
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, Navigate } from "@tanstack/react-router";
 import {
   Trophy,
   LayoutGrid,
@@ -60,8 +66,20 @@ import {
   useFutsalPrivacyGuard,
 } from "./client";
 export type FutsalLocation = {
-  page: "seasons" | "new" | "review" | "settings" | "entries" | "game";
+  page:
+    | "seasons"
+    | "new"
+    | "review"
+    | "settings"
+    | "entries"
+    | "game"
+    | "clubhouse"
+    | "squad"
+    | "competition"
+    | "training"
+    | "matchday";
   seasonId?: string;
+  clubId?: string | undefined;
   status?: "all" | "draft" | "prepared" | "cancelled";
 };
 const statusText = (s: FutsalSeason["status"]) =>
@@ -83,11 +101,26 @@ const stamp = (s: string, zone: string) =>
 export function FutsalNavigation({
   organizationId,
   role,
+  location,
 }: {
   organizationId: string;
   role?: string | undefined;
+  location?: FutsalLocation;
 }) {
   useLocale();
+  if (
+    location?.seasonId &&
+    ["clubhouse", "squad", "competition", "training", "matchday"].includes(
+      location.page,
+    )
+  )
+    return (
+      <ArenaNavigation
+        organizationId={organizationId}
+        seasonId={location.seasonId}
+        page={location.page}
+      />
+    );
   return (
     <nav
       className="workspace-navigation futsal-navigation"
@@ -148,6 +181,7 @@ export function ConnectedApps({
           <p>{m.futsal_app_help()}</p>
           <Button asChild>
             <Link
+              reloadDocument
               to="/futsal/$organizationId"
               params={{ organizationId: organization.id }}
             >
@@ -169,10 +203,51 @@ export function FutsalApp(props: {
 }) {
   useLocale();
   if (
+    props.location.page === "seasons" &&
+    props.organization.role === "participant"
+  )
+    return (
+      <FutsalPrivacy key={props.userId + props.organization.id}>
+        <ArenaLobby userId={props.userId} organization={props.organization} />
+      </FutsalPrivacy>
+    );
+  if (
+    props.location.seasonId &&
+    ["clubhouse", "squad", "competition", "training", "matchday"].includes(
+      props.location.page,
+    ) &&
+    ["owner", "admin", "participant"].includes(props.organization.role)
+  )
+    return (
+      <FutsalPrivacy key={props.userId + props.organization.id}>
+        <FutsalExperience
+          userId={props.userId}
+          organization={props.organization}
+          seasonId={props.location.seasonId}
+          page={props.location.page}
+          clubId={props.location.clubId}
+        />
+      </FutsalPrivacy>
+    );
+  if (
     props.organization.role === "participant" &&
     !["seasons", "game"].includes(props.location.page)
   )
     return <PointsError error={new DirectoryError("forbidden")} />;
+  if (
+    props.organization.role === "participant" &&
+    props.location.page === "game"
+  )
+    return (
+      <Navigate
+        to="/futsal/$organizationId/seasons/$seasonId/clubhouse"
+        params={{
+          organizationId: props.organization.id,
+          seasonId: props.location.seasonId!,
+        }}
+        replace
+      />
+    );
   if (props.organization.role === "participant")
     return (
       <FutsalPrivacy key={props.userId + props.organization.id}>
@@ -373,7 +448,10 @@ function FutsalList({
     rows = list.data?.pages.flatMap((p) => p.items) ?? [];
   return (
     <section className="directory futsal-page">
-      <p className="futsal-app-label">{m.futsal_title()}</p>
+      <div className="arena-lobby-brand">
+        <span className="futsal-app-label">{m.futsal_title()}</span>
+        <InstallApp futsal />
+      </div>
       <div className="directory-heading">
         <div>
           <h1 ref={heading} tabIndex={-1} data-page-heading>
@@ -440,14 +518,18 @@ function FutsalList({
                 <div className="directory-actions">
                   <Button variant="outline" asChild>
                     <Link
-                      to="/futsal/$organizationId/seasons/$seasonId"
+                      to={
+                        season.gameStatus
+                          ? "/futsal/$organizationId/seasons/$seasonId/clubhouse"
+                          : "/futsal/$organizationId/seasons/$seasonId"
+                      }
                       params={{
                         organizationId: organization.id,
                         seasonId: season.id,
                       }}
                     >
                       <ArrowRight aria-hidden="true" />
-                      {m.futsal_view()}
+                      {season.gameStatus ? m.arena_enter() : m.futsal_view()}
                     </Link>
                   </Button>
                   {season.status !== "cancelled" && (

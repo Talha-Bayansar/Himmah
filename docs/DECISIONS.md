@@ -240,3 +240,7 @@ Use `interactive-widget=resizes-visual` globally so Android keyboard opening doe
 ### 20 October 2026 — gameplay and point-scale preview
 
 Owner authorized gameplay and configurable conversion previews together. Preserve the locked season setup; add separate active/completed game state, organizer-triggered due execution, read-only assigned participant access and an isolated local fast-forward runner. Engine v1 uses equal attributes, capped one-attribute training, fixed first-five lineups and seeded match/penalty outcomes. Late awards/corrections use the first window after both occurrence and recording, without retroactive rerolls or Hub spending. These numerical/lineup defaults remain pilot implementation choices. See [gameplay](FUTSAL_GAMEPLAY.md).
+
+### 20 October 2026 — Futsal app identity
+
+Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See [Futsal app](FUTSAL_APP.md).

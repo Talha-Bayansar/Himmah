@@ -5842,3 +5842,526 @@ button.item-actions-trigger {
   margin: 0;
   overflow-wrap: anywhere;
 }
+
+/* Himmah Futsal: the same leaf, forest and warm canvas, with a club identity. */
+.futsal-shell {
+  background: #f7f8f3;
+}
+.futsal-wordmark {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  color: var(--forest);
+  text-decoration: none;
+}
+.futsal-wordmark img {
+  border-radius: 10px;
+}
+.futsal-wordmark > span {
+  font-size: 19px;
+  line-height: 1;
+  font-weight: 750;
+  letter-spacing: -0.7px;
+}
+.futsal-wordmark small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 2px;
+  margin-top: 5px;
+}
+.futsal-shell .app-header .organization-switcher-trigger {
+  margin-left: auto;
+  max-width: 46%;
+}
+.futsal-shell .app-header .profile-shortcut {
+  margin-left: 0;
+}
+.futsal-shell .app-header {
+  gap: 8px;
+}
+.arena-experience,
+.arena-lobby {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  max-width: 1040px;
+  margin: auto;
+}
+.arena-experience h1 {
+  font-size: clamp(28px, 4vw, 38px);
+  letter-spacing: -1.3px;
+  line-height: 1.15;
+  margin: 0;
+}
+.arena-experience h2,
+.arena-lobby h2 {
+  font-size: 21px;
+  letter-spacing: -0.6px;
+  line-height: 1.3;
+}
+.arena-experience p {
+  margin: 0;
+}
+.arena-section-heading,
+.arena-toolbar,
+.arena-lobby-brand {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+}
+.arena-section-heading > div {
+  min-width: 0;
+}
+.arena-toolbar .settings-back {
+  margin: 0;
+}
+.arena-section-heading h2 {
+  margin: 0;
+}
+.arena-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+.arena-kicker > svg {
+  width: 15px;
+  height: 15px;
+  display: inline;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+.arena-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #12382f;
+  color: #f7f8f3;
+  border-radius: 24px;
+  padding: clamp(24px, 5vw, 40px);
+  display: grid;
+  gap: 18px;
+  border: 1px solid #244c3d;
+}
+.arena-hero > * {
+  position: relative;
+  z-index: 1;
+}
+.arena-hero h1,
+.arena-hero h2 {
+  color: #f7f8f3;
+  margin: 0;
+}
+.arena-hero h2 {
+  font-size: clamp(27px, 5vw, 38px);
+}
+.arena-hero p {
+  color: #e6eddf;
+  line-height: 1.6;
+}
+.arena-hero .arena-kicker {
+  color: #def19e;
+}
+.arena-pitch::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  z-index: 0;
+  border: 1px solid #91b47735;
+  border-radius: 12px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 12%,
+    #c4dfac07 12% 24%
+  );
+  pointer-events: none;
+}
+.arena-pitch::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border: 1px solid #91b47735;
+  border-radius: 50%;
+  right: -35px;
+  top: 20px;
+  pointer-events: none;
+}
+.arena-badge {
+  display: inline-grid;
+  place-items: center;
+  position: relative;
+  width: 82px;
+  height: 92px;
+  color: #def19e;
+  flex: 0 0 auto;
+}
+.arena-badge > svg:first-child {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  stroke-width: 1;
+  fill: #194b3e;
+}
+.arena-badge b {
+  font-size: 23px;
+  letter-spacing: -1px;
+  z-index: 1;
+  margin-top: -12px;
+}
+.arena-badge .arena-badge-leaf {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  bottom: 18px;
+}
+.arena-badge-1 {
+  color: #e8d6a2;
+}
+.arena-badge-1 > svg:first-child {
+  fill: #384638;
+}
+.arena-badge-2 {
+  color: #e6eee2;
+}
+.arena-badge-2 > svg:first-child {
+  fill: #3a5b49;
+}
+.arena-badge-3 {
+  color: #d6e5a6;
+}
+.arena-badge-3 > svg:first-child {
+  fill: #244530;
+}
+.arena-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  border-top: 1px solid #c4dfac35;
+  padding-top: 20px;
+  margin-top: 6px;
+}
+.arena-stats > div {
+  display: grid;
+  gap: 5px;
+}
+.arena-stats strong {
+  font-size: 28px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: #def19e;
+}
+.arena-stats span {
+  font-size: 12px;
+  color: #e6eddf;
+}
+.arena-team-select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.arena-team-select label {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.arena-team-select select {
+  margin: 0;
+  font-size: 16px;
+  min-height: 48px;
+}
+.arena-next,
+.arena-training-card,
+.arena-empty {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  background: #fff;
+}
+.arena-empty {
+  text-align: center;
+  justify-items: center;
+}
+.arena-empty > svg {
+  height: 48px;
+  width: 48px;
+  color: var(--forest);
+}
+.arena-training-card > svg {
+  width: 36px;
+  height: 36px;
+  color: var(--forest);
+}
+.arena-player-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 14px;
+}
+.arena-player-card {
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px 16px 30px 16px;
+  padding: 18px 16px;
+  background: linear-gradient(145deg, #eef3df, #f9faf4 52%, #e7eddc);
+  border: 1px solid #d7dfcb;
+  color: #153f36;
+  display: grid;
+  gap: 8px;
+  box-shadow: 0 4px 0 #dce5cf;
+}
+.arena-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.arena-card-top > strong {
+  font-size: 31px;
+  letter-spacing: -1px;
+}
+.arena-card-top > svg {
+  width: 19px;
+  height: 19px;
+}
+.arena-jersey {
+  width: 70px;
+  height: 66px;
+  margin: 4px auto 10px;
+  background: #194b3e;
+  clip-path: polygon(
+    25% 0,
+    38% 7%,
+    62% 7%,
+    75% 0,
+    100% 25%,
+    83% 45%,
+    74% 34%,
+    74% 100%,
+    26% 100%,
+    26% 34%,
+    17% 45%,
+    0 25%
+  );
+  display: grid;
+  place-items: center;
+  color: #def19e;
+}
+.arena-jersey span {
+  font-size: 25px;
+  font-weight: 750;
+  margin-top: 12px;
+}
+.arena-player-card h3 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.arena-player-club {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  overflow-wrap: anywhere;
+}
+.arena-player-role {
+  font-size: 11px;
+  color: #466248;
+}
+.arena-player-card dl {
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid #bdcba7;
+  padding-top: 12px;
+  margin: 6px 0 0;
+}
+.arena-player-card dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 12px;
+}
+.arena-player-card dd {
+  font-weight: 750;
+  margin: 0;
+}
+.arena-match-list,
+.arena-season-grid,
+.arena-training-list {
+  display: grid;
+  gap: 14px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.arena-match-list li {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+.arena-match-list span {
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  font-weight: 650;
+}
+.arena-match-list strong {
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+}
+.arena-match-list small {
+  grid-column: 1/-1;
+}
+.arena-competition-banner {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 24px;
+  border-radius: 20px;
+  background: #eaf0df;
+}
+.arena-competition-banner > svg {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+.arena-competition-banner h2 {
+  margin: 0 0 6px;
+}
+.arena-table {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 10px;
+}
+.arena-table tr[data-own="true"] {
+  background: #eef3df;
+}
+.arena-training-list > li {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  display: grid;
+  gap: 18px;
+}
+.arena-growth {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+.arena-growth > [data-slot="progress"] {
+  width: 100%;
+  height: 6px;
+}
+.arena-growth strong {
+  color: #153f36;
+  font-size: 23px;
+}
+.arena-scoreboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.arena-scoreboard h2 {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+  margin-top: 10px;
+}
+.arena-scoreboard > strong {
+  font-size: clamp(28px, 8vw, 55px);
+  font-variant-numeric: tabular-nums;
+}
+.arena-scoreboard .arena-badge {
+  width: 62px;
+  height: 75px;
+}
+.arena-reveal.is-revealed .arena-scoreboard > strong {
+  animation: arena-score 0.45s ease-out;
+}
+.arena-season-grid > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  background: #fff;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+}
+.arena-season-grid > li > a {
+  grid-column: 1/-1;
+}
+.arena-season-grid h2 {
+  overflow-wrap: anywhere;
+}
+.arena-note {
+  padding: 22px;
+  background: #eef3df;
+  border-radius: 18px;
+  line-height: 1.6;
+}
+@keyframes arena-score {
+  from {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arena-reveal.is-revealed .arena-scoreboard > strong {
+    animation: none;
+  }
+}
+@media (max-width: 479px) {
+  .arena-experience,
+  .arena-lobby {
+    gap: 20px;
+  }
+  .arena-section-heading {
+    flex-wrap: wrap;
+  }
+  .arena-player-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .arena-player-card {
+    padding: 16px 12px;
+  }
+  .futsal-wordmark > span {
+    font-size: 16px;
+  }
+  .futsal-wordmark img {
+    width: 30px;
+    height: 30px;
+  }
+  .futsal-shell .app-header .organization-switcher-trigger {
+    max-width: 43%;
+  }
+  .futsal-shell .app-header .organization-switcher-trigger > svg:first-child {
+    display: none;
+  }
+  .arena-toolbar {
+    flex-wrap: wrap;
+  }
+  .arena-team-select {
+    display: grid;
+    gap: 8px;
+  }
+}

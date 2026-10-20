@@ -1,11 +1,14 @@
 /* Himmah caches public static resources only, never pages, sessions or API data. */
-const CACHE = "himmah-public-v3";
+const CACHE = "himmah-public-v4";
 const CORE = [
   "/offline",
   "/pwa/icon-192.png",
   "/pwa/notification-badge.png",
   "/pwa/icon-512.png",
   "/pwa/apple-touch-icon.png",
+  "/pwa/futsal/icon-192.png",
+  "/pwa/futsal/icon-512.png",
+  "/pwa/futsal/icon-180.png",
 ];
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(CORE)));

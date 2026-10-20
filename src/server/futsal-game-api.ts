@@ -28,7 +28,7 @@ export async function futsalGameApi(
       /^\/api\/organizations\/([0-9a-f-]{36})\/futsal\/seasons\/([0-9a-f-]{36})\/game(?:\/(events|activate|advance))?$/i,
     );
   const play = url.pathname.match(
-    /^\/api\/organizations\/([0-9a-f-]{36})\/futsal\/play(?:\/([0-9a-f-]{36}))?$/i,
+    /^\/api\/organizations\/([0-9a-f-]{36})\/futsal\/play(?:\/([0-9a-f-]{36})(?:\/(training))?)?$/i,
   );
   if (play) return participantPlay(request, user, games, play);
   if (!match) return null;
@@ -187,6 +187,29 @@ async function participantPlay(
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
     if (request.method !== "GET") throw new CommunityError("forbidden", 403);
     const org = uuid(match[1]);
+    if (match[3] === "training") {
+      const p = pageInput(
+        new URL(request.url),
+        `${user.id}:${org}/futsal/play/${match[2]}/training`,
+      );
+      if (p.query || p.archived || p.groupId)
+        throw new CommunityError("invalid_input");
+      const allowed = (
+        await games.participantGet(user.id, org, uuid(match[2]))
+      )[0];
+      if (!allowed) throw new CommunityError("not_found", 404);
+      return respond(
+        pageResult(
+          (await games.participantTraining(
+            user.id,
+            org,
+            uuid(match[2]),
+            p,
+          )) as { id: string; createdAt: string }[],
+          p,
+        ),
+      );
+    }
     if (match[2]) {
       const item = (
         await games.participantGet(user.id, org, uuid(match[2]))

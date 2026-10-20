@@ -124,6 +124,7 @@ export default function OrganizationPortal({
   sessionId = null,
   attendance = false,
   launch = false,
+  futsalLaunch = false,
   futsal,
 }: {
   initialMode?: "signup" | "signin";
@@ -150,6 +151,7 @@ export default function OrganizationPortal({
   sessionId?: string | null;
   attendance?: boolean;
   launch?: boolean;
+  futsalLaunch?: boolean;
   futsal?: FutsalLocation;
 } = {}) {
   const queryClient = useQueryClient();
@@ -185,7 +187,7 @@ export default function OrganizationPortal({
                     : "activities",
           },
         });
-  const closeWorkspace = () => navigate({ to: "/start" });
+  const closeWorkspace = () => navigate({ to: futsal ? "/futsal" : "/start" });
   const session = useQuery({
     queryKey: accountKey,
     queryFn: account,
@@ -248,6 +250,31 @@ export default function OrganizationPortal({
     )
       logout.mutate();
   }
+  const gameLaunching = useRef(false);
+  useEffect(() => {
+    if (
+      !futsalLaunch ||
+      gameLaunching.current ||
+      !user?.emailVerified ||
+      !organizations.isSuccess
+    )
+      return;
+    if (organizationItems.length === 1 && !organizations.hasNextPage) {
+      gameLaunching.current = true;
+      void navigate({
+        to: "/futsal/$organizationId",
+        params: { organizationId: organizationItems[0]!.id },
+        replace: true,
+      });
+    }
+  }, [
+    futsalLaunch,
+    user?.emailVerified,
+    organizations.isSuccess,
+    organizationItems,
+    organizations.hasNextPage,
+    navigate,
+  ]);
   const launching = useRef(false);
   useEffect(() => {
     if (!launch || launching.current || session.isPending || session.isError)
@@ -294,7 +321,9 @@ export default function OrganizationPortal({
   return (
     <div
       className={
-        appShell ? "onboarding-shell workspace-shell" : "onboarding-shell"
+        appShell
+          ? `onboarding-shell workspace-shell${futsal ? " futsal-shell" : ""}`
+          : `onboarding-shell${futsal ? " futsal-shell" : ""}`
       }
     >
       <aside className="onboarding-story">
@@ -340,6 +369,14 @@ export default function OrganizationPortal({
       </aside>
       <section className="onboarding-main">
         <header className={appShell ? "app-header" : "onboarding-top"}>
+          {futsal && (
+            <Link to="/futsal" className="futsal-wordmark">
+              <img src="/pwa/futsal/icon.svg" alt="" width={36} height={36} />
+              <span>
+                himmah<small>FUTSAL</small>
+              </span>
+            </Link>
+          )}
           {appShell ? (
             <>
               <OrganizationSwitcher
@@ -371,7 +408,8 @@ export default function OrganizationPortal({
                   void closeWorkspace();
                 }}
               />
-              {workspaceId &&
+              {!futsal &&
+                workspaceId &&
                 selected.data &&
                 user?.emailVerified &&
                 !selected.isError && (
@@ -387,7 +425,11 @@ export default function OrganizationPortal({
                 asChild
                 className="profile-shortcut"
               >
-                {workspaceId && user?.emailVerified ? (
+                {futsal ? (
+                  <Link to="/futsal/profile" aria-label={m.profile()}>
+                    <CircleUserRound size={22} />
+                  </Link>
+                ) : workspaceId && user?.emailVerified ? (
                   <Link
                     to="/workspace/$organizationId/$section"
                     params={{
@@ -422,6 +464,7 @@ export default function OrganizationPortal({
             <FutsalNavigation
               organizationId={workspaceId}
               role={selected.data?.role}
+              location={futsal}
             />
           ) : (
             <WorkspaceNavigation
@@ -456,6 +499,7 @@ export default function OrganizationPortal({
               )}
               {accountSettings ? (
                 <AccountSettings
+                  futsal={!!futsal}
                   user={user}
                   pending={logout.isPending}
                   onSignOut={signOut}
@@ -596,7 +640,7 @@ export default function OrganizationPortal({
           <footer className="onboarding-footer">
             <Leaf size={14} />
             {m.footer_tagline()}
-            <InstallApp />
+            <InstallApp futsal={!!futsal} />
           </footer>
         )}
       </section>

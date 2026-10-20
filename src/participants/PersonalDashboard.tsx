@@ -97,6 +97,7 @@ export default function PersonalDashboard({
     <section className="directory personal-dashboard">
       <Button variant="outline" asChild>
         <Link
+          reloadDocument
           to="/futsal/$organizationId"
           params={{ organizationId: organization.id }}
         >

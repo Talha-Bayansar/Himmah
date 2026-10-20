@@ -35,3 +35,7 @@ Automated checks exercise native install event handling, translated instructions
 Profile now offers per-device push permission and confirmed device/all-device disable. iOS/iPadOS users need a compatible installed Home Screen app; in-app notifications remain available without push. Lock-screen alerts contain generic localized text only. Notification clicks open the private notification centre without replacing another window's unfinished form. See [Notifications](NOTIFICATIONS.md) for supported providers, delivery retries and credential maintenance.
 
 Android push notifications use a separate 96px white leaf badge on a transparent background for the status bar. The full-color app icon remains the larger notification icon. The badge is generated from `public/pwa/notification-badge.svg` by `npm run pwa:assets` and included in the public service-worker cache. New notifications adopt the badge after the updated service worker activates; existing displayed notifications may keep the previous icon.
+
+## Separate Futsal installation
+
+Himmah Futsal now has its own manifest identity, icon family and `/futsal` launcher, retaining Hub identity and `/hub`. See [Futsal app](FUTSAL_APP.md) for scope, navigation and installation boundaries. Both use the existing public-only service worker.

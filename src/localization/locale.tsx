@@ -28,10 +28,14 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = "ltr";
-    document.title = m.page_title();
+    const futsal = location.pathname.startsWith("/futsal");
+    document.title = futsal ? m.futsal_title() : m.page_title();
     document
       .querySelector('link[rel="manifest"]')
-      ?.setAttribute("href", `/manifest.${locale}.webmanifest`);
+      ?.setAttribute(
+        "href",
+        `${futsal ? "/futsal" : ""}/manifest.${locale}.webmanifest`,
+      );
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", m.page_description());
