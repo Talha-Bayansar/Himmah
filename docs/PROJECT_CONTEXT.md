@@ -132,3 +132,7 @@ Optional organization-authored challenges now support drafts, frozen publication
 ## Confirmed addition — 20 October 2026
 
 Build the notification centre with push notifications as well: private participant updates and organizer work alerts, unread/read states and links to existing workflows. Push is explicitly opt-in per device, with generic lock-screen text and personal controls. See [Notifications](NOTIFICATIONS.md).
+
+## Confirmed next increment — Futsal setup, 20 October 2026
+
+Owner approved starting Himmah Futsal with season configuration: both modes/formats, dates, participants, team sizes, equal starting strength, capped engagement-to-training settings and a review before freezing. The implementation distinguishes locking setup from executing a playable season; squads/training/simulation follow. Hub/Futsal remain separate experiences with later independent organization licensing. See [Futsal setup](FUTSAL_SETUP.md).

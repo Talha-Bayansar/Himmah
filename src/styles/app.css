@@ -5524,3 +5524,243 @@ button.item-actions-trigger {
 .app-header:has(.notification-shortcut) .profile-shortcut {
   margin-left: 0;
 }
+
+/* Futsal is a separate app surface; Hub navigation and records remain independent. */
+.futsal-page {
+  min-width: 0;
+}
+.futsal-app-label {
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--app-muted);
+}
+.futsal-form {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.futsal-field {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+.futsal-field > label {
+  margin: 0;
+}
+.futsal-field input,
+.futsal-field textarea,
+.futsal-field select {
+  margin: 0;
+  font-size: 16px;
+  max-width: 100%;
+  min-width: 0;
+}
+.futsal-field [data-slot="native-select-wrapper"] {
+  width: 100%;
+}
+.futsal-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+.futsal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  min-height: 44px;
+  line-height: 1.5;
+}
+.futsal-advanced {
+  padding: 8px 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  min-width: 0;
+}
+.futsal-advanced [data-slot="accordion-content"] > div {
+  display: grid;
+  gap: 16px;
+}
+.futsal-advanced p {
+  margin-top: 16px;
+}
+.futsal-advanced ul {
+  margin: 12px 0 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+.futsal-form-actions {
+  position: sticky;
+  bottom: calc(88px + env(safe-area-inset-bottom));
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--background);
+  z-index: 10;
+  align-items: stretch;
+  flex-wrap: nowrap;
+}
+.futsal-page > .settings-panel,
+.futsal-review-accordion {
+  margin-bottom: 20px;
+}
+.futsal-page .futsal-detail-heading {
+  flex-direction: row;
+  align-items: flex-start;
+}
+.futsal-detail-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.futsal-detail-heading h1 {
+  overflow-wrap: anywhere;
+}
+.futsal-page .futsal-detail-heading > .item-actions-trigger {
+  flex: 0 0 44px;
+  width: 44px;
+  align-self: flex-start;
+}
+.futsal-season-list > li,
+.futsal-entry-list > li {
+  display: grid;
+  gap: 16px;
+}
+.futsal-season-list > li > div,
+.futsal-entry-list > li > div {
+  min-width: 0;
+}
+.futsal-season-list h2,
+.futsal-entry-list h2 {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.futsal-season-list p,
+.futsal-entry-list p {
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.futsal-season-list .badge {
+  margin-top: 10px;
+}
+.futsal-entry-list p {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  overflow-wrap: anywhere;
+}
+.futsal-entry-list p svg {
+  flex: 0 0 16px;
+  margin-top: 2px;
+}
+.futsal-candidates {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.futsal-candidates label {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-height: 52px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin: 0;
+}
+.futsal-candidates label > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.futsal-candidates small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: var(--app-muted);
+}
+.futsal-candidates small svg {
+  width: 16px;
+  height: 16px;
+}
+.futsal-picked {
+  display: grid;
+  gap: 8px;
+}
+.futsal-picked > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-left: 12px;
+  border-radius: 12px;
+  background: var(--muted);
+  overflow-wrap: anywhere;
+}
+.futsal-plan ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.futsal-plan ul > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding-block: 8px;
+  overflow-wrap: anywhere;
+}
+.futsal-plan small {
+  display: block;
+  color: var(--app-muted);
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 400;
+}
+.futsal-plan ol {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+.futsal-settings-summary p {
+  margin: 0;
+}
+@media (max-width: 479px) {
+  .futsal-fields-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (min-width: 768px) {
+  .futsal-form-actions {
+    bottom: 12px;
+  }
+}
+.connected-apps h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.futsal-field input,
+.futsal-field select {
+  min-height: 48px;
+  height: 48px;
+}
+.futsal-field textarea {
+  min-height: 112px;
+}
+.futsal-field > label {
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+@media (min-width: 480px) {
+  .futsal-fields-grid > .futsal-field > label {
+    min-height: 42px;
+    align-items: flex-end;
+  }
+}

@@ -1,3 +1,5 @@
+import { futsalApi } from "./futsal-api.ts";
+import { createFutsalStore, type FutsalStore } from "./futsal-store.ts";
 import { notificationApi } from "./notification-api.ts";
 import {
   createNotificationStore,
@@ -65,6 +67,7 @@ type Dependencies = {
   directory?: (url: string) => CommunityStore;
   challenges?: (url: string) => ChallengeStore;
   notifications?: (url: string) => NotificationStore;
+  futsal?: (url: string) => FutsalStore;
   coupons?: (url: string) => CouponStore;
 };
 const json = (body: unknown, status = 200) =>
@@ -232,6 +235,22 @@ export function createHandler(
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (/^\/api\/organizations\/[^/]+\/futsal(\/|$)/.test(url.pathname)) {
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `futsal:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        const response = await futsalApi(
+          request,
+          user,
+          store,
+          (deps.futsal ?? createFutsalStore)(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
+
       if (
         /^\/api\/(organizations\/[^/]+\/notifications|notifications\/push)(\/|$)/.test(
           url.pathname,

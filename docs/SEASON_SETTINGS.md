@@ -40,3 +40,7 @@ Tenant isolation, participant privacy, server-side scoring, immutable completed 
 ## Activity changes during a season
 
 Competition conversion rules and caps are snapshotted at activation. Activities and one-off manual awards can still be created during the season under that policy; do not freeze the activity calendar itself. Version each earning rule and snapshot its points on each award. Editing a rule applies prospectively and never silently recalculates past awards. New earning opportunities must respect the season's limits and access rules. See [Engagement system](ENGAGEMENT.md).
+
+## Implemented setup slice — 20 October 2026
+
+The persistent organizer builder, draft assignment, calendar/bracket preview and immutable **Lock setup** transition are implemented for both modes and formats. See [Futsal setup](FUTSAL_SETUP.md) for exact supported ranges, policy defaults, authorization and phase boundaries. `prepared` means the setup is frozen; it is not an active playable game. Virtual squads, training execution and simulation remain next. Templates/duplication, billing, registration/late-join policies, same-day multi-round scheduling and richer tournament variants remain unimplemented rather than exposed as inactive controls.

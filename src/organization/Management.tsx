@@ -9,6 +9,7 @@ import {
   UserRoundPlus,
   UsersRound,
   Building2,
+  Gamepad2,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { useLocale } from "../localization/locale";
@@ -64,6 +65,17 @@ export function Management({ organization }: { organization: Organization }) {
           title: m.organization_details(),
           description: m.manage_organization_help(),
           Icon: Building2,
+        },
+      ],
+    },
+    {
+      title: m.futsal_apps(),
+      items: [
+        {
+          section: "apps",
+          title: m.futsal_title(),
+          description: m.futsal_app_help(),
+          Icon: Gamepad2,
         },
       ],
     },

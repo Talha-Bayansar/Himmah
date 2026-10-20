@@ -14,6 +14,7 @@ import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 
 export const workspaceSections = [
+  "apps",
   "notifications",
   "challenges",
   "collect",
@@ -126,6 +127,7 @@ export function WorkspaceNavigation({
           : section === "activities" || section === "rewards"
             ? section
             : [
+                  "apps",
                   "manage",
                   "organization",
                   "access",

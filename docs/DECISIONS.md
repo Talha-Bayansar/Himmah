@@ -228,3 +228,7 @@ Owner approved configurable challenges with optional dates, eligible groups, par
 ## 2026-10-20 — Private notifications with opt-in Web Push
 
 Owner approved the notification centre and explicitly requested push in the same increment. Keep a private organization-scoped history and header bell, with device-specific consent in Profile. Use transactional database event triggers and a durable outbox dispatched by the existing Cloudflare Worker cron. Push is generic on lock screens, rechecks current access and never contains private notes or codes. Exact participant-link snapshots prevent history crossing a later relink. No new paid delivery service, automatic permission prompts or historical backfill. See [Notifications](NOTIFICATIONS.md).
+
+## 2026-10-20 — First Futsal increment: persistent season setup
+
+Owner approved beginning Futsal with the season setup flow. Preserve a distinct app area, both Club Manager/Team Play and league/tournament formats, organization isolation, equal baseline strength and source-independent capped training rules. The first slice saves settings, assigns entries and previews calendars/brackets. **Lock setup** atomically freezes a `prepared` snapshot; actual game activation, squads, training and simulated matches follow. No fake gameplay or season-start button is exposed. Initial numeric bounds and safe defaults are implementation choices requiring balance validation, not new owner commitments. Pilot access is owner/admin-only with no billing requirement; Hub remains standalone. See [Futsal setup](FUTSAL_SETUP.md).

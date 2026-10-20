@@ -12,7 +12,7 @@ Live app: **https://himmah-hub.talha-bayansar.workers.dev**. The landing page st
 
 ## Project status
 
-The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly pages and keyboard-aware forms. Fixed navigation and a paginated organization switcher keep daily use compact; personal preferences live in Profile, while organization reports and team tools live under Manage. All growing lists use cursor-based infinite fetching. Activities and scheduled sessions, attendance with optional automatic points, manual point awards, engagement periods, scoped volunteer assignments, and staff-managed rewards/redemptions are implemented. Participant invitations, account linking and private progress, self-service reward claims and single-use QR collection are implemented. Futsal gameplay remains future work. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
+The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly pages and keyboard-aware forms. Fixed navigation and a paginated organization switcher keep daily use compact; personal preferences live in Profile, while organization reports and team tools live under Manage. All growing lists use cursor-based infinite fetching. Activities and scheduled sessions, attendance with optional automatic points, manual point awards, engagement periods, scoped volunteer assignments, and staff-managed rewards/redemptions are implemented. Participant invitations, account linking and private progress, self-service reward claims and single-use QR collection are implemented. Futsal season setup, entry assignment and immutable schedule/rule snapshots are implemented in a separate app area; playable squads, training and matches remain future work. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
 
 ## Start here
 
@@ -28,6 +28,7 @@ The deployed app contains working organizer registration, email verification, si
 - [Agent instructions](AGENTS.md)
 - [Owner preferences and confirmed requirements](docs/PROJECT_CONTEXT.md)
 - [Product specification](docs/PRODUCT.md)
+- [Futsal season setup and supported settings](docs/FUTSAL_SETUP.md)
 - [Game rules and balancing proposals](docs/GAME_DESIGN.md)
 - [Dynamic activities and manual points](docs/ENGAGEMENT.md)
 - [Pre-season configuration](docs/SEASON_SETTINGS.md)

@@ -68,3 +68,7 @@ Activities now own reusable defaults and group eligibility; sessions own their s
 ## Attendance checkpoint
 
 Session attendance now supports an eligible paginated roster, individual/bulk statuses, distinct unmarked/present/absent/excused states, same-request replay protection, per-member failure outcomes and reasoned corrections with private paginated history. Owners/admins are authorized; volunteers remain blocked pending assignments. Check-in opens at session start; cancelled sessions are read-only. Next: configurable/manual awards through the engagement ledger, then attendance-linked awards and personal histories. Volunteer assignments, finalization, walk-in overrides and richer registration remain separate follow-up features.
+
+## Futsal setup checkpoint — 20 October 2026
+
+Hub's working engagement foundation now includes challenges, rewards/coupons, participant access and notifications. The first persistent Futsal slice adds owner/admin season settings, entry assignment, deterministic schedule/bracket previews and immutable prepared snapshots for both modes and formats. This supersedes the older prototype-only sequence. Next: create persisted equal-strength virtual squads/player identities from a prepared setup; then implement authorized ledger-window allocation, seeded training and match execution with balance experiments. Do not treat `prepared` as a running game. See [Futsal setup](FUTSAL_SETUP.md).

@@ -1,4 +1,10 @@
 import {
+  FutsalApp,
+  FutsalNavigation,
+  ConnectedApps,
+  type FutsalLocation,
+} from "../futsal/FutsalApp";
+import {
   NotificationBell,
   Notifications,
 } from "../notifications/Notifications";
@@ -118,6 +124,7 @@ export default function OrganizationPortal({
   sessionId = null,
   attendance = false,
   launch = false,
+  futsal,
 }: {
   initialMode?: "signup" | "signin";
   inviteToken?: string | null;
@@ -143,6 +150,7 @@ export default function OrganizationPortal({
   sessionId?: string | null;
   attendance?: boolean;
   launch?: boolean;
+  futsal?: FutsalLocation;
 } = {}) {
   const queryClient = useQueryClient();
   useLocale();
@@ -151,24 +159,32 @@ export default function OrganizationPortal({
   const navigate = useNavigate();
   const selectedId = workspaceId;
   const openWorkspace = (id: string, role: string = "owner") =>
-    navigate({
-      to: "/workspace/$organizationId/$section",
-      params: {
-        organizationId: id,
-        section:
-          role === "participant"
-            ? "me"
-            : role === "volunteer"
-              ? "activities"
-              : workspaceId
-                ? ["me", "my-rewards", "my-redemptions", "my-coupons"].includes(
-                    workspaceSection,
-                  )
+    futsal
+      ? navigate({
+          to: "/futsal/$organizationId",
+          params: { organizationId: id },
+        })
+      : navigate({
+          to: "/workspace/$organizationId/$section",
+          params: {
+            organizationId: id,
+            section:
+              role === "participant"
+                ? "me"
+                : role === "volunteer"
                   ? "activities"
-                  : workspaceSection
-                : "activities",
-      },
-    });
+                  : workspaceId
+                    ? [
+                        "me",
+                        "my-rewards",
+                        "my-redemptions",
+                        "my-coupons",
+                      ].includes(workspaceSection)
+                      ? "activities"
+                      : workspaceSection
+                    : "activities",
+          },
+        });
   const closeWorkspace = () => navigate({ to: "/start" });
   const session = useQuery({
     queryKey: accountKey,
@@ -401,13 +417,16 @@ export default function OrganizationPortal({
             </>
           )}
         </header>
-        {workspaceId && (
-          <WorkspaceNavigation
-            organizationId={workspaceId}
-            role={selected.data?.role}
-            section={workspaceSection}
-          />
-        )}
+        {workspaceId &&
+          (futsal ? (
+            <FutsalNavigation organizationId={workspaceId} />
+          ) : (
+            <WorkspaceNavigation
+              organizationId={workspaceId}
+              role={selected.data?.role}
+              section={workspaceSection}
+            />
+          ))}
         <div className="onboarding-content">
           {loading ? (
             <AccountSkeleton />
@@ -492,31 +511,39 @@ export default function OrganizationPortal({
                     onBack={() => void closeWorkspace()}
                   />
                 ) : selected.data ? (
-                  <Workspace
-                    organization={selected.data}
-                    userId={user.id}
-                    section={workspaceSection}
-                    attendance={attendance}
-                    sessionId={sessionId}
-                    activityId={activityId}
-                    rewardId={rewardId}
-                    rewardView={rewardView}
-                    periodId={periodId}
-                    periodGroupId={periodGroupId}
-                    periodView={periodView}
-                    challengeId={challengeId}
-                    challengeSubmissionId={challengeSubmissionId}
-                    challengeView={challengeView}
-                    couponId={couponId}
-                    couponStatus={couponStatus}
-                    participantAccount={participantAccount}
-                    participantAccountView={participantAccountView}
-                    memberId={memberId}
-                    groupId={groupId}
-                    user={user}
-                    signOutPending={logout.isPending}
-                    onSignOut={signOut}
-                  />
+                  futsal ? (
+                    <FutsalApp
+                      organization={selected.data}
+                      userId={user.id}
+                      location={futsal}
+                    />
+                  ) : (
+                    <Workspace
+                      organization={selected.data}
+                      userId={user.id}
+                      section={workspaceSection}
+                      attendance={attendance}
+                      sessionId={sessionId}
+                      activityId={activityId}
+                      rewardId={rewardId}
+                      rewardView={rewardView}
+                      periodId={periodId}
+                      periodGroupId={periodGroupId}
+                      periodView={periodView}
+                      challengeId={challengeId}
+                      challengeSubmissionId={challengeSubmissionId}
+                      challengeView={challengeView}
+                      couponId={couponId}
+                      couponStatus={couponStatus}
+                      participantAccount={participantAccount}
+                      participantAccountView={participantAccountView}
+                      memberId={memberId}
+                      groupId={groupId}
+                      user={user}
+                      signOutPending={logout.isPending}
+                      onSignOut={signOut}
+                    />
+                  )
                 ) : null
               ) : (
                 <>
@@ -1330,6 +1357,7 @@ function Workspace({
     sessionId,
     attendance,
   ]);
+  if (section === "apps") return <ConnectedApps organization={organization} />;
   if (section === "notifications")
     return (
       <Notifications

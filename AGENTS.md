@@ -31,6 +31,8 @@ Read docs/ORGANIZATION_ONBOARDING.md before changing auth, Worker routing or dat
 
 TypeScript strict mode; mobile-first responsive web app. Required stack: TanStack Start, Router, Query and Form; Paraglide JS localization (English, Dutch, Turkish); shadcn/ui components; Better Auth (currently managed by Neon); PostgreSQL on Neon and Drizzle migrations. Do not introduce Next.js or a competing app/form/data framework without an explicit user request. Keep football calculations pure in src/domain with injected, seeded randomness and versioned rules. Match inputs, training outcomes, and results must persist; refreshes and job retries cannot reroll them.
 
+Read docs/FUTSAL_SETUP.md before changing Futsal. Preserve both modes/formats, owner/admin pilot policy, source-independent points, deterministic previews and exact receipts. Prepared setup is immutable and is not playable activation. Squad/training/match execution must use persisted versioned snapshots and may not reroll them or spend Hub contributions.
+
 Read docs/NOTIFICATIONS.md before changing notifications, device registration, sign-out cleanup or scheduled push delivery. Preserve recipient-link snapshots, current-access checks, transactional events, generic lock-screen payloads, bounded leased retries, endpoint validation and explicit device permission. Never send synthetic test pushes to real devices.
 
 Read docs/CHALLENGES.md before changing challenges. Published rules/audience IDs are frozen; only owner/admin review/direct recording may create a challenge award. Preserve self-link checks, private submissions, expected versions, receipt retries and once-per-person ledger integrity. Corrections never reopen an approved completion.

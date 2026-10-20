@@ -1260,3 +1260,126 @@ export const pushDeliveries = pgTable(
     ),
   ],
 );
+
+// Optional Futsal setup owns its rules/rosters; Hub contributions remain independent.
+export const futsalSeasons = pgTable(
+  "futsal_seasons",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    prizeCriteria: text("prize_criteria").notNull().default(""),
+    status: text("status").notNull().default("draft"),
+    version: integer("version").notNull().default(1),
+    settings: jsonb("settings").notNull(),
+    seed: uuid("seed").notNull().defaultRandom(),
+    snapshot: jsonb("snapshot"),
+    preparedAt: timestamp("prepared_at", { withTimezone: true }),
+    preparedBy: text("prepared_by"),
+    cancelReason: text("cancel_reason"),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    check("futsal_rules_check",sql`futsal_rules_valid(${t.settings})`),
+    unique("futsal_season_scope").on(t.organizationId, t.id),
+    index("futsal_season_page").on(t.organizationId, t.createdAt, t.id),
+    check(
+      "futsal_season_fields",
+      sql`length(trim(${t.name})) between 2 and 80 and length(${t.description})<=1000 and length(${t.prizeCriteria})<=500 and ${t.version}>0 and ${t.status} in ('draft','prepared','cancelled') and (${t.snapshot} is null)=(${t.preparedAt} is null) and (${t.status}<>'prepared' or ${t.snapshot} is not null) and (${t.status}<>'draft' or ${t.snapshot} is null) and (${t.status}<>'cancelled' or (${t.cancelReason} is not null and length(trim(${t.cancelReason})) between 1 and 300))`,
+    ),
+  ],
+);
+export const futsalEntries = pgTable(
+  "futsal_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    seasonId: uuid("season_id").notNull(),
+    name: text("name").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("futsal_entry_scope").on(t.organizationId, t.seasonId, t.id),
+    foreignKey({
+      columns: [t.organizationId, t.seasonId],
+      foreignColumns: [futsalSeasons.organizationId, futsalSeasons.id],
+    }),
+    index("futsal_entry_page").on(
+      t.organizationId,
+      t.seasonId,
+      t.createdAt,
+      t.id,
+    ),
+    check("futsal_entry_name", sql`length(trim(${t.name})) between 2 and 80`),
+  ],
+);
+export const futsalEntryMembers = pgTable(
+  "futsal_entry_members",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    seasonId: uuid("season_id").notNull(),
+    entryId: uuid("entry_id").notNull(),
+    personId: uuid("person_id").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.seasonId, t.personId] }),
+    foreignKey({
+      columns: [t.organizationId, t.seasonId, t.entryId],
+      foreignColumns: [
+        futsalEntries.organizationId,
+        futsalEntries.seasonId,
+        futsalEntries.id,
+      ],
+      name: "futsal_member_entry_fk",
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+  ],
+);
+export const futsalRequests = pgTable(
+  "futsal_requests",
+  {
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    key: uuid("request_key").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.organizationId, t.key] })],
+);
+export const futsalEvents = pgTable(
+  "futsal_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    seasonId: uuid("season_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    action: text("action").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.seasonId],
+      foreignColumns: [futsalSeasons.organizationId, futsalSeasons.id],
+    }),
+  ],
+);
