@@ -1,0 +1,657 @@
+{
+  "scope": "Setup and formula previews only. No match scores, training outcomes, standings or winner are simulated.",
+  "examples": [
+    {
+      "mode": "club_manager",
+      "format": "league",
+      "settings": {
+        "schemaVersion": 1,
+        "mode": "club_manager",
+        "format": "league",
+        "entryCount": 4,
+        "playersPerTeam": 1,
+        "squadSize": 7,
+        "timezone": "Europe/Brussels",
+        "preparationStartsAt": "2026-11-01T08:00:00.000Z",
+        "startsAt": "2026-11-15T19:00:00.000Z",
+        "endsAt": "2026-12-31T22:00:00.000Z",
+        "startingRating": 50,
+        "ratingCeiling": 90,
+        "trainingEveryDays": 7,
+        "roundEveryDays": 7,
+        "trainingBetweenRounds": true,
+        "baseGrowth": 1,
+        "bonusGrowth": 1,
+        "maxGrowth": 2,
+        "pointsPerStep": 10,
+        "chanceStep": 5,
+        "chanceCap": 30,
+        "legs": 1,
+        "winPoints": 3,
+        "drawPoints": 1,
+        "lossPoints": 0,
+        "drawPolicy": "seeded_draw"
+      },
+      "entries": [
+        {
+          "name": "Atlas",
+          "participants": [
+            "Test participant 1"
+          ]
+        },
+        {
+          "name": "Hilal",
+          "participants": [
+            "Test participant 2"
+          ]
+        },
+        {
+          "name": "Nur",
+          "participants": [
+            "Test participant 3"
+          ]
+        },
+        {
+          "name": "Safa",
+          "participants": [
+            "Test participant 4"
+          ]
+        }
+      ],
+      "plan": {
+        "rulesVersion": "futsal-setup-v1",
+        "rounds": [
+          {
+            "number": 1,
+            "at": "2026-11-15T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r1m1",
+                "home": {
+                  "entryId": "Atlas"
+                },
+                "away": {
+                  "entryId": "Safa"
+                }
+              },
+              {
+                "id": "r1m2",
+                "home": {
+                  "entryId": "Hilal"
+                },
+                "away": {
+                  "entryId": "Nur"
+                }
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "at": "2026-11-22T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r2m1",
+                "home": {
+                  "entryId": "Nur"
+                },
+                "away": {
+                  "entryId": "Atlas"
+                }
+              },
+              {
+                "id": "r2m2",
+                "home": {
+                  "entryId": "Safa"
+                },
+                "away": {
+                  "entryId": "Hilal"
+                }
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "at": "2026-11-29T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r3m1",
+                "home": {
+                  "entryId": "Atlas"
+                },
+                "away": {
+                  "entryId": "Hilal"
+                }
+              },
+              {
+                "id": "r3m2",
+                "home": {
+                  "entryId": "Nur"
+                },
+                "away": {
+                  "entryId": "Safa"
+                }
+              }
+            ]
+          }
+        ],
+        "trainingAt": [
+          "2026-11-01T18:00:00.000Z",
+          "2026-11-08T18:00:00.000Z",
+          "2026-11-15T18:00:00.000Z",
+          "2026-11-22T18:00:00.000Z",
+          "2026-11-29T18:00:00.000Z"
+        ],
+        "matchCount": 6,
+        "byeCount": 0
+      },
+      "trainingChancePreview": [
+        {
+          "points": 0,
+          "guaranteedGrowth": 1,
+          "bonusChance": 0,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 10,
+          "guaranteedGrowth": 1,
+          "bonusChance": 5,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 30,
+          "guaranteedGrowth": 1,
+          "bonusChance": 15,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 60,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 100,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        }
+      ]
+    },
+    {
+      "mode": "club_manager",
+      "format": "tournament",
+      "settings": {
+        "schemaVersion": 1,
+        "mode": "club_manager",
+        "format": "tournament",
+        "entryCount": 4,
+        "playersPerTeam": 1,
+        "squadSize": 7,
+        "timezone": "Europe/Brussels",
+        "preparationStartsAt": "2026-11-01T08:00:00.000Z",
+        "startsAt": "2026-11-15T19:00:00.000Z",
+        "endsAt": "2026-12-31T22:00:00.000Z",
+        "startingRating": 50,
+        "ratingCeiling": 90,
+        "trainingEveryDays": 7,
+        "roundEveryDays": 7,
+        "trainingBetweenRounds": true,
+        "baseGrowth": 1,
+        "bonusGrowth": 1,
+        "maxGrowth": 2,
+        "pointsPerStep": 10,
+        "chanceStep": 5,
+        "chanceCap": 30,
+        "legs": 1,
+        "winPoints": 3,
+        "drawPoints": 1,
+        "lossPoints": 0,
+        "drawPolicy": "seeded_draw"
+      },
+      "entries": [
+        {
+          "name": "Atlas",
+          "participants": [
+            "Test participant 1"
+          ]
+        },
+        {
+          "name": "Hilal",
+          "participants": [
+            "Test participant 2"
+          ]
+        },
+        {
+          "name": "Nur",
+          "participants": [
+            "Test participant 3"
+          ]
+        },
+        {
+          "name": "Safa",
+          "participants": [
+            "Test participant 4"
+          ]
+        }
+      ],
+      "plan": {
+        "rulesVersion": "futsal-setup-v1",
+        "rounds": [
+          {
+            "number": 1,
+            "at": "2026-11-15T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r1m1",
+                "home": {
+                  "entryId": "Hilal"
+                },
+                "away": {
+                  "entryId": "Atlas"
+                }
+              },
+              {
+                "id": "r1m2",
+                "home": {
+                  "entryId": "Safa"
+                },
+                "away": {
+                  "entryId": "Nur"
+                }
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "at": "2026-11-22T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r2m1",
+                "home": {
+                  "winnerOf": "r1m1"
+                },
+                "away": {
+                  "winnerOf": "r1m2"
+                }
+              }
+            ]
+          }
+        ],
+        "trainingAt": [
+          "2026-11-01T18:00:00.000Z",
+          "2026-11-08T18:00:00.000Z",
+          "2026-11-15T18:00:00.000Z",
+          "2026-11-22T18:00:00.000Z"
+        ],
+        "matchCount": 3,
+        "byeCount": 0
+      },
+      "trainingChancePreview": [
+        {
+          "points": 0,
+          "guaranteedGrowth": 1,
+          "bonusChance": 0,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 10,
+          "guaranteedGrowth": 1,
+          "bonusChance": 5,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 30,
+          "guaranteedGrowth": 1,
+          "bonusChance": 15,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 60,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 100,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        }
+      ]
+    },
+    {
+      "mode": "team_league",
+      "format": "league",
+      "settings": {
+        "schemaVersion": 1,
+        "mode": "team_league",
+        "format": "league",
+        "entryCount": 4,
+        "playersPerTeam": 3,
+        "squadSize": 5,
+        "timezone": "Europe/Brussels",
+        "preparationStartsAt": "2026-11-01T08:00:00.000Z",
+        "startsAt": "2026-11-15T19:00:00.000Z",
+        "endsAt": "2026-12-31T22:00:00.000Z",
+        "startingRating": 50,
+        "ratingCeiling": 90,
+        "trainingEveryDays": 7,
+        "roundEveryDays": 7,
+        "trainingBetweenRounds": true,
+        "baseGrowth": 1,
+        "bonusGrowth": 1,
+        "maxGrowth": 2,
+        "pointsPerStep": 10,
+        "chanceStep": 5,
+        "chanceCap": 30,
+        "legs": 1,
+        "winPoints": 3,
+        "drawPoints": 1,
+        "lossPoints": 0,
+        "drawPolicy": "seeded_draw"
+      },
+      "entries": [
+        {
+          "name": "Atlas",
+          "participants": [
+            "Test participant 1",
+            "Test participant 2",
+            "Test participant 3"
+          ]
+        },
+        {
+          "name": "Hilal",
+          "participants": [
+            "Test participant 4",
+            "Test participant 5",
+            "Test participant 6"
+          ]
+        },
+        {
+          "name": "Nur",
+          "participants": [
+            "Test participant 7",
+            "Test participant 8",
+            "Test participant 9"
+          ]
+        },
+        {
+          "name": "Safa",
+          "participants": [
+            "Test participant 10",
+            "Test participant 11",
+            "Test participant 12"
+          ]
+        }
+      ],
+      "plan": {
+        "rulesVersion": "futsal-setup-v1",
+        "rounds": [
+          {
+            "number": 1,
+            "at": "2026-11-15T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r1m1",
+                "home": {
+                  "entryId": "Atlas"
+                },
+                "away": {
+                  "entryId": "Safa"
+                }
+              },
+              {
+                "id": "r1m2",
+                "home": {
+                  "entryId": "Hilal"
+                },
+                "away": {
+                  "entryId": "Nur"
+                }
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "at": "2026-11-22T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r2m1",
+                "home": {
+                  "entryId": "Nur"
+                },
+                "away": {
+                  "entryId": "Atlas"
+                }
+              },
+              {
+                "id": "r2m2",
+                "home": {
+                  "entryId": "Safa"
+                },
+                "away": {
+                  "entryId": "Hilal"
+                }
+              }
+            ]
+          },
+          {
+            "number": 3,
+            "at": "2026-11-29T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r3m1",
+                "home": {
+                  "entryId": "Atlas"
+                },
+                "away": {
+                  "entryId": "Hilal"
+                }
+              },
+              {
+                "id": "r3m2",
+                "home": {
+                  "entryId": "Nur"
+                },
+                "away": {
+                  "entryId": "Safa"
+                }
+              }
+            ]
+          }
+        ],
+        "trainingAt": [
+          "2026-11-01T18:00:00.000Z",
+          "2026-11-08T18:00:00.000Z",
+          "2026-11-15T18:00:00.000Z",
+          "2026-11-22T18:00:00.000Z",
+          "2026-11-29T18:00:00.000Z"
+        ],
+        "matchCount": 6,
+        "byeCount": 0
+      },
+      "trainingChancePreview": [
+        {
+          "points": 0,
+          "guaranteedGrowth": 1,
+          "bonusChance": 0,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 10,
+          "guaranteedGrowth": 1,
+          "bonusChance": 5,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 30,
+          "guaranteedGrowth": 1,
+          "bonusChance": 15,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 60,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 100,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        }
+      ]
+    },
+    {
+      "mode": "team_league",
+      "format": "tournament",
+      "settings": {
+        "schemaVersion": 1,
+        "mode": "team_league",
+        "format": "tournament",
+        "entryCount": 4,
+        "playersPerTeam": 3,
+        "squadSize": 5,
+        "timezone": "Europe/Brussels",
+        "preparationStartsAt": "2026-11-01T08:00:00.000Z",
+        "startsAt": "2026-11-15T19:00:00.000Z",
+        "endsAt": "2026-12-31T22:00:00.000Z",
+        "startingRating": 50,
+        "ratingCeiling": 90,
+        "trainingEveryDays": 7,
+        "roundEveryDays": 7,
+        "trainingBetweenRounds": true,
+        "baseGrowth": 1,
+        "bonusGrowth": 1,
+        "maxGrowth": 2,
+        "pointsPerStep": 10,
+        "chanceStep": 5,
+        "chanceCap": 30,
+        "legs": 1,
+        "winPoints": 3,
+        "drawPoints": 1,
+        "lossPoints": 0,
+        "drawPolicy": "seeded_draw"
+      },
+      "entries": [
+        {
+          "name": "Atlas",
+          "participants": [
+            "Test participant 1",
+            "Test participant 2",
+            "Test participant 3"
+          ]
+        },
+        {
+          "name": "Hilal",
+          "participants": [
+            "Test participant 4",
+            "Test participant 5",
+            "Test participant 6"
+          ]
+        },
+        {
+          "name": "Nur",
+          "participants": [
+            "Test participant 7",
+            "Test participant 8",
+            "Test participant 9"
+          ]
+        },
+        {
+          "name": "Safa",
+          "participants": [
+            "Test participant 10",
+            "Test participant 11",
+            "Test participant 12"
+          ]
+        }
+      ],
+      "plan": {
+        "rulesVersion": "futsal-setup-v1",
+        "rounds": [
+          {
+            "number": 1,
+            "at": "2026-11-15T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r1m1",
+                "home": {
+                  "entryId": "Hilal"
+                },
+                "away": {
+                  "entryId": "Atlas"
+                }
+              },
+              {
+                "id": "r1m2",
+                "home": {
+                  "entryId": "Safa"
+                },
+                "away": {
+                  "entryId": "Nur"
+                }
+              }
+            ]
+          },
+          {
+            "number": 2,
+            "at": "2026-11-22T19:00:00.000Z",
+            "matches": [
+              {
+                "id": "r2m1",
+                "home": {
+                  "winnerOf": "r1m1"
+                },
+                "away": {
+                  "winnerOf": "r1m2"
+                }
+              }
+            ]
+          }
+        ],
+        "trainingAt": [
+          "2026-11-01T18:00:00.000Z",
+          "2026-11-08T18:00:00.000Z",
+          "2026-11-15T18:00:00.000Z",
+          "2026-11-22T18:00:00.000Z"
+        ],
+        "matchCount": 3,
+        "byeCount": 0
+      },
+      "trainingChancePreview": [
+        {
+          "points": 0,
+          "guaranteedGrowth": 1,
+          "bonusChance": 0,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 10,
+          "guaranteedGrowth": 1,
+          "bonusChance": 5,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 30,
+          "guaranteedGrowth": 1,
+          "bonusChance": 15,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 60,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        },
+        {
+          "points": 100,
+          "guaranteedGrowth": 1,
+          "bonusChance": 30,
+          "maximumGrowth": 2
+        }
+      ]
+    }
+  ]
+}
