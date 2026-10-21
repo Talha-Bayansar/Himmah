@@ -119,6 +119,7 @@ export function FutsalNavigation({
         organizationId={organizationId}
         seasonId={location.seasonId}
         page={location.page}
+        clubId={location.clubId}
       />
     );
   return (

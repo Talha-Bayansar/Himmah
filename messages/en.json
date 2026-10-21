@@ -884,5 +884,6 @@
   "arena_reveal_help": "This reveals the saved result. Replaying never changes the score.",
   "arena_your_training": "Your improvements",
   "arena_no_training": "Completed training improvements will appear here.",
-  "arena_attribute_progress": "Attribute rating"
+  "arena_attribute_progress": "Attribute rating",
+  "arena_cancelled_help": "This season is cancelled. Saved results remain available; no further training or matches will run."
 }

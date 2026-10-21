@@ -884,5 +884,6 @@
   "arena_reveal_help": "Dit toont de opgeslagen uitslag. Herhalen verandert de score nooit.",
   "arena_your_training": "Jouw vooruitgang",
   "arena_no_training": "Afgeronde trainingsverbeteringen verschijnen hier.",
-  "arena_attribute_progress": "Vaardigheidsrating"
+  "arena_attribute_progress": "Vaardigheidsrating",
+  "arena_cancelled_help": "Dit seizoen is geannuleerd. Opgeslagen resultaten blijven beschikbaar; er worden geen trainingen of wedstrijden meer uitgevoerd."
 }

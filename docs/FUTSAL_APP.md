@@ -29,3 +29,5 @@ Season lists and training histories retain bounded cursor/infinite fetching. Sea
 ## Verification
 
 Automated checks cover separate manifest identities/scopes, icon/splash dimensions, existing Hub manifests, own-club defaults, immutable reveal behavior, participant training redaction/current-access checks and all existing gameplay/PWA/auth regressions. Production-asset browser checks use intercepted synthetic APIs to exercise all four mode/format combinations, all five game pages, real navigation/reload, zero gameplay writes during reveal, profile language metadata, launcher states and EN/NL/TR phone/tablet layouts. They do not create production fixture data or send pushes.
+
+Game navigation keeps the selected club in the validated URL search parameter across tabs and reloads. Organizer game views honor both season cancellation and the current game API cancellation flag: cancelled seasons retain historical results with a localized notice and do not show upcoming-play or completion prompts. Participant cancellation access policy remains unchanged.

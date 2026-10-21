@@ -483,3 +483,9 @@ Clubhouse, Squad, Competition, Training and Matchday have independent reloadable
 The existing root service worker uses public cache v4 and supports both identities; only public icons/assets/offline notice are cached. Push endpoints, generic notifications, secrets and minute schedule are preserved. No synthetic push, account, season or point entry was created. Direct hosted access remains restricted; UI validation uses local production assets and intercepted APIs.
 
 Worker `cf72fd11-d9cb-486b-9da4-551cb58bb3d3` is verified active at 100% traffic through Cloudflare's API. Deployment retains the minute push schedule. Chrome parsed both manifests without errors (Futsal ID/start `/futsal`; Hub ID `/`, start `/hub`). Final type, build, contrast and docs checks pass. No database migration or live game execution occurred.
+
+### Futsal QA fixes — 21 October 2026
+
+Worker `dd557d66-ce4d-4d4f-b145-c65989626b2d` is deployed at 100% traffic, verified through Cloudflare deployments API. Game tabs retain the selected club in the URL. Cancelled organizer views combine setup status and the polled game cancellation flag, retain saved history and suppress future-play/completion prompts. Cancellation copy supports EN/NL/TR. No migration, game execution or Hub points changes. The minute push schedule is preserved.
+
+`npm run check` passes 197 tests (73 domain/API/PostgreSQL/PWA, three Worker-runtime, 121 UI), strict types and documentation checks. Five new UI regressions cover club navigation with a fresh router load and cancellation across active/completed snapshots and stale metadata. Production build and contrast checks pass (minimum 5.87:1). No new physical-device or hosted signed-in browser test was performed for this patch.

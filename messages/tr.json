@@ -884,5 +884,6 @@
   "arena_reveal_help": "Bu, kaydedilmiş sonucu gösterir. Tekrar izlemek skoru asla değiştirmez.",
   "arena_your_training": "Gelişimin",
   "arena_no_training": "Tamamlanan antrenman gelişimleri burada görünecek.",
-  "arena_attribute_progress": "Özellik gücü"
+  "arena_attribute_progress": "Özellik gücü",
+  "arena_cancelled_help": "Bu sezon iptal edildi. Kaydedilen sonuçlar görüntülenebilir; başka antrenman veya maç yapılmayacak."
 }

@@ -91,10 +91,12 @@ export function ArenaNavigation({
   organizationId,
   seasonId,
   page,
+  clubId,
 }: {
   organizationId: string;
   seasonId: string;
   page: string;
+  clubId?: string | undefined;
 }) {
   const items = [
     { key: "clubhouse", label: m.arena_clubhouse(), Icon: Home },
@@ -112,6 +114,7 @@ export function ArenaNavigation({
           key={item.key}
           to={arenaPaths[item.key]}
           params={{ organizationId, seasonId }}
+          search={clubId ? { club: clubId } : {}}
           activeOptions={{ exact: true }}
           aria-current={
             page === item.key ||
@@ -250,6 +253,7 @@ export function FutsalExperience({
       directoryRequest<{
         item: { state: GameState; version: number; now: string } | null;
         next: GameSlot | null;
+        cancelled: boolean;
       }>(
         `/api/organizations/${organization.id}/futsal/seasons/${seasonId}/game`,
         { signal },
@@ -308,8 +312,11 @@ export function FutsalExperience({
       state?.entries.find((e) => e.id === play.data?.item.ownEntryId) ??
       state?.entries[0],
     entryIndex = state?.entries.findIndex((e) => e.id === entry?.id) ?? 0;
+  const cancelled =
+    admin &&
+    (season.data?.item.status === "cancelled" || game.data?.cancelled === true);
   const next =
-    state && plan && settings
+    !cancelled && state && plan && settings
       ? gameSlots({ settings, plan, entries: [] })[state.step]
       : null;
   return (
@@ -345,11 +352,17 @@ export function FutsalExperience({
         </div>
         {page === "clubhouse" && <InstallApp futsal />}
       </div>
+      {cancelled && (
+        <div className="arena-next" role="status">
+          <h2>{m.futsal_cancelled()}</h2>
+          <p>{m.arena_cancelled_help()}</p>
+        </div>
+      )}
       {!state || !settings ? (
         <div className="arena-hero arena-pitch">
           <Shield aria-hidden="true" />
-          <h2>{m.arena_preparing()}</h2>
-          <p>{m.arena_preparing_help()}</p>
+          <h2>{cancelled ? m.futsal_cancelled() : m.arena_preparing()}</h2>
+          {!cancelled && <p>{m.arena_preparing_help()}</p>}
         </div>
       ) : (
         <>
@@ -391,9 +404,11 @@ export function FutsalExperience({
                 <ClubBadge name={entry.name} index={entryIndex} />
                 <h2>{entry.name}</h2>
                 <p>
-                  {state.status === "completed"
-                    ? m.game_completed()
-                    : m.arena_together()}
+                  {cancelled
+                    ? m.futsal_cancelled()
+                    : state.status === "completed"
+                      ? m.game_completed()
+                      : m.arena_together()}
                 </p>
                 <div className="arena-stats">
                   <div>
@@ -434,43 +449,45 @@ export function FutsalExperience({
                   </div>
                 </div>
               </header>
-              <div className="arena-next">
-                <div className="arena-section-heading">
-                  <h2>{next ? m.arena_up_next() : m.game_completed()}</h2>
-                  {next?.kind === "training" ? (
-                    <Dumbbell aria-hidden="true" />
-                  ) : (
-                    <Trophy aria-hidden="true" />
-                  )}
+              {!cancelled && (
+                <div className="arena-next">
+                  <div className="arena-section-heading">
+                    <h2>{next ? m.arena_up_next() : m.game_completed()}</h2>
+                    {next?.kind === "training" ? (
+                      <Dumbbell aria-hidden="true" />
+                    ) : (
+                      <Trophy aria-hidden="true" />
+                    )}
+                  </div>
+                  <p>
+                    {next
+                      ? m.game_next({
+                          kind:
+                            next.kind === "training"
+                              ? m.arena_training()
+                              : m.game_round(),
+                          at: date(next.at, settings.timezone),
+                        })
+                      : m.arena_final_whistle()}
+                  </p>
+                  <Button asChild>
+                    <Link
+                      to={
+                        next?.kind === "training"
+                          ? arenaPaths.training
+                          : arenaPaths.competition
+                      }
+                      params={params}
+                      search={{ club: entry.id }}
+                    >
+                      <ArrowRight aria-hidden="true" />
+                      {next?.kind === "training"
+                        ? m.arena_training()
+                        : m.arena_competition()}
+                    </Link>
+                  </Button>
                 </div>
-                <p>
-                  {next
-                    ? m.game_next({
-                        kind:
-                          next.kind === "training"
-                            ? m.arena_training()
-                            : m.game_round(),
-                        at: date(next.at, settings.timezone),
-                      })
-                    : m.arena_final_whistle()}
-                </p>
-                <Button asChild>
-                  <Link
-                    to={
-                      next?.kind === "training"
-                        ? arenaPaths.training
-                        : arenaPaths.competition
-                    }
-                    params={params}
-                    search={{ club: entry.id }}
-                  >
-                    <ArrowRight aria-hidden="true" />
-                    {next?.kind === "training"
-                      ? m.arena_training()
-                      : m.arena_competition()}
-                  </Link>
-                </Button>
-              </div>
+              )}
               <MatchCards
                 state={state}
                 entry={entry}
@@ -531,9 +548,11 @@ export function FutsalExperience({
                       : m.futsal_tournament()}
                   </h2>
                   <p>
-                    {state.status === "completed"
-                      ? m.game_completed()
-                      : m.game_active()}
+                    {cancelled
+                      ? m.futsal_cancelled()
+                      : state.status === "completed"
+                        ? m.game_completed()
+                        : m.game_active()}
                   </p>
                 </div>
               </div>

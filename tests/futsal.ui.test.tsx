@@ -473,3 +473,116 @@ it("uses the assigned club in the clubhouse and reveals saved scores without a w
     entries[1]!.id,
   );
 });
+
+it("preserves the selected club through game navigation and a fresh route load", async () => {
+  const { FutsalNavigation } = await import("../src/futsal/FutsalApp");
+  const clubId = "55555555-5555-4555-8555-555555555552";
+  const root = createRootRoute({ component: () => <Outlet /> });
+  const source = createRoute({
+    getParentRoute: () => root,
+    path: "/",
+    component: () => (
+      <FutsalNavigation
+        organizationId={org.id}
+        role="owner"
+        location={{ page: "clubhouse", seasonId: id, clubId }}
+      />
+    ),
+  });
+  const target = createRoute({
+    getParentRoute: () => root,
+    path: "/futsal/$organizationId/seasons/$seasonId/squad",
+    validateSearch: (value: Record<string, unknown>) => ({
+      club: value.club as string | undefined,
+    }),
+    component: () => (
+      <h1>Squad for {(target.useSearch() as { club?: string }).club}</h1>
+    ),
+  });
+  const tree = root.addChildren([source, target]);
+  const router = createRouter({
+    routeTree: tree,
+    history: createMemoryHistory({ initialEntries: ["/"] }),
+  });
+  const view = render(
+    <LocaleProvider>
+      <RouterProvider router={router} />
+    </LocaleProvider>,
+  );
+  await userEvent
+    .setup()
+    .click(await screen.findByRole("link", { name: "Squads" }));
+  await screen.findByRole("heading", { name: `Squad for ${clubId}` });
+  const href = router.state.location.href;
+  view.unmount();
+  const reloaded = createRouter({
+    routeTree: tree,
+    history: createMemoryHistory({ initialEntries: [href] }),
+  });
+  render(
+    <LocaleProvider>
+      <RouterProvider router={reloaded} />
+    </LocaleProvider>,
+  );
+  expect(
+    await screen.findByRole("heading", { name: `Squad for ${clubId}` }),
+  ).toBeTruthy();
+});
+
+it.each([
+  ["cancelled", false, "active", "clubhouse"],
+  ["prepared", true, "active", "competition"],
+  ["cancelled", true, "completed", "clubhouse"],
+  ["cancelled", true, "active", "competition"],
+])(
+  "shows cancellation for metadata %s, API flag %s, game %s on %s",
+  async (status, cancelled, gameStatus, page) => {
+    const { FutsalExperience } = await import("../src/futsal/FutsalExperience");
+    const state = {
+      engineVersion: "futsal-game-v1",
+      status: gameStatus,
+      step: 0,
+      entries: [
+        {
+          id: "55555555-5555-4555-8555-555555555551",
+          name: "Atlas",
+          players: Array.from({ length: 5 }, (_, i) => ({
+            id: `p${i}`,
+            personId: null,
+            name: "",
+            attack: 50,
+            defence: 50,
+            control: 50,
+          })),
+        },
+      ],
+      results: [],
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: RequestInfo | URL) =>
+        Response.json(
+          String(url).endsWith("/game")
+            ? { item: { state, version: 1 }, next: null, cancelled }
+            : { item: { ...season, status } },
+        ),
+      ),
+    );
+    mount(
+      <FutsalExperience
+        userId="owner"
+        organization={org}
+        seasonId={id}
+        page={page}
+      />,
+    );
+    await screen.findByText(
+      "This season is cancelled. Saved results remain available; no further training or matches will run.",
+    );
+    expect(screen.getByRole("status").textContent).toContain("Cancelled");
+    expect(screen.queryByText("Season active")).toBeNull();
+    expect(screen.queryByText("Season completed")).toBeNull();
+    expect(screen.queryByText("Up next")).toBeNull();
+    expect(screen.getAllByText("Atlas").length).toBeGreaterThan(0);
+  },
+);
