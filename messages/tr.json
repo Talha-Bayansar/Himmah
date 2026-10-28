@@ -341,7 +341,7 @@
   "access_activity": "Etkinlik seç",
   "access_scope": "Görev kapsamı",
   "access_attend": "Yoklamayı kaydet ve düzelt",
-  "access_attend_help": "Kayıtlı oturum kuralının gerektirdiği bağlı puanları verme, geri alma ve yeniden sağlama işlemlerini içerir.",
+  "access_attend_help": "Seçilen grup veya etkinlikte katılımı kaydetmeye ve düzeltmeye izin verir.",
   "access_scope_help": "Grup görevi güncel üyeleri kapsar. Etkinlik görevi hedef kitlesini kapsar; herkese açık bir etkinlik tüm kuruluş üyelerini içerir.",
   "access_revoke": "Görevi iptal et",
   "access_revoke_help": "Bu gönüllünün atama izinleri kaldırılsın mı? Katılım ve denetim geçmişi korunur.",
@@ -567,5 +567,6 @@
   "staff_actor": "Personel",
   "access_capabilities": "Bu kapsam için katılım yönetimine izin verin.",
   "notifications_intro": "Kuruluşunuz için özel güncellemeler.",
-  "staff_unnamed": "Ad bilgisi yok"
+  "staff_unnamed": "Ad bilgisi yok",
+  "form_back": "Geri"
 }

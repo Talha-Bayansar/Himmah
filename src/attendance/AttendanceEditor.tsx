@@ -1,3 +1,4 @@
+import { FormSurface } from "../components/shared/form-surface";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
@@ -12,13 +13,6 @@ import { ActionButton } from "../components/shared/action-button";
 import { useConfirmation } from "../components/shared/confirmation";
 import { Alert, AlertDescription } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import {
@@ -115,106 +109,88 @@ export function AttendanceEditor({
     if (!submit.isPending && (await canLeave())) onClose();
   };
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) void close();
-      }}
+    <FormSurface
+      title={records.length === 1 ? records[0]!.name : m.attendance_bulk()}
+      description={m.attendance_selected({ count: String(records.length) })}
+      onClose={() => void close()}
     >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>
-            {records.length === 1 ? records[0]!.name : m.attendance_bulk()}
-          </DialogTitle>
-          <DialogDescription>
-            {m.attendance_selected({ count: String(records.length) })}
-          </DialogDescription>
-        </DialogHeader>
-        {submit.isError && (
-          <Alert variant="destructive" role="alert">
-            <AlertDescription>
-              {submit.error instanceof DirectoryError &&
-              submit.error.code !== "service"
-                ? directoryMessage(submit.error)
-                : m.attendance_uncertain()}
-            </AlertDescription>
-          </Alert>
-        )}
-        <form
-          className="directory-form attendance-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void form.handleSubmit();
-          }}
-        >
-          <form.Field name="status">
-            {(field) => (
-              <div>
-                <Label htmlFor="attendance-status">
-                  {m.attendance_status()}
-                </Label>
-                <NativeSelect
-                  id="attendance-status"
-                  value={field.state.value}
-                  disabled={submit.isPending || !!request.current}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value as AttendanceStatus);
-                  }}
-                >
-                  {attendanceStatuses.map((value) => (
-                    <NativeSelectOption key={value} value={value}>
-                      {statusLabel(value)}
-                    </NativeSelectOption>
-                  ))}
-                </NativeSelect>
-              </div>
-            )}
-          </form.Field>
-          <form.Field name="reason">
-            {(field) => (
-              <div>
-                <Label htmlFor="attendance-reason">
-                  {m.attendance_reason()}
-                </Label>
-                <Input
-                  id="attendance-reason"
-                  maxLength={300}
-                  required={corrections}
-                  pattern={corrections ? ".*\\S.*" : undefined}
-                  aria-describedby="attendance-reason-help"
-                  disabled={submit.isPending || !!request.current}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => {
-                    field.handleChange(e.target.value);
-                  }}
-                />
-                <p
-                  id="attendance-reason-help"
-                  className="attendance-reason-help"
-                >
-                  {m.attendance_reason_help()}
-                </p>
-              </div>
-            )}
-          </form.Field>
-          <div className="directory-actions">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={submit.isPending}
-              onClick={() => void close()}
-            >
-              <X size={16} aria-hidden="true" />
-              {m.cancel()}
-            </Button>
-            <ActionButton type="submit" pending={submit.isPending}>
-              <Save size={16} aria-hidden="true" />
-              {submit.isError ? m.try_again() : m.attendance_save()}
-            </ActionButton>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      {submit.isError && (
+        <Alert variant="destructive" role="alert">
+          <AlertDescription>
+            {submit.error instanceof DirectoryError &&
+            submit.error.code !== "service"
+              ? directoryMessage(submit.error)
+              : m.attendance_uncertain()}
+          </AlertDescription>
+        </Alert>
+      )}
+      <form
+        className="directory-form attendance-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        <form.Field name="status">
+          {(field) => (
+            <div>
+              <Label htmlFor="attendance-status">{m.attendance_status()}</Label>
+              <NativeSelect
+                id="attendance-status"
+                value={field.state.value}
+                disabled={submit.isPending || !!request.current}
+                onChange={(e) => {
+                  field.handleChange(e.target.value as AttendanceStatus);
+                }}
+              >
+                {attendanceStatuses.map((value) => (
+                  <NativeSelectOption key={value} value={value}>
+                    {statusLabel(value)}
+                  </NativeSelectOption>
+                ))}
+              </NativeSelect>
+            </div>
+          )}
+        </form.Field>
+        <form.Field name="reason">
+          {(field) => (
+            <div>
+              <Label htmlFor="attendance-reason">{m.attendance_reason()}</Label>
+              <Input
+                id="attendance-reason"
+                maxLength={300}
+                required={corrections}
+                pattern={corrections ? ".*\\S.*" : undefined}
+                aria-describedby="attendance-reason-help"
+                disabled={submit.isPending || !!request.current}
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => {
+                  field.handleChange(e.target.value);
+                }}
+              />
+              <p id="attendance-reason-help" className="attendance-reason-help">
+                {m.attendance_reason_help()}
+              </p>
+            </div>
+          )}
+        </form.Field>
+        <div className="directory-actions">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={submit.isPending}
+            onClick={() => void close()}
+          >
+            <X size={16} aria-hidden="true" />
+            {m.cancel()}
+          </Button>
+          <ActionButton type="submit" pending={submit.isPending}>
+            <Save size={16} aria-hidden="true" />
+            {submit.isError ? m.try_again() : m.attendance_save()}
+          </ActionButton>
+        </div>
+      </form>
+    </FormSurface>
   );
 }

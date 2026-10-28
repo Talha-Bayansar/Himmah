@@ -1,3 +1,4 @@
+import { useFormNavigation } from "../../components/shared/form-navigation";
 import {
   PREVIEW_SIZE,
   CollectionCount,
@@ -31,9 +32,9 @@ import {
   ErrorNotice,
   HistoryToggle,
   Picker,
-  PeopleDialog,
+  PeopleForm,
   usePeopleMutation,
-  ReasonDialog,
+  ReasonSheet,
   localLabel,
 } from "./shared";
 import { MembershipDates, endReasonLabel } from "./Groups";
@@ -181,9 +182,9 @@ export function ContactGroups({
           contact={contact}
           onClose={() => setAdding(false)}
         />
-      )}{" "}
+      )}
       {ending && (
-        <ReasonDialog
+        <ReasonSheet
           org={org}
           user={user}
           title={m.people_end_membership()}
@@ -244,7 +245,7 @@ function AddToGroup({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
       title={m.people_add_to_group()}
       description={m.people_group_assignment_hint()}
       pending={mutation.isPending}
@@ -267,7 +268,7 @@ function AddToGroup({
       />
       {invalid && <p role="alert">{m.people_choose_group()}</p>}
       {partial && <p role="alert">{m.people_conflict()}</p>}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }
 export function ContactRelationships({
@@ -285,10 +286,10 @@ export function ContactRelationships({
   filters?: ContactFilters | undefined;
   onFiltersChange?: ((next: ContactFilters) => void) | undefined;
 }) {
+  const openForm = useFormNavigation(org);
   const history = full && (filters?.history ?? false),
     q = useSearch(full ? (filters?.q ?? "") : "");
-  const [adding, setAdding] = useState(false),
-    [ending, setEnding] = useState<ContactRelationship | null>(null);
+  const [ending, setEnding] = useState<ContactRelationship | null>(null);
   const pages = usePages<ContactRelationship>(
     [
       "people",
@@ -328,7 +329,7 @@ export function ContactRelationships({
         {!contact.archivedAt && (
           <SectionAdd
             label={m.people_add_relationship()}
-            onClick={() => setAdding(true)}
+            onClick={() => openForm("relationship", contact.id)}
           />
         )}
       </div>
@@ -435,16 +436,8 @@ export function ContactRelationships({
           </Link>
         </Button>
       )}
-      {adding && (
-        <RelationshipEditor
-          org={org}
-          user={user}
-          contact={contact}
-          onClose={() => setAdding(false)}
-        />
-      )}{" "}
       {ending && (
-        <ReasonDialog
+        <ReasonSheet
           org={org}
           user={user}
           title={m.people_end_relationship()}
@@ -461,7 +454,7 @@ export function ContactRelationships({
     </section>
   );
 }
-function RelationshipEditor({
+export function RelationshipEditor({
   org,
   user,
   contact,
@@ -500,9 +493,13 @@ function RelationshipEditor({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
+      page
+      canLeave={() => mutation.isSuccess}
       title={m.people_add_relationship()}
-      description={m.people_relationship_scope_hint()}
+      description={
+        contact.displayName + " · " + m.people_relationship_scope_hint()
+      }
       pending={mutation.isPending}
       error={mutation.error}
       onClose={onClose}
@@ -586,6 +583,6 @@ function RelationshipEditor({
       {invalid && (
         <p role="alert">{m.people_relationship_selection_required()}</p>
       )}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }

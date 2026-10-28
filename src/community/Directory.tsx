@@ -33,7 +33,7 @@ import {
   NativeSelectOption,
 } from "../components/ui/native-select";
 import { useLocale } from "../localization/locale";
-import { PeopleDialog, useSearch } from "../modules/people/shared";
+import { PeopleForm, useSearch } from "../modules/people/shared";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
 import { DirectoryError, directoryRequest, useDirectoryPages } from "./client";
@@ -302,7 +302,7 @@ function InviteEditor({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
       title={m.directory_invite()}
       description={m.directory_invite_help()}
       onClose={onClose}
@@ -347,7 +347,7 @@ function InviteEditor({
           </div>
         )}
       </form.Field>
-    </PeopleDialog>
+    </PeopleForm>
   );
 }
 

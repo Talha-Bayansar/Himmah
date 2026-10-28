@@ -1,3 +1,4 @@
+import { FormSurface } from "../../components/shared/form-surface";
 import { useForm } from "@tanstack/react-form";
 import { reasonInput } from "./contracts";
 import {
@@ -5,6 +6,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
   type ReactNode,
 } from "react";
 import {
@@ -20,13 +22,6 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Checkbox } from "../../components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../../components/ui/dialog";
 import { ActionButton } from "../../components/shared/action-button";
 import {
   InfiniteFooter,
@@ -140,7 +135,7 @@ export function usePeopleMutation(user: string, org: string) {
     },
   });
 }
-export function PeopleDialog({
+export function PeopleForm({
   title,
   description,
   onClose,
@@ -151,6 +146,7 @@ export function PeopleDialog({
   children,
   submitLabel,
   canLeave,
+  page = false,
 }: {
   title: string;
   description: string;
@@ -162,8 +158,10 @@ export function PeopleDialog({
   children: ReactNode;
   submitLabel?: string;
   canLeave?: () => boolean;
+  page?: boolean;
 }) {
   const confirm = useConfirmation();
+  const approved = useRef(false);
   const discard = () =>
     confirm({
       title: m.people_discard(),
@@ -171,54 +169,54 @@ export function PeopleDialog({
       destructive: true,
     });
   const close = async () => {
-    if (!pending && (!dirty() || (await discard()))) onClose();
+    if (!pending && (!dirty() || (await discard()))) {
+      approved.current = true;
+      onClose();
+    }
   };
   useBlocker({
     shouldBlockFn: async () =>
-      !canLeave?.() && (pending || (dirty() && !(await discard()))),
-    enableBeforeUnload: () => !canLeave?.() && (pending || dirty()),
+      !approved.current &&
+      !canLeave?.() &&
+      (pending || (dirty() && !(await discard()))),
+    enableBeforeUnload: () =>
+      !approved.current && !canLeave?.() && (pending || dirty()),
   });
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) void close();
-      }}
+    <FormSurface
+      page={page}
+      title={title}
+      description={description}
+      onClose={() => void close()}
     >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!pending) onSubmit();
-          }}
-        >
-          <fieldset disabled={pending} className="min-w-0 space-y-4">
-            {children}
-          </fieldset>
-          {!!error && <ErrorNotice error={error} />}
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={pending}
-              onClick={() => void close()}
-            >
-              <X aria-hidden="true" />
-              {m.cancel()}
-            </Button>
-            <ActionButton type="submit" pending={pending}>
-              <Save aria-hidden="true" />
-              {submitLabel ?? m.directory_save()}
-            </ActionButton>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!pending) onSubmit();
+        }}
+      >
+        <fieldset disabled={pending} className="min-w-0 space-y-4">
+          {children}
+        </fieldset>
+        {!!error && <ErrorNotice error={error} />}
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pending}
+            onClick={() => void close()}
+          >
+            <X aria-hidden="true" />
+            {m.cancel()}
+          </Button>
+          <ActionButton type="submit" pending={pending}>
+            <Save aria-hidden="true" />
+            {submitLabel ?? m.directory_save()}
+          </ActionButton>
+        </div>
+      </form>
+    </FormSurface>
   );
 }
 export function Picker<T extends { id: string; assigned?: boolean }>({
@@ -395,7 +393,7 @@ export function eventLabel(action: string) {
   return (labels[action] ?? m.people_event_update)();
 }
 
-export function ReasonDialog({
+export function ReasonSheet({
   org,
   user,
   title,
@@ -436,7 +434,7 @@ export function ReasonDialog({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
       title={title}
       description={description}
       onClose={onClose}
@@ -469,6 +467,6 @@ export function ReasonDialog({
         )}
       </form.Field>
       {invalid && <p role="alert">{m.people_reason_required()}</p>}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }

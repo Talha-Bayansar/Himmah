@@ -1,3 +1,4 @@
+import { FormSurface } from "../components/shared/form-surface";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
@@ -13,13 +14,6 @@ import {
 } from "../components/shared/record-options";
 import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
 import { Label } from "../components/ui/label";
 import { m } from "../paraglide/messages.js";
 import type { AccessAssignment } from "./contracts";
@@ -122,185 +116,183 @@ export function AccessEditor({
       destructive: true,
     }));
   useBlocker({
-    shouldBlockFn: async () => submit.isPending || !(await leave()),
-    enableBeforeUnload: dirty || !!attempt.current,
+    shouldBlockFn: async () =>
+      !approved.current && (submit.isPending || !(await leave())),
+    enableBeforeUnload: () =>
+      !approved.current && !submit.isSuccess && (dirty || !!attempt.current),
   });
+  const approved = useRef(false);
   const close = async () => {
-    if (!submit.isPending && (await leave())) onClose();
+    if (!submit.isPending && (await leave())) {
+      approved.current = true;
+      onClose();
+    }
   };
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) void close();
-      }}
+    <FormSurface
+      page
+      title={assignment ? m.access_edit() : m.access_create()}
+      description={m.access_scope_help()}
+      onClose={() => void close()}
     >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>
-            {assignment ? m.access_edit() : m.access_create()}
-          </DialogTitle>
-          <DialogDescription>{m.access_scope_help()}</DialogDescription>
-        </DialogHeader>
-        {submit.isError && <CollectionError error={submit.error} />}
-        <form
-          className="directory-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void form.handleSubmit().catch(() => {});
-          }}
-        >
-          {assignment ? (
-            <p>
-              <strong>{assignment.staffName || m.role_volunteer()}</strong> ·{" "}
-              {assignment.scopeName}
-            </p>
-          ) : (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={frozen}
-                onClick={() => setPicker(picker === "staff" ? null : "staff")}
-              >
-                <UserCheck aria-hidden="true" />
-                {values.volunteer?.name || m.access_volunteer()}
-              </Button>
-              {picker === "staff" && (
-                <RecordOptions
-                  path={base + "/access/staff"}
-                  scope={[...scope, "staff-options"]}
-                  selected={
-                    new Map(
-                      values.volunteer
-                        ? [[values.volunteer.id, values.volunteer]]
-                        : [],
-                    )
-                  }
-                  disabled={frozen}
-                  format={(item) => item.name || m.role_volunteer()}
-                  onToggle={(item) => {
-                    form.setFieldValue("volunteer", item);
-                    setPicker(null);
-                  }}
-                />
-              )}
-              <div
-                className="access-scope-buttons segmented-choice"
-                role="group"
-                aria-label={m.access_scope()}
-              >
-                <Button
-                  type="button"
-                  variant="ghost"
-                  aria-pressed={mode === "groups"}
-                  disabled={frozen}
-                  onClick={() => {
-                    setMode("groups");
-                    form.setFieldValue("target", null);
-                    setPicker("groups");
-                  }}
-                >
-                  <Users aria-hidden="true" />
-                  {m.directory_groups()}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  aria-pressed={mode === "activities"}
-                  disabled={frozen}
-                  onClick={() => {
-                    setMode("activities");
-                    form.setFieldValue("target", null);
-                    setPicker("activities");
-                  }}
-                >
-                  <CalendarDays aria-hidden="true" />
-                  {m.activities_title()}
-                </Button>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                disabled={frozen}
-                onClick={() => setPicker(picker === mode ? null : mode)}
-              >
-                {mode === "groups" ? (
-                  <Users aria-hidden="true" />
-                ) : (
-                  <CalendarDays aria-hidden="true" />
-                )}
-                {values.target?.name ??
-                  (mode === "groups" ? m.access_group() : m.access_activity())}
-              </Button>
-              {picker === mode && (
-                <RecordOptions
-                  key={mode}
-                  path={base + "/" + mode}
-                  scope={[...scope, mode + "-options"]}
-                  selected={
-                    new Map(
-                      values.target ? [[values.target.id, values.target]] : [],
-                    )
-                  }
-                  disabled={frozen}
-                  onToggle={(item) => {
-                    form.setFieldValue("target", item);
-                    setPicker(null);
-                  }}
-                />
-              )}
-            </>
-          )}
-          {(["canAttend"] as const).map((name) => (
-            <form.Field key={name} name={name}>
-              {(field) => (
-                <div>
-                  <Label className="directory-check">
-                    <Checkbox
-                      checked={field.state.value}
-                      disabled={frozen}
-                      onCheckedChange={(checked) =>
-                        field.handleChange(checked === true)
-                      }
-                    />
-                    <span>{m.access_attend()}</span>
-                  </Label>
-                  <p className="access-permission-help">
-                    {m.access_attend_help()}
-                  </p>
-                </div>
-              )}
-            </form.Field>
-          ))}
-          <div className="directory-actions">
+      {submit.isError && <CollectionError error={submit.error} />}
+      <form
+        className="directory-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void form.handleSubmit().catch(() => {});
+        }}
+      >
+        {assignment ? (
+          <p>
+            <strong>{assignment.staffName || m.role_volunteer()}</strong> ·{" "}
+            {assignment.scopeName}
+          </p>
+        ) : (
+          <>
             <Button
               type="button"
               variant="outline"
-              disabled={submit.isPending}
-              onClick={() => {
-                void close();
-              }}
+              disabled={frozen}
+              onClick={() => setPicker(picker === "staff" ? null : "staff")}
             >
-              <X aria-hidden="true" />
-              {m.cancel()}
+              <UserCheck aria-hidden="true" />
+              {values.volunteer?.name || m.access_volunteer()}
             </Button>
-            <ActionButton
-              type="submit"
-              pending={submit.isPending}
-              disabled={
-                (!assignment && (!values.volunteer || !values.target)) ||
-                !values.canAttend
-              }
+            {picker === "staff" && (
+              <RecordOptions
+                path={base + "/access/staff"}
+                scope={[...scope, "staff-options"]}
+                selected={
+                  new Map(
+                    values.volunteer
+                      ? [[values.volunteer.id, values.volunteer]]
+                      : [],
+                  )
+                }
+                disabled={frozen}
+                format={(item) => item.name || m.role_volunteer()}
+                onToggle={(item) => {
+                  form.setFieldValue("volunteer", item);
+                  setPicker(null);
+                }}
+              />
+            )}
+            <div
+              className="access-scope-buttons segmented-choice"
+              role="group"
+              aria-label={m.access_scope()}
             >
-              <Save aria-hidden="true" />
-              {submit.isError && attempt.current
-                ? m.try_again()
-                : m.directory_save()}
-            </ActionButton>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <Button
+                type="button"
+                variant="ghost"
+                aria-pressed={mode === "groups"}
+                disabled={frozen}
+                onClick={() => {
+                  setMode("groups");
+                  form.setFieldValue("target", null);
+                  setPicker("groups");
+                }}
+              >
+                <Users aria-hidden="true" />
+                {m.directory_groups()}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                aria-pressed={mode === "activities"}
+                disabled={frozen}
+                onClick={() => {
+                  setMode("activities");
+                  form.setFieldValue("target", null);
+                  setPicker("activities");
+                }}
+              >
+                <CalendarDays aria-hidden="true" />
+                {m.activities_title()}
+              </Button>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={frozen}
+              onClick={() => setPicker(picker === mode ? null : mode)}
+            >
+              {mode === "groups" ? (
+                <Users aria-hidden="true" />
+              ) : (
+                <CalendarDays aria-hidden="true" />
+              )}
+              {values.target?.name ??
+                (mode === "groups" ? m.access_group() : m.access_activity())}
+            </Button>
+            {picker === mode && (
+              <RecordOptions
+                key={mode}
+                path={base + "/" + mode}
+                scope={[...scope, mode + "-options"]}
+                selected={
+                  new Map(
+                    values.target ? [[values.target.id, values.target]] : [],
+                  )
+                }
+                disabled={frozen}
+                onToggle={(item) => {
+                  form.setFieldValue("target", item);
+                  setPicker(null);
+                }}
+              />
+            )}
+          </>
+        )}
+        {(["canAttend"] as const).map((name) => (
+          <form.Field key={name} name={name}>
+            {(field) => (
+              <div>
+                <Label className="directory-check">
+                  <Checkbox
+                    checked={field.state.value}
+                    disabled={frozen}
+                    onCheckedChange={(checked) =>
+                      field.handleChange(checked === true)
+                    }
+                  />
+                  <span>{m.access_attend()}</span>
+                </Label>
+                <p className="access-permission-help">
+                  {m.access_attend_help()}
+                </p>
+              </div>
+            )}
+          </form.Field>
+        ))}
+        <div className="directory-actions">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={submit.isPending}
+            onClick={() => {
+              void close();
+            }}
+          >
+            <X aria-hidden="true" />
+            {m.cancel()}
+          </Button>
+          <ActionButton
+            type="submit"
+            pending={submit.isPending}
+            disabled={
+              (!assignment && (!values.volunteer || !values.target)) ||
+              !values.canAttend
+            }
+          >
+            <Save aria-hidden="true" />
+            {submit.isError && attempt.current
+              ? m.try_again()
+              : m.directory_save()}
+          </ActionButton>
+        </div>
+      </form>
+    </FormSurface>
   );
 }

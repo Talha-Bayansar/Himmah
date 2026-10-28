@@ -1,3 +1,5 @@
+import { Workflow } from "../src/organization/WorkflowPage";
+import type { PageForm } from "../src/components/shared/form-navigation";
 import { it, expect, vi, beforeEach } from "vitest";
 import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -69,6 +71,7 @@ function backend(
       const custom = handler?.(u, init);
       if (custom) return custom;
       if (init?.method && init.method !== "GET") return Response.json({ id });
+      if (u.pathname.endsWith("/contacts/" + id)) return Response.json(contact);
       if (u.pathname.endsWith("/routing")) return Response.json(routing);
       if (u.pathname.endsWith("/contacts"))
         return Response.json({
@@ -112,8 +115,30 @@ function mount({ full = false, archived = false, denied = vi.fn() } = {}) {
       </PeopleAccessFailure.Provider>
     ),
   });
+  const workflow = createRoute({
+    getParentRoute: () => root,
+    path: "/workspace/$organizationId/forms/$form/$recordId",
+    component: () => {
+      const { form, recordId } = workflow.useParams();
+      return (
+        <Workflow
+          user="owner"
+          organization={{
+            id: org,
+            name: "Community",
+            slug: "community",
+            timezone: "UTC",
+            role: "owner" as const,
+            createdAt: "2026-10-28T10:00:00Z",
+          }}
+          form={form as PageForm}
+          recordId={recordId}
+        />
+      );
+    },
+  });
   const router = createRouter({
-    routeTree: root.addChildren([route]),
+    routeTree: root.addChildren([route, workflow]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
   render(
@@ -197,7 +222,9 @@ it("selects an unrelated contact and retains the draft and request key on an unc
   await userEvent.click(
     await screen.findByRole("button", { name: "Add contact person" }),
   );
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Create activity|Add members|Add relationship|Add relationship type|Edit relationship type|Add contact person/,
+  });
   await userEvent.click(
     await within(dialog).findByRole("checkbox", { name: "Sam" }),
   );

@@ -11,3 +11,8 @@ vi.stubGlobal(
 );
 window.scrollTo = vi.fn();
 afterEach(() => cleanup());
+
+// Vaul uses pointer capture for its native browser drag gesture.
+HTMLElement.prototype.setPointerCapture = vi.fn();
+HTMLElement.prototype.releasePointerCapture = vi.fn();
+HTMLElement.prototype.hasPointerCapture = vi.fn(() => false);

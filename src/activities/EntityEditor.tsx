@@ -1,3 +1,4 @@
+import { FormSurface } from "../components/shared/form-surface";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
@@ -13,13 +14,6 @@ import {
 } from "../components/shared/infinite-list";
 import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../components/ui/dialog";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import {
@@ -105,11 +99,17 @@ export function EntityEditor({
       destructive: true,
     }));
   useBlocker({
-    shouldBlockFn: async () => submit.isPending || !(await canLeave()),
-    enableBeforeUnload: dirty && !(submit.isSuccess && submit.data === true),
+    shouldBlockFn: async () =>
+      !approved.current && (submit.isPending || !(await canLeave())),
+    enableBeforeUnload: () =>
+      !approved.current && dirty && !(submit.isSuccess && submit.data === true),
   });
+  const approved = useRef(false);
   const close = async () => {
-    if (!submit.isPending && (await canLeave())) onClose();
+    if (!submit.isPending && (await canLeave())) {
+      approved.current = true;
+      onClose();
+    }
   };
   const fields =
     kind === "activity"
@@ -136,133 +136,127 @@ export function EntityEditor({
           ? m.sessions_edit()
           : m.sessions_add();
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) void close();
-      }}
+    <FormSurface
+      page={kind === "activity"}
+      title={title}
+      description={
+        kind === "activity"
+          ? m.activities_form_help()
+          : kind === "cancel"
+            ? m.sessions_cancel_help()
+            : session
+              ? m.sessions_edit_help()
+              : m.sessions_form_help()
+      }
+      onClose={() => void close()}
     >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>
-            {kind === "activity"
-              ? m.activities_form_help()
-              : kind === "cancel"
-                ? m.sessions_cancel_help()
-                : session
-                  ? m.sessions_edit_help()
-                  : m.sessions_form_help()}
-          </DialogDescription>
-        </DialogHeader>
-        {submit.isError && <ErrorNotice error={submit.error} />}
-        <form
-          className="directory-form activity-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void form.handleSubmit();
-          }}
-        >
-          {fields.map(([name, label, type, max]) => (
-            <form.Field name={name} key={name}>
-              {(field) => (
-                <div>
-                  <Label htmlFor={"activity-" + name}>{label}</Label>
-                  {type === "textarea" ? (
-                    <Textarea
-                      id={"activity-" + name}
-                      maxLength={max}
-                      disabled={submit.isPending}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  ) : (
-                    <Input
-                      id={"activity-" + name}
-                      type={type}
-                      maxLength={max}
-                      required={name !== "location"}
-                      minLength={name === "name" ? 2 : undefined}
-                      disabled={submit.isPending}
-                      aria-describedby={
-                        type === "datetime-local"
-                          ? "activity-timezone"
-                          : undefined
-                      }
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                    />
-                  )}
-                </div>
-              )}
-            </form.Field>
-          ))}
-          {kind === "activity" && (
-            <form.Field name="audienceMode">
-              {(mode) => (
-                <div>
-                  <Label htmlFor="activity-audience">
-                    {m.activities_audience()}
-                  </Label>
-                  <NativeSelect
-                    id="activity-audience"
-                    value={mode.state.value}
+      {submit.isError && <ErrorNotice error={submit.error} />}
+      <form
+        className="directory-form activity-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void form.handleSubmit();
+        }}
+      >
+        {fields.map(([name, label, type, max]) => (
+          <form.Field name={name} key={name}>
+            {(field) => (
+              <div>
+                <Label htmlFor={"activity-" + name}>{label}</Label>
+                {type === "textarea" ? (
+                  <Textarea
+                    id={"activity-" + name}
+                    maxLength={max}
                     disabled={submit.isPending}
-                    onChange={(e) => {
-                      mode.handleChange(e.target.value);
-                      if (e.target.value === "everyone")
-                        form.setFieldValue("audienceGroupIds", []);
-                    }}
-                  >
-                    <NativeSelectOption value="everyone">
-                      {m.activities_everyone()}
-                    </NativeSelectOption>
-                    <NativeSelectOption value="groups">
-                      {m.activities_selected_groups()}
-                    </NativeSelectOption>
-                  </NativeSelect>
-                  {mode.state.value === "groups" && (
-                    <form.Field name="audienceGroupIds">
-                      {(field) => (
-                        <GroupChoices
-                          initialGroups={activity?.groups ?? []}
-                          organizationId={organization.id}
-                          userId={userId}
-                          value={field.state.value}
-                          onChange={field.handleChange}
-                          disabled={submit.isPending}
-                        />
-                      )}
-                    </form.Field>
-                  )}
-                </div>
-              )}
-            </form.Field>
-          )}
-          <div className="directory-actions">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={submit.isPending}
-              onClick={() => void close()}
-            >
-              <X size={16} aria-hidden="true" />
-              {m.cancel()}
-            </Button>
-            <ActionButton
-              type="submit"
-              variant={kind === "cancel" ? "destructive" : "default"}
-              pending={submit.isPending}
-            >
-              <Save size={16} aria-hidden="true" />
-              {kind === "cancel" ? m.sessions_cancel() : m.directory_save()}
-            </ActionButton>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                ) : (
+                  <Input
+                    id={"activity-" + name}
+                    type={type}
+                    maxLength={max}
+                    required={name !== "location"}
+                    minLength={name === "name" ? 2 : undefined}
+                    disabled={submit.isPending}
+                    aria-describedby={
+                      type === "datetime-local"
+                        ? "activity-timezone"
+                        : undefined
+                    }
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                )}
+              </div>
+            )}
+          </form.Field>
+        ))}
+        {kind === "activity" && (
+          <form.Field name="audienceMode">
+            {(mode) => (
+              <div>
+                <Label htmlFor="activity-audience">
+                  {m.activities_audience()}
+                </Label>
+                <NativeSelect
+                  id="activity-audience"
+                  value={mode.state.value}
+                  disabled={submit.isPending}
+                  onChange={(e) => {
+                    mode.handleChange(e.target.value);
+                    if (e.target.value === "everyone")
+                      form.setFieldValue("audienceGroupIds", []);
+                  }}
+                >
+                  <NativeSelectOption value="everyone">
+                    {m.activities_everyone()}
+                  </NativeSelectOption>
+                  <NativeSelectOption value="groups">
+                    {m.activities_selected_groups()}
+                  </NativeSelectOption>
+                </NativeSelect>
+                {mode.state.value === "groups" && (
+                  <form.Field name="audienceGroupIds">
+                    {(field) => (
+                      <GroupChoices
+                        initialGroups={activity?.groups ?? []}
+                        organizationId={organization.id}
+                        userId={userId}
+                        value={field.state.value}
+                        onChange={field.handleChange}
+                        disabled={submit.isPending}
+                      />
+                    )}
+                  </form.Field>
+                )}
+              </div>
+            )}
+          </form.Field>
+        )}
+        <div className="directory-actions">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={submit.isPending}
+            onClick={() => void close()}
+          >
+            <X size={16} aria-hidden="true" />
+            {m.cancel()}
+          </Button>
+          <ActionButton
+            type="submit"
+            variant={kind === "cancel" ? "destructive" : "default"}
+            pending={submit.isPending}
+          >
+            <Save size={16} aria-hidden="true" />
+            {kind === "cancel" ? m.sessions_cancel() : m.directory_save()}
+          </ActionButton>
+        </div>
+      </form>
+    </FormSurface>
   );
 }
 function GroupChoices({

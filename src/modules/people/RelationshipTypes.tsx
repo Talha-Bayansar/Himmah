@@ -1,3 +1,4 @@
+import { useFormNavigation } from "../../components/shared/form-navigation";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
@@ -26,7 +27,7 @@ import {
   useSearch,
   SectionAdd,
   ErrorNotice,
-  PeopleDialog,
+  PeopleForm,
   usePeopleMutation,
   localLabel,
 } from "./shared";
@@ -47,10 +48,10 @@ export default function RelationshipTypes({
   );
 }
 function TypeList({ org, user }: { org: string; user: string }) {
+  const openForm = useFormNavigation(org);
   const [q, setQ] = useState(""),
     search = useSearch(q),
     [archived, setArchived] = useState(false),
-    [editing, setEditing] = useState<RelationshipType | "new" | null>(null),
     mutation = usePeopleMutation(user, org),
     confirm = useConfirmation();
   const list = usePages<RelationshipType>(
@@ -98,7 +99,7 @@ function TypeList({ org, user }: { org: string; user: string }) {
         </h1>
         <SectionAdd
           label={m.people_add_type()}
-          onClick={() => setEditing("new")}
+          onClick={() => openForm("relationship-type", "new")}
         />
       </div>
       <p>{m.people_type_hint()}</p>
@@ -166,7 +167,8 @@ function TypeList({ org, user }: { org: string; user: string }) {
                             {
                               label: m.people_edit_type(),
                               icon: Pencil,
-                              onSelect: () => setEditing(t),
+                              onSelect: () =>
+                                openForm("relationship-type", t.id),
                             },
                             {
                               label: m.people_archive_type(),
@@ -183,18 +185,10 @@ function TypeList({ org, user }: { org: string; user: string }) {
           <InfiniteFooter {...list} />
         </>
       )}
-      {editing && (
-        <TypeEditor
-          org={org}
-          user={user}
-          type={editing === "new" ? undefined : editing}
-          onClose={() => setEditing(null)}
-        />
-      )}
     </>
   );
 }
-function TypeEditor({
+export function TypeEditor({
   org,
   user,
   type,
@@ -271,7 +265,9 @@ function TypeEditor({
     );
   };
   return (
-    <PeopleDialog
+    <PeopleForm
+      page
+      canLeave={() => mutation.isSuccess}
       title={type ? m.people_edit_type() : m.people_add_type()}
       description={m.people_type_version_hint()}
       pending={mutation.isPending}
@@ -372,6 +368,6 @@ function TypeEditor({
         </fieldset>
       ))}
       {invalid && <p role="alert">{m.people_type_labels_required()}</p>}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }

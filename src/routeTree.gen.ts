@@ -20,6 +20,7 @@ import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from 
 import { Route as WorkspaceOrganizationIdManageRelationshipTypesRouteImport } from './routes/workspace.$organizationId.manage.relationship-types'
 import { Route as WorkspaceOrganizationIdPeopleContactsRouteImport } from './routes/workspace.$organizationId.people.contacts'
 import { Route as WorkspaceOrganizationIdPeopleGroupsRouteImport } from './routes/workspace.$organizationId.people.groups'
+import { Route as WorkspaceOrganizationIdFormsFormRecordIdRouteImport } from './routes/workspace.$organizationId.forms.$form.$recordId'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId'
 import { Route as WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.people.groups_.$groupId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
@@ -86,6 +87,12 @@ const WorkspaceOrganizationIdPeopleGroupsRoute =
     path: '/workspace/$organizationId/people/groups',
     getParentRoute: () => rootRouteImport,
   } as any)
+const WorkspaceOrganizationIdFormsFormRecordIdRoute =
+  WorkspaceOrganizationIdFormsFormRecordIdRouteImport.update({
+    id: '/workspace/$organizationId/forms/$form/$recordId',
+    path: '/workspace/$organizationId/forms/$form/$recordId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const WorkspaceOrganizationIdPeopleContactsContactIdRoute =
   WorkspaceOrganizationIdPeopleContactsContactIdRouteImport.update({
     id: '/workspace/$organizationId/people/contacts_/$contactId',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  '/workspace/$organizationId/forms/$form/$recordId': typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
@@ -152,6 +160,7 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  '/workspace/$organizationId/forms/$form/$recordId': typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  '/workspace/$organizationId/forms/$form/$recordId': typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
   '/workspace/$organizationId/people/contacts_/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups_/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
+    | '/workspace/$organizationId/forms/$form/$recordId'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/groups/$groupId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
+    | '/workspace/$organizationId/forms/$form/$recordId'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/groups/$groupId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
@@ -227,6 +239,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
+    | '/workspace/$organizationId/forms/$form/$recordId'
     | '/workspace/$organizationId/people/contacts_/$contactId'
     | '/workspace/$organizationId/people/groups_/$groupId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
@@ -246,6 +259,7 @@ export interface RootRouteChildren {
   WorkspaceOrganizationIdManageRelationshipTypesRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   WorkspaceOrganizationIdPeopleContactsRoute: typeof WorkspaceOrganizationIdPeopleContactsRoute
   WorkspaceOrganizationIdPeopleGroupsRoute: typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  WorkspaceOrganizationIdFormsFormRecordIdRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
   WorkspaceOrganizationIdPeopleContactsContactIdRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   WorkspaceOrganizationIdPeopleGroupsGroupIdRoute: typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   WorkspaceOrganizationIdPeopleContactsContactIdViewRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
@@ -328,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace/$organizationId/people/groups'
       fullPath: '/workspace/$organizationId/people/groups'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleGroupsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspace/$organizationId/forms/$form/$recordId': {
+      id: '/workspace/$organizationId/forms/$form/$recordId'
+      path: '/workspace/$organizationId/forms/$form/$recordId'
+      fullPath: '/workspace/$organizationId/forms/$form/$recordId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/people/contacts_/$contactId': {
@@ -414,6 +435,8 @@ const rootRouteChildren: RootRouteChildren = {
     WorkspaceOrganizationIdPeopleContactsRoute,
   WorkspaceOrganizationIdPeopleGroupsRoute:
     WorkspaceOrganizationIdPeopleGroupsRoute,
+  WorkspaceOrganizationIdFormsFormRecordIdRoute:
+    WorkspaceOrganizationIdFormsFormRecordIdRoute,
   WorkspaceOrganizationIdPeopleContactsContactIdRoute:
     WorkspaceOrganizationIdPeopleContactsContactIdRoute,
   WorkspaceOrganizationIdPeopleGroupsGroupIdRoute:
@@ -424,3 +447,4 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+

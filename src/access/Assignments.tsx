@@ -1,3 +1,4 @@
+import { useFormNavigation } from "../components/shared/form-navigation";
 import {
   DirectoryHeader,
   DirectoryToolbar,
@@ -34,7 +35,6 @@ import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
 import { getLocale } from "../paraglide/runtime.js";
-import { AccessEditor } from "./AccessEditor";
 import type { AccessAssignment } from "./contracts";
 export default function Assignments({
   organization,
@@ -44,6 +44,7 @@ export default function Assignments({
   userId: string;
 }) {
   useLocale();
+  const openForm = useFormNavigation(organization.id);
   const client = useQueryClient(),
     confirm = useConfirmation(),
     base = "/api/organizations/" + organization.id,
@@ -51,7 +52,6 @@ export default function Assignments({
   const [search, setSearch] = useState(""),
     [q, setQ] = useState(""),
     [revoked, setRevoked] = useState(false),
-    [edit, setEdit] = useState<AccessAssignment | "new" | null>(null),
     [history, setHistory] = useState<AccessAssignment | null>(null);
   useEffect(() => {
     const t = setTimeout(() => setQ(search.trim()), 250);
@@ -93,7 +93,7 @@ export default function Assignments({
         title={m.access_title()}
         description={m.access_help()}
         action={
-          <Button onClick={() => setEdit("new")}>
+          <Button onClick={() => openForm("access", "new")}>
             <Plus aria-hidden="true" />
             {m.access_create()}
           </Button>
@@ -161,7 +161,7 @@ export default function Assignments({
                             {
                               label: m.access_edit(),
                               icon: Pencil,
-                              onSelect: () => setEdit(item),
+                              onSelect: () => openForm("access", item.id),
                             },
                             {
                               label: m.access_revoke(),
@@ -202,21 +202,6 @@ export default function Assignments({
             />
           )}
         </>
-      )}
-      {edit && (
-        <AccessEditor
-          base={base}
-          scope={scope}
-          {...(edit === "new" ? {} : { assignment: edit })}
-          onClose={() => {
-            setEdit(null);
-            void refresh();
-          }}
-          onSaved={async () => {
-            setEdit(null);
-            await refresh();
-          }}
-        />
       )}
       {history && (
         <AccessHistory

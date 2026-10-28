@@ -1,3 +1,5 @@
+import { Workflow } from "../src/organization/WorkflowPage";
+import type { PageForm } from "../src/components/shared/form-navigation";
 import { beforeEach, it, expect, vi } from "vitest";
 import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -98,8 +100,37 @@ function mount(path = "groups") {
     path: "/workspace/$organizationId/manage/relationship-types",
     component: () => <RelationshipTypes organizationId={org} />,
   });
+  const workflow = createRoute({
+    getParentRoute: () => root,
+    path: "/workspace/$organizationId/forms/$form/$recordId",
+    component: () => {
+      const { form, recordId } = workflow.useParams();
+      return (
+        <Workflow
+          user="owner"
+          organization={{
+            id: org,
+            name: "Community",
+            slug: "community",
+            timezone: "UTC",
+            role: "owner" as const,
+            createdAt: "2026-10-28T10:00:00Z",
+          }}
+          form={form as PageForm}
+          recordId={recordId}
+        />
+      );
+    },
+  });
   const router = createRouter({
-    routeTree: root.addChildren([list, detail, contacts, contact, types]),
+    routeTree: root.addChildren([
+      list,
+      detail,
+      contacts,
+      contact,
+      types,
+      workflow,
+    ]),
     history: createMemoryHistory({
       initialEntries: [
         path === "types"
@@ -185,6 +216,8 @@ function backend(
           items: [{ ...ali, assigned: true }, bob],
           nextCursor: null,
         });
+      if (url.pathname.endsWith("/relationship-types/" + typeId))
+        return Response.json(father);
       if (url.pathname.endsWith("/relationship-types"))
         return Response.json({ items: [father], nextCursor: null });
       if (url.pathname.endsWith("/contacts"))
@@ -271,7 +304,9 @@ it("keeps selections across picker pages, marks existing memberships, and submit
   mount("groups/" + groupId);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: "Add members" }));
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Add members|Add relationship|Edit labels/,
+  });
   const existing = await within(dialog).findByRole("checkbox", {
     name: /Ali.*Already assigned/,
   });
@@ -354,7 +389,9 @@ it("relationship creation previews both directions and sends no account/access f
   await user.click(
     await screen.findByRole("button", { name: "Add relationship" }),
   );
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Add members|Add relationship|Edit labels/,
+  });
   await user.click(
     await within(dialog).findByRole("checkbox", { name: "Bob" }),
   );
@@ -446,7 +483,9 @@ it("type label editing keeps the opened version and submits all three locales", 
   await user.click(
     await screen.findByRole("menuitem", { name: "Edit labels" }),
   );
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Add members|Add relationship|Edit labels/,
+  });
   const english = within(dialog).getByRole("group", { name: "English" });
   const forward = within(english).getByLabelText("Role (for example, parent)");
   await user.clear(forward);
@@ -501,7 +540,9 @@ it("retains hidden selections across searches and lets staff remove them without
   mount("groups/" + groupId);
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: "Add members" }));
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Create activity|Add members|Add relationship|Add relationship type|Edit relationship type|Add contact person/,
+  });
   await user.click(
     await within(dialog).findByRole("checkbox", { name: "Bob" }),
   );
@@ -512,4 +553,31 @@ it("retains hidden selections across searches and lets staff remove them without
     within(dialog).getByRole("button", { name: "Remove Bob from selection" }),
   );
   expect(within(dialog).queryByText("Selected: 1")).toBeNull();
+});
+
+it("a partial bulk assignment keeps failed selections protected by the page discard guard", async () => {
+  backend((url, init) =>
+    url.pathname.endsWith("/assignments") && init?.method === "POST"
+      ? Response.json({
+          id: groupId,
+          version: 4,
+          outcomes: [{ id: otherId, outcome: "version_conflict" }],
+        })
+      : undefined,
+  );
+  mount("groups/" + groupId);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: "Add members" }));
+  const page = await screen.findByRole("region", { name: "Add members" });
+  await user.click(await within(page).findByRole("checkbox", { name: "Bob" }));
+  await user.click(within(page).getByRole("button", { name: "Save" }));
+  await within(page).findByText(/Some contacts could not be added/);
+  await user.click(within(page).getByRole("button", { name: "Cancel" }));
+  const confirm = await screen.findByRole("alertdialog");
+  await user.click(within(confirm).getByRole("button", { name: "Cancel" }));
+  expect(
+    within(page)
+      .getByRole("checkbox", { name: "Bob" })
+      .getAttribute("aria-checked"),
+  ).toBe("true");
 });

@@ -1,3 +1,4 @@
+import { useFormNavigation } from "../components/shared/form-navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -34,7 +35,6 @@ import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
 import type { Activity, AudienceGroup } from "./contracts";
-import { EntityEditor } from "./EntityEditor";
 import Sessions from "./Sessions";
 export const activityKey = (user: string, org: string) => [
   "organization",
@@ -146,11 +146,11 @@ export default function Activities({
   attendance?: boolean;
 }) {
   useLocale();
+  const openForm = useFormNavigation(organization.id);
   const cache = useQueryClient(),
     confirm = useConfirmation();
   const [search, setSearch] = useState(""),
-    [archived, setArchived] = useState(false),
-    [editor, setEditor] = useState<Activity | "new" | null>(null);
+    [archived, setArchived] = useState(false);
   const key = activityKey(userId, organization.id),
     base = `/api/organizations/${organization.id}/activities`,
     canManage = ["owner", "admin"].includes(organization.role);
@@ -212,7 +212,7 @@ export default function Activities({
               {
                 label: m.activities_edit(),
                 icon: Pencil,
-                onSelect: () => setEditor(item),
+                onSelect: () => openForm("activity", item.id),
               },
               {
                 label: m.activities_cancel(),
@@ -345,7 +345,7 @@ export default function Activities({
               <p>{m.activities_help()}</p>
             </div>
             {canManage && (
-              <Button onClick={() => setEditor("new")}>
+              <Button onClick={() => openForm("activity", "new")}>
                 <Plus size={16} aria-hidden="true" />
                 {m.activities_add()}
               </Button>
@@ -400,39 +400,6 @@ export default function Activities({
         </>
       )}
       {archive.isError && <ErrorNotice error={archive.error} />}
-      {editor && (
-        <EntityEditor
-          key={editor === "new" ? "new" : editor.id}
-          kind="activity"
-          activity={editor === "new" ? null : editor}
-          organization={organization}
-          userId={userId}
-          onClose={() => setEditor(null)}
-          onSave={async (value, creationKey) => {
-            let result: { item: Activity };
-            try {
-              result = await directoryRequest<{ item: Activity }>(
-                base + (editor === "new" ? "" : "/" + editor.id),
-                {
-                  method: editor === "new" ? "POST" : "PATCH",
-                  body: JSON.stringify({
-                    ...value,
-                    ...(editor === "new"
-                      ? { key: creationKey }
-                      : { version: editor.version }),
-                  }),
-                },
-              );
-            } catch (error) {
-              await refresh();
-              throw error;
-            }
-            cache.setQueryData([...key, "detail", result.item.id], result);
-            await refresh();
-            setEditor(null);
-          }}
-        />
-      )}
     </section>
   );
 }

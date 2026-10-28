@@ -9,7 +9,7 @@ import OrganizationPortal from "../../organization/OrganizationPortal";
 import { m } from "../../paraglide/messages.js";
 import { request } from "./client";
 import { ErrorNotice, PeopleAccessFailure, peopleBase } from "./shared";
-function PeopleScope({
+export function PeopleScope({
   organizationId,
   section,
   tabs = true,

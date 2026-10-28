@@ -1,5 +1,7 @@
 "use client";
 
+import { useDialogFocusRestore } from "../shared/dialog-focus";
+import { useVisibleViewport } from "../shared/visible-viewport";
 import { cn } from "@/lib/utils";
 import * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
@@ -47,13 +49,20 @@ function DrawerOverlay({
 function DrawerContent({
   className,
   children,
+  style,
+  onOpenAutoFocus,
+  onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+  const viewport = useVisibleViewport();
+  const focus = useDialogFocusRestore(onOpenAutoFocus, onCloseAutoFocus);
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
+        style={{ ...viewport, ...style }}
+        {...focus}
         className={cn(
           "group/drawer-content fixed z-50 flex h-auto flex-col bg-background",
           "data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b",
@@ -64,7 +73,11 @@ function DrawerContent({
         )}
         {...props}
       >
-        <div className="mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full bg-muted group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
+        <div
+          data-slot="drawer-handle"
+          aria-hidden="true"
+          className="mx-auto mt-3 hidden h-1.5 w-10 shrink-0 rounded-full bg-muted-foreground/30 group-data-[vaul-drawer-direction=bottom]/drawer-content:block"
+        />
         {children}
       </DrawerPrimitive.Content>
     </DrawerPortal>

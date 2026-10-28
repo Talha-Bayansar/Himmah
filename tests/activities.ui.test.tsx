@@ -1,3 +1,5 @@
+import { Workflow } from "../src/organization/WorkflowPage";
+import type { PageForm } from "../src/components/shared/form-navigation";
 import { beforeEach, it, expect, vi } from "vitest";
 import {
   render,
@@ -72,8 +74,23 @@ function mount(
       />
     ),
   });
+  const workflow = createRoute({
+    getParentRoute: () => root,
+    path: "/workspace/$organizationId/forms/$form/$recordId",
+    component: () => {
+      const { form, recordId } = workflow.useParams();
+      return (
+        <Workflow
+          user="owner-a"
+          organization={org}
+          form={form as PageForm}
+          recordId={recordId}
+        />
+      );
+    },
+  });
   const router = createRouter({
-    routeTree: root.addChildren([index]),
+    routeTree: root.addChildren([index, workflow]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
   render(
@@ -212,7 +229,9 @@ it("creation errors preserve metadata and the same idempotency key; dirty cancel
   await user.click(
     await screen.findByRole("button", { name: "Create activity" }),
   );
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Create activity|Add members|Add relationship|Add relationship type|Edit relationship type|Add contact person/,
+  });
   await user.type(
     within(dialog).getByLabelText("Activity name"),
     "Service day",
@@ -261,7 +280,9 @@ it("group audience picker fetches bounded pages, retains selected IDs and append
   await user.click(
     await screen.findByRole("button", { name: "Create activity" }),
   );
-  const dialog = await screen.findByRole("dialog");
+  const dialog = await screen.findByRole("region", {
+    name: /Create activity|Add members|Add relationship|Add relationship type|Edit relationship type|Add contact person/,
+  });
   await user.type(
     within(dialog).getByLabelText("Activity name"),
     "Youth gathering",

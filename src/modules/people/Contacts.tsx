@@ -1,3 +1,4 @@
+import { FormSurface } from "../../components/shared/form-surface";
 import {
   DirectoryHeader,
   DirectoryToolbar,
@@ -49,13 +50,6 @@ import {
   NativeSelect,
   NativeSelectOption,
 } from "../../components/ui/native-select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../../components/ui/dialog";
 import {
   Card,
   CardHeader,
@@ -692,149 +686,142 @@ function Editor({
   }
   useBlocker({
     shouldBlockFn: async () =>
-      !committed.current &&
-      form.state.isDirty &&
-      !mutation.isSuccess &&
-      !(await confirm({
-        title: m.people_discard(),
-        description: m.people_discard_description(),
-        destructive: true,
-      })),
+      mutation.isPending ||
+      (!committed.current &&
+        form.state.isDirty &&
+        !mutation.isSuccess &&
+        !(await confirm({
+          title: m.people_discard(),
+          description: m.people_discard_description(),
+          destructive: true,
+        }))),
     enableBeforeUnload: () =>
-      !committed.current && form.state.isDirty && !mutation.isSuccess,
+      mutation.isPending ||
+      (!committed.current && form.state.isDirty && !mutation.isSuccess),
   });
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) void close();
-      }}
+    <FormSurface
+      title={
+        method
+          ? existingMethod
+            ? m.people_edit_method()
+            : m.people_add_method()
+          : contact
+            ? m.people_edit()
+            : m.people_add()
+      }
+      description={method ? m.people_method_hint() : m.people_name_hint()}
+      onClose={() => void close()}
     >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>
-            {method
-              ? existingMethod
-                ? m.people_edit_method()
-                : m.people_add_method()
-              : contact
-                ? m.people_edit()
-                : m.people_add()}
-          </DialogTitle>
-          <DialogDescription>
-            {method ? m.people_method_hint() : m.people_name_hint()}
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            try {
-              if (method) methodInput(form.state.values);
-              else contactInput(form.state.values);
-              setValidation(false);
-              void form.handleSubmit();
-            } catch {
-              setValidation(true);
-            }
-          }}
-        >
-          {method ? (
-            <>
-              <form.Field name="kind">
-                {(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="method-kind">{m.people_kind()}</Label>
-                    <NativeSelect
-                      id="method-kind"
-                      value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(e.target.value as "phone" | "email")
-                      }
-                    >
-                      <NativeSelectOption value="phone">
-                        {m.people_phone()}
-                      </NativeSelectOption>
-                      <NativeSelectOption value="email">
-                        {m.people_email()}
-                      </NativeSelectOption>
-                    </NativeSelect>
-                  </div>
-                )}
-              </form.Field>
-              <form.Field name="value">
-                {(field) => (
-                  <div className="space-y-2">
-                    <Label htmlFor="method-value">{m.people_value()}</Label>
-                    <Input
-                      id="method-value"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      autoComplete="off"
-                      maxLength={254}
-                    />
-                  </div>
-                )}
-              </form.Field>
-              <form.Field name="preferred">
-                {(field) => (
-                  <Label className="flex items-center gap-3">
-                    <Checkbox
-                      checked={field.state.value}
-                      onCheckedChange={(v) => field.handleChange(v === true)}
-                    />
-                    {m.people_preferred()}
-                  </Label>
-                )}
-              </form.Field>
-            </>
-          ) : (
-            <>
-              {(["displayName", "givenName", "familyName"] as const).map(
-                (name, index) => (
-                  <form.Field key={name} name={name}>
-                    {(field) => (
-                      <div className="space-y-2">
-                        <Label htmlFor={name}>
-                          {index === 0
-                            ? m.people_name()
-                            : index === 1
-                              ? m.people_given()
-                              : m.people_family()}
-                        </Label>
-                        <Input
-                          id={name}
-                          value={field.state.value}
-                          onChange={(e) => field.handleChange(e.target.value)}
-                          maxLength={120}
-                          required={index === 0}
-                        />
-                      </div>
-                    )}
-                  </form.Field>
-                ),
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault();
+          try {
+            if (method) methodInput(form.state.values);
+            else contactInput(form.state.values);
+            setValidation(false);
+            void form.handleSubmit();
+          } catch {
+            setValidation(true);
+          }
+        }}
+      >
+        {method ? (
+          <>
+            <form.Field name="kind">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="method-kind">{m.people_kind()}</Label>
+                  <NativeSelect
+                    id="method-kind"
+                    value={field.state.value}
+                    onChange={(e) =>
+                      field.handleChange(e.target.value as "phone" | "email")
+                    }
+                  >
+                    <NativeSelectOption value="phone">
+                      {m.people_phone()}
+                    </NativeSelectOption>
+                    <NativeSelectOption value="email">
+                      {m.people_email()}
+                    </NativeSelectOption>
+                  </NativeSelect>
+                </div>
               )}
-            </>
-          )}
-          {validation && <p role="alert">{m.people_invalid()}</p>}
-          {mutation.isError && <ErrorNotice error={mutation.error} />}
-          <div className="flex flex-wrap justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={mutation.isPending}
-              onClick={() => void close()}
-            >
-              <X aria-hidden="true" />
-              {m.cancel()}
-            </Button>
-            <ActionButton type="submit" pending={mutation.isPending}>
-              <Save aria-hidden="true" />
-              {m.directory_save()}
-            </ActionButton>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </form.Field>
+            <form.Field name="value">
+              {(field) => (
+                <div className="space-y-2">
+                  <Label htmlFor="method-value">{m.people_value()}</Label>
+                  <Input
+                    id="method-value"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    autoComplete="off"
+                    maxLength={254}
+                  />
+                </div>
+              )}
+            </form.Field>
+            <form.Field name="preferred">
+              {(field) => (
+                <Label className="flex items-center gap-3">
+                  <Checkbox
+                    checked={field.state.value}
+                    onCheckedChange={(v) => field.handleChange(v === true)}
+                  />
+                  {m.people_preferred()}
+                </Label>
+              )}
+            </form.Field>
+          </>
+        ) : (
+          <>
+            {(["displayName", "givenName", "familyName"] as const).map(
+              (name, index) => (
+                <form.Field key={name} name={name}>
+                  {(field) => (
+                    <div className="space-y-2">
+                      <Label htmlFor={name}>
+                        {index === 0
+                          ? m.people_name()
+                          : index === 1
+                            ? m.people_given()
+                            : m.people_family()}
+                      </Label>
+                      <Input
+                        id={name}
+                        value={field.state.value}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        maxLength={120}
+                        required={index === 0}
+                      />
+                    </div>
+                  )}
+                </form.Field>
+              ),
+            )}
+          </>
+        )}
+        {validation && <p role="alert">{m.people_invalid()}</p>}
+        {mutation.isError && <ErrorNotice error={mutation.error} />}
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            disabled={mutation.isPending}
+            onClick={() => void close()}
+          >
+            <X aria-hidden="true" />
+            {m.cancel()}
+          </Button>
+          <ActionButton type="submit" pending={mutation.isPending}>
+            <Save aria-hidden="true" />
+            {m.directory_save()}
+          </ActionButton>
+        </div>
+      </form>
+    </FormSurface>
   );
 }

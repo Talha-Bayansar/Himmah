@@ -98,7 +98,8 @@ export default function OrganizationPortal({
   sessionId?: string | null;
   attendance?: boolean;
   launch?: boolean;
-  children?: ((user: string) => ReactNode) | undefined;
+  children?:
+    ((user: string, organization: Organization) => ReactNode) | undefined;
 } = {}) {
   useLocale();
   const queryClient = useQueryClient(),
@@ -252,7 +253,7 @@ export default function OrganizationPortal({
         );
       const org = selected.data;
       if (!org) return null;
-      if (children) return children(user.id);
+      if (children) return children(user.id, org);
       if (workspaceSection === "settings")
         return (
           <AccountSettings

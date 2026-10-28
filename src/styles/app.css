@@ -5157,3 +5157,74 @@ button[data-slot="button"].people-section-add {
   min-height: 44px;
   align-items: center;
 }
+
+/* Short forms are native-feeling shadcn drawers; complex forms use document scrolling. */
+[data-slot="drawer-content"].form-sheet {
+  inset-inline: 0;
+  top: auto;
+  bottom: max(
+    0px,
+    calc(100dvh - var(--visible-top, 0px) - var(--visible-height, 100dvh))
+  );
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  max-height: calc(var(--visible-height, 100dvh) - 16px);
+  border: 1px solid var(--line);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  background: var(--background);
+  box-shadow: 0 -8px 32px #163d3314;
+  overflow: hidden;
+}
+.form-sheet > [data-slot="drawer-header"] {
+  padding: 20px 24px 16px;
+  text-align: left;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.form-sheet [data-slot="drawer-title"] {
+  font-size: 22px;
+  line-height: 1.25;
+}
+.form-sheet [data-slot="drawer-description"] {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.form-sheet-body {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 24px max(24px, env(safe-area-inset-bottom));
+  scroll-padding-block: 20px 88px;
+}
+.form-sheet :is(input, textarea, select),
+.form-page :is(input, textarea, select) {
+  font-size: 16px;
+  min-height: 48px;
+  scroll-margin-block: 24px 100px;
+}
+.form-sheet [data-slot="button"],
+.form-page [data-slot="button"] {
+  min-height: 44px;
+}
+.form-sheet :is(input, textarea, select, button, a):focus-visible {
+  outline: 3px solid var(--forest);
+  outline-offset: 3px;
+}
+.form-page {
+  width: 100%;
+  min-width: 0;
+}
+.form-page > form {
+  max-width: 680px;
+}
+.form-page .directory-actions {
+  position: static;
+  margin-bottom: 0;
+}
+.form-page .activity-group-options,
+.form-page .record-option-list {
+  max-height: none;
+  overflow: visible;
+}

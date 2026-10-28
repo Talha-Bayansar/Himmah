@@ -159,6 +159,8 @@ it("creates a name-only contact, with a retry key and without enrollment/account
   const user = userEvent.setup();
   await user.click(await screen.findByRole("button", { name: "Add contact" }));
   const dialog = await screen.findByRole("dialog");
+  expect(dialog.getAttribute("data-slot")).toBe("drawer-content");
+  expect(dialog.getAttribute("data-vaul-drawer-direction")).toBe("bottom");
   await user.type(within(dialog).getByLabelText("Display name"), "Ali");
   await user.click(within(dialog).getByRole("button", { name: "Save" }));
   await waitFor(() => expect(payload).toBeDefined());

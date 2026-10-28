@@ -1,3 +1,4 @@
+import { useFormNavigation } from "../../components/shared/form-navigation";
 import {
   DirectoryHeader,
   DirectoryToolbar,
@@ -42,11 +43,11 @@ import {
   useSearch,
   SectionAdd,
   ErrorNotice,
-  PeopleDialog,
+  PeopleForm,
   Picker,
   usePeopleMutation,
   HistoryToggle,
-  ReasonDialog,
+  ReasonSheet,
 } from "./shared";
 import {
   groupInput,
@@ -170,6 +171,7 @@ function GroupDetail({
   user: string;
   id: string;
 }) {
+  const openForm = useFormNavigation(org);
   const query = useQuery({
     queryKey: ["people", user, org, "group", id],
     queryFn: ({ signal }) =>
@@ -180,7 +182,6 @@ function GroupDetail({
   const [history, setHistory] = useState(false),
     [search, setSearch] = useState(""),
     q = useSearch(search),
-    [adding, setAdding] = useState(false),
     [editing, setEditing] = useState(false),
     [ending, setEnding] = useState<GroupMember | null>(null);
   const members = usePages<GroupMember>(
@@ -279,7 +280,7 @@ function GroupDetail({
           {!group.archivedAt && (
             <SectionAdd
               label={m.people_add_members()}
-              onClick={() => setAdding(true)}
+              onClick={() => openForm("group-members", id)}
             />
           )}
         </div>
@@ -359,17 +360,9 @@ function GroupDetail({
           group={group}
           onClose={() => setEditing(false)}
         />
-      )}{" "}
-      {adding && (
-        <AddMembers
-          org={org}
-          user={user}
-          group={group}
-          onClose={() => setAdding(false)}
-        />
-      )}{" "}
+      )}
       {ending && (
-        <ReasonDialog
+        <ReasonSheet
           org={org}
           user={user}
           title={m.people_end_membership()}
@@ -452,7 +445,7 @@ function GroupEditor({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
       title={group ? m.people_edit_group() : m.people_add_group()}
       description={m.people_group_hint()}
       pending={mutation.isPending}
@@ -500,10 +493,10 @@ function GroupEditor({
         )}
       </form.Field>
       {invalid && <p role="alert">{m.people_form_invalid()}</p>}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }
-function AddMembers({
+export function AddMembers({
   org,
   user,
   group,
@@ -514,6 +507,7 @@ function AddMembers({
   group: PeopleGroup;
   onClose: () => void;
 }) {
+  const committed = useRef(false);
   const [selected, setSelected] = useState<
       (Contact & { assigned?: boolean })[]
     >([]),
@@ -541,6 +535,7 @@ function AddMembers({
             (o) => !["saved", "already_member"].includes(o.outcome),
           ) ?? [];
         if (!failed.length) {
+          committed.current = true;
           onClose();
           return;
         }
@@ -553,9 +548,11 @@ function AddMembers({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
+      page
+      canLeave={() => committed.current}
       title={m.people_add_members()}
-      description={m.people_add_members_hint()}
+      description={group.name + " · " + m.people_add_members_hint()}
       pending={mutation.isPending}
       error={mutation.error}
       dirty={() => !!selected.length}
@@ -590,6 +587,6 @@ function AddMembers({
           ))}
         </div>
       )}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }

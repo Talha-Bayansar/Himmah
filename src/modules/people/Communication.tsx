@@ -1,3 +1,4 @@
+import { useFormNavigation } from "../../components/shared/form-navigation";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
@@ -27,9 +28,9 @@ import {
   ErrorNotice,
   HistoryToggle,
   Picker,
-  PeopleDialog,
+  PeopleForm,
   usePeopleMutation,
-  ReasonDialog,
+  ReasonSheet,
 } from "./shared";
 import {
   PREVIEW_SIZE,
@@ -66,8 +67,8 @@ export function Communication({
   filters?: ContactFilters | undefined;
   onFiltersChange?: ((next: ContactFilters) => void) | undefined;
 }) {
+  const openForm = useFormNavigation(org);
   const [purpose, setPurpose] = useState<"routine" | "emergency">("routine"),
-    [adding, setAdding] = useState(false),
     [preferences, setPreferences] = useState(false),
     [ending, setEnding] = useState<CommunicationAssignment | null>(null);
   const q = useSearch(full ? (filters?.q ?? "") : ""),
@@ -123,7 +124,7 @@ export function Communication({
         {!contact.archivedAt && (
           <SectionAdd
             label={m.people_add_communication()}
-            onClick={() => setAdding(true)}
+            onClick={() => openForm("communication", contact.id)}
           />
         )}
       </div>
@@ -305,14 +306,7 @@ export function Communication({
           )}
         </>
       )}
-      {adding && (
-        <AssignmentEditor
-          org={org}
-          user={user}
-          contact={contact}
-          onClose={() => setAdding(false)}
-        />
-      )}
+
       {preferences && routing.data && (
         <PreferencesEditor
           org={org}
@@ -323,7 +317,7 @@ export function Communication({
         />
       )}
       {ending && (
-        <ReasonDialog
+        <ReasonSheet
           org={org}
           user={user}
           title={m.people_end_communication()}
@@ -365,7 +359,7 @@ function MethodLinks({
     </div>
   );
 }
-function AssignmentEditor({
+export function AssignmentEditor({
   org,
   user,
   contact,
@@ -412,9 +406,11 @@ function AssignmentEditor({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
+      page
+      canLeave={() => mutation.isSuccess}
       title={m.people_add_communication()}
-      description={m.people_communication_hint()}
+      description={contact.displayName + " · " + m.people_communication_hint()}
       onClose={onClose}
       onSubmit={() => void form.handleSubmit()}
       dirty={() => form.state.isDirty || !!selected.length}
@@ -487,7 +483,7 @@ function AssignmentEditor({
         )}
       </form.Field>
       {invalid && <p role="alert">{m.people_responsible_required()}</p>}
-    </PeopleDialog>
+    </PeopleForm>
   );
 }
 function PreferencesEditor({
@@ -521,7 +517,7 @@ function PreferencesEditor({
     },
   });
   return (
-    <PeopleDialog
+    <PeopleForm
       title={m.people_communication_preferences()}
       description={m.people_communication_hint()}
       onClose={onClose}
@@ -552,6 +548,6 @@ function PreferencesEditor({
           </Label>
         )}
       </form.Field>
-    </PeopleDialog>
+    </PeopleForm>
   );
 }

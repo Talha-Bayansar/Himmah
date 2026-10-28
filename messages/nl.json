@@ -341,7 +341,7 @@
   "access_activity": "Activiteit kiezen",
   "access_scope": "Bereik van de toewijzing",
   "access_attend": "Aanwezigheid vastleggen en corrigeren",
-  "access_attend_help": "Inclusief gekoppelde puntentoekenningen, terugboekingen en herstel volgens de opgeslagen sessieregel.",
+  "access_attend_help": "Geeft toegang om aanwezigheid binnen de gekozen groep of activiteit te registreren en te corrigeren.",
   "access_scope_help": "Een groepstoewijzing volgt de huidige leden. Een activiteitstoewijzing omvat de doelgroep; een activiteit voor iedereen omvat alle leden van de organisatie.",
   "access_revoke": "Toewijzing intrekken",
   "access_revoke_help": "De rechten van deze vrijwilliger voor deze toewijzing verwijderen? Aanwezigheid en auditgeschiedenis blijven behouden.",
@@ -567,5 +567,6 @@
   "staff_actor": "Medewerker",
   "access_capabilities": "Sta aanwezigheidsbeheer voor dit bereik toe.",
   "notifications_intro": "Privé-updates voor je organisatie.",
-  "staff_unnamed": "Naam ontbreekt"
+  "staff_unnamed": "Naam ontbreekt",
+  "form_back": "Terug"
 }

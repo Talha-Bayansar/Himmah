@@ -341,7 +341,7 @@
   "access_activity": "Choose activity",
   "access_scope": "Assignment scope",
   "access_attend": "Record and correct attendance",
-  "access_attend_help": "Includes the linked point grants, reversals and restorations required by the saved session rule.",
+  "access_attend_help": "Allows recording and correcting attendance within the selected group or activity.",
   "access_scope_help": "A group assignment follows its current members. An activity assignment covers its audience; an activity for everyone includes all organization members.",
   "access_revoke": "Revoke assignment",
   "access_revoke_help": "Remove this volunteer’s permissions for this assignment? Attendance and audit history are preserved.",
@@ -567,5 +567,6 @@
   "staff_actor": "Staff",
   "access_capabilities": "Allow attendance management for this scope.",
   "notifications_intro": "Private updates for your organization.",
-  "staff_unnamed": "Name unavailable"
+  "staff_unnamed": "Name unavailable",
+  "form_back": "Back"
 }
