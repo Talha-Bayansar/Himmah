@@ -33,7 +33,14 @@ export function createCommunityStore(
   return {
     async staff(user: string, org: string, p: PageInput) {
       return rows(
-        sql`with ${actor(user, org)} select user_id as id,display_name as name,role,created_at::text as "createdAt" from hub_memberships where organization_id=${org}::uuid and exists(select 1 from actor) and coalesce(display_name,role) ilike ${pattern(p.query)} ${cursor(p, "text")} order by created_at desc,user_id desc limit ${p.limit + 1}`,
+        sql`with ${actor(user, org)}, staff as (
+          select m.user_id, coalesce(nullif(trim(profile.name), ''), nullif(trim(m.display_name), '')) as name, m.role, m.created_at
+          from hub_memberships m
+          left join neon_auth."user" profile on profile.id = case when m.user_id ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$' then m.user_id::uuid end
+          where m.organization_id=${org}::uuid and exists(select 1 from actor)
+        ) select user_id as id,name,role,created_at::text as "createdAt" from staff
+        where coalesce(name,role) ilike ${pattern(p.query)} ${cursor(p, "text")}
+        order by created_at desc,user_id desc limit ${p.limit + 1}`,
       );
     },
     async changeStaff(

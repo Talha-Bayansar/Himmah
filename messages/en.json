@@ -566,5 +566,6 @@
   "open_workspace": "Open workspace",
   "staff_actor": "Staff",
   "access_capabilities": "Allow attendance management for this scope.",
-  "notifications_intro": "Private updates for your organization."
+  "notifications_intro": "Private updates for your organization.",
+  "staff_unnamed": "Name unavailable"
 }

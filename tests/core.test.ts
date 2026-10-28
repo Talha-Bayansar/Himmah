@@ -21,6 +21,10 @@ test("Retained scheduling, attendance, staff access and notifications operate on
   const db = new PGlite();
   try {
     await installDatabase(db);
+    // Managed-auth schema is external to the application; reproduce only its read contract.
+    await db.exec(
+      'create schema neon_auth; create table neon_auth."user" (id uuid primary key, name text)',
+    );
     const dialect = new PgDialect(),
       run = async (statement: any) => {
         const q = dialect.sqlToQuery(statement);
@@ -70,6 +74,48 @@ test("Retained scheduling, attendance, staff access and notifications operate on
       contacts: [{ id: contact, version: 1 }],
     });
     const p = pageInput(new URL("https://himmah.test/?limit=25"), "fixture");
+    await t.test(
+      "staff resolves current account names without exposing IDs or crossing organization access",
+      async () => {
+        const staffId = key();
+        await db.query(
+          'insert into neon_auth."user" (id,name) values ($1,$2)',
+          [staffId, "Account name"],
+        );
+        await db.query(
+          "insert into hub_memberships(organization_id,user_id,role) values ($1,$2,'volunteer')",
+          [org, staffId],
+        );
+        const search = { ...p, query: "Account name" };
+        assert.equal(
+          (await directory.staff("owner", org, search))[0]?.name,
+          "Account name",
+        );
+        assert.equal(
+          (await directory.staff("volunteer", org, search)).length,
+          0,
+        );
+        assert.equal((await directory.staff("other", org, search)).length, 0);
+        assert.equal((await directory.staff("owner", other, search)).length, 0);
+        await db.query('update neon_auth."user" set name=$2 where id=$1', [
+          staffId,
+          "Renamed account",
+        ]);
+        assert.equal(
+          (await directory.staff("owner", org, { ...p, query: "Renamed" }))[0]
+            ?.name,
+          "Renamed account",
+        );
+        assert.equal(
+          (await directory.staff("owner", org, { ...p, query: "Organizer" }))[0]
+            ?.name,
+          "Organizer",
+        );
+        await db.query("delete from hub_memberships where user_id=$1", [
+          staffId,
+        ]);
+      },
+    );
     let activity = "",
       session = "";
     await t.test(

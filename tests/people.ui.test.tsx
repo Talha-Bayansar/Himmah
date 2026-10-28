@@ -133,9 +133,7 @@ beforeEach(() => {
 it("opens a contact from the list and loads independent detail metadata", async () => {
   const fetcher = backend();
   const { router } = mount();
-  await userEvent.click(
-    await screen.findByRole("link", { name: "View contact" }),
-  );
+  await userEvent.click(await screen.findByRole("link", { name: "Ali" }));
   expect(
     await screen.findByRole("heading", { name: "Ali", level: 1 }),
   ).toBeTruthy();

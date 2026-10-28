@@ -1,8 +1,17 @@
+import {
+  DirectoryHeader,
+  DirectoryToolbar,
+  DirectoryList,
+  DirectoryItem,
+  DirectoryRecord,
+} from "../../components/shared/directory-layout";
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useForm } from "@tanstack/react-form";
 import {
+  ChevronRight,
+  Plus,
   ArrowLeft,
   Archive,
   ArchiveRestore,
@@ -84,72 +93,72 @@ function GroupList({ org, user }: { org: string; user: string }) {
   );
   if (accessDenied(list.error)) return <ErrorNotice error={list.error} />;
   return (
-    <>
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{m.people_groups()}</h1>
-        <SectionAdd
-          label={m.people_add_group()}
-          onClick={() => setAdding(true)}
-        />
-      </div>
-      <div className="space-y-3">
-        <Label htmlFor="groups-search">{m.people_search_groups()}</Label>
-        <Input
-          id="groups-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          maxLength={80}
-        />
-        <Label className="flex min-h-11 items-center gap-3">
+    <section className="directory">
+      <DirectoryHeader
+        title={m.people_groups()}
+        description={m.directory_groups_help()}
+        action={
+          <Button onClick={() => setAdding(true)}>
+            <Plus aria-hidden="true" />
+            {m.people_add_group()}
+          </Button>
+        }
+      />
+      <DirectoryToolbar
+        id="groups-search"
+        label={m.people_search_groups()}
+        value={search}
+        onChange={setSearch}
+      >
+        <Label className="directory-archived">
           <Checkbox
             checked={archived}
             onCheckedChange={(v) => setArchived(v === true)}
           />
           {m.people_archived_groups()}
         </Label>
-      </div>
+      </DirectoryToolbar>
       {list.isPending ? (
         <ListSkeleton />
       ) : list.isError && !list.data ? (
         <ErrorNotice error={list.error} retry={list.refetch} />
       ) : (
-        <div className="space-y-3">
+        <>
           {!list.data?.pages.some((p) => p.items.length) && (
-            <p>{m.people_no_groups()}</p>
+            <p className="directory-empty">{m.people_no_groups()}</p>
           )}
-          {list.data?.pages
-            .flatMap((p) => p.items)
-            .map((group) => (
-              <Card density="compact" key={group.id}>
-                <CardContent className="space-y-1">
-                  <h2 className="break-words font-semibold">{group.name}</h2>
-                  {group.description && (
-                    <p className="break-words">{group.description}</p>
-                  )}
-                  <p className="text-sm text-muted-foreground">
-                    {m.people_member_count({ count: group.memberCount })}
-                  </p>
-                </CardContent>
-                <CardFooter className="justify-end">
-                  <Button variant="outline" asChild>
-                    <Link
-                      to="/workspace/$organizationId/people/groups/$groupId"
-                      params={{ organizationId: org, groupId: group.id }}
-                    >
-                      <Users aria-hidden="true" />
-                      {m.people_view_group()}
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+          <DirectoryList
+            label={m.people_groups()}
+            busy={list.isFetchingNextPage}
+          >
+            {list.data?.pages
+              .flatMap((p) => p.items)
+              .map((group) => (
+                <DirectoryItem key={group.id} linked>
+                  <Link
+                    className="directory-item-link"
+                    to="/workspace/$organizationId/people/groups/$groupId"
+                    params={{ organizationId: org, groupId: group.id }}
+                  >
+                    <DirectoryRecord
+                      name={group.name}
+                      icon={<Users aria-hidden="true" size={19} />}
+                      detail={m.people_member_count({
+                        count: group.memberCount,
+                      })}
+                    />
+                    <ChevronRight aria-hidden="true" size={18} />
+                  </Link>
+                </DirectoryItem>
+              ))}
+          </DirectoryList>
           <InfiniteFooter {...list} />
-        </div>
+        </>
       )}
       {adding && (
         <GroupEditor user={user} org={org} onClose={() => setAdding(false)} />
       )}
-    </>
+    </section>
   );
 }
 function GroupDetail({

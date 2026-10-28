@@ -164,3 +164,36 @@ it("a current authorization denial hides and clears cached staff rows", async ()
   await waitFor(() => expect(screen.queryByText("Private staff")).toBeNull());
   expect(screen.getByRole("alert")).toBeTruthy();
 });
+
+it("staff rows show names and a localized fallback without displaying account identifiers", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () =>
+      Response.json({
+        items: [
+          {
+            id: "private-account-id",
+            name: "  ",
+            role: "volunteer",
+            createdAt: org.createdAt,
+          },
+          {
+            id: "named-account-id",
+            name: "Account name",
+            role: "admin",
+            createdAt: org.createdAt,
+          },
+        ],
+        nextCursor: null,
+      }),
+    ),
+  );
+  mount("staff");
+  expect(await screen.findByText("Name unavailable")).toBeTruthy();
+  expect(screen.getByText("Account name")).toBeTruthy();
+  expect(screen.queryByText("private-account-id")).toBeNull();
+  expect(screen.queryByText("named-account-id")).toBeNull();
+  expect(
+    screen.getByRole("button", { name: "Actions for Name unavailable" }),
+  ).toBeTruthy();
+});

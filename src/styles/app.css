@@ -5097,3 +5097,63 @@ button[data-slot="button"].people-section-add {
     border-radius: var(--radius-md);
   }
 }
+
+/* Entity lists reuse the original directory spacing and rows across People and Manage. */
+.people-scope {
+  width: 100%;
+  min-width: 0;
+}
+.people-scope > .route-tabs {
+  margin-top: 0;
+}
+.directory-list > .directory-item {
+  flex-wrap: nowrap;
+}
+.directory-list > .directory-item-linked {
+  padding: 0;
+}
+.directory-item-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  min-height: 76px;
+  padding: 18px;
+  border-radius: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+.directory-item-link:hover {
+  background: var(--muted);
+}
+.directory-item-link:focus-visible {
+  outline: 3px solid var(--forest);
+  outline-offset: 3px;
+}
+.directory-item-link > svg,
+.directory-record > .avatar {
+  flex-shrink: 0;
+}
+.directory-record {
+  flex: 1;
+}
+.directory-record-copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.directory-record-copy > strong {
+  display: block;
+  line-height: 1.5;
+}
+.directory-record-copy > p {
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+.directory-toolbar > label > svg {
+  flex-shrink: 0;
+}
+.directory-toolbar .directory-archived {
+  min-height: 44px;
+  align-items: center;
+}

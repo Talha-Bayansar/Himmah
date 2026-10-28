@@ -1,6 +1,13 @@
+import {
+  DirectoryHeader,
+  DirectoryToolbar,
+  DirectoryList,
+  DirectoryItem,
+  DirectoryRecord,
+} from "../components/shared/directory-layout";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Copy, ShieldCheck, UserMinus, X } from "lucide-react";
+import { Copy, Mail, UserPlus, ShieldCheck, UserMinus, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ActionButton } from "../components/shared/action-button";
 import { CollectionError } from "../components/shared/collection-error";
@@ -26,7 +33,7 @@ import {
   NativeSelectOption,
 } from "../components/ui/native-select";
 import { useLocale } from "../localization/locale";
-import { PeopleDialog, SectionAdd, useSearch } from "../modules/people/shared";
+import { PeopleDialog, useSearch } from "../modules/people/shared";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
 import { DirectoryError, directoryRequest, useDirectoryPages } from "./client";
@@ -94,7 +101,7 @@ export default function Directory({
     if (
       await confirm({
         title: role ? m.directory_change_role() : m.directory_remove_staff(),
-        description: s.name ?? s.id,
+        description: s.name?.trim() || m.staff_unnamed(),
         destructive: true,
       })
     )
@@ -120,25 +127,29 @@ export default function Directory({
   }
   return (
     <section className="directory">
-      <div className="directory-heading">
-        <h1 data-page-heading tabIndex={-1}>
-          {section === "staff"
-            ? m.directory_staff()
-            : m.directory_invitations()}
-        </h1>
-        {section === "invitations" && (
-          <SectionAdd
-            label={m.directory_invite()}
-            onClick={() => setAdding(true)}
-          />
-        )}
-      </div>
-      <Label htmlFor="staff-search">{m.directory_search()}</Label>
-      <Input
+      <DirectoryHeader
+        title={
+          section === "staff" ? m.directory_staff() : m.directory_invitations()
+        }
+        description={
+          section === "staff"
+            ? m.directory_staff_help()
+            : m.directory_invite_help()
+        }
+        action={
+          section === "invitations" ? (
+            <Button onClick={() => setAdding(true)}>
+              <UserPlus aria-hidden="true" />
+              {m.directory_invite()}
+            </Button>
+          ) : undefined
+        }
+      />
+      <DirectoryToolbar
         id="staff-search"
-        maxLength={80}
+        label={m.directory_search()}
         value={q}
-        onChange={(e) => setQ(e.target.value)}
+        onChange={setQ}
       />
       {mutation.isError && <CollectionError error={mutation.error} />}
       {pages.isPending ? (
@@ -149,32 +160,50 @@ export default function Directory({
           retry={() => void pages.refetch()}
         />
       ) : (
-        <div className="space-y-3">
-          {pages.data?.pages
-            .flatMap((p) => p.items)
-            .map((item) => {
-              const staff = section === "staff" ? (item as Staff) : null,
-                invite =
-                  section === "invitations" ? (item as Invitation) : null;
-              return (
-                <Card density="compact" key={item.id}>
-                  <CardContent className="flex items-center justify-between gap-3">
-                    <div className="min-w-0 flex-1 break-words">
-                      <strong>
-                        {staff ? (staff.name ?? staff.id) : invite?.email}
-                      </strong>
-                      <p>
-                        {m[`role_${item.role}`]()}
-                        {invite &&
-                          (invite.accepted
-                            ? " · " + m.directory_accepted()
-                            : invite.revoked
-                              ? " · " + m.directory_revoked()
-                              : "")}
-                      </p>
-                    </div>
+        <>
+          <DirectoryList
+            label={
+              section === "staff"
+                ? m.directory_staff()
+                : m.directory_invitations()
+            }
+            busy={pages.isFetchingNextPage}
+          >
+            {pages.data?.pages
+              .flatMap((p) => p.items)
+              .map((item) => {
+                const staff = section === "staff" ? (item as Staff) : null,
+                  invite =
+                    section === "invitations" ? (item as Invitation) : null;
+                return (
+                  <DirectoryItem key={item.id}>
+                    <DirectoryRecord
+                      name={
+                        staff
+                          ? staff.name?.trim() || m.staff_unnamed()
+                          : invite!.email
+                      }
+                      {...(invite
+                        ? { icon: <Mail aria-hidden="true" size={19} /> }
+                        : {})}
+                      detail={
+                        <>
+                          {m[`role_${item.role}`]()}{" "}
+                          {invite &&
+                            (invite.accepted
+                              ? " · " + m.directory_accepted()
+                              : invite.revoked
+                                ? " · " + m.directory_revoked()
+                                : "")}
+                        </>
+                      }
+                    />
                     <ItemActions
-                      name={staff?.name ?? invite?.email ?? item.id}
+                      name={
+                        staff?.name?.trim() ||
+                        invite?.email ||
+                        m.staff_unnamed()
+                      }
                       pending={mutation.isPending}
                       actions={
                         staff && staff.role !== "owner" && staff.id !== userId
@@ -211,15 +240,15 @@ export default function Directory({
                             : []
                       }
                     />
-                  </CardContent>
-                </Card>
-              );
-            })}
+                  </DirectoryItem>
+                );
+              })}
+          </DirectoryList>
           {!pages.data?.pages.some((p) => p.items.length) && (
-            <p>{m.directory_empty()}</p>
+            <p className="directory-empty">{m.directory_empty()}</p>
           )}
           <InfiniteFooter {...pages} />
-        </div>
+        </>
       )}
       {adding && (
         <InviteEditor

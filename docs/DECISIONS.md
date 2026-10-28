@@ -295,3 +295,9 @@ Owner approved the proposed native-style list structure: profile sections show u
 Owner authorized Who to contact plus commits, push and deployment. Implement independent routine/emergency assignments, allowed channels, priorities and direct-contact policies; family/legal relationships grant neither routing nor access. Bounded previews retain full bookmarkable management pages. See [implementation and rollout](redesign/COMMUNICATION_STATUS.md).
 
 For this additive rollout, preserve the existing hosted Hub organization/staff workflows as the access authority and synchronize their minimal identity/role scaffolding transactionally into People. Do not migrate old contacts, reset databases, replace managed auth or alter other projects. The deployment explicitly enables the People Worker flag after verifying/installing the new schema. Legacy workflows remain accessible.
+
+## 28 October 2026 — Restore the original directory design
+
+The owner requested consistent Contacts, Invitations and Staff access layouts and readable staff names. Restore the original directory heading, searchable toolbar, compact avatar rows, 44px action menus and shared page width. Contacts and Groups use full-row navigation with a trailing chevron. Remove duplicate People wrapper padding while retaining profile section spacing. Staff assignment rows use the same shared primitives. Future list pages must follow this pattern (recorded in AGENTS.md).
+
+Staff names resolve from the current managed Neon account profile, falling back to a nonblank membership name. This is an authorized, tenant-scoped read; it does not alter provider schemas. Missing names have a localized label instead of exposing an account identifier. Existing filtering, cursor pagination, confirmation dialogs and authorization boundaries remain.

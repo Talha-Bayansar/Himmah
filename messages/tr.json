@@ -566,5 +566,6 @@
   "open_workspace": "Çalışma alanını aç",
   "staff_actor": "Personel",
   "access_capabilities": "Bu kapsam için katılım yönetimine izin verin.",
-  "notifications_intro": "Kuruluşunuz için özel güncellemeler."
+  "notifications_intro": "Kuruluşunuz için özel güncellemeler.",
+  "staff_unnamed": "Ad bilgisi yok"
 }

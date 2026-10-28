@@ -205,7 +205,7 @@ it("opens a real group detail route, fetching independent metadata and member re
   const fetcher = backend(),
     { router } = mount();
   const user = userEvent.setup();
-  await user.click(await screen.findByRole("link", { name: "View group" }));
+  await user.click(await screen.findByRole("link", { name: /Friday group/ }));
   expect(
     await screen.findByRole("heading", { name: "Friday group", level: 1 }),
   ).toBeTruthy();

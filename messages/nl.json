@@ -566,5 +566,6 @@
   "open_workspace": "Werkruimte openen",
   "staff_actor": "Medewerker",
   "access_capabilities": "Sta aanwezigheidsbeheer voor dit bereik toe.",
-  "notifications_intro": "Privé-updates voor je organisatie."
+  "notifications_intro": "Privé-updates voor je organisatie.",
+  "staff_unnamed": "Naam ontbreekt"
 }

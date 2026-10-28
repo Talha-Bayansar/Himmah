@@ -1,13 +1,13 @@
+import {
+  DirectoryHeader,
+  DirectoryToolbar,
+  DirectoryList,
+  DirectoryItem,
+  DirectoryRecord,
+} from "../components/shared/directory-layout";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  History,
-  Pencil,
-  Plus,
-  Search,
-  UserMinus,
-} from "lucide-react";
+import { ArrowLeft, History, Pencil, Plus, UserMinus } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   DirectoryError,
@@ -30,7 +30,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
-import { Input } from "../components/ui/input";
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
@@ -90,30 +89,22 @@ export default function Assignments({
           {m.back_to_manage()}
         </Link>
       </Button>
-      <div className="directory-heading">
-        <div>
-          <h1 tabIndex={-1} data-page-heading>
-            {m.access_title()}
-          </h1>
-          <p>{m.access_help()}</p>
-        </div>
-        <Button onClick={() => setEdit("new")}>
-          <Plus aria-hidden="true" />
-          {m.access_create()}
-        </Button>
-      </div>
-      <div className="directory-toolbar">
-        <label>
-          <Search aria-hidden="true" size={17} />
-          <span className="sr-only">{m.directory_search()}</span>
-          <Input
-            type="search"
-            maxLength={80}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={m.directory_search()}
-          />
-        </label>
+      <DirectoryHeader
+        title={m.access_title()}
+        description={m.access_help()}
+        action={
+          <Button onClick={() => setEdit("new")}>
+            <Plus aria-hidden="true" />
+            {m.access_create()}
+          </Button>
+        }
+      />
+      <DirectoryToolbar
+        id="assignment-search"
+        label={m.directory_search()}
+        value={search}
+        onChange={setSearch}
+      >
         <label className="directory-archived">
           <Checkbox
             checked={revoked}
@@ -121,7 +112,7 @@ export default function Assignments({
           />
           {m.access_show_revoked()}
         </label>
-      </div>
+      </DirectoryToolbar>
       {revoke.isError && <CollectionError error={revoke.error} />}
       {pages.isPending ? (
         <ListSkeleton />
@@ -135,27 +126,29 @@ export default function Assignments({
         />
       ) : (
         <>
-          <ul className="directory-list">
+          <DirectoryList
+            label={m.access_title()}
+            busy={pages.isFetchingNextPage}
+          >
             {pages.data?.pages
               .flatMap((p) => p.items)
               .map((item) => (
-                <li key={item.id}>
-                  <div>
-                    <strong>{item.staffName || m.role_volunteer()}</strong>
-                    <p>{item.scopeName}</p>
-                    <small>
-                      {item.revokedAt
-                        ? m.access_revoked()
-                        : item.effective === false
-                          ? m.access_inactive()
-                          : m.access_active()}
-                    </small>
-                    <p>
-                      {[item.canAttend ? m.access_attend() : null]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  </div>
+                <DirectoryItem key={item.id}>
+                  <DirectoryRecord
+                    name={item.staffName?.trim() || m.staff_unnamed()}
+                    detail={
+                      <>
+                        {item.scopeName}
+                        <br />
+                        {item.revokedAt
+                          ? m.access_revoked()
+                          : item.effective === false
+                            ? m.access_inactive()
+                            : m.access_active()}
+                        {item.canAttend && <> · {m.access_attend()}</>}
+                      </>
+                    }
+                  />
                   <ItemActions
                     name={item.staffName || m.role_volunteer()}
                     pending={
@@ -195,9 +188,9 @@ export default function Assignments({
                       },
                     ]}
                   />
-                </li>
+                </DirectoryItem>
               ))}
-          </ul>
+          </DirectoryList>
           {pages.data?.pages[0]?.items.length === 0 ? (
             <p className="directory-empty">{m.directory_empty()}</p>
           ) : (

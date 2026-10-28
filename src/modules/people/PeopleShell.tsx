@@ -66,13 +66,13 @@ function PeopleScope({
     (account.data?.user.emailVerified && context.isPending)
   )
     return (
-      <section className="mx-auto max-w-3xl p-4">
+      <section className="people-scope">
         <ListSkeleton />
       </section>
     );
   if (account.isError || !account.data?.user.emailVerified)
     return (
-      <section className="mx-auto max-w-3xl space-y-4 p-4">
+      <section className="people-scope">
         <p>{m.people_signin()}</p>
         <Button asChild>
           <Link to="/start">{m.continue_action()}</Link>
@@ -81,19 +81,19 @@ function PeopleScope({
     );
   if (denied?.org === organizationId && denied.actor === account.data.user.id)
     return (
-      <section className="mx-auto max-w-3xl p-4">
+      <section className="people-scope">
         <ErrorNotice error={denied.error} />
       </section>
     );
   if (context.isError || !context.data)
     return (
-      <section className="mx-auto max-w-3xl p-4">
+      <section className="people-scope">
         <ErrorNotice error={context.error} retry={context.refetch} />
       </section>
     );
   return (
     <section
-      className="mx-auto max-w-3xl space-y-6 p-4 pb-12"
+      className="people-scope space-y-6"
       key={account.data.user.id + organizationId}
     >
       {tabs && (

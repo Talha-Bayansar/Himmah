@@ -1,3 +1,10 @@
+import {
+  DirectoryHeader,
+  DirectoryToolbar,
+  DirectoryList,
+  DirectoryItem,
+  DirectoryRecord,
+} from "../../components/shared/directory-layout";
 import { Communication } from "./Communication";
 import {
   PREVIEW_SIZE,
@@ -22,6 +29,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
+  ChevronRight,
   Pencil,
   Archive,
   ArchiveRestore,
@@ -127,30 +135,31 @@ function ContactList({ org, user }: { org: string; user: string }) {
   );
   if (accessDenied(list.error)) return <ErrorNotice error={list.error} />;
   return (
-    <>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">{m.people_contacts()}</h1>
-        <Button onClick={() => setEditing(true)}>
-          <Plus aria-hidden="true" />
-          {m.people_add()}
-        </Button>
-      </div>
-      <div className="space-y-3">
-        <Label htmlFor="contact-search">{m.people_search()}</Label>
-        <Input
-          id="contact-search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          maxLength={80}
-        />
-        <Label className="flex items-center gap-3">
+    <section className="directory">
+      <DirectoryHeader
+        title={m.people_contacts()}
+        description={m.directory_roster_help()}
+        action={
+          <Button onClick={() => setEditing(true)}>
+            <Plus aria-hidden="true" />
+            {m.people_add()}
+          </Button>
+        }
+      />
+      <DirectoryToolbar
+        id="contact-search"
+        label={m.people_search()}
+        value={search}
+        onChange={setSearch}
+      >
+        <Label className="directory-archived">
           <Checkbox
             checked={archived}
             onCheckedChange={(v) => setArchived(v === true)}
           />
           {m.people_archived()}
         </Label>
-      </div>
+      </DirectoryToolbar>
       {list.isPending ? (
         <ListSkeleton />
       ) : list.isError && !list.data ? (
@@ -158,36 +167,34 @@ function ContactList({ org, user }: { org: string; user: string }) {
       ) : (
         <>
           {!list.data?.pages.some((p) => p.items.length) && (
-            <p>{m.people_empty()}</p>
+            <p className="directory-empty">{m.people_empty()}</p>
           )}
-          <div className="space-y-3">
+          <DirectoryList
+            label={m.people_contacts()}
+            busy={list.isFetchingNextPage}
+          >
             {list.data?.pages
               .flatMap((p) => p.items)
               .map((c) => (
-                <Card density="compact" key={c.id}>
-                  <CardHeader>
-                    <CardTitle>{c.displayName}</CardTitle>
-                  </CardHeader>
-                  <CardFooter className="justify-end">
-                    <Button variant="outline" asChild>
-                      <Link
-                        to="/workspace/$organizationId/people/contacts/$contactId"
-                        params={{ organizationId: org, contactId: c.id }}
-                      >
-                        {m.people_open()}
-                      </Link>
-                    </Button>
-                  </CardFooter>
-                </Card>
+                <DirectoryItem key={c.id} linked>
+                  <Link
+                    className="directory-item-link"
+                    to="/workspace/$organizationId/people/contacts/$contactId"
+                    params={{ organizationId: org, contactId: c.id }}
+                  >
+                    <DirectoryRecord name={c.displayName} />
+                    <ChevronRight aria-hidden="true" size={18} />
+                  </Link>
+                </DirectoryItem>
               ))}
-          </div>
+          </DirectoryList>
           <InfiniteFooter {...list} />
         </>
       )}
       {editing && (
         <Editor org={org} user={user} onClose={() => setEditing(false)} />
       )}
-    </>
+    </section>
   );
 }
 function ContactDetail({
