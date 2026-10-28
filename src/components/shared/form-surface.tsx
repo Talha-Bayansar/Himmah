@@ -37,7 +37,11 @@ export function FormSurface({
           <ArrowLeft aria-hidden="true" />
           {m.form_back()}
         </Button>
-        <DirectoryHeader title={title} description={description} />
+        <DirectoryHeader
+          title={title}
+          description={description}
+          autoFocus={false}
+        />
         {children}
       </section>
     );
@@ -48,7 +52,7 @@ export function FormSurface({
         if (!open) onClose();
       }}
       repositionInputs={false}
-      autoFocus
+      autoFocus={false}
     >
       <DrawerContent className="form-sheet">
         <DrawerHeader>

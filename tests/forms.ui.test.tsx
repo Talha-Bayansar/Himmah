@@ -145,6 +145,11 @@ it.each([
       await screen.findByRole("heading", { level: 1, name: title }),
     ).toBeTruthy();
     expect(screen.queryByRole("dialog")).toBeNull();
+    expect(
+      document.activeElement?.matches(
+        ".form-page h1, .form-page input, .form-page textarea, .form-page select",
+      ),
+    ).toBe(false);
     expect(screen.getByRole("region", { name: title })).toBeTruthy();
     if (form === "relationship" || form === "communication")
       expect(screen.getByText(/Subject contact ·/)).toBeTruthy();

@@ -37,6 +37,8 @@ Owner list consistency: retain the original directory layout for Contacts, Group
 
 Owner UI refinement: informational cards should be compact, with one layer of padding rather than stacked card/content padding. Contextual section-add actions use a fixed 44px icon control on phones with a localized accessible name; show the text label on wider screens. Reuse the shared compact Card density where appropriate.
 
+Owner form focus: do not autofocus fields or page headings when opening forms. Keep normal keyboard navigation, focus trapping and restoration on sheet dismissal.
+
 Owner form presentation: complex workflows use independently reloadable pages; simple forms use the shared shadcn/Vaul bottom sheet. Follow [form classification](docs/FORMS.md), `FormSurface` and `PeopleForm`; never introduce a centered dialog for an input workflow. Keep confirmations in accessible alert dialogs. Preserve unsaved-change guards, one confirmation per leave action, failed-save drafts/request identity, current tenant authorization, version snapshots, localized labels, keyboard-aware sizing, safe areas and focus restoration. Page return links preserve the originating filters and must remain in the current organization.
 
 Owner-approved child-list pattern: contact profiles show at most three rows per collection, an SQL total count and a real View all link. Full lists live on independently reloadable routes with their own infinite pagination and URL-backed search/history filters. Do not put auto-expanding infinite lists or nested scroll areas inside entity overview sections. Keep preview/full query caches separate. Form pickers keep bounded pagination within their page or sheet.

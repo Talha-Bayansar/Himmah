@@ -9,15 +9,17 @@ export function DirectoryHeader({
   title,
   description,
   action,
+  autoFocus = true,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  autoFocus?: boolean;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    heading.current?.focus({ preventScroll: true });
-  }, [title]);
+    if (autoFocus) heading.current?.focus({ preventScroll: true });
+  }, [title, autoFocus]);
   return (
     <div className="directory-heading">
       <div>
