@@ -7,6 +7,8 @@ export const attendanceStatuses = [
 ] as const;
 export type AttendanceStatus = (typeof attendanceStatuses)[number];
 export type AttendancePerson = {
+  registered?: boolean;
+  expected?: boolean | null;
   id: string;
   name: string;
   createdAt: string;

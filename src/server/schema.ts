@@ -502,3 +502,189 @@ export const pushDeliveries = pgTable(
     ),
   ],
 );
+
+// Session reservations and frozen expected rosters are independent of attendance.
+export const registrationSettings = pgTable(
+  "hub_session_registration_settings",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    mode: text("mode").notNull().default("open"),
+    capacity: integer("capacity"),
+    version: integer("version").notNull().default(1),
+    frozenAt: timestamp("frozen_at", { withTimezone: true }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.sessionId] }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    check("hub_registration_mode", sql`${t.mode} in ('open','required')`),
+    check(
+      "hub_registration_capacity",
+      sql`${t.capacity} is null or ${t.capacity} between 1 and 100000`,
+    ),
+    check("hub_registration_policy_version", sql`${t.version}>0`),
+  ],
+);
+export const registrations = pgTable(
+  "hub_session_registrations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    status: text("status").notNull(),
+    source: text("source").notNull(),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    unique("hub_registration_contact").on(
+      t.organizationId,
+      t.sessionId,
+      t.personId,
+    ),
+    index("hub_registration_page").on(
+      t.organizationId,
+      t.sessionId,
+      t.status,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_registration_status",
+      sql`${t.status} in ('confirmed','cancelled')`,
+    ),
+    check("hub_registration_source", sql`${t.source} in ('advance','walk_in')`),
+    check("hub_registration_version", sql`${t.version}>0`),
+  ],
+);
+export const expectedContacts = pgTable(
+  "hub_session_expected_contacts",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    initial: boolean("initial").notNull(),
+    included: boolean("included").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.sessionId, t.personId] }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    index("hub_expected_page").on(
+      t.organizationId,
+      t.sessionId,
+      t.createdAt,
+      t.personId,
+    ),
+  ],
+);
+export const registrationEvents = pgTable(
+  "hub_session_registration_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id"),
+    actorId: text("actor_id").notNull(),
+    action: text("action").notNull(),
+    reason: text("reason").notNull().default(""),
+    before: jsonb("before"),
+    after: jsonb("after").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`clock_timestamp()`),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    index("hub_registration_event_page").on(
+      t.organizationId,
+      t.sessionId,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_registration_event_action",
+      sql`${t.action} in ('configure','register','cancel','freeze')`,
+    ),
+    check("hub_registration_event_reason", sql`length(${t.reason})<=300`),
+  ],
+);
+export const registrationRequests = pgTable(
+  "hub_session_registration_requests",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.sessionId, t.requestKey] }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+  ],
+);

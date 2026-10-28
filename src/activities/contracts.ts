@@ -20,6 +20,7 @@ export type Activity = {
 };
 export type Session = {
   canAttend?: boolean;
+  registrationLocked?: boolean;
   id: string;
   activityId: string;
   name: string;

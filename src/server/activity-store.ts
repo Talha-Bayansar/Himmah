@@ -19,7 +19,7 @@ const base = (user: string, org: string, activity: SQL) =>
 const activityFrom = (user: string, org: string) =>
   sql`${base(user, org, sql`parent_row.id`)},${groupProjection(user, org, sql`parent_row.id`)}, (select jsonb_build_object('id',s.id,'startsAt',s.starts_at,'endsAt',s.ends_at,'timezone',s.timezone) from hub_activity_sessions s where s.organization_id=${org}::uuid and s.activity_id=parent_row.id and hub_can_view_session(${user},${org}::uuid,s.activity_id,s.id) and not s.cancelled and s.ends_at>now() order by s.starts_at,s.id limit 1) as "nextSession"`;
 const sessionProjection = (user: string, org: string) =>
-  sql`${base(user, org, sql`parent_row.activity_id`)},hub_can_attend_session(${user},${org}::uuid,activity_id,id) as "canAttend",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(user, org, sql`parent_row.activity_id`)}`;
+  sql`${base(user, org, sql`parent_row.activity_id`)},exists(select 1 from hub_session_registration_settings rs where rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id and rs.mode='required' and parent_row.starts_at<=clock_timestamp()+interval '30 minutes') as "registrationLocked",hub_can_attend_session(${user},${org}::uuid,activity_id,id) as "canAttend",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(user, org, sql`parent_row.activity_id`)}`;
 const logged = (user: string, org: string, action: string) =>
   sql`logged as (insert into hub_directory_audit(organization_id,actor_id,action,entity_id) select ${org}::uuid,${user},${action},id::text from changed parent_row returning id)`;
 export type ActivityStore = ReturnType<typeof createActivityStore>;
@@ -104,7 +104,7 @@ export function createActivityStore(
       v: SessionInput,
     ) {
       return rows(
-        sql`with ${actor(user, org, true)},changed as(update hub_activity_sessions set starts_at=${v.startsAt}::timestamptz,ends_at=${v.endsAt}::timestamptz,location=${v.location},version=version+1 where organization_id=${org}::uuid and activity_id=${activity}::uuid and id=${id}::uuid and version=${version} and not cancelled and starts_at>now() and ${v.startsAt}::timestamptz>now() and timezone=${v.timezone} and exists(select 1 from actor) returning *),${logged(user, org, "session.edit")} select ${sessionProjection(user, org)} from changed parent_row`,
+        sql`with ${actor(user, org, true)},changed as(update hub_activity_sessions set starts_at=${v.startsAt}::timestamptz,ends_at=${v.endsAt}::timestamptz,location=${v.location},version=version+1 where organization_id=${org}::uuid and activity_id=${activity}::uuid and id=${id}::uuid and version=${version} and not cancelled and starts_at>now() and ${v.startsAt}::timestamptz>now() and timezone=${v.timezone} and (not exists(select 1 from hub_session_registration_settings rs where rs.organization_id=hub_activity_sessions.organization_id and rs.session_id=hub_activity_sessions.id and rs.mode='required') or (starts_at>now()+interval '30 minutes' and ${v.startsAt}::timestamptz>now()+interval '30 minutes')) and exists(select 1 from actor) returning *),${logged(user, org, "session.edit")} select ${sessionProjection(user, org)} from changed parent_row`,
       );
     },
     cancelSession(

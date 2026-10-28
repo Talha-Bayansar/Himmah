@@ -10,9 +10,13 @@ export async function schemaInstallPlan() {
     ...["contacts", "directory", "communication", "hosting"].map(
       (f) => "db/rebuild/" + f + ".sql",
     ),
-    ...["people-adapter", "access", "attendance", "notifications"].map(
-      (f) => "db/migrations/functions/" + f + ".sql",
-    ),
+    ...[
+      "people-adapter",
+      "access",
+      "attendance",
+      "notifications",
+      "registration",
+    ].map((f) => "db/migrations/functions/" + f + ".sql"),
   ];
   const sources = await Promise.all(
     files.map(async (file) => ({ file, source: await readFile(file, "utf8") })),

@@ -14,6 +14,7 @@ The owner requested two form categories on 28 October 2026. The implementation k
 | Contact phone/email editing | Bottom sheet | Kind, value and preferred flag |
 | Group creation/editing | Bottom sheet | Name and description |
 | Contact-to-group assignment | Bottom sheet | One group selection |
+| Session registration, registration settings and reasoned cancellation | Bottom sheet | One contact choice or short policy/reason edit |
 | Staff invitation creation | Bottom sheet | Email and role |
 | Session creation/editing/cancellation | Bottom sheet | Short scheduling edit or cancellation reason |
 | Attendance recording/correction | Bottom sheet | Status and correction reason |

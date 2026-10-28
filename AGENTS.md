@@ -43,6 +43,8 @@ Owner form presentation: complex workflows use independently reloadable pages; s
 
 Owner-approved child-list pattern: contact profiles show at most three rows per collection, an SQL total count and a real View all link. Full lists live on independently reloadable routes with their own infinite pagination and URL-backed search/history filters. Do not put auto-expanding infinite lists or nested scroll areas inside entity overview sections. Keep preview/full query caches separate. Form pickers keep bounded pagination within their page or sheet.
 
+Owner-approved registration: session reservations and attendance are independent. Follow [registration behavior](docs/REGISTRATION.md): optional drop-in by default; required sessions derive expected contacts from confirmed reservations, freeze the original at check-in opening and audit later amendments. Enforce capacity under session locks, current scoped permissions, immutable events/receipts, snapshot versions and reasoned cancellation. Never mark attendance or create cash/account records as a side effect. Organization choices use the shared compact full-row directory links.
+
 ## Workflow and validation
 
 Use rg for discovery. Carry authorized work through relevant checks without repeated routine permission questions. Do not send external messages/invitations, synthetic real-device pushes, provision services or deploy without applicable authorization. No delegation requested.

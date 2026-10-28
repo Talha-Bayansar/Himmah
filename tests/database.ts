@@ -17,6 +17,7 @@ export async function installDatabase(db: PGlite, { hosted = true } = {}) {
     "access",
     "attendance",
     "notifications",
+    "registration",
   ])
     await db.exec(
       await readFile("db/migrations/functions/" + name + ".sql", "utf8"),

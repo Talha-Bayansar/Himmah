@@ -26,6 +26,7 @@ import { Route as WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport } from '
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId_.$view'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
+import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.registrations'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -128,6 +129,15 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRout
         WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute,
     } as any,
   )
+const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute =
+  WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRouteImport.update(
+    {
+      id: '/registrations',
+      path: '/registrations',
+      getParentRoute: () =>
+        WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute,
+    } as any,
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -147,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -166,6 +177,7 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -186,6 +198,7 @@ export interface FileRoutesById {
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts_/$contactId_/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -207,6 +220,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -226,6 +240,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
   id:
     | '__root__'
     | '/'
@@ -245,6 +260,7 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts_/$contactId_/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -386,17 +402,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport
       parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute
     }
+    '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': {
+      id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
+      path: '/registrations'
+      fullPath: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
+      preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute
+    }
   }
 }
 
 interface WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteChildren {
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteChildren: WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteChildren =
   {
     WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute:
       WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute,
+    WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute:
+      WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute,
   }
 
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren =

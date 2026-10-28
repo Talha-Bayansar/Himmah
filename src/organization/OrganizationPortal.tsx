@@ -1,3 +1,8 @@
+import {
+  DirectoryList,
+  DirectoryItem,
+  DirectoryRecord,
+} from "../components/shared/directory-layout";
 import { ActionButton } from "@/components/shared/action-button";
 import { useConfirmation } from "@/components/shared/confirmation";
 import { AccountSkeleton } from "@/components/shared/page-skeleton";
@@ -24,7 +29,13 @@ import {
   useBlocker,
   useNavigate,
 } from "@tanstack/react-router";
-import { ArrowRight, CircleUserRound, Plus } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronRight,
+  Building2,
+  CircleUserRound,
+  Plus,
+} from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import Assignments from "../access/Assignments";
@@ -324,22 +335,31 @@ export default function OrganizationPortal({
     return (
       <section className="organization-list">
         <h1>{m.my_organizations()}</h1>
-        <div className="space-y-3">
+        <DirectoryList
+          label={m.my_organizations()}
+          busy={organizations.isFetchingNextPage}
+        >
           {items.map((org) => (
-            <Card key={org.id}>
-              <CardContent className="flex items-center justify-between gap-3">
-                <div>
-                  <h2>{org.name}</h2>
-                  <p>{m[`role_${org.role}`]()}</p>
-                </div>
-                <Button onClick={() => void openWorkspace(org.id, org.role)}>
-                  {m.open_workspace()}
-                  <ArrowRight aria-hidden="true" />
-                </Button>
-              </CardContent>
-            </Card>
+            <DirectoryItem key={org.id} linked>
+              <Link
+                className="directory-item-link"
+                to={
+                  org.role === "volunteer"
+                    ? "/workspace/$organizationId/$section"
+                    : "/workspace/$organizationId/people/contacts"
+                }
+                params={{ organizationId: org.id, section: "activities" }}
+              >
+                <DirectoryRecord
+                  name={org.name}
+                  detail={m[`role_${org.role}`]()}
+                  icon={<Building2 aria-hidden="true" size={19} />}
+                />
+                <ChevronRight aria-hidden="true" size={18} />
+              </Link>
+            </DirectoryItem>
           ))}
-        </div>
+        </DirectoryList>
         <InfiniteFooter {...organizations} />
         <Button className="mt-4" onClick={() => setCreating(true)}>
           <Plus aria-hidden="true" />

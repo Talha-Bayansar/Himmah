@@ -1,3 +1,5 @@
+import { registrationApi } from "./registration-api.ts";
+import { createRegistrationStore } from "./registration-store.ts";
 import { peopleApi } from "../modules/people/api.ts";
 import {
   createPeopleStore,
@@ -302,6 +304,13 @@ export function createHandler(
           ).limit({ key: `activities:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
         }
+        const registrationResponse = await registrationApi(
+          request,
+          user,
+          store,
+          createRegistrationStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (registrationResponse) return registrationResponse;
         const attendanceResponse = await attendanceApi(
           request,
           user,

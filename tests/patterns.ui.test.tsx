@@ -417,3 +417,16 @@ it("organization details reload independently, link back to Manage, and keep adm
   await screen.findByRole("heading", { name: "Manage" });
   expect(screen.queryByRole("button", { name: "Sign out" })).toBeNull();
 });
+
+it("organization choices use compact full-row links with the name and role", async () => {
+  mount(OrganizationPortal);
+  const list = await screen.findByRole("list", { name: "My organizations" });
+  const choice = within(list).getByRole("link", { name: /Noor Youth/ });
+  expect(choice.getAttribute("href")).toBe(
+    `/workspace/${organization.id}/people/contacts`,
+  );
+  expect(within(choice).getByText("Owner")).toBeTruthy();
+  expect(
+    within(list).queryByRole("button", { name: "Open workspace" }),
+  ).toBeNull();
+});

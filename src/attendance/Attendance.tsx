@@ -76,6 +76,7 @@ export default function Attendance({
       isAdmin || (!access.isError && access.data?.item.canAttend === true),
     [search, setSearch] = useState(""),
     [status, setStatus] = useState("all"),
+    [rosterFilter, setRosterFilter] = useState("all"),
     [selected, setSelected] = useState<Map<string, AttendancePerson>>(
       new Map(),
     ),
@@ -92,7 +93,7 @@ export default function Attendance({
       directoryRequest<{ item: Session }>(base, { signal }),
   });
   const roster = useInfiniteQuery({
-    queryKey: [...key, "roster", activityId, search, status],
+    queryKey: [...key, "roster", activityId, search, status, rosterFilter],
     enabled: canManage,
     initialPageParam: null as string | null,
     queryFn: ({ pageParam, signal }) =>
@@ -106,6 +107,8 @@ export default function Attendance({
           encodeURIComponent(search) +
           "&status=" +
           status +
+          "&roster=" +
+          rosterFilter +
           (pageParam ? "&cursor=" + encodeURIComponent(pageParam) : ""),
         { signal },
       ),
@@ -114,10 +117,14 @@ export default function Attendance({
   const summary = roster.data?.pages[0]?.summary,
     rows = roster.data?.pages.flatMap((page) => page.items) ?? [];
   const canEdit = summary?.canEdit === true;
-  const changeFilter = (kind: "search" | "status", value: string) => {
+  const changeFilter = (
+    kind: "search" | "status" | "roster",
+    value: string,
+  ) => {
     setSelected(new Map());
     if (kind === "search") setSearch(value);
-    else setStatus(value);
+    else if (kind === "status") setStatus(value);
+    else setRosterFilter(value);
   };
   const openSelected = () => {
     const current = new Map(rows.map((row) => [row.id, row]));
@@ -255,6 +262,18 @@ export default function Attendance({
           />
         </label>
         <div>
+          <Label htmlFor="attendance-roster">{m.attendance_roster()}</Label>
+          <NativeSelect
+            id="attendance-roster"
+            value={rosterFilter}
+            onChange={(e) => changeFilter("roster", e.target.value)}
+          >
+            {(["all", "registered", "expected"] as const).map((v) => (
+              <NativeSelectOption key={v} value={v}>
+                {m[("attendance_roster_" + v) as "attendance_roster_all"]()}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
           <Label htmlFor="attendance-filter">{m.attendance_filter()}</Label>
           <NativeSelect
             id="attendance-filter"

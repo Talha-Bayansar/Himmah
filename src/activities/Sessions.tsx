@@ -144,12 +144,20 @@ export default function Sessions({
             <ItemActions
               name={label}
               actions={[
-                {
-                  label: m.sessions_edit(),
-                  icon: Pencil,
-                  onSelect: () =>
-                    setEditor({ kind: "session", item, parent: activity }),
-                },
+                ...(!item.registrationLocked
+                  ? [
+                      {
+                        label: m.sessions_edit(),
+                        icon: Pencil,
+                        onSelect: () =>
+                          setEditor({
+                            kind: "session",
+                            item,
+                            parent: activity,
+                          }),
+                      },
+                    ]
+                  : []),
                 {
                   label: m.sessions_cancel(),
                   icon: Ban,
@@ -177,6 +185,31 @@ export default function Sessions({
             )}
             <p className="activity-note">{m.sessions_snapshot_help()}</p>
             {past && <p className="activity-note">{m.sessions_past_help()}</p>}
+            {item.registrationLocked && (
+              <p className="activity-note">
+                {m.registration_schedule_locked()}
+              </p>
+            )}
+            {(canManage || item.canAttend === true) && (
+              <Button
+                variant="outline"
+                className="activity-card-primary"
+                asChild
+              >
+                <Link
+                  to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations"
+                  params={{
+                    organizationId: organization.id,
+                    activityId: activity.id,
+                    sessionId: item.id,
+                  }}
+                  search={{ q: "", view: "confirmed" }}
+                >
+                  <Plus aria-hidden="true" size={16} />
+                  {m.registration_title()}
+                </Link>
+              </Button>
+            )}
             {(canManage || item.canAttend === true) && (
               <Button asChild className="activity-card-primary">
                 <Link

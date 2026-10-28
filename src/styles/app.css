@@ -5228,3 +5228,44 @@ button[data-slot="button"].people-section-add {
   max-height: none;
   overflow: visible;
 }
+
+.organization-list .directory-item-link {
+  font-size: 14px;
+}
+.organization-list .directory-record-copy strong {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.registration-page > [data-slot="card"] {
+  margin-bottom: 16px;
+}
+.registration-summary-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.registration-summary-heading strong {
+  font-size: 16px;
+}
+.registration-page [data-slot="card-content"] > p {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+.registration-independent {
+  margin: 16px 0 20px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+.registration-page .directory-toolbar > [data-slot="native-select-wrapper"] {
+  max-width: 100%;
+}
+
+.directory-toolbar [data-slot="native-select"],
+.attendance-filters [data-slot="native-select"] {
+  font-size: 16px;
+  min-height: 48px;
+}
