@@ -151,4 +151,3 @@ public."hub_redemptions",
 public."hub_reward_changes",
 public."hub_reward_coupons",
 public."hub_rewards";
-
