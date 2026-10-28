@@ -1,16 +1,13 @@
-import { RouteTabs } from "../components/shared/route-tabs";
-import { useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
+  Building2,
   ChevronRight,
-  ChartNoAxesCombined,
   ShieldCheck,
   UserRoundPlus,
   UsersRound,
-  Building2,
-  Gamepad2,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Button } from "../components/ui/button";
 import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
@@ -23,17 +20,6 @@ export function Management({ organization }: { organization: Organization }) {
     heading.current?.focus({ preventScroll: true });
   }, []);
   const groups = [
-    {
-      title: m.manage_engagement(),
-      items: [
-        {
-          section: "periods",
-          title: m.periods_title(),
-          description: m.manage_periods_help(),
-          Icon: ChartNoAxesCombined,
-        },
-      ],
-    },
     {
       title: m.manage_team(),
       items: [
@@ -68,17 +54,6 @@ export function Management({ organization }: { organization: Organization }) {
         },
       ],
     },
-    {
-      title: m.futsal_apps(),
-      items: [
-        {
-          section: "apps",
-          title: m.futsal_title(),
-          description: m.futsal_app_help(),
-          Icon: Gamepad2,
-        },
-      ],
-    },
   ];
   return (
     <section className="directory management-page">
@@ -90,26 +65,6 @@ export function Management({ organization }: { organization: Organization }) {
           <p>{m.manage_intro()}</p>
         </div>
       </div>
-      <section className="management-section">
-        <h2>{m.nav_people()}</h2>
-        <ul className="management-links">
-          <li>
-            <Link
-              to="/workspace/$organizationId/people/contacts"
-              params={{ organizationId: organization.id }}
-            >
-              <span className="management-icon">
-                <UsersRound aria-hidden="true" />
-              </span>
-              <span>
-                <strong>{m.people_contacts()}</strong>
-                <span>{m.people_communication()}</span>
-              </span>
-              <ChevronRight aria-hidden="true" />
-            </Link>
-          </li>
-        </ul>
-      </section>
       {groups.map((group) => (
         <section key={group.title} className="management-section">
           <h2>{group.title}</h2>
@@ -183,28 +138,5 @@ export function OrganizationDetails({
         </dl>
       </section>
     </section>
-  );
-}
-export function PeopleTabs({
-  organizationId,
-  section,
-}: {
-  organizationId: string;
-  section: "members" | "groups";
-}) {
-  useLocale();
-  return (
-    <RouteTabs aria-label={m.nav_people()}>
-      {(["members", "groups"] as const).map((tab) => (
-        <Link
-          key={tab}
-          to="/workspace/$organizationId/$section"
-          params={{ organizationId, section: tab }}
-          aria-current={section === tab ? "page" : undefined}
-        >
-          {tab === "members" ? m.directory_members() : m.directory_groups()}
-        </Link>
-      ))}
-    </RouteTabs>
   );
 }

@@ -1,5 +1,6 @@
 import { beforeEach, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createRootRoute,
@@ -10,62 +11,106 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 import OrganizationPortal from "../src/organization/OrganizationPortal";
-import type { WorkspaceSection } from "../src/organization/WorkspaceNavigation";
+import Contacts from "../src/modules/people/Contacts";
 import { LocaleProvider } from "../src/localization/locale";
 import { ConfirmationProvider } from "../src/components/shared/confirmation";
 import { setLocale } from "../src/paraglide/runtime.js";
-const owner = {
-  id: "launch-owner",
-  name: "Test Organizer",
-  email: "organizer@example.invalid",
-  emailVerified: true,
-};
+const id = "11111111-1111-4111-8111-111111111111",
+  contactId = "22222222-2222-4222-8222-222222222222";
 const org = {
-  id: "11111111-1111-4111-8111-111111111111",
-  name: "Test Community",
-  slug: "test-community",
-  role: "owner",
+  id,
+  name: "Community",
+  slug: "community",
   timezone: "UTC",
-  createdAt: "2026-10-18T00:00:00Z",
+  role: "owner",
+  createdAt: "2026-10-28T10:00:00Z",
 };
-beforeEach(() => {
-  void setLocale("en", { reload: false });
-  vi.stubGlobal("IntersectionObserver", undefined);
-});
-function mountLaunch(initialEntry = "/hub") {
-  const root = createRootRoute({ component: () => <Outlet /> });
-  const launch = createRoute({
+const contact = {
+  id: contactId,
+  displayName: "Ali",
+  givenName: null,
+  familyName: null,
+  version: 1,
+  archivedAt: null,
+  createdAt: org.createdAt,
+};
+function backend(role = "owner") {
+  const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+    const url = new URL(String(input), "https://himmah.test"),
+      o = { ...org, role };
+    if (url.pathname === "/api/account")
+      return Response.json({
+        user: {
+          id: "staff",
+          name: "Staff",
+          email: "staff@example.test",
+          emailVerified: true,
+        },
+      });
+    if (url.pathname === "/api/organizations")
+      return Response.json({ organizations: [o], nextCursor: null });
+    if (url.pathname === "/api/organizations/" + id)
+      return Response.json({ organization: o });
+    if (url.pathname.endsWith("/context"))
+      return Response.json({ id, name: org.name });
+    if (url.pathname.endsWith("/notifications/unread"))
+      return Response.json({ count: 0 });
+    if (url.pathname.endsWith("/contacts/" + contactId))
+      return Response.json(contact);
+    if (url.pathname.endsWith("/contacts"))
+      return Response.json({ items: [contact], nextCursor: null });
+    if (url.pathname.endsWith("/routing"))
+      return Response.json({
+        preferences: {
+          routineDirectAllowed: true,
+          emergencyDirectAllowed: false,
+        },
+        routine: { candidates: [], total: 0, missing: 0, alternatives: 0 },
+        emergency: { candidates: [], total: 0, missing: 0, alternatives: 0 },
+      });
+    return Response.json({ items: [], nextCursor: null, total: 0 });
+  });
+  vi.stubGlobal("fetch", fetcher);
+  return fetcher;
+}
+function mount(path = "/hub") {
+  const client = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    }),
+    root = createRootRoute({ component: () => <Outlet /> });
+  const hub = createRoute({
     getParentRoute: () => root,
     path: "/hub",
-    component: () => <OrganizationPortal initialMode="signin" launch />,
+    component: () => <OrganizationPortal launch />,
   });
-  const start = createRoute({
+  const contacts = createRoute({
     getParentRoute: () => root,
-    path: "/start",
-    validateSearch: (search: Record<string, unknown>) => ({
-      mode: search.mode,
-    }),
-    component: () => <OrganizationPortal initialMode="signin" />,
+    path: "/workspace/$organizationId/people/contacts",
+    component: () => <Contacts organizationId={id} />,
   });
-  const workspace = createRoute({
+  const detail = createRoute({
+    getParentRoute: () => root,
+    path: "/workspace/$organizationId/people/contacts/$contactId",
+    component: () => <Contacts organizationId={id} contactId={contactId} />,
+  });
+  const section = createRoute({
     getParentRoute: () => root,
     path: "/workspace/$organizationId/$section",
-    component: () => {
-      const { organizationId, section } = workspace.useParams();
-      return (
-        <OrganizationPortal
-          workspaceId={organizationId}
-          workspaceSection={section as WorkspaceSection}
-        />
-      );
-    },
+    component: () => (
+      <OrganizationPortal
+        workspaceId={id}
+        workspaceSection={
+          section.useParams().section as "manage" | "activities"
+        }
+      />
+    ),
   });
   const router = createRouter({
-    routeTree: root.addChildren([launch, start, workspace]),
-    history: createMemoryHistory({ initialEntries: [initialEntry] }),
-  });
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    routeTree: root.addChildren([hub, contacts, detail, section]),
+    history: createMemoryHistory({ initialEntries: [path] }),
   });
   render(
     <QueryClientProvider client={client}>
@@ -76,132 +121,75 @@ function mountLaunch(initialEntry = "/hub") {
       </LocaleProvider>
     </QueryClientProvider>,
   );
-  return router;
+  return { router, client };
 }
-for (const scenario of [
-  {
-    name: "signed-out accounts to sign-in",
-    user: null,
-    organizations: [org],
-    nextCursor: null,
-    destination: "/start",
-    signin: true,
-  },
-  {
-    name: "a single organization owner straight to activities",
-    user: owner,
-    organizations: [org],
-    nextCursor: null,
-    destination: `/workspace/${org.id}/activities`,
-  },
-  {
-    name: "a single organization volunteer to activities",
-    user: owner,
-    organizations: [{ ...org, role: "volunteer" }],
-    nextCursor: null,
-    destination: `/workspace/${org.id}/activities`,
-  },
-  {
-    name: "a single participant straight to personal progress",
-    user: owner,
-    organizations: [{ ...org, role: "participant" }],
-    nextCursor: null,
-    destination: `/workspace/${org.id}/me`,
-  },
-  {
-    name: "multiple organizations to the chooser",
-    user: owner,
-    organizations: [
-      org,
-      { ...org, id: "22222222-2222-4222-8222-222222222222" },
-    ],
-    nextCursor: null,
-    destination: "/start",
-  },
-  {
-    name: "a partial organization page to the chooser without fetching every page",
-    user: owner,
-    organizations: [org],
-    nextCursor: "next-page",
-    destination: "/start",
-  },
-  {
-    name: "accounts without an organization to setup",
-    user: owner,
-    organizations: [],
-    nextCursor: null,
-    destination: "/start",
-  },
-])
-  it(`PWA launch sends ${scenario.name}`, async () => {
-    const requests: string[] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input: RequestInfo | URL) => {
-        const path = String(input);
-        requests.push(path);
-        if (path === "/api/account")
-          return scenario.user
-            ? Response.json({ user: scenario.user })
-            : Response.json({}, { status: 401 });
-        if (path === "/api/organizations")
-          return Response.json({
-            organizations: scenario.organizations,
-            nextCursor: scenario.nextCursor,
-          });
-        if (path === `/api/organizations/${org.id}`)
-          return Response.json({ organization: scenario.organizations[0] });
-        return Response.json({ items: [], nextCursor: null });
-      }),
-    );
-    const router = mountLaunch();
-    await waitFor(() =>
-      expect(router.state.location.pathname).toBe(scenario.destination),
-    );
-    if (scenario.signin)
-      expect(router.state.location.search.mode).toBe("signin");
-    expect(requests.some((path) => path.includes("cursor="))).toBe(false);
+beforeEach(() => {
+  setLocale("en", { reload: false });
+  vi.stubGlobal("IntersectionObserver", undefined);
+});
+it("launches owners directly into canonical People with shared navigation and a reloadable profile", async () => {
+  const fetcher = backend();
+  const { router } = mount();
+  await screen.findByRole("heading", { name: "Contacts" });
+  await waitFor(() =>
+    expect(router.state.location.pathname).toBe(
+      `/workspace/${id}/people/contacts`,
+    ),
+  );
+  const navigation = screen.getByRole("navigation", {
+    name: "Main navigation",
   });
-
-for (const role of ["volunteer", "participant"] as const)
-  it(`direct management URLs redirect ${role} without requesting staff data`, async () => {
-    const requests: string[] = [];
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async (input) => {
-        const path = String(input);
-        requests.push(path);
-        if (path === "/api/account") return Response.json({ user: owner });
-        if (path === "/api/organizations")
-          return Response.json({
-            organizations: [{ ...org, role }],
-            nextCursor: null,
-          });
-        if (path === `/api/organizations/${org.id}`)
-          return Response.json({ organization: { ...org, role } });
-        if (path.endsWith("/me"))
-          return Response.json({
-            item: {
-              name: "Nickname",
-              earned: "0",
-              reserved: "0",
-              spent: "0",
-              available: "0",
-            },
-          });
-        return Response.json({ items: [], nextCursor: null });
-      }),
-    );
-    const router = mountLaunch(`/workspace/${org.id}/manage`);
-    await waitFor(() =>
-      expect(router.state.location.pathname).toBe(
-        `/workspace/${org.id}/${role === "participant" ? "me" : "activities"}`,
-      ),
-    );
-    expect(screen.queryByRole("link", { name: "Manage" })).toBeNull();
-    expect(
-      requests.some((p) =>
-        /\/(access|staff|invitations|periods)(\?|$)/.test(p),
-      ),
-    ).toBe(false);
-  });
+  expect(
+    within(navigation)
+      .getByRole("link", { name: "People" })
+      .getAttribute("aria-current"),
+  ).toBe("page");
+  expect(
+    within(navigation).getByRole("link", { name: "Activities" }),
+  ).toBeTruthy();
+  expect(within(navigation).getByRole("link", { name: "Manage" })).toBeTruthy();
+  expect(
+    screen.queryByRole("link", { name: /Rewards|Futsal|Challenges|Points/ }),
+  ).toBeNull();
+  await screen.findByText("Ali");
+  await userEvent.click(
+    screen
+      .getAllByRole("link")
+      .find(
+        (a) =>
+          a.getAttribute("href") ===
+          `/workspace/${id}/people/contacts/${contactId}`,
+      )!,
+  );
+  await screen.findByRole("heading", { name: "Ali" });
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${id}/people/contacts/${contactId}`,
+  );
+  expect(
+    fetcher.mock.calls.some(([u]) =>
+      /points|rewards|challenges|futsal|participants/.test(String(u)),
+    ),
+  ).toBe(false);
+});
+it("volunteer launch stays in scoped activities and does not expose administrator People controls", async () => {
+  backend("volunteer");
+  const { router } = mount();
+  await waitFor(() =>
+    expect(router.state.location.pathname).toBe(`/workspace/${id}/activities`),
+  );
+  expect(screen.queryByRole("link", { name: "People" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Manage" })).toBeNull();
+});
+it("Manage contains staff and organization controls without removed product links or a separate People entry", async () => {
+  backend();
+  mount(`/workspace/${id}/manage`);
+  await screen.findByRole("heading", { name: "Manage" });
+  const main = screen.getByRole("main");
+  expect(
+    within(main).queryByRole("link", {
+      name: /Rewards|Futsal|Challenges|Engagement periods/,
+    }),
+  ).toBeNull();
+  expect(within(main).getByRole("link", { name: /Staff/ })).toBeTruthy();
+  expect(within(main).queryByRole("link", { name: "Contacts" })).toBeNull();
+});

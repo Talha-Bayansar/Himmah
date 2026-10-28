@@ -3,58 +3,40 @@ import {
   createPeopleStore,
   type PeopleStore,
 } from "../modules/people/store.ts";
-import { futsalGameApi } from "./futsal-game-api.ts";
-import {
-  createFutsalGameStore,
-  type FutsalGameStore,
-} from "./futsal-game-store.ts";
-import { futsalApi } from "./futsal-api.ts";
-import { createFutsalStore, type FutsalStore } from "./futsal-store.ts";
+
 import { notificationApi } from "./notification-api.ts";
 import {
   createNotificationStore,
   type NotificationStore,
 } from "./notification-store.ts";
-import { challengeApi } from "./challenge-api.ts";
-import {
-  createChallengeStore,
-  type ChallengeStore,
-} from "./challenge-store.ts";
-import { couponApi } from "./coupon-api.ts";
-import { createCouponStore, type CouponStore } from "./coupon-store.ts";
-import { participantApi } from "./participant-api.ts";
-import { createParticipantStore } from "./participant-store.ts";
-import { rewardApi } from "./reward-api.ts";
-import { createRewardStore } from "./reward-store.ts";
+
 import { accessApi } from "./access-api.ts";
 import { createAccessStore } from "./access-store.ts";
-import { periodApi } from "./period-api.ts";
-import { createPeriodStore } from "./period-store.ts";
-import { pointsApi } from "./points-api.ts";
-import { createPointsStore } from "./points-store.ts";
-import { attendanceApi } from "./attendance-api.ts";
-import { createAttendanceStore } from "./attendance-store.ts";
+
+import {
+  CommunityError,
+  pageInput,
+  pageResult,
+} from "../community/contracts.ts";
+import {
+  requireSameOrigin,
+  validateOrganization,
+} from "../organization/contracts.ts";
 import { activityApi } from "./activity-api.ts";
 import { createActivityStore } from "./activity-store.ts";
+import { attendanceApi } from "./attendance-api.ts";
+import { createAttendanceStore } from "./attendance-store.ts";
 import { communityApi } from "./community-api.ts";
 import {
   createCommunityStore,
   type CommunityStore,
 } from "./community-store.ts";
-import {
-  pageInput,
-  pageResult,
-  CommunityError,
-} from "../community/contracts.ts";
 import { createStore, type OrganizationStore } from "./store.ts";
-import {
-  requireSameOrigin,
-  validateOrganization,
-} from "../organization/contracts.ts";
 export interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   HIMMAH_DATABASE_URL: string;
   HIMMAH_PEOPLE_ENABLED?: string;
+  HIMMAH_MAINTENANCE?: string;
   HIMMAH_VAPID_PUBLIC_KEY?: string;
   HIMMAH_VAPID_PRIVATE_KEY?: string;
   HIMMAH_AUTH_URL: string;
@@ -77,11 +59,7 @@ type Dependencies = {
   store: (url: string) => OrganizationStore;
   directory?: (url: string) => CommunityStore;
   people?: (url: string) => PeopleStore;
-  challenges?: (url: string) => ChallengeStore;
   notifications?: (url: string) => NotificationStore;
-  futsal?: (url: string) => FutsalStore;
-  futsalGame?: (url: string) => FutsalGameStore;
-  coupons?: (url: string) => CouponStore;
 };
 const json = (body: unknown, status = 200) =>
   Response.json(body, {
@@ -147,6 +125,14 @@ export function createHandler(
   return async function handle(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
+    if (env.HIMMAH_MAINTENANCE === "true")
+      return json(
+        {
+          code: "service",
+          error: "Himmah is updating. Please try again shortly.",
+        },
+        503,
+      );
     if (!env.HIMMAH_AUTH_URL || !env.HIMMAH_APP_ORIGIN)
       return json({ error: "Account services are not configured yet." }, 503);
     try {
@@ -267,30 +253,6 @@ export function createHandler(
         );
       }
       const store = deps.store(env.HIMMAH_DATABASE_URL);
-      if (/^\/api\/organizations\/[^/]+\/futsal(\/|$)/.test(url.pathname)) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `futsal:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const gameResponse = await futsalGameApi(
-          request,
-          user,
-          store,
-          (deps.futsal ?? createFutsalStore)(env.HIMMAH_DATABASE_URL),
-          (deps.futsalGame ?? createFutsalGameStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (gameResponse) return gameResponse;
-        const response = await futsalApi(
-          request,
-          user,
-          store,
-          (deps.futsal ?? createFutsalStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-
       if (
         /^\/api\/(organizations\/[^/]+\/notifications|notifications\/push)(\/|$)/.test(
           url.pathname,
@@ -317,64 +279,6 @@ export function createHandler(
       }
 
       if (
-        /^\/api\/organizations\/[^/]+\/(me\/)?challenges(\/|$)/.test(
-          url.pathname,
-        )
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `challenges:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await challengeApi(
-          request,
-          user,
-          store,
-          (deps.challenges ?? createChallengeStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (
-        /^\/api\/organizations\/[^/]+\/(me\/(claims|coupons)|coupon-collection)(\/|$)/.test(
-          url.pathname,
-        )
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `coupons:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await couponApi(
-          request,
-          user,
-          store,
-          (deps.coupons ?? createCouponStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (
-        /^\/api\/organizations\/[^/]+\/(me|participants)(\/|$)/.test(
-          url.pathname,
-        ) ||
-        url.pathname.startsWith("/api/participant-invitations/")
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `participants:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await participantApi(
-          request,
-          user,
-          store,
-          createParticipantStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (
         /^\/api\/organizations\/[^/]+\/(access|work)(\/|$)/.test(url.pathname)
       ) {
         if (request.method !== "GET") {
@@ -391,59 +295,6 @@ export function createHandler(
         );
         if (response) return response;
       }
-      if (
-        /^\/api\/organizations\/[^/]+\/(points|members)(\/|$)/.test(
-          url.pathname,
-        )
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `points:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await pointsApi(
-          request,
-          user,
-          store,
-          createPointsStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (
-        /^\/api\/organizations\/[^/]+\/(rewards|reward-wallet)(\/|$)/.test(
-          url.pathname,
-        )
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `rewards:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await rewardApi(
-          request,
-          user,
-          store,
-          createRewardStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (/^\/api\/organizations\/[^/]+\/periods(\/|$)/.test(url.pathname)) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `periods:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await periodApi(
-          request,
-          user,
-          store,
-          createPeriodStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
       if (/^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)) {
         if (request.method !== "GET") {
           const allowed = await (
@@ -451,16 +302,14 @@ export function createHandler(
           ).limit({ key: `activities:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
         }
-        if (url.pathname.includes("/attendance")) {
-          const attendanceResponse = await attendanceApi(
-            request,
-            user,
-            store,
-            createActivityStore(env.HIMMAH_DATABASE_URL),
-            createAttendanceStore(env.HIMMAH_DATABASE_URL),
-          );
-          if (attendanceResponse) return attendanceResponse;
-        }
+        const attendanceResponse = await attendanceApi(
+          request,
+          user,
+          store,
+          createActivityStore(env.HIMMAH_DATABASE_URL),
+          createAttendanceStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (attendanceResponse) return attendanceResponse;
         const response = await activityApi(
           request,
           user,

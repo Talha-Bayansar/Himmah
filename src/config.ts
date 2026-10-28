@@ -4,7 +4,7 @@ export function readDatabaseConfig(env: Record<string, string | undefined>) {
   const direct = env.HIMMAH_DATABASE_URL_UNPOOLED;
   if (!pooled || !direct) {
     throw new Error(
-      "Missing Himmah Futsal database configuration. Set HIMMAH_DATABASE_URL and HIMMAH_DATABASE_URL_UNPOOLED; generic DATABASE_URL is never used.",
+      "Missing Himmah database configuration. Set HIMMAH_DATABASE_URL and HIMMAH_DATABASE_URL_UNPOOLED; generic DATABASE_URL is never used.",
     );
   }
   for (const value of [pooled, direct]) {

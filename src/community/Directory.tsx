@@ -1,651 +1,235 @@
-import { PointsEditor } from "../points/PointsEditor";
-import { PointsResults } from "../points/PointsShared";
-import type { PointsResult } from "../points/contracts";
-import { ItemActions } from "../components/shared/item-actions";
-import { useEffect, useRef, useState } from "react";
-import { useForm, useStore } from "@tanstack/react-form";
+import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link, useBlocker } from "@tanstack/react-router";
-import {
-  Coins,
-  ChevronRight,
-  Plus,
-  Search,
-  Users,
-  Folder,
-  Check,
-  UserPlus,
-  UserMinus,
-  Pencil,
-  Archive,
-  ArchiveRestore,
-  Ban,
-  Save,
-  X,
-  Copy,
-  ShieldCheck,
-} from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Checkbox } from "../components/ui/checkbox";
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from "../components/ui/native-select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../components/ui/dialog";
-import { Alert, AlertDescription } from "../components/ui/alert";
+import { Copy, ShieldCheck, UserMinus, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { ActionButton } from "../components/shared/action-button";
+import { CollectionError } from "../components/shared/collection-error";
+import { useConfirmation } from "../components/shared/confirmation";
 import {
   InfiniteFooter,
   ListSkeleton,
 } from "../components/shared/infinite-list";
-import { useConfirmation } from "../components/shared/confirmation";
+import { ItemActions } from "../components/shared/item-actions";
+import { Button } from "../components/ui/button";
+import { Card, CardContent } from "../components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "../components/ui/native-select";
 import { useLocale } from "../localization/locale";
-import { getLocale } from "../paraglide/runtime.js";
-import { m } from "../paraglide/messages.js";
-import {
-  directoryRequest,
-  directoryMessage,
-  DirectoryError,
-  useDirectoryPages,
-} from "./client";
-import {
-  newToken,
-  type Person,
-  type Group,
-  type GroupOption,
-  type Staff,
-  type Invitation,
-} from "./contracts";
+import { PeopleDialog, SectionAdd, useSearch } from "../modules/people/shared";
 import type { Organization } from "../organization/contracts";
-
-export type DirectoryKind = "people" | "groups" | "staff" | "invitations";
-type EditorState = { kind: "people" | "groups" | "invitations"; item?: Person };
-function ErrorNotice({ error }: { error: unknown }) {
-  return (
-    <Alert variant="destructive" role="alert">
-      <AlertDescription>{directoryMessage(error)}</AlertDescription>
-    </Alert>
-  );
-}
-function useSearch(value: string) {
-  const [result, set] = useState(value);
-  useEffect(() => {
-    const timer = setTimeout(() => set(value), 250);
-    return () => clearTimeout(timer);
-  }, [value]);
-  return result;
-}
+import { m } from "../paraglide/messages.js";
+import { DirectoryError, directoryRequest, useDirectoryPages } from "./client";
+import { newToken, type Invitation, type Staff } from "./contracts";
 export default function Directory({
   organization,
   userId,
-  section = "people",
-  group = null,
+  section,
 }: {
   organization: Organization;
   userId: string;
-  section?: DirectoryKind;
-  group?: Group | null;
+  section: "staff" | "invitations";
 }) {
   useLocale();
-  const client = useQueryClient();
-  const confirm = useConfirmation();
-  const [search, setSearch] = useState("");
-  const query = useSearch(search);
-  const [archived, setArchived] = useState(false);
-  const kind = group ? "people" : section;
-  const [editor, setEditor] = useState<EditorState | null>(null);
-  const [award, setAward] = useState(false);
-  const [pointsResult, setPointsResult] = useState<PointsResult | null>(null);
-  const [bulk, setBulk] = useState(false);
-  const [assign, setAssign] = useState<Person | null>(null);
-  const [link, setLink] = useState<string | null>(null);
-  const prefix = ["organization", userId, organization.id, "directory"];
-  const base = "/api/organizations/" + organization.id;
-  const params = new URLSearchParams({ q: query, archived: String(archived) });
-  if (kind === "people" && group) params.set("group", group.id);
-  const pages = useDirectoryPages<Person | Staff | Invitation>(
-    [...prefix, kind, query, archived, kind === "people" ? group?.id : null],
-    base + "/" + kind + "?" + params,
+  const [q, setQ] = useState(""),
+    search = useSearch(q),
+    [adding, setAdding] = useState(false),
+    [link, setLink] = useState<string | null>(null),
+    client = useQueryClient(),
+    confirm = useConfirmation();
+  const key = ["organization", userId, organization.id, "directory", section],
+    base = `/api/organizations/${organization.id}`;
+  const pages = useDirectoryPages<Staff | Invitation>(
+    [...key, search],
+    base + "/" + section + "?q=" + encodeURIComponent(search),
   );
-  const items = pages.data?.pages.flatMap((page) => page.items) ?? [];
-  const [notice, setNotice] = useState("");
-  const refresh = async () => {
-    await client.invalidateQueries({ queryKey: prefix });
-  };
-  const operation = useMutation({
-    mutationFn: async ({
+  const mutation = useMutation({
+    mutationFn: ({
       path,
       method,
       body,
     }: {
       path: string;
       method: string;
-      body?: unknown;
-    }) =>
-      directoryRequest(base + path, {
-        method,
-        body: JSON.stringify(body ?? {}),
-      }),
-    onSuccess: async () => {
-      setNotice(m.directory_saved());
-      await refresh();
-    },
-    onError: () => {
-      void refresh();
-    },
+      body: Record<string, unknown>;
+    }) => directoryRequest(base + path, { method, body: JSON.stringify(body) }),
+    onSuccess: () => client.invalidateQueries({ queryKey: key }),
   });
-  const busy = (id: string, method: string) =>
-    operation.isPending &&
-    operation.variables?.method === method &&
-    operation.variables.path.split("/").includes(encodeURIComponent(id));
-  const names = {
-    people: m.directory_members(),
-    groups: m.directory_groups(),
-    staff: m.directory_staff(),
-    invitations: m.directory_invitations(),
-  };
-  async function archive(item: Person) {
+  const scope = userId + organization.id;
+  const [denied, setDenied] = useState<{
+    scope: string;
+    error: unknown;
+  } | null>(null);
+  const accessError = [pages.error, mutation.error].find(
+    (e) =>
+      e instanceof DirectoryError &&
+      [
+        "forbidden",
+        "not_found",
+        "not_found_or_forbidden",
+        "sign_in",
+        "verify_required",
+      ].includes(e.code),
+  );
+  useEffect(() => {
+    if (accessError) {
+      setDenied({ scope, error: accessError });
+      void client.cancelQueries({ queryKey: key });
+      client.removeQueries({ queryKey: key });
+    }
+  }, [accessError, scope, client]);
+  if (accessError || denied?.scope === scope)
+    return <CollectionError error={accessError ?? denied?.error} />;
+  async function changeStaff(s: Staff, role: "admin" | "volunteer" | null) {
     if (
       await confirm({
-        title: item.archived ? m.directory_restore() : m.directory_archive(),
-        description: m.directory_archive_description({ name: item.name }),
-        confirmLabel: item.archived
-          ? m.directory_restore()
-          : m.directory_archive(),
-        destructive: !item.archived,
+        title: role ? m.directory_change_role() : m.directory_remove_staff(),
+        description: s.name ?? s.id,
+        destructive: true,
       })
     )
-      operation.mutate({
-        path: `/${kind}/${item.id}`,
-        method: "PATCH",
-        body: { version: item.version, archived: !item.archived },
+      mutation.mutate({
+        path: "/staff/" + encodeURIComponent(s.id),
+        method: role ? "PATCH" : "DELETE",
+        body: { previous: s.role, ...(role ? { role } : {}) },
       });
   }
-  async function removeFromGroup(item: Person) {
+  async function revoke(i: Invitation) {
     if (
-      group &&
-      (await confirm({
-        title: m.directory_remove_group(),
-        description: m.directory_remove_description({
-          name: item.name,
-          group: group.name,
-        }),
-        confirmLabel: m.directory_remove_group(),
+      await confirm({
+        title: m.directory_revoke(),
+        description: i.email,
         destructive: true,
-      }))
+      })
     )
-      operation.mutate({
-        path: `/people/${item.id}/groups/${group.id}`,
+      mutation.mutate({
+        path: "/invitations/" + i.id,
         method: "DELETE",
+        body: {},
       });
   }
   return (
-    <section className="directory" aria-label={m.directory_title()}>
+    <section className="directory">
       <div className="directory-heading">
-        <div>
-          <h1 tabIndex={-1} data-page-heading>
-            {group ? group.name : names[kind]}
-          </h1>
-          <p>
-            {group
-              ? m.directory_group_members_help()
-              : kind === "people"
-                ? m.directory_roster_help()
-                : kind === "groups"
-                  ? m.directory_groups_help()
-                  : m.directory_staff_help()}
-          </p>
-        </div>
-        {kind !== "staff" && !group && (
-          <Button onClick={() => setEditor({ kind })}>
-            <Plus size={16} />
-            {kind === "people"
-              ? m.directory_add_member()
-              : kind === "groups"
-                ? m.directory_add_group()
-                : m.directory_invite()}
-          </Button>
-        )}
-        {group && (
-          <Button onClick={() => setBulk(true)}>
-            <UserPlus aria-hidden="true" />
-            {m.directory_add_members()}
-          </Button>
-        )}
-      </div>
-      {kind === "people" && (
-        <div className="points-directory-tools">
-          <Button variant="outline" onClick={() => setAward(true)}>
-            <Coins aria-hidden="true" />
-            {m.points_award()}
-          </Button>
-        </div>
-      )}
-      {pointsResult && <PointsResults result={pointsResult} />}
-      <div className="directory-toolbar">
-        <label>
-          <Search size={17} />
-          <span className="sr-only">{m.directory_search()}</span>
-          <Input
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={m.directory_search()}
+        <h1 data-page-heading tabIndex={-1}>
+          {section === "staff"
+            ? m.directory_staff()
+            : m.directory_invitations()}
+        </h1>
+        {section === "invitations" && (
+          <SectionAdd
+            label={m.directory_invite()}
+            onClick={() => setAdding(true)}
           />
-        </label>
-        {(kind === "people" || kind === "groups") && (
-          <label className="directory-archived">
-            <Checkbox
-              checked={archived}
-              onCheckedChange={(v) => setArchived(v === true)}
-            />
-            {m.directory_show_archived()}
-          </label>
         )}
       </div>
-      {notice && (
-        <p role="status" className="directory-notice">
-          {notice}
-        </p>
-      )}
-      {operation.isError && <ErrorNotice error={operation.error} />}
+      <Label htmlFor="staff-search">{m.directory_search()}</Label>
+      <Input
+        id="staff-search"
+        maxLength={80}
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+      />
+      {mutation.isError && <CollectionError error={mutation.error} />}
       {pages.isPending ? (
         <ListSkeleton />
-      ) : pages.isError &&
-        (!pages.data ||
-          (pages.error instanceof DirectoryError &&
-            ["forbidden", "not_found", "sign_in"].includes(
-              pages.error.code,
-            ))) ? (
-        <div className="space-y-3">
-          <ErrorNotice error={pages.error} />
-          <ActionButton
-            pending={pages.isFetching}
-            onClick={() => {
-              void pages.refetch();
-            }}
-          >
-            {m.try_again()}
-          </ActionButton>
-        </div>
-      ) : (
-        <>
-          {items.length === 0 ? (
-            <div className="directory-empty">
-              <Users size={28} />
-              <h3>{m.directory_empty()}</h3>
-              <p>
-                {query
-                  ? m.directory_no_matches()
-                  : group
-                    ? m.directory_group_members_help()
-                    : m.directory_get_started()}
-              </p>
-            </div>
-          ) : (
-            <ul
-              className="directory-list"
-              aria-label={names[kind]}
-              aria-busy={pages.isFetchingNextPage}
-            >
-              {items.map((item) => (
-                <li key={item.id}>
-                  {kind === "people" || kind === "groups"
-                    ? (() => {
-                        const record = item as Person;
-                        return (
-                          <>
-                            <div className="directory-record">
-                              <span className="avatar">
-                                {kind === "groups" ? (
-                                  <Folder size={19} />
-                                ) : (
-                                  record.name
-                                    .slice(0, 1)
-                                    .toLocaleUpperCase(getLocale())
-                                )}
-                              </span>
-                              {kind === "people" ? (
-                                <Link
-                                  className="member-detail-link"
-                                  to="/workspace/$organizationId/members/$memberId"
-                                  params={{
-                                    organizationId: organization.id,
-                                    memberId: record.id,
-                                  }}
-                                >
-                                  <strong>{record.name}</strong>
-                                  <ChevronRight size={16} aria-hidden="true" />
-                                </Link>
-                              ) : (
-                                <strong>{record.name}</strong>
-                              )}
-                            </div>
-                            <div className="directory-row-actions">
-                              {kind === "groups" && !record.archived && (
-                                <Button
-                                  variant="outline"
-                                  asChild
-                                  className="directory-primary-action"
-                                >
-                                  <Link
-                                    to="/workspace/$organizationId/groups/$groupId"
-                                    params={{
-                                      organizationId: organization.id,
-                                      groupId: record.id,
-                                    }}
-                                  >
-                                    <Users size={17} aria-hidden="true" />
-                                    {m.directory_view_members()}
-                                  </Link>
-                                </Button>
-                              )}
-                              <ItemActions
-                                name={record.name}
-                                pending={
-                                  busy(item.id, "PATCH") ||
-                                  busy(item.id, "DELETE")
-                                }
-                                disabled={operation.isPending}
-                                actions={[
-                                  ...(kind === "people" && !record.archived
-                                    ? [
-                                        group
-                                          ? {
-                                              label: m.directory_remove_group(),
-                                              icon: UserMinus,
-                                              destructive: true,
-                                              onSelect: () =>
-                                                removeFromGroup(record),
-                                            }
-                                          : {
-                                              label: m.directory_add_to_group(),
-                                              icon: UserPlus,
-                                              onSelect: () => setAssign(record),
-                                            },
-                                      ]
-                                    : []),
-                                  {
-                                    label: m.directory_rename(),
-                                    icon: Pencil,
-                                    onSelect: () =>
-                                      setEditor({
-                                        kind: kind as "people" | "groups",
-                                        item: record,
-                                      }),
-                                  },
-                                  {
-                                    label: record.archived
-                                      ? m.directory_restore()
-                                      : m.directory_archive(),
-                                    icon: record.archived
-                                      ? ArchiveRestore
-                                      : Archive,
-                                    destructive: !record.archived,
-                                    onSelect: () => archive(record),
-                                  },
-                                ]}
-                              />
-                            </div>
-                          </>
-                        );
-                      })()
-                    : kind === "staff"
-                      ? (() => {
-                          const staff = item as Staff;
-                          const editable =
-                            staff.role !== "owner" && staff.id !== userId;
-                          return (
-                            <>
-                              <div>
-                                <strong>
-                                  {staff.name ?? m[`role_${staff.role}`]()}
-                                </strong>
-                                <p>
-                                  {m[`role_${staff.role}`]()}
-                                  {staff.id === userId
-                                    ? " · " + m.directory_you()
-                                    : ""}
-                                </p>
-                              </div>
-                              <ItemActions
-                                name={staff.name ?? m[`role_${staff.role}`]()}
-                                pending={
-                                  busy(item.id, "PATCH") ||
-                                  busy(item.id, "DELETE")
-                                }
-                                disabled={operation.isPending}
-                                actions={[
-                                  ...(editable && organization.role === "owner"
-                                    ? (["admin", "volunteer"] as const).map(
-                                        (role) => ({
-                                          label: m.directory_set_role({
-                                            role: m[`role_${role}`](),
-                                          }),
-                                          icon: ShieldCheck,
-                                          disabled: staff.role === role,
-                                          onSelect: async () => {
-                                            if (
-                                              await confirm({
-                                                title:
-                                                  m.directory_change_role(),
-                                                description:
-                                                  m.directory_access_description(),
-                                                confirmLabel:
-                                                  m.directory_change_role(),
-                                              })
-                                            )
-                                              operation.mutate({
-                                                path:
-                                                  "/staff/" +
-                                                  encodeURIComponent(staff.id),
-                                                method: "PATCH",
-                                                body: {
-                                                  previous: staff.role,
-                                                  role,
-                                                },
-                                              });
-                                          },
-                                        }),
-                                      )
-                                    : []),
-                                  ...(editable &&
-                                  (organization.role === "owner" ||
-                                    staff.role === "volunteer")
-                                    ? [
-                                        {
-                                          label: m.directory_remove_staff(),
-                                          icon: UserMinus,
-                                          destructive: true,
-                                          onSelect: async () => {
-                                            if (
-                                              await confirm({
-                                                title:
-                                                  m.directory_remove_staff(),
-                                                description:
-                                                  m.directory_access_description(),
-                                                confirmLabel:
-                                                  m.directory_remove_staff(),
-                                                destructive: true,
-                                              })
-                                            )
-                                              operation.mutate({
-                                                path:
-                                                  "/staff/" +
-                                                  encodeURIComponent(staff.id),
-                                                method: "DELETE",
-                                                body: { previous: staff.role },
-                                              });
-                                          },
-                                        },
-                                      ]
-                                    : []),
-                                ]}
-                              />
-                            </>
-                          );
-                        })()
-                      : (() => {
-                          const invite = item as Invitation;
-                          const expired =
-                            Date.parse(invite.expiresAt) < Date.now();
-                          return (
-                            <>
-                              <div>
-                                <strong>{invite.email}</strong>
-                                <p>
-                                  {m[`role_${invite.role}`]()} ·{" "}
-                                  {invite.accepted
-                                    ? m.directory_accepted()
-                                    : invite.revoked
-                                      ? m.directory_revoked()
-                                      : expired
-                                        ? m.directory_expired()
-                                        : m.directory_pending()}
-                                </p>
-                                <small>
-                                  {m.directory_expires({
-                                    date: new Intl.DateTimeFormat(getLocale(), {
-                                      dateStyle: "medium",
-                                      timeZone: organization.timezone,
-                                    }).format(new Date(invite.expiresAt)),
-                                  })}
-                                </small>
-                              </div>
-                              {!invite.accepted &&
-                                !invite.revoked &&
-                                !expired &&
-                                (organization.role === "owner" ||
-                                  invite.role === "volunteer") && (
-                                  <ItemActions
-                                    name={invite.email}
-                                    pending={busy(item.id, "DELETE")}
-                                    disabled={operation.isPending}
-                                    actions={[
-                                      {
-                                        label: m.directory_revoke(),
-                                        icon: Ban,
-                                        destructive: true,
-                                        onSelect: async () => {
-                                          if (
-                                            await confirm({
-                                              title: m.directory_revoke(),
-                                              description:
-                                                m.directory_access_description(),
-                                              confirmLabel:
-                                                m.directory_revoke(),
-                                              destructive: true,
-                                            })
-                                          )
-                                            operation.mutate({
-                                              path: "/invitations/" + invite.id,
-                                              method: "DELETE",
-                                            });
-                                        },
-                                      },
-                                    ]}
-                                  />
-                                )}
-                            </>
-                          );
-                        })()}
-                </li>
-              ))}
-            </ul>
-          )}
-          {items.length > 0 && (
-            <InfiniteFooter
-              {...pages}
-              fetchNextPage={() =>
-                pages.fetchNextPage({ cancelRefetch: false })
-              }
-            />
-          )}
-        </>
-      )}
-      {editor && (
-        <Editor
-          state={editor}
-          owner={organization.role === "owner"}
-          onClose={() => setEditor(null)}
-          onSave={async (value, key, token) => {
-            let invitationLink: string | null = null;
-            if (editor.kind === "invitations") {
-              await directoryRequest(base + "/invitations", {
-                method: "POST",
-                body: JSON.stringify({ ...value, key, token }),
-              });
-              invitationLink = window.location.origin + "/join#" + token;
-            } else
-              await directoryRequest(
-                base +
-                  "/" +
-                  editor.kind +
-                  (editor.item ? "/" + editor.item.id : ""),
-                {
-                  method: editor.item ? "PATCH" : "POST",
-                  body: JSON.stringify({
-                    ...value,
-                    key,
-                    ...(editor.item ? { version: editor.item.version } : {}),
-                  }),
-                },
-              );
-            await refresh();
-            setEditor(null);
-            if (invitationLink) setLink(invitationLink);
-          }}
+      ) : pages.isError && !pages.data ? (
+        <CollectionError
+          error={pages.error}
+          retry={() => void pages.refetch()}
         />
+      ) : (
+        <div className="space-y-3">
+          {pages.data?.pages
+            .flatMap((p) => p.items)
+            .map((item) => {
+              const staff = section === "staff" ? (item as Staff) : null,
+                invite =
+                  section === "invitations" ? (item as Invitation) : null;
+              return (
+                <Card density="compact" key={item.id}>
+                  <CardContent className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1 break-words">
+                      <strong>
+                        {staff ? (staff.name ?? staff.id) : invite?.email}
+                      </strong>
+                      <p>
+                        {m[`role_${item.role}`]()}
+                        {invite &&
+                          (invite.accepted
+                            ? " · " + m.directory_accepted()
+                            : invite.revoked
+                              ? " · " + m.directory_revoked()
+                              : "")}
+                      </p>
+                    </div>
+                    <ItemActions
+                      name={staff?.name ?? invite?.email ?? item.id}
+                      pending={mutation.isPending}
+                      actions={
+                        staff && staff.role !== "owner" && staff.id !== userId
+                          ? [
+                              ...(organization.role === "owner"
+                                ? [
+                                    {
+                                      label: m.directory_change_role(),
+                                      icon: ShieldCheck,
+                                      onSelect: () =>
+                                        void changeStaff(
+                                          staff,
+                                          staff.role === "admin"
+                                            ? "volunteer"
+                                            : "admin",
+                                        ),
+                                    },
+                                  ]
+                                : []),
+                              {
+                                label: m.directory_remove_staff(),
+                                icon: UserMinus,
+                                onSelect: () => void changeStaff(staff, null),
+                              },
+                            ]
+                          : invite && !invite.accepted && !invite.revoked
+                            ? [
+                                {
+                                  label: m.directory_revoke(),
+                                  icon: UserMinus,
+                                  onSelect: () => void revoke(invite),
+                                },
+                              ]
+                            : []
+                      }
+                    />
+                  </CardContent>
+                </Card>
+              );
+            })}
+          {!pages.data?.pages.some((p) => p.items.length) && (
+            <p>{m.directory_empty()}</p>
+          )}
+          <InfiniteFooter {...pages} />
+        </div>
       )}
-      {award && (
-        <PointsEditor
+      {adding && (
+        <InviteEditor
           organization={organization}
           userId={userId}
-          {...(group ? { groupId: group.id } : {})}
-          onClose={() => setAward(false)}
-          onSaved={async (result) => {
-            setAward(false);
-            setPointsResult(result);
-            await client.invalidateQueries({
-              queryKey: ["organization", userId, organization.id, "points"],
-            });
-          }}
-        />
-      )}
-      {bulk && group && (
-        <BulkMembers
-          path={base + `/groups/${group.id}`}
-          scope={[...prefix, "member-picker", group.id]}
-          onClose={() => setBulk(false)}
-          onSaved={async () => {
-            setBulk(false);
-            setNotice(m.directory_saved());
-            await refresh();
-          }}
-        />
-      )}
-      {assign && (
-        <Picker
-          title={m.directory_add_to_group()}
-          path={base + `/people/${assign.id}/group-options`}
-          scope={[...prefix, "group-picker", assign.id]}
-          onClose={() => setAssign(null)}
-          onPick={async (item) => {
-            await directoryRequest(
-              base + `/people/${assign.id}/groups/${item.id}`,
-              { method: "PUT", body: "{}" },
-            );
-            setAssign(null);
-            setNotice(m.directory_saved());
-            await refresh();
+          onClose={() => setAdding(false)}
+          onSaved={(url) => {
+            setAdding(false);
+            setLink(url);
+            void client.invalidateQueries({ queryKey: key });
           }}
         />
       )}
@@ -653,493 +237,91 @@ export default function Directory({
     </section>
   );
 }
-function Editor({
-  state,
-  owner,
-  onClose,
-  onSave,
-}: {
-  state: EditorState;
-  owner: boolean;
-  onClose: () => void;
-  onSave: (
-    value: { name: string; email: string; role: string; consent: boolean },
-    key: string,
-    token: string,
-  ) => Promise<void>;
-}) {
-  useLocale();
-  const confirm = useConfirmation();
-  const key = useRef("");
-  const token = useRef("");
-  const submission = useMutation({
-    mutationFn: async (value: {
-      name: string;
-      email: string;
-      role: string;
-      consent: boolean;
-    }) => {
-      key.current ||= crypto.randomUUID();
-      token.current ||= newToken();
-      await onSave(value, key.current, token.current);
-    },
-  });
-  const form = useForm({
-    defaultValues: {
-      name: state.item?.name ?? "",
-      email: "",
-      role: "volunteer",
-      consent: false,
-    },
-    onSubmit: async ({ value }) => {
-      await submission.mutateAsync(value).catch(() => {});
-    },
-  });
-  const dirty = useStore(form.store, (s) => s.isDirty);
-  const canLeave = async () =>
-    !dirty ||
-    submission.isSuccess ||
-    (await confirm({
-      title: m.directory_discard(),
-      description: m.directory_discard_description(),
-      confirmLabel: m.directory_discard(),
-      destructive: true,
-    }));
-  useBlocker({
-    shouldBlockFn: async () => !(await canLeave()),
-    enableBeforeUnload: dirty && !submission.isSuccess,
-  });
-  return (
-    <Dialog
-      open
-      onOpenChange={async (open) => {
-        if (!open && !submission.isPending && (await canLeave())) onClose();
-      }}
-    >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>
-            {state.item
-              ? m.directory_rename()
-              : state.kind === "people"
-                ? m.directory_add_member()
-                : state.kind === "groups"
-                  ? m.directory_add_group()
-                  : m.directory_invite()}
-          </DialogTitle>
-          <DialogDescription>
-            {state.kind === "invitations"
-              ? m.directory_invite_help()
-              : state.kind === "groups"
-                ? m.directory_groups_help()
-                : m.directory_roster_help()}
-          </DialogDescription>
-        </DialogHeader>
-        {submission.isError && <ErrorNotice error={submission.error} />}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void form.handleSubmit();
-          }}
-          className="directory-form"
-        >
-          {state.kind === "invitations" ? (
-            <>
-              <form.Field name="email">
-                {(field) => (
-                  <div>
-                    <Label htmlFor="invite-email">{m.email_address()}</Label>
-                    <Input
-                      id="invite-email"
-                      type="email"
-                      autoComplete="email"
-                      inputMode="email"
-                      enterKeyHint="next"
-                      required
-                      maxLength={254}
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      disabled={submission.isPending}
-                    />
-                  </div>
-                )}
-              </form.Field>
-              <form.Field name="role">
-                {(field) => (
-                  <div>
-                    <Label htmlFor="invite-role">{m.your_role()}</Label>
-                    <NativeSelect
-                      id="invite-role"
-                      value={field.state.value}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      disabled={submission.isPending}
-                    >
-                      <NativeSelectOption value="volunteer">
-                        {m.role_volunteer()}
-                      </NativeSelectOption>
-                      {owner && (
-                        <NativeSelectOption value="admin">
-                          {m.role_admin()}
-                        </NativeSelectOption>
-                      )}
-                    </NativeSelect>
-                  </div>
-                )}
-              </form.Field>
-            </>
-          ) : (
-            <form.Field name="name">
-              {(field) => (
-                <div>
-                  <Label htmlFor="record-name">{m.directory_name()}</Label>
-                  <Input
-                    id="record-name"
-                    autoComplete="off"
-                    autoCapitalize="words"
-                    enterKeyHint="done"
-                    required
-                    minLength={2}
-                    maxLength={80}
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    disabled={submission.isPending}
-                  />
-                </div>
-              )}
-            </form.Field>
-          )}
-          {state.kind === "people" && !state.item && (
-            <form.Field name="consent">
-              {(field) => (
-                <Label className="directory-check">
-                  <Checkbox
-                    checked={field.state.value}
-                    onCheckedChange={(v) => field.handleChange(v === true)}
-                    disabled={submission.isPending}
-                  />
-                  {m.directory_consent()}
-                </Label>
-              )}
-            </form.Field>
-          )}
-          <div className="directory-actions">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={submission.isPending}
-              onClick={async () => {
-                if (await canLeave()) onClose();
-              }}
-            >
-              <X size={17} aria-hidden="true" />
-              {m.cancel()}
-            </Button>
-            <ActionButton type="submit" pending={submission.isPending}>
-              <Save size={17} aria-hidden="true" />
-              {m.directory_save()}
-            </ActionButton>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
-}
-function BulkMembers({
-  path,
-  scope,
+function InviteEditor({
+  organization,
+  userId,
   onClose,
   onSaved,
 }: {
-  path: string;
-  scope: readonly unknown[];
+  organization: Organization;
+  userId: string;
   onClose: () => void;
-  onSaved: () => Promise<void>;
+  onSaved: (link: string) => void;
 }) {
-  useLocale();
-  const confirm = useConfirmation();
-  const [search, setSearch] = useState("");
-  const query = useSearch(search);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const pages = useDirectoryPages<GroupOption>(
-    [...scope, query],
-    path + "/member-options?q=" + encodeURIComponent(query),
-    { staleTime: 0, refetchOnMount: "always" },
-  );
-  const mutation = useMutation({
-    mutationFn: async () => {
-      await directoryRequest(path + "/members", {
-        method: "POST",
-        body: JSON.stringify({ people: [...selected] }),
-      });
-      await onSaved();
-    },
-    onError: () => {
-      void pages.refetch();
+  const key = useRef(crypto.randomUUID()),
+    token = useRef(newToken()),
+    mutation = useMutation({
+      mutationFn: (body: Record<string, unknown>) =>
+        directoryRequest(`/api/organizations/${organization.id}/invitations`, {
+          method: "POST",
+          body: JSON.stringify({
+            ...body,
+            key: key.current,
+            token: token.current,
+          }),
+        }),
+    });
+  const form = useForm({
+    defaultValues: { email: "", role: "volunteer" },
+    onSubmit: async ({ value }) => {
+      try {
+        await mutation.mutateAsync(value);
+        onSaved(location.origin + "/join#" + token.current);
+      } catch {
+        /* Keep draft and exact request token. */
+      }
     },
   });
-  const canLeave = async () =>
-    !mutation.isPending &&
-    (selected.size === 0 ||
-      mutation.isSuccess ||
-      (await confirm({
-        title: m.directory_discard(),
-        description: m.directory_discard_description(),
-        confirmLabel: m.directory_discard(),
-        destructive: true,
-      })));
-  useBlocker({
-    shouldBlockFn: async () => !(await canLeave()),
-    enableBeforeUnload: selected.size > 0 && !mutation.isSuccess,
-  });
-  const close = async () => {
-    if (await canLeave()) onClose();
-  };
-  const items = pages.data?.pages.flatMap((p) => p.items) ?? [];
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) void close();
-      }}
+    <PeopleDialog
+      title={m.directory_invite()}
+      description={m.directory_invite_help()}
+      onClose={onClose}
+      onSubmit={() => void form.handleSubmit()}
+      dirty={() => form.state.isDirty}
+      pending={mutation.isPending}
+      error={mutation.error}
     >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>{m.directory_add_members()}</DialogTitle>
-          <DialogDescription>{m.directory_choose_members()}</DialogDescription>
-        </DialogHeader>
-        <Input
-          aria-label={m.directory_search()}
-          placeholder={m.directory_search()}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <p role="status">
-          {m.directory_selected_count({ count: selected.size })}
-        </p>
-        {mutation.isError && <ErrorNotice error={mutation.error} />}
-        <div className="directory-picker">
-          {pages.isPending ? (
-            <ListSkeleton />
-          ) : pages.isError &&
-            (!pages.isFetchNextPageError ||
-              (pages.error instanceof DirectoryError &&
-                ["forbidden", "not_found", "sign_in"].includes(
-                  pages.error.code,
-                ))) ? (
-            <>
-              <ErrorNotice error={pages.error} />
-              <ActionButton
-                pending={pages.isFetching}
-                onClick={() => {
-                  void pages.refetch();
-                }}
-              >
-                {m.try_again()}
-              </ActionButton>
-            </>
-          ) : (
-            <>
-              <ul className="directory-list">
-                {items.map((item) => (
-                  <li key={item.id}>
-                    <label
-                      className="bulk-member-option"
-                      data-assigned={item.assigned || undefined}
-                    >
-                      <Checkbox
-                        checked={item.assigned || selected.has(item.id)}
-                        disabled={
-                          item.assigned ||
-                          mutation.isPending ||
-                          (!selected.has(item.id) && selected.size >= 50)
-                        }
-                        onCheckedChange={(checked) =>
-                          setSelected((previous) => {
-                            const next = new Set(previous);
-                            if (checked && !item.assigned && next.size < 50)
-                              next.add(item.id);
-                            else next.delete(item.id);
-                            return next;
-                          })
-                        }
-                      />
-                      <span>
-                        <strong>{item.name}</strong>
-                        {item.assigned && (
-                          <small>{m.directory_already_in_group()}</small>
-                        )}
-                      </span>
-                    </label>
-                  </li>
-                ))}
-              </ul>
-              {items.length === 0 ? (
-                <p>{m.directory_empty()}</p>
-              ) : (
-                <InfiniteFooter
-                  {...pages}
-                  fetchNextPage={() =>
-                    pages.fetchNextPage({ cancelRefetch: false })
-                  }
-                />
+      <form.Field name="email">
+        {(f) => (
+          <div className="space-y-2">
+            <Label htmlFor="invite-email">{m.email_address()}</Label>
+            <Input
+              id="invite-email"
+              type="email"
+              required
+              maxLength={254}
+              value={f.state.value}
+              onChange={(e) => f.handleChange(e.target.value)}
+            />
+          </div>
+        )}
+      </form.Field>
+      <form.Field name="role">
+        {(f) => (
+          <div className="space-y-2">
+            <Label htmlFor="invite-role">{m.your_role()}</Label>
+            <NativeSelect
+              id="invite-role"
+              value={f.state.value}
+              onChange={(e) => f.handleChange(e.target.value)}
+            >
+              <NativeSelectOption value="volunteer">
+                {m.role_volunteer()}
+              </NativeSelectOption>
+              {organization.role === "owner" && (
+                <NativeSelectOption value="admin">
+                  {m.role_admin()}
+                </NativeSelectOption>
               )}
-            </>
-          )}
-        </div>
-        <div className="directory-actions">
-          <Button
-            variant="outline"
-            disabled={mutation.isPending}
-            onClick={() => {
-              void close();
-            }}
-          >
-            <X aria-hidden="true" />
-            {m.cancel()}
-          </Button>
-          <ActionButton
-            pending={mutation.isPending}
-            disabled={selected.size === 0}
-            onClick={() => mutation.mutate()}
-          >
-            <UserPlus aria-hidden="true" />
-            {m.directory_add_selected({ count: selected.size })}
-          </ActionButton>
-        </div>
-      </DialogContent>
-    </Dialog>
+            </NativeSelect>
+          </div>
+        )}
+      </form.Field>
+    </PeopleDialog>
   );
 }
-function Picker({
-  title,
-  path,
-  scope,
-  onClose,
-  onPick,
-}: {
-  title: string;
-  path: string;
-  scope: readonly unknown[];
-  onClose: () => void;
-  onPick: (item: GroupOption) => Promise<void>;
-}) {
-  useLocale();
-  const [search, setSearch] = useState("");
-  const query = useSearch(search);
-  const pages = useDirectoryPages<GroupOption>(
-    [...scope, query],
-    path + "?q=" + encodeURIComponent(query),
-    { staleTime: 0, refetchOnMount: "always" },
-  );
-  const mutation = useMutation({
-    mutationFn: async (item: GroupOption) => {
-      if (!item.assigned) await onPick(item);
-    },
-  });
-  const items = pages.data?.pages.flatMap((p) => p.items) ?? [];
-  return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open && !mutation.isPending) onClose();
-      }}
-    >
-      <DialogContent showCloseButton={false}>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{m.directory_choose_group()}</DialogDescription>
-        </DialogHeader>
-        <Input
-          aria-label={m.directory_search()}
-          placeholder={m.directory_search()}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        {mutation.isError && <ErrorNotice error={mutation.error} />}
-        <div className="directory-picker">
-          {pages.isPending ? (
-            <ListSkeleton />
-          ) : pages.isError &&
-            (!pages.data ||
-              !pages.isFetchNextPageError ||
-              (pages.error instanceof DirectoryError &&
-                ["forbidden", "not_found", "sign_in"].includes(
-                  pages.error.code,
-                ))) ? (
-            <>
-              <ErrorNotice error={pages.error} />
-              <ActionButton
-                pending={pages.isFetching}
-                onClick={() => {
-                  void pages.refetch();
-                }}
-              >
-                {m.try_again()}
-              </ActionButton>
-            </>
-          ) : (
-            <>
-              <ul className="directory-list">
-                {items.map((item) => (
-                  <li key={item.id}>
-                    <ActionButton
-                      variant="outline"
-                      data-assigned={item.assigned || undefined}
-                      disabled={
-                        item.assigned ||
-                        mutation.isPending ||
-                        (pages.isFetching && !pages.isFetchingNextPage)
-                      }
-                      pending={
-                        mutation.isPending &&
-                        mutation.variables?.id === item.id &&
-                        !item.assigned
-                      }
-                      onClick={() => {
-                        if (!item.assigned && !mutation.isPending)
-                          mutation.mutate(item);
-                      }}
-                    >
-                      {item.assigned ? (
-                        <Check size={18} aria-hidden="true" />
-                      ) : (
-                        <Plus size={18} aria-hidden="true" />
-                      )}
-                      <span className="group-option-label">
-                        <strong>{item.name}</strong>{" "}
-                        {item.assigned && (
-                          <small>{m.directory_already_in_group()}</small>
-                        )}
-                      </span>
-                    </ActionButton>
-                  </li>
-                ))}
-              </ul>
-              {items.length === 0 ? (
-                <p>{m.directory_empty()}</p>
-              ) : (
-                <InfiniteFooter
-                  {...pages}
-                  fetchNextPage={() =>
-                    pages.fetchNextPage({ cancelRefetch: false })
-                  }
-                />
-              )}
-            </>
-          )}
-        </div>
-        <Button
-          variant="outline"
-          disabled={mutation.isPending}
-          onClick={onClose}
-        >
-          <X size={17} aria-hidden="true" />
-          {m.close()}
-        </Button>
-      </DialogContent>
-    </Dialog>
-  );
-}
+
 function ShareInvite({ link, onClose }: { link: string; onClose: () => void }) {
   useLocale();
   const copied = useMutation({

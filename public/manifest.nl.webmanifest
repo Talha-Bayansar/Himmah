@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Himmah Hub",
+  "name": "Himmah",
   "short_name": "Himmah",
-  "description": "Maak je organisatorenaccount en de eigen werkruimte van je organisatie met Himmah Hub.",
+  "description": "Beheer contacten, relaties, groepen, activiteiten en aanwezigheid voor je gemeenschap.",
   "lang": "nl",
   "dir": "ltr",
   "start_url": "/hub",

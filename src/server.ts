@@ -1,10 +1,10 @@
-import { deliverPush } from "./server/push-delivery";
 import {
   createStartHandler,
   defaultStreamHandler,
 } from "@tanstack/react-start/server";
-import { paraglideMiddleware } from "./paraglide/server.js";
 import { env } from "cloudflare:workers";
+import { paraglideMiddleware } from "./paraglide/server.js";
+import { deliverPush } from "./server/push-delivery";
 import { createHandler, type Env } from "./server/worker";
 const render = createStartHandler(defaultStreamHandler);
 const api = createHandler();
@@ -14,7 +14,8 @@ export default {
     bindings: Env,
     context: { waitUntil(promise: Promise<unknown>): void },
   ) {
-    context.waitUntil(deliverPush(bindings));
+    if (bindings.HIMMAH_MAINTENANCE !== "true")
+      context.waitUntil(deliverPush(bindings));
   },
   async fetch(request: Request) {
     if (new URL(request.url).pathname.startsWith("/api/"))

@@ -1,3 +1,4 @@
+import { Globe2 } from "lucide-react";
 import {
   createContext,
   useContext,
@@ -5,11 +6,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Globe2 } from "lucide-react";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "../components/ui/native-select";
+import { m } from "../paraglide/messages.js";
 import {
   getLocale,
   isLocale,
@@ -17,7 +18,6 @@ import {
   setLocale,
   type Locale,
 } from "../paraglide/runtime.js";
-import { m } from "../paraglide/messages.js";
 
 const Context = createContext<{
   locale: Locale;
@@ -28,14 +28,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = "ltr";
-    const futsal = location.pathname.startsWith("/futsal");
-    document.title = futsal ? m.futsal_title() : m.page_title();
+    document.title = m.page_title();
     document
       .querySelector('link[rel="manifest"]')
-      ?.setAttribute(
-        "href",
-        `${futsal ? "/futsal" : ""}/manifest.${locale}.webmanifest`,
-      );
+      ?.setAttribute("href", `/manifest.${locale}.webmanifest`);
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute("content", m.page_description());

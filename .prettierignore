@@ -7,3 +7,5 @@ src/routeTree.gen.ts
 
 src/paraglide
 project.inlang/.lix
+src/pwa/splash-screens.ts
+db/migrations/generated/

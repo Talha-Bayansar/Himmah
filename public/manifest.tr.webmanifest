@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Himmah Hub",
+  "name": "Himmah",
   "short_name": "Himmah",
-  "description": "Himmah Hub ile organizatör hesabınızı ve kuruluşunuza özel çalışma alanınızı oluşturun.",
+  "description": "Topluluğunuzun kişilerini, ilişkilerini, gruplarını, etkinliklerini ve katılımını yönetin.",
   "lang": "tr",
   "dir": "ltr",
   "start_url": "/hub",

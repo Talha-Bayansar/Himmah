@@ -1,14 +1,15 @@
-import { useState, useCallback, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { m } from "../../paraglide/messages.js";
-import { useLocale } from "../../localization/locale";
-import { Button } from "../../components/ui/button";
-import { RouteTabs } from "../../components/shared/route-tabs";
+import { useCallback, useState, type ReactNode } from "react";
 import { ListSkeleton } from "../../components/shared/infinite-list";
+import { RouteTabs } from "../../components/shared/route-tabs";
+import { Button } from "../../components/ui/button";
+import { useLocale } from "../../localization/locale";
+import OrganizationPortal from "../../organization/OrganizationPortal";
+import { m } from "../../paraglide/messages.js";
 import { request } from "./client";
-import { peopleBase, ErrorNotice, PeopleAccessFailure } from "./shared";
-export function PeopleShell({
+import { ErrorNotice, PeopleAccessFailure, peopleBase } from "./shared";
+function PeopleScope({
   organizationId,
   section,
   tabs = true,
@@ -65,50 +66,36 @@ export function PeopleShell({
     (account.data?.user.emailVerified && context.isPending)
   )
     return (
-      <main className="mx-auto max-w-3xl p-4">
+      <section className="mx-auto max-w-3xl p-4">
         <ListSkeleton />
-      </main>
+      </section>
     );
   if (account.isError || !account.data?.user.emailVerified)
     return (
-      <main className="mx-auto max-w-3xl space-y-4 p-4">
+      <section className="mx-auto max-w-3xl space-y-4 p-4">
         <p>{m.people_signin()}</p>
         <Button asChild>
           <Link to="/start">{m.continue_action()}</Link>
         </Button>
-      </main>
+      </section>
     );
   if (denied?.org === organizationId && denied.actor === account.data.user.id)
     return (
-      <main className="mx-auto max-w-3xl p-4">
+      <section className="mx-auto max-w-3xl p-4">
         <ErrorNotice error={denied.error} />
-      </main>
+      </section>
     );
   if (context.isError || !context.data)
     return (
-      <main className="mx-auto max-w-3xl p-4">
+      <section className="mx-auto max-w-3xl p-4">
         <ErrorNotice error={context.error} retry={context.refetch} />
-      </main>
+      </section>
     );
   return (
-    <main
+    <section
       className="mx-auto max-w-3xl space-y-6 p-4 pb-12"
       key={account.data.user.id + organizationId}
     >
-      <header className="flex items-center justify-between gap-3">
-        <span>{context.data.name}</span>
-        <Button variant="ghost" asChild>
-          <Link to="/settings">{m.people_profile()}</Link>
-        </Button>
-      </header>
-      <Button variant="link" className="px-0" asChild>
-        <Link
-          to="/workspace/$organizationId/$section"
-          params={{ organizationId, section: "manage" }}
-        >
-          {m.manage_title()}
-        </Link>
-      </Button>
       {tabs && (
         <RouteTabs aria-label={m.people_navigation()}>
           <Link
@@ -130,6 +117,17 @@ export function PeopleShell({
       <PeopleAccessFailure.Provider value={reportDenied}>
         {children(account.data.user.id)}
       </PeopleAccessFailure.Provider>
-    </main>
+    </section>
+  );
+}
+
+export function PeopleShell(props: Parameters<typeof PeopleScope>[0]) {
+  return (
+    <OrganizationPortal
+      workspaceId={props.organizationId}
+      workspaceSection="people"
+    >
+      {() => <PeopleScope {...props} />}
+    </OrganizationPortal>
   );
 }

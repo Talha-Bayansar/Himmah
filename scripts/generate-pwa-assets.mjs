@@ -1,18 +1,6 @@
 import sharp from "sharp";
 import { readFile, writeFile } from "node:fs/promises";
 const source = "public/pwa/icon.svg";
-const futsalSource = "public/pwa/futsal/icon.svg";
-for (const size of [32, 180, 192, 512])
-  await sharp(futsalSource)
-    .flatten({ background: "#12382f" })
-    .resize(size, size)
-    .png()
-    .toFile(`public/pwa/futsal/icon-${size}.png`);
-await sharp(futsalSource)
-  .flatten({ background: "#12382f" })
-  .resize(512, 512)
-  .png()
-  .toFile("public/pwa/futsal/icon-maskable-512.png");
 // Android status-bar badges use the alpha silhouette, never an opaque app tile.
 await sharp("public/pwa/notification-badge.svg")
   .resize(96, 96)
@@ -76,18 +64,6 @@ for (const [width, height, ratio] of devices) {
       .composite([{ input: mark, gravity: "centre" }])
       .png()
       .toFile(`public${href}`);
-    const gameMark = await sharp(futsalSource)
-      .resize(100 * ratio, 100 * ratio)
-      .png()
-      .toBuffer();
-    await sharp({
-      create: { width: w, height: h, channels: 3, background: "#12382f" },
-    })
-      .composite([{ input: gameMark, gravity: "centre" }])
-      .png()
-      .toFile(
-        `public/pwa/futsal/splash-${width}-${height}-${ratio}-${orientation}.png`,
-      );
     links.push({
       href,
       media: `(device-width: ${width}px) and (device-height: ${height}px) and (-webkit-device-pixel-ratio: ${ratio}) and (orientation: ${orientation})`,
@@ -105,7 +81,7 @@ for (const locale of ["en", "nl", "tr"]) {
   );
   const manifest = {
     id: "/",
-    name: "Himmah Hub",
+    name: "Himmah",
     short_name: "Himmah",
     description: messages.page_description,
     lang: locale,
@@ -140,26 +116,6 @@ for (const locale of ["en", "nl", "tr"]) {
   await writeFile(
     `public/manifest.${locale}.webmanifest`,
     JSON.stringify(manifest, null, 2) + "\n",
-  );
-  await writeFile(
-    `public/futsal/manifest.${locale}.webmanifest`,
-    JSON.stringify(
-      {
-        ...manifest,
-        id: "/futsal",
-        name: "Himmah Futsal",
-        short_name: "Futsal",
-        description: messages.arena_description,
-        start_url: "/futsal",
-        scope: "/futsal",
-        icons: manifest.icons.map((icon) => ({
-          ...icon,
-          src: icon.src.replace("/pwa/", "/pwa/futsal/"),
-        })),
-      },
-      null,
-      2,
-    ) + "\n",
   );
   offline[locale] = {
     title: messages.offline_title,

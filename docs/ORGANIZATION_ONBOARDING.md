@@ -4,7 +4,7 @@
 
 `/start` is the organizer portal, reached from the public landing page at `/`. Both support English, Dutch and Turkish. Adult organizers can create an account, request an email verification code, verify it, sign in/out, restore their session, and use email-code password recovery. Verified organizers can create a workspace (name, unique address and timezone), list their memberships and return to a saved workspace. There is no paid checkout yet.
 
-Organization setup is persistent. No demo, mock engagement controls or planned-feature panels are exposed in the deployed UI. Saved workspaces show their organization details and, for owners/admins, the persistent member/group directory and staff invitation controls. Roster records do not create logins. Activities, attendance, points, periods, scoped volunteers and rewards are implemented. Participant access now uses separate consent-attested invitations and a private read-only dashboard; see [Participant access](PARTICIPANT_ACCESS.md).
+Organization setup is persistent. No demo, mock engagement controls or planned-feature panels are exposed in the deployed UI. Saved workspaces show their organization details and, for owners/admins, the persistent member/group directory and staff invitation controls. Roster records do not create logins. Activities, attendance, points, periods, scoped volunteers and rewards are implemented. Participant access now uses separate consent-attested invitations and a private read-only dashboard; see Participant access (historical; retained in Git).
 
 ## Backend and isolation
 

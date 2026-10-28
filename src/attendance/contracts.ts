@@ -40,12 +40,10 @@ export type AttendanceItemResult = {
     "saved" | "unchanged" | "conflict" | "ineligible" | "reason_required";
   status?: AttendanceStatus;
   version?: number;
-  pointsDelta?: number;
 };
 export type AttendanceResult = { items: AttendanceItemResult[] };
 export type AttendanceInput = {
   key: string;
-  confirmPoints?: true;
   status: AttendanceStatus;
   reason: string;
   items: { personId: string; version: number }[];
@@ -53,6 +51,7 @@ export type AttendanceInput = {
 export function attendanceInput(
   body: Record<string, unknown>,
 ): AttendanceInput {
+  if ("confirmPoints" in body) throw new CommunityError("invalid_input");
   const key = uuid(body.key).toLowerCase();
   if (
     !attendanceStatuses.includes(body.status as AttendanceStatus) ||
@@ -88,7 +87,6 @@ export function attendanceInput(
     throw new CommunityError("invalid_input");
   return {
     key,
-    ...(body.confirmPoints === true ? { confirmPoints: true as const } : {}),
     status: body.status as AttendanceStatus,
     reason: body.reason.trim(),
     items,

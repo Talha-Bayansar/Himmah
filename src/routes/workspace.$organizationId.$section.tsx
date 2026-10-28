@@ -6,6 +6,16 @@ import {
 } from "../organization/WorkspaceNavigation";
 export const Route = createFileRoute("/workspace/$organizationId/$section")({
   beforeLoad: ({ params }) => {
+    if (
+      params.section === "people" ||
+      params.section === "members" ||
+      params.section === "groups"
+    )
+      throw redirect({
+        to: "/workspace/$organizationId/people/contacts",
+        params: { organizationId: params.organizationId },
+        replace: true,
+      });
     if (params.section === "overview")
       throw redirect({
         to: "/workspace/$organizationId/$section",

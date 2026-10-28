@@ -13,40 +13,16 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as JoinRouteImport } from './routes/join'
-import { Route as ParticipateRouteImport } from './routes/participate'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
-import { Route as FutsalIndexRouteImport } from './routes/futsal.index'
-import { Route as FutsalOrganizationIdRouteImport } from './routes/futsal.$organizationId'
-import { Route as FutsalProfileRouteImport } from './routes/futsal.profile'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
-import { Route as WorkspaceOrganizationIdChallengesRouteImport } from './routes/workspace.$organizationId.challenges'
-import { Route as WorkspaceOrganizationIdMyCouponsRouteImport } from './routes/workspace.$organizationId.my-coupons'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId'
-import { Route as FutsalOrganizationIdSeasonsNewRouteImport } from './routes/futsal.$organizationId_.seasons.new'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
-import { Route as WorkspaceOrganizationIdChallengesChallengeIdRouteImport } from './routes/workspace.$organizationId.challenges_.$challengeId'
-import { Route as WorkspaceOrganizationIdGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.groups.$groupId'
 import { Route as WorkspaceOrganizationIdManageRelationshipTypesRouteImport } from './routes/workspace.$organizationId.manage.relationship-types'
-import { Route as WorkspaceOrganizationIdMembersMemberIdRouteImport } from './routes/workspace.$organizationId.members.$memberId'
-import { Route as WorkspaceOrganizationIdMyCouponsCouponIdRouteImport } from './routes/workspace.$organizationId.my-coupons_.$couponId'
 import { Route as WorkspaceOrganizationIdPeopleContactsRouteImport } from './routes/workspace.$organizationId.people.contacts'
 import { Route as WorkspaceOrganizationIdPeopleGroupsRouteImport } from './routes/workspace.$organizationId.people.groups'
-import { Route as WorkspaceOrganizationIdPeriodsPeriodIdRouteImport } from './routes/workspace.$organizationId.periods.$periodId'
-import { Route as WorkspaceOrganizationIdRewardsRewardIdRouteImport } from './routes/workspace.$organizationId.rewards.$rewardId'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdClubhouseRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.clubhouse'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdCompetitionRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.competition'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdEntriesRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.entries'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdGameRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.game'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdMatchdayRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.matchday'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdSettingsRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.settings'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdSquadRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.squad'
-import { Route as FutsalOrganizationIdSeasonsSeasonIdTrainingRouteImport } from './routes/futsal.$organizationId_.seasons.$seasonId_.training'
-import { Route as WorkspaceOrganizationIdMembersMemberIdAccountRouteImport } from './routes/workspace.$organizationId.members.$memberId_.account'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId'
 import { Route as WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.people.groups_.$groupId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
-import { Route as WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRouteImport } from './routes/workspace.$organizationId.challenges_.$challengeId_.submissions.$submissionId'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId_.$view'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
 
@@ -70,11 +46,6 @@ const JoinRoute = JoinRouteImport.update({
   path: '/join',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ParticipateRoute = ParticipateRouteImport.update({
-  id: '/participate',
-  path: '/participate',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -85,49 +56,10 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FutsalIndexRoute = FutsalIndexRouteImport.update({
-  id: '/futsal/',
-  path: '/futsal/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FutsalOrganizationIdRoute = FutsalOrganizationIdRouteImport.update({
-  id: '/futsal/$organizationId',
-  path: '/futsal/$organizationId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FutsalProfileRoute = FutsalProfileRouteImport.update({
-  id: '/futsal/profile',
-  path: '/futsal/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const WorkspaceOrganizationIdSectionRoute =
   WorkspaceOrganizationIdSectionRouteImport.update({
     id: '/workspace/$organizationId/$section',
     path: '/workspace/$organizationId/$section',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdChallengesRoute =
-  WorkspaceOrganizationIdChallengesRouteImport.update({
-    id: '/workspace/$organizationId/challenges',
-    path: '/workspace/$organizationId/challenges',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdMyCouponsRoute =
-  WorkspaceOrganizationIdMyCouponsRouteImport.update({
-    id: '/workspace/$organizationId/my-coupons',
-    path: '/workspace/$organizationId/my-coupons',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdRoute =
-  FutsalOrganizationIdSeasonsSeasonIdRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId',
-    path: '/futsal/$organizationId/seasons/$seasonId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsNewRoute =
-  FutsalOrganizationIdSeasonsNewRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/new',
-    path: '/futsal/$organizationId/seasons/new',
     getParentRoute: () => rootRouteImport,
   } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdRoute =
@@ -136,34 +68,10 @@ const WorkspaceOrganizationIdActivitiesActivityIdRoute =
     path: '/workspace/$organizationId/activities/$activityId',
     getParentRoute: () => rootRouteImport,
   } as any)
-const WorkspaceOrganizationIdChallengesChallengeIdRoute =
-  WorkspaceOrganizationIdChallengesChallengeIdRouteImport.update({
-    id: '/workspace/$organizationId/challenges_/$challengeId',
-    path: '/workspace/$organizationId/challenges/$challengeId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdGroupsGroupIdRoute =
-  WorkspaceOrganizationIdGroupsGroupIdRouteImport.update({
-    id: '/workspace/$organizationId/groups/$groupId',
-    path: '/workspace/$organizationId/groups/$groupId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const WorkspaceOrganizationIdManageRelationshipTypesRoute =
   WorkspaceOrganizationIdManageRelationshipTypesRouteImport.update({
     id: '/workspace/$organizationId/manage/relationship-types',
     path: '/workspace/$organizationId/manage/relationship-types',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdMembersMemberIdRoute =
-  WorkspaceOrganizationIdMembersMemberIdRouteImport.update({
-    id: '/workspace/$organizationId/members/$memberId',
-    path: '/workspace/$organizationId/members/$memberId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdMyCouponsCouponIdRoute =
-  WorkspaceOrganizationIdMyCouponsCouponIdRouteImport.update({
-    id: '/workspace/$organizationId/my-coupons_/$couponId',
-    path: '/workspace/$organizationId/my-coupons/$couponId',
     getParentRoute: () => rootRouteImport,
   } as any)
 const WorkspaceOrganizationIdPeopleContactsRoute =
@@ -176,72 +84,6 @@ const WorkspaceOrganizationIdPeopleGroupsRoute =
   WorkspaceOrganizationIdPeopleGroupsRouteImport.update({
     id: '/workspace/$organizationId/people/groups',
     path: '/workspace/$organizationId/people/groups',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdPeriodsPeriodIdRoute =
-  WorkspaceOrganizationIdPeriodsPeriodIdRouteImport.update({
-    id: '/workspace/$organizationId/periods/$periodId',
-    path: '/workspace/$organizationId/periods/$periodId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdRewardsRewardIdRoute =
-  WorkspaceOrganizationIdRewardsRewardIdRouteImport.update({
-    id: '/workspace/$organizationId/rewards/$rewardId',
-    path: '/workspace/$organizationId/rewards/$rewardId',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute =
-  FutsalOrganizationIdSeasonsSeasonIdClubhouseRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/clubhouse',
-    path: '/futsal/$organizationId/seasons/$seasonId/clubhouse',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute =
-  FutsalOrganizationIdSeasonsSeasonIdCompetitionRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/competition',
-    path: '/futsal/$organizationId/seasons/$seasonId/competition',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdEntriesRoute =
-  FutsalOrganizationIdSeasonsSeasonIdEntriesRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/entries',
-    path: '/futsal/$organizationId/seasons/$seasonId/entries',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdGameRoute =
-  FutsalOrganizationIdSeasonsSeasonIdGameRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/game',
-    path: '/futsal/$organizationId/seasons/$seasonId/game',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute =
-  FutsalOrganizationIdSeasonsSeasonIdMatchdayRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/matchday',
-    path: '/futsal/$organizationId/seasons/$seasonId/matchday',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdSettingsRoute =
-  FutsalOrganizationIdSeasonsSeasonIdSettingsRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/settings',
-    path: '/futsal/$organizationId/seasons/$seasonId/settings',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdSquadRoute =
-  FutsalOrganizationIdSeasonsSeasonIdSquadRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/squad',
-    path: '/futsal/$organizationId/seasons/$seasonId/squad',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const FutsalOrganizationIdSeasonsSeasonIdTrainingRoute =
-  FutsalOrganizationIdSeasonsSeasonIdTrainingRouteImport.update({
-    id: '/futsal/$organizationId_/seasons/$seasonId_/training',
-    path: '/futsal/$organizationId/seasons/$seasonId/training',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const WorkspaceOrganizationIdMembersMemberIdAccountRoute =
-  WorkspaceOrganizationIdMembersMemberIdAccountRouteImport.update({
-    id: '/workspace/$organizationId/members/$memberId_/account',
-    path: '/workspace/$organizationId/members/$memberId/account',
     getParentRoute: () => rootRouteImport,
   } as any)
 const WorkspaceOrganizationIdPeopleContactsContactIdRoute =
@@ -262,14 +104,6 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute =
       id: '/sessions/$sessionId',
       path: '/sessions/$sessionId',
       getParentRoute: () => WorkspaceOrganizationIdActivitiesActivityIdRoute,
-    } as any,
-  )
-const WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute =
-  WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRouteImport.update(
-    {
-      id: '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId',
-      path: '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId',
-      getParentRoute: () => rootRouteImport,
     } as any,
   )
 const WorkspaceOrganizationIdPeopleContactsContactIdViewRoute =
@@ -293,40 +127,16 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
-  '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
-  '/futsal/$organizationId': typeof FutsalOrganizationIdRoute
-  '/futsal/profile': typeof FutsalProfileRoute
-  '/futsal/': typeof FutsalIndexRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
-  '/workspace/$organizationId/challenges': typeof WorkspaceOrganizationIdChallengesRoute
-  '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
-  '/futsal/$organizationId/seasons/$seasonId': typeof FutsalOrganizationIdSeasonsSeasonIdRoute
-  '/futsal/$organizationId/seasons/new': typeof FutsalOrganizationIdSeasonsNewRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
-  '/workspace/$organizationId/challenges/$challengeId': typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
-  '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
-  '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
-  '/workspace/$organizationId/my-coupons/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
-  '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
-  '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
-  '/futsal/$organizationId/seasons/$seasonId/clubhouse': typeof FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute
-  '/futsal/$organizationId/seasons/$seasonId/competition': typeof FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute
-  '/futsal/$organizationId/seasons/$seasonId/entries': typeof FutsalOrganizationIdSeasonsSeasonIdEntriesRoute
-  '/futsal/$organizationId/seasons/$seasonId/game': typeof FutsalOrganizationIdSeasonsSeasonIdGameRoute
-  '/futsal/$organizationId/seasons/$seasonId/matchday': typeof FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute
-  '/futsal/$organizationId/seasons/$seasonId/settings': typeof FutsalOrganizationIdSeasonsSeasonIdSettingsRoute
-  '/futsal/$organizationId/seasons/$seasonId/squad': typeof FutsalOrganizationIdSeasonsSeasonIdSquadRoute
-  '/futsal/$organizationId/seasons/$seasonId/training': typeof FutsalOrganizationIdSeasonsSeasonIdTrainingRoute
-  '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
-  '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId': typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -335,40 +145,16 @@ export interface FileRoutesByTo {
   '/app': typeof AppRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
-  '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
-  '/futsal/$organizationId': typeof FutsalOrganizationIdRoute
-  '/futsal/profile': typeof FutsalProfileRoute
-  '/futsal': typeof FutsalIndexRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
-  '/workspace/$organizationId/challenges': typeof WorkspaceOrganizationIdChallengesRoute
-  '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
-  '/futsal/$organizationId/seasons/$seasonId': typeof FutsalOrganizationIdSeasonsSeasonIdRoute
-  '/futsal/$organizationId/seasons/new': typeof FutsalOrganizationIdSeasonsNewRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
-  '/workspace/$organizationId/challenges/$challengeId': typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
-  '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
-  '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
-  '/workspace/$organizationId/my-coupons/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
-  '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
-  '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
-  '/futsal/$organizationId/seasons/$seasonId/clubhouse': typeof FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute
-  '/futsal/$organizationId/seasons/$seasonId/competition': typeof FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute
-  '/futsal/$organizationId/seasons/$seasonId/entries': typeof FutsalOrganizationIdSeasonsSeasonIdEntriesRoute
-  '/futsal/$organizationId/seasons/$seasonId/game': typeof FutsalOrganizationIdSeasonsSeasonIdGameRoute
-  '/futsal/$organizationId/seasons/$seasonId/matchday': typeof FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute
-  '/futsal/$organizationId/seasons/$seasonId/settings': typeof FutsalOrganizationIdSeasonsSeasonIdSettingsRoute
-  '/futsal/$organizationId/seasons/$seasonId/squad': typeof FutsalOrganizationIdSeasonsSeasonIdSquadRoute
-  '/futsal/$organizationId/seasons/$seasonId/training': typeof FutsalOrganizationIdSeasonsSeasonIdTrainingRoute
-  '/workspace/$organizationId/members/$memberId/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
-  '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId': typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -378,40 +164,16 @@ export interface FileRoutesById {
   '/app': typeof AppRoute
   '/hub': typeof HubRoute
   '/join': typeof JoinRoute
-  '/participate': typeof ParticipateRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
-  '/futsal/$organizationId': typeof FutsalOrganizationIdRoute
-  '/futsal/profile': typeof FutsalProfileRoute
-  '/futsal/': typeof FutsalIndexRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
-  '/workspace/$organizationId/challenges': typeof WorkspaceOrganizationIdChallengesRoute
-  '/workspace/$organizationId/my-coupons': typeof WorkspaceOrganizationIdMyCouponsRoute
-  '/futsal/$organizationId_/seasons/$seasonId': typeof FutsalOrganizationIdSeasonsSeasonIdRoute
-  '/futsal/$organizationId_/seasons/new': typeof FutsalOrganizationIdSeasonsNewRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
-  '/workspace/$organizationId/challenges_/$challengeId': typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
-  '/workspace/$organizationId/groups/$groupId': typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
-  '/workspace/$organizationId/members/$memberId': typeof WorkspaceOrganizationIdMembersMemberIdRoute
-  '/workspace/$organizationId/my-coupons_/$couponId': typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
-  '/workspace/$organizationId/periods/$periodId': typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
-  '/workspace/$organizationId/rewards/$rewardId': typeof WorkspaceOrganizationIdRewardsRewardIdRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/clubhouse': typeof FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/competition': typeof FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/entries': typeof FutsalOrganizationIdSeasonsSeasonIdEntriesRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/game': typeof FutsalOrganizationIdSeasonsSeasonIdGameRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/matchday': typeof FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/settings': typeof FutsalOrganizationIdSeasonsSeasonIdSettingsRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/squad': typeof FutsalOrganizationIdSeasonsSeasonIdSquadRoute
-  '/futsal/$organizationId_/seasons/$seasonId_/training': typeof FutsalOrganizationIdSeasonsSeasonIdTrainingRoute
-  '/workspace/$organizationId/members/$memberId_/account': typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   '/workspace/$organizationId/people/contacts_/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups_/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
-  '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId': typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   '/workspace/$organizationId/people/contacts_/$contactId_/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
 }
@@ -422,40 +184,16 @@ export interface FileRouteTypes {
     | '/app'
     | '/hub'
     | '/join'
-    | '/participate'
     | '/settings'
     | '/start'
-    | '/futsal/$organizationId'
-    | '/futsal/profile'
-    | '/futsal/'
     | '/workspace/$organizationId/$section'
-    | '/workspace/$organizationId/challenges'
-    | '/workspace/$organizationId/my-coupons'
-    | '/futsal/$organizationId/seasons/$seasonId'
-    | '/futsal/$organizationId/seasons/new'
     | '/workspace/$organizationId/activities/$activityId'
-    | '/workspace/$organizationId/challenges/$challengeId'
-    | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/manage/relationship-types'
-    | '/workspace/$organizationId/members/$memberId'
-    | '/workspace/$organizationId/my-coupons/$couponId'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
-    | '/workspace/$organizationId/periods/$periodId'
-    | '/workspace/$organizationId/rewards/$rewardId'
-    | '/futsal/$organizationId/seasons/$seasonId/clubhouse'
-    | '/futsal/$organizationId/seasons/$seasonId/competition'
-    | '/futsal/$organizationId/seasons/$seasonId/entries'
-    | '/futsal/$organizationId/seasons/$seasonId/game'
-    | '/futsal/$organizationId/seasons/$seasonId/matchday'
-    | '/futsal/$organizationId/seasons/$seasonId/settings'
-    | '/futsal/$organizationId/seasons/$seasonId/squad'
-    | '/futsal/$organizationId/seasons/$seasonId/training'
-    | '/workspace/$organizationId/members/$memberId/account'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/groups/$groupId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
-    | '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesByTo: FileRoutesByTo
@@ -464,40 +202,16 @@ export interface FileRouteTypes {
     | '/app'
     | '/hub'
     | '/join'
-    | '/participate'
     | '/settings'
     | '/start'
-    | '/futsal/$organizationId'
-    | '/futsal/profile'
-    | '/futsal'
     | '/workspace/$organizationId/$section'
-    | '/workspace/$organizationId/challenges'
-    | '/workspace/$organizationId/my-coupons'
-    | '/futsal/$organizationId/seasons/$seasonId'
-    | '/futsal/$organizationId/seasons/new'
     | '/workspace/$organizationId/activities/$activityId'
-    | '/workspace/$organizationId/challenges/$challengeId'
-    | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/manage/relationship-types'
-    | '/workspace/$organizationId/members/$memberId'
-    | '/workspace/$organizationId/my-coupons/$couponId'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
-    | '/workspace/$organizationId/periods/$periodId'
-    | '/workspace/$organizationId/rewards/$rewardId'
-    | '/futsal/$organizationId/seasons/$seasonId/clubhouse'
-    | '/futsal/$organizationId/seasons/$seasonId/competition'
-    | '/futsal/$organizationId/seasons/$seasonId/entries'
-    | '/futsal/$organizationId/seasons/$seasonId/game'
-    | '/futsal/$organizationId/seasons/$seasonId/matchday'
-    | '/futsal/$organizationId/seasons/$seasonId/settings'
-    | '/futsal/$organizationId/seasons/$seasonId/squad'
-    | '/futsal/$organizationId/seasons/$seasonId/training'
-    | '/workspace/$organizationId/members/$memberId/account'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/groups/$groupId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
-    | '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   id:
@@ -506,40 +220,16 @@ export interface FileRouteTypes {
     | '/app'
     | '/hub'
     | '/join'
-    | '/participate'
     | '/settings'
     | '/start'
-    | '/futsal/$organizationId'
-    | '/futsal/profile'
-    | '/futsal/'
     | '/workspace/$organizationId/$section'
-    | '/workspace/$organizationId/challenges'
-    | '/workspace/$organizationId/my-coupons'
-    | '/futsal/$organizationId_/seasons/$seasonId'
-    | '/futsal/$organizationId_/seasons/new'
     | '/workspace/$organizationId/activities/$activityId'
-    | '/workspace/$organizationId/challenges_/$challengeId'
-    | '/workspace/$organizationId/groups/$groupId'
     | '/workspace/$organizationId/manage/relationship-types'
-    | '/workspace/$organizationId/members/$memberId'
-    | '/workspace/$organizationId/my-coupons_/$couponId'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
-    | '/workspace/$organizationId/periods/$periodId'
-    | '/workspace/$organizationId/rewards/$rewardId'
-    | '/futsal/$organizationId_/seasons/$seasonId_/clubhouse'
-    | '/futsal/$organizationId_/seasons/$seasonId_/competition'
-    | '/futsal/$organizationId_/seasons/$seasonId_/entries'
-    | '/futsal/$organizationId_/seasons/$seasonId_/game'
-    | '/futsal/$organizationId_/seasons/$seasonId_/matchday'
-    | '/futsal/$organizationId_/seasons/$seasonId_/settings'
-    | '/futsal/$organizationId_/seasons/$seasonId_/squad'
-    | '/futsal/$organizationId_/seasons/$seasonId_/training'
-    | '/workspace/$organizationId/members/$memberId_/account'
     | '/workspace/$organizationId/people/contacts_/$contactId'
     | '/workspace/$organizationId/people/groups_/$groupId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
-    | '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId'
     | '/workspace/$organizationId/people/contacts_/$contactId_/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
   fileRoutesById: FileRoutesById
@@ -549,39 +239,15 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRoute
   HubRoute: typeof HubRoute
   JoinRoute: typeof JoinRoute
-  ParticipateRoute: typeof ParticipateRoute
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
-  FutsalOrganizationIdRoute: typeof FutsalOrganizationIdRoute
-  FutsalProfileRoute: typeof FutsalProfileRoute
-  FutsalIndexRoute: typeof FutsalIndexRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
-  WorkspaceOrganizationIdChallengesRoute: typeof WorkspaceOrganizationIdChallengesRoute
-  WorkspaceOrganizationIdMyCouponsRoute: typeof WorkspaceOrganizationIdMyCouponsRoute
-  FutsalOrganizationIdSeasonsSeasonIdRoute: typeof FutsalOrganizationIdSeasonsSeasonIdRoute
-  FutsalOrganizationIdSeasonsNewRoute: typeof FutsalOrganizationIdSeasonsNewRoute
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
-  WorkspaceOrganizationIdChallengesChallengeIdRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdRoute
-  WorkspaceOrganizationIdGroupsGroupIdRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRoute
   WorkspaceOrganizationIdManageRelationshipTypesRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
-  WorkspaceOrganizationIdMembersMemberIdRoute: typeof WorkspaceOrganizationIdMembersMemberIdRoute
-  WorkspaceOrganizationIdMyCouponsCouponIdRoute: typeof WorkspaceOrganizationIdMyCouponsCouponIdRoute
   WorkspaceOrganizationIdPeopleContactsRoute: typeof WorkspaceOrganizationIdPeopleContactsRoute
   WorkspaceOrganizationIdPeopleGroupsRoute: typeof WorkspaceOrganizationIdPeopleGroupsRoute
-  WorkspaceOrganizationIdPeriodsPeriodIdRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRoute
-  WorkspaceOrganizationIdRewardsRewardIdRoute: typeof WorkspaceOrganizationIdRewardsRewardIdRoute
-  FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute: typeof FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute
-  FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute: typeof FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute
-  FutsalOrganizationIdSeasonsSeasonIdEntriesRoute: typeof FutsalOrganizationIdSeasonsSeasonIdEntriesRoute
-  FutsalOrganizationIdSeasonsSeasonIdGameRoute: typeof FutsalOrganizationIdSeasonsSeasonIdGameRoute
-  FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute: typeof FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute
-  FutsalOrganizationIdSeasonsSeasonIdSettingsRoute: typeof FutsalOrganizationIdSeasonsSeasonIdSettingsRoute
-  FutsalOrganizationIdSeasonsSeasonIdSquadRoute: typeof FutsalOrganizationIdSeasonsSeasonIdSquadRoute
-  FutsalOrganizationIdSeasonsSeasonIdTrainingRoute: typeof FutsalOrganizationIdSeasonsSeasonIdTrainingRoute
-  WorkspaceOrganizationIdMembersMemberIdAccountRoute: typeof WorkspaceOrganizationIdMembersMemberIdAccountRoute
   WorkspaceOrganizationIdPeopleContactsContactIdRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   WorkspaceOrganizationIdPeopleGroupsGroupIdRoute: typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
-  WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute
   WorkspaceOrganizationIdPeopleContactsContactIdViewRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
 }
 
@@ -615,13 +281,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JoinRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/participate': {
-      id: '/participate'
-      path: '/participate'
-      fullPath: '/participate'
-      preLoaderRoute: typeof ParticipateRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -636,60 +295,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/futsal/': {
-      id: '/futsal/'
-      path: '/futsal'
-      fullPath: '/futsal/'
-      preLoaderRoute: typeof FutsalIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId': {
-      id: '/futsal/$organizationId'
-      path: '/futsal/$organizationId'
-      fullPath: '/futsal/$organizationId'
-      preLoaderRoute: typeof FutsalOrganizationIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/profile': {
-      id: '/futsal/profile'
-      path: '/futsal/profile'
-      fullPath: '/futsal/profile'
-      preLoaderRoute: typeof FutsalProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/workspace/$organizationId/$section': {
       id: '/workspace/$organizationId/$section'
       path: '/workspace/$organizationId/$section'
       fullPath: '/workspace/$organizationId/$section'
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/challenges': {
-      id: '/workspace/$organizationId/challenges'
-      path: '/workspace/$organizationId/challenges'
-      fullPath: '/workspace/$organizationId/challenges'
-      preLoaderRoute: typeof WorkspaceOrganizationIdChallengesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/my-coupons': {
-      id: '/workspace/$organizationId/my-coupons'
-      path: '/workspace/$organizationId/my-coupons'
-      fullPath: '/workspace/$organizationId/my-coupons'
-      preLoaderRoute: typeof WorkspaceOrganizationIdMyCouponsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId': {
-      id: '/futsal/$organizationId_/seasons/$seasonId'
-      path: '/futsal/$organizationId/seasons/$seasonId'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/new': {
-      id: '/futsal/$organizationId_/seasons/new'
-      path: '/futsal/$organizationId/seasons/new'
-      fullPath: '/futsal/$organizationId/seasons/new'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/activities/$activityId': {
@@ -699,39 +309,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/workspace/$organizationId/challenges_/$challengeId': {
-      id: '/workspace/$organizationId/challenges_/$challengeId'
-      path: '/workspace/$organizationId/challenges/$challengeId'
-      fullPath: '/workspace/$organizationId/challenges/$challengeId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/groups/$groupId': {
-      id: '/workspace/$organizationId/groups/$groupId'
-      path: '/workspace/$organizationId/groups/$groupId'
-      fullPath: '/workspace/$organizationId/groups/$groupId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdGroupsGroupIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/workspace/$organizationId/manage/relationship-types': {
       id: '/workspace/$organizationId/manage/relationship-types'
       path: '/workspace/$organizationId/manage/relationship-types'
       fullPath: '/workspace/$organizationId/manage/relationship-types'
       preLoaderRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/members/$memberId': {
-      id: '/workspace/$organizationId/members/$memberId'
-      path: '/workspace/$organizationId/members/$memberId'
-      fullPath: '/workspace/$organizationId/members/$memberId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdMembersMemberIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/my-coupons_/$couponId': {
-      id: '/workspace/$organizationId/my-coupons_/$couponId'
-      path: '/workspace/$organizationId/my-coupons/$couponId'
-      fullPath: '/workspace/$organizationId/my-coupons/$couponId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdMyCouponsCouponIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/people/contacts': {
@@ -746,83 +328,6 @@ declare module '@tanstack/react-router' {
       path: '/workspace/$organizationId/people/groups'
       fullPath: '/workspace/$organizationId/people/groups'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleGroupsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/periods/$periodId': {
-      id: '/workspace/$organizationId/periods/$periodId'
-      path: '/workspace/$organizationId/periods/$periodId'
-      fullPath: '/workspace/$organizationId/periods/$periodId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdPeriodsPeriodIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/rewards/$rewardId': {
-      id: '/workspace/$organizationId/rewards/$rewardId'
-      path: '/workspace/$organizationId/rewards/$rewardId'
-      fullPath: '/workspace/$organizationId/rewards/$rewardId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdRewardsRewardIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/clubhouse': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/clubhouse'
-      path: '/futsal/$organizationId/seasons/$seasonId/clubhouse'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/clubhouse'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdClubhouseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/competition': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/competition'
-      path: '/futsal/$organizationId/seasons/$seasonId/competition'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/competition'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdCompetitionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/entries': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/entries'
-      path: '/futsal/$organizationId/seasons/$seasonId/entries'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/entries'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdEntriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/game': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/game'
-      path: '/futsal/$organizationId/seasons/$seasonId/game'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/game'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdGameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/matchday': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/matchday'
-      path: '/futsal/$organizationId/seasons/$seasonId/matchday'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/matchday'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdMatchdayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/settings': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/settings'
-      path: '/futsal/$organizationId/seasons/$seasonId/settings'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/settings'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdSettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/squad': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/squad'
-      path: '/futsal/$organizationId/seasons/$seasonId/squad'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/squad'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdSquadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/futsal/$organizationId_/seasons/$seasonId_/training': {
-      id: '/futsal/$organizationId_/seasons/$seasonId_/training'
-      path: '/futsal/$organizationId/seasons/$seasonId/training'
-      fullPath: '/futsal/$organizationId/seasons/$seasonId/training'
-      preLoaderRoute: typeof FutsalOrganizationIdSeasonsSeasonIdTrainingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/workspace/$organizationId/members/$memberId_/account': {
-      id: '/workspace/$organizationId/members/$memberId_/account'
-      path: '/workspace/$organizationId/members/$memberId/account'
-      fullPath: '/workspace/$organizationId/members/$memberId/account'
-      preLoaderRoute: typeof WorkspaceOrganizationIdMembersMemberIdAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/people/contacts_/$contactId': {
@@ -845,13 +350,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport
       parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRoute
-    }
-    '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId': {
-      id: '/workspace/$organizationId/challenges_/$challengeId_/submissions/$submissionId'
-      path: '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
-      fullPath: '/workspace/$organizationId/challenges/$challengeId/submissions/$submissionId'
-      preLoaderRoute: typeof WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/people/contacts_/$contactId_/$view': {
       id: '/workspace/$organizationId/people/contacts_/$contactId_/$view'
@@ -905,63 +403,21 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRoute,
   HubRoute: HubRoute,
   JoinRoute: JoinRoute,
-  ParticipateRoute: ParticipateRoute,
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
-  FutsalOrganizationIdRoute: FutsalOrganizationIdRoute,
-  FutsalProfileRoute: FutsalProfileRoute,
-  FutsalIndexRoute: FutsalIndexRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
-  WorkspaceOrganizationIdChallengesRoute:
-    WorkspaceOrganizationIdChallengesRoute,
-  WorkspaceOrganizationIdMyCouponsRoute: WorkspaceOrganizationIdMyCouponsRoute,
-  FutsalOrganizationIdSeasonsSeasonIdRoute:
-    FutsalOrganizationIdSeasonsSeasonIdRoute,
-  FutsalOrganizationIdSeasonsNewRoute: FutsalOrganizationIdSeasonsNewRoute,
   WorkspaceOrganizationIdActivitiesActivityIdRoute:
     WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
-  WorkspaceOrganizationIdChallengesChallengeIdRoute:
-    WorkspaceOrganizationIdChallengesChallengeIdRoute,
-  WorkspaceOrganizationIdGroupsGroupIdRoute:
-    WorkspaceOrganizationIdGroupsGroupIdRoute,
   WorkspaceOrganizationIdManageRelationshipTypesRoute:
     WorkspaceOrganizationIdManageRelationshipTypesRoute,
-  WorkspaceOrganizationIdMembersMemberIdRoute:
-    WorkspaceOrganizationIdMembersMemberIdRoute,
-  WorkspaceOrganizationIdMyCouponsCouponIdRoute:
-    WorkspaceOrganizationIdMyCouponsCouponIdRoute,
   WorkspaceOrganizationIdPeopleContactsRoute:
     WorkspaceOrganizationIdPeopleContactsRoute,
   WorkspaceOrganizationIdPeopleGroupsRoute:
     WorkspaceOrganizationIdPeopleGroupsRoute,
-  WorkspaceOrganizationIdPeriodsPeriodIdRoute:
-    WorkspaceOrganizationIdPeriodsPeriodIdRoute,
-  WorkspaceOrganizationIdRewardsRewardIdRoute:
-    WorkspaceOrganizationIdRewardsRewardIdRoute,
-  FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute:
-    FutsalOrganizationIdSeasonsSeasonIdClubhouseRoute,
-  FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute:
-    FutsalOrganizationIdSeasonsSeasonIdCompetitionRoute,
-  FutsalOrganizationIdSeasonsSeasonIdEntriesRoute:
-    FutsalOrganizationIdSeasonsSeasonIdEntriesRoute,
-  FutsalOrganizationIdSeasonsSeasonIdGameRoute:
-    FutsalOrganizationIdSeasonsSeasonIdGameRoute,
-  FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute:
-    FutsalOrganizationIdSeasonsSeasonIdMatchdayRoute,
-  FutsalOrganizationIdSeasonsSeasonIdSettingsRoute:
-    FutsalOrganizationIdSeasonsSeasonIdSettingsRoute,
-  FutsalOrganizationIdSeasonsSeasonIdSquadRoute:
-    FutsalOrganizationIdSeasonsSeasonIdSquadRoute,
-  FutsalOrganizationIdSeasonsSeasonIdTrainingRoute:
-    FutsalOrganizationIdSeasonsSeasonIdTrainingRoute,
-  WorkspaceOrganizationIdMembersMemberIdAccountRoute:
-    WorkspaceOrganizationIdMembersMemberIdAccountRoute,
   WorkspaceOrganizationIdPeopleContactsContactIdRoute:
     WorkspaceOrganizationIdPeopleContactsContactIdRoute,
   WorkspaceOrganizationIdPeopleGroupsGroupIdRoute:
     WorkspaceOrganizationIdPeopleGroupsGroupIdRoute,
-  WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute:
-    WorkspaceOrganizationIdChallengesChallengeIdSubmissionsSubmissionIdRoute,
   WorkspaceOrganizationIdPeopleContactsContactIdViewRoute:
     WorkspaceOrganizationIdPeopleContactsContactIdViewRoute,
 }

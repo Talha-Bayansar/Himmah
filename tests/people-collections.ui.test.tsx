@@ -83,6 +83,33 @@ function backend(handler?: (url: URL) => Response | undefined) {
     const url = new URL(String(input), "https://himmah.test"),
       custom = handler?.(url);
     if (custom) return custom;
+    if (url.pathname === "/api/organizations")
+      return Response.json({
+        organizations: [
+          {
+            id: org,
+            name: "Community",
+            slug: "community",
+            timezone: "UTC",
+            role: "owner",
+            createdAt: "2026-10-28T10:00:00Z",
+          },
+        ],
+        nextCursor: null,
+      });
+    if (url.pathname === "/api/organizations/" + org)
+      return Response.json({
+        organization: {
+          id: org,
+          name: "Community",
+          slug: "community",
+          timezone: "UTC",
+          role: "owner",
+          createdAt: "2026-10-28T10:00:00Z",
+        },
+      });
+    if (url.pathname.endsWith("/notifications/unread"))
+      return Response.json({ count: 0 });
     if (url.pathname === "/api/account")
       return Response.json({ user: { id: "owner", emailVerified: true } });
     if (url.pathname.endsWith("/routing"))

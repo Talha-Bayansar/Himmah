@@ -181,17 +181,17 @@ Search/filter toolbars reset the inherited input top margin and center their con
 
 ## Manual engagement ledger
 
-Manual awards are independent of attendance, periods and games. Verified owners/admins can award 1–10,000 whole points to up to 50 active roster members, with required staff-only reason, past/current contribution time and optional scoped activity/session context. These numerical bounds are implementation defaults. Original entries cannot be edited/deleted; corrections append a linked delta toward a nonnegative corrected value with an expected revision and required reason/confirmation. Member balance is a database-derived sum, not spendable currency. Immutable request receipts return original per-member results on retry, with unknown outcomes retaining the exact payload. New member detail routes expose private history even after archival. See [Manual points](MANUAL_POINTS.md) for authorization, concurrency and deferred policies.
+Manual awards are independent of attendance, periods and games. Verified owners/admins can award 1–10,000 whole points to up to 50 active roster members, with required staff-only reason, past/current contribution time and optional scoped activity/session context. These numerical bounds are implementation defaults. Original entries cannot be edited/deleted; corrections append a linked delta toward a nonnegative corrected value with an expected revision and required reason/confirmation. Member balance is a database-derived sum, not spendable currency. Immutable request receipts return original per-member results on retry, with unknown outcomes retaining the exact payload. New member detail routes expose private history even after archival. See Manual points (historical; retained in Git) for authorization, concurrency and deferred policies.
 
 
 ## Engagement reporting periods
 
-Periods are independent dated reports, not award allocations. Whole inclusive local days use the saved organization timezone; points follow occurrence time (including corrections), attendance follows session start time and only recorded states. Open reports use current roster/group membership; archived rows remain visible. Overlapping periods or group memberships can display the same contribution but never create points; totals across overlapping views must not be added. Verified owners/admins access period/member/group cursor pages under Settings. Closing with confirmation saves names, memberships and metrics in one database statement/transaction, preserving a permanent report despite later source changes. Closed reports cannot be edited/reopened in this slice; source histories stay correctable. See [Engagement periods](ENGAGEMENT_PERIODS.md) for the full policy and concurrency boundary.
+Periods are independent dated reports, not award allocations. Whole inclusive local days use the saved organization timezone; points follow occurrence time (including corrections), attendance follows session start time and only recorded states. Open reports use current roster/group membership; archived rows remain visible. Overlapping periods or group memberships can display the same contribution but never create points; totals across overlapping views must not be added. Verified owners/admins access period/member/group cursor pages under Settings. Closing with confirmation saves names, memberships and metrics in one database statement/transaction, preserving a permanent report despite later source changes. Closed reports cannot be edited/reopened in this slice; source histories stay correctable. See Engagement periods (historical; retained in Git) for the full policy and concurrency boundary.
 
 
 ## Optional attendance earning rules
 
-Activity defaults can enable fixed present awards (1–10,000 whole points); zero remains attendance-only. Sessions snapshot the amount and activity revision on creation, and existing schedules/records are never backfilled. Configured check-in requires a server preview and explicit linked-point confirmation. Saving attendance and its award/reversal/restoration is atomic, with one root source award per organization/session/member, version checks and replay receipts. Attendance-source awards are corrected through attendance, never the manual points form. Session start is their occurrence time; open period reports update and closed snapshots do not. See [Attendance earning](ATTENDANCE_EARNING.md) for exact boundaries and the existing account-linking safeguards.
+Activity defaults can enable fixed present awards (1–10,000 whole points); zero remains attendance-only. Sessions snapshot the amount and activity revision on creation, and existing schedules/records are never backfilled. Configured check-in requires a server preview and explicit linked-point confirmation. Saving attendance and its award/reversal/restoration is atomic, with one root source award per organization/session/member, version checks and replay receipts. Attendance-source awards are corrected through attendance, never the manual points form. Session start is their occurrence time; open period reports update and closed snapshots do not. See Attendance earning (historical; retained in Git) for exact boundaries and the existing account-linking safeguards.
 
 ## Scoped volunteer access
 
@@ -199,13 +199,13 @@ Implemented group/activity assignments with independent attendance and manual-aw
 
 ## Staff-managed rewards
 
-The owner approved and we implemented rewards and redemption after scoped volunteer access. This supersedes earlier deferral of spendable rewards. Verified owners/admins manage the private catalogue, member eligibility, point/stock reservations, final handouts and audited pending cancellations. Earned engagement history stays separate from spending. See [Rewards](REWARDS.md) for policy defaults, balances, retries and deferred participant access.
+The owner approved and we implemented rewards and redemption after scoped volunteer access. This supersedes earlier deferral of spendable rewards. Verified owners/admins manage the private catalogue, member eligibility, point/stock reservations, final handouts and audited pending cancellations. Earned engagement history stays separate from spending. See Rewards (historical; retained in Git) for policy defaults, balances, retries and deferred participant access.
 
 ## 2026-10-19 — Participant access foundation
 
 Continue with private participant account access before self-service reward claims. Separate participant links from staff memberships, limit one active member/account pair per organization, and disallow simultaneous staff/participant roles in the same organization for v1. Existing accounts may join multiple organizations. Invitations require organizer identity/consent attestation, exact verified email and a seven-day hashed token; manual link delivery only. This records consent responsibility without claiming guardian verification. Organization creation separately requires server-validated adult authorization.
 
-Participants get read-only personal balances, sanitized point/redemption histories and active rewards through distinct self-scoped endpoints; no peer, staff-note or absence-reason exposure. Disconnect/archive removes access but preserves history; restoring never reactivates links. Historical links block known self-approval of points, attendance and handouts even if that account later becomes staff. Purchases and QR validation remain a later increment. See [Participant access](PARTICIPANT_ACCESS.md).
+Participants get read-only personal balances, sanitized point/redemption histories and active rewards through distinct self-scoped endpoints; no peer, staff-note or absence-reason exposure. Disconnect/archive removes access but preserves history; restoring never reactivates links. Historical links block known self-approval of points, attendance and handouts even if that account later becomes staff. Purchases and QR validation remain a later increment. See Participant access (historical; retained in Git).
 
 ## Navigation redesign — 19 October 2026
 
@@ -213,7 +213,7 @@ Owner requested a clearer information architecture after feature growth. Daily o
 
 ## 2026-10-19 — Participant reward claims and private collection coupons
 
-Owner approved the next increment: self-service reward reservation and private QR collection. Participants reserve their own points/stock, may cancel pending coupons, and see no peer or staff-only records. Collection remains owner/admin-only with explicit review and historical self-approval protection. No camera permission is requested until Start camera. Codes are private, recoverable random lookup identifiers carried in URL fragments, not standalone handout authorization. Codes are not invitation tokens; sessions, organization scope and final-state checks remain mandatory. Pending staff reservations gain codes without changing balances. No new billing/service, expiration or per-person limit is introduced. See [Rewards](REWARDS.md).
+Owner approved the next increment: self-service reward reservation and private QR collection. Participants reserve their own points/stock, may cancel pending coupons, and see no peer or staff-only records. Collection remains owner/admin-only with explicit review and historical self-approval protection. No camera permission is requested until Start camera. Codes are private, recoverable random lookup identifiers carried in URL fragments, not standalone handout authorization. Codes are not invitation tokens; sessions, organization scope and final-state checks remain mandatory. Pending staff reservations gain codes without changing balances. No new billing/service, expiration or per-person limit is introduced. See Rewards (historical; retained in Git).
 
 ## 2026-10-19 — Consistent mobile actions and view navigation
 
@@ -225,7 +225,7 @@ Owner clarified that card primary actions should take the remaining width while 
 
 ## 2026-10-19 — Configurable engagement challenges
 
-Owner approved configurable challenges with optional dates, eligible groups, participant submissions and staff review/direct recording. The first increment assigns management/review to owners/admins; existing volunteer grants do not imply new approval authority. Publication freezes rules and audience IDs. One completion per person can award points once, with resubmission after rejection/withdrawal while open. Approval is a distinct ledger source, correctable through existing owner/admin point history without reopening completion. No uploads or automated quizzes are added. Daily participant Profile moves to the existing header shortcut to retain four navigation items. See [Challenges](CHALLENGES.md).
+Owner approved configurable challenges with optional dates, eligible groups, participant submissions and staff review/direct recording. The first increment assigns management/review to owners/admins; existing volunteer grants do not imply new approval authority. Publication freezes rules and audience IDs. One completion per person can award points once, with resubmission after rejection/withdrawal while open. Approval is a distinct ledger source, correctable through existing owner/admin point history without reopening completion. No uploads or automated quizzes are added. Daily participant Profile moves to the existing header shortcut to retain four navigation items. See Challenges (historical; retained in Git).
 
 ## 2026-10-20 — Private notifications with opt-in Web Push
 
@@ -233,7 +233,7 @@ Owner approved the notification centre and explicitly requested push in the same
 
 ## 2026-10-20 — First Futsal increment: persistent season setup
 
-Owner approved beginning Futsal with the season setup flow. Preserve a distinct app area, both Club Manager/Team Play and league/tournament formats, organization isolation, equal baseline strength and source-independent capped training rules. The first slice saves settings, assigns entries and previews calendars/brackets. **Lock setup** atomically freezes a `prepared` snapshot; actual game activation, squads, training and simulated matches follow. No fake gameplay or season-start button is exposed. Initial numeric bounds and safe defaults are implementation choices requiring balance validation, not new owner commitments. Pilot access is owner/admin-only with no billing requirement; Hub remains standalone. See [Futsal setup](FUTSAL_SETUP.md).
+Owner approved beginning Futsal with the season setup flow. Preserve a distinct app area, both Club Manager/Team Play and league/tournament formats, organization isolation, equal baseline strength and source-independent capped training rules. The first slice saves settings, assigns entries and previews calendars/brackets. **Lock setup** atomically freezes a `prepared` snapshot; actual game activation, squads, training and simulated matches follow. No fake gameplay or season-start button is exposed. Initial numeric bounds and safe defaults are implementation choices requiring balance validation, not new owner commitments. Pilot access is owner/admin-only with no billing requirement; Hub remains standalone. See Futsal setup (historical; retained in Git).
 
 ### 20 October 2026 — keyboard and bottom chrome
 
@@ -241,11 +241,11 @@ Use `interactive-widget=resizes-visual` globally so Android keyboard opening doe
 
 ### 20 October 2026 — gameplay and point-scale preview
 
-Owner authorized gameplay and configurable conversion previews together. Preserve the locked season setup; add separate active/completed game state, organizer-triggered due execution, read-only assigned participant access and an isolated local fast-forward runner. Engine v1 uses equal attributes, capped one-attribute training, fixed first-five lineups and seeded match/penalty outcomes. Late awards/corrections use the first window after both occurrence and recording, without retroactive rerolls or Hub spending. These numerical/lineup defaults remain pilot implementation choices. See [gameplay](FUTSAL_GAMEPLAY.md).
+Owner authorized gameplay and configurable conversion previews together. Preserve the locked season setup; add separate active/completed game state, organizer-triggered due execution, read-only assigned participant access and an isolated local fast-forward runner. Engine v1 uses equal attributes, capped one-attribute training, fixed first-five lineups and seeded match/penalty outcomes. Late awards/corrections use the first window after both occurrence and recording, without retroactive rerolls or Hub spending. These numerical/lineup defaults remain pilot implementation choices. See gameplay (historical; retained in Git).
 
 ### 20 October 2026 — Futsal app identity
 
-Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See [Futsal app](FUTSAL_APP.md).
+Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See Futsal app (historical; retained in Git).
 
 
 ## 28 October 2026 — product foundation redesign

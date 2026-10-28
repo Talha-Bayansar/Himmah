@@ -117,11 +117,11 @@ Implemented group/activity assignments with independent attendance and manual-aw
 
 ## Staff-managed rewards
 
-The owner approved and we implemented rewards and redemption after scoped volunteer access. This supersedes earlier deferral of spendable rewards. Verified owners/admins manage the private catalogue, member eligibility, point/stock reservations, final handouts and audited pending cancellations. Earned engagement history stays separate from spending. See [Rewards](REWARDS.md) for policy defaults, balances, retries and deferred participant access.
+The owner approved and we implemented rewards and redemption after scoped volunteer access. This supersedes earlier deferral of spendable rewards. Verified owners/admins manage the private catalogue, member eligibility, point/stock reservations, final handouts and audited pending cancellations. Earned engagement history stays separate from spending. See Rewards (historical; retained in Git) for policy defaults, balances, retries and deferred participant access.
 
 ## Participant access increment — 19 October 2026
 
-Organizer-attested participant invitation links, verified-email account linking and private progress, reward claims and QR coupons are implemented. See [Participant access](PARTICIPANT_ACCESS.md) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Participants can reserve/cancel their own pending rewards; owners/admins confirm single-use QR collection. See [Rewards](REWARDS.md). Peer rankings and gameplay remain future work.
+Organizer-attested participant invitation links, verified-email account linking and private progress, reward claims and QR coupons are implemented. See Participant access (historical; retained in Git) for exact role separation, consent responsibility, revocation, sanitized data and historical self-approval protection. Participants can reserve/cancel their own pending rewards; owners/admins confirm single-use QR collection. See Rewards (historical; retained in Git). Peer rankings and gameplay remain future work.
 
 ## Navigation redesign — 19 October 2026
 
@@ -129,7 +129,7 @@ Owner requested a clearer information architecture after feature growth. Daily o
 
 ## Configurable challenges — 19 October 2026
 
-Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See [Challenges](CHALLENGES.md).
+Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See Challenges (historical; retained in Git).
 
 ## Confirmed addition — 20 October 2026
 
@@ -137,8 +137,8 @@ Build the notification centre with push notifications as well: private participa
 
 ## Confirmed next increment — Futsal setup, 20 October 2026
 
-Owner approved starting Himmah Futsal with season configuration: both modes/formats, dates, participants, team sizes, equal starting strength, capped engagement-to-training settings and a review before freezing. The implementation distinguishes locking setup from executing a playable season; the subsequent gameplay increment now implements squads/training/simulation separately. Hub/Futsal remain separate experiences with later independent organization licensing. See [Futsal setup](FUTSAL_SETUP.md).
+Owner approved starting Himmah Futsal with season configuration: both modes/formats, dates, participants, team sizes, equal starting strength, capped engagement-to-training settings and a review before freezing. The implementation distinguishes locking setup from executing a playable season; the subsequent gameplay increment now implements squads/training/simulation separately. Hub/Futsal remain separate experiences with later independent organization licensing. See Futsal setup (historical; retained in Git).
 
-Gameplay v1 now supports organizer-triggered due training/matches and read-only assigned-participant competitions in both modes/formats. See [gameplay](FUTSAL_GAMEPLAY.md) for scope, fixed lineup policy, late-record handling and the isolated full-season runner.
+Gameplay v1 now supports organizer-triggered due training/matches and read-only assigned-participant competitions in both modes/formats. See gameplay (historical; retained in Git) for scope, fixed lineup policy, late-record handling and the isolated full-season runner.
 
-Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See [Futsal app](FUTSAL_APP.md).
+Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See Futsal app (historical; retained in Git).

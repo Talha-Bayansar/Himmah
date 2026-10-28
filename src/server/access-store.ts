@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
 import { sql, type SQL } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/neon-http";
 import type { PageInput } from "../community/contracts.ts";
 export type AccessStore = ReturnType<typeof createAccessStore>;
 const page = (p: PageInput, at: SQL, id: SQL, idType = "uuid") =>
@@ -8,7 +8,7 @@ const page = (p: PageInput, at: SQL, id: SQL, idType = "uuid") =>
     ? sql`and (${at},${id})<(${p.after.at}::timestamptz,${p.after.id}${sql.raw("::" + idType)})`
     : sql``;
 const pattern = (q: string) => "%" + q.replace(/[\\%_]/g, "\\$&") + "%";
-const projection = sql`exists(select 1 from hub_active_access(v.user_id,v.organization_id) active where active.id=v.id) as effective,v.id,v.user_id as "userId",coalesce(m.display_name,v.staff_name) as "staffName",v.scope_name as "scopeName",v.group_id as "groupId",v.activity_id as "activityId",v.can_attend as "canAttend",v.can_award as "canAward",v.version,v.created_at::text as "createdAt",v.revoked_at::text as "revokedAt",v.revoke_reason as "revokeReason"`;
+const projection = sql`exists(select 1 from hub_active_access(v.user_id,v.organization_id) active where active.id=v.id) as effective,v.id,v.user_id as "userId",coalesce(m.display_name,v.staff_name) as "staffName",v.scope_name as "scopeName",v.group_id as "groupId",v.activity_id as "activityId",v.can_attend as "canAttend",v.version,v.created_at::text as "createdAt",v.revoked_at::text as "revokedAt",v.revoke_reason as "revokeReason"`;
 export function createAccessStore(
   url: string,
   execute?: (s: SQL) => Promise<Record<string, unknown>[]>,
@@ -21,7 +21,7 @@ export function createAccessStore(
   return {
     me(user: string, org: string) {
       return rows(
-        sql`select coalesce(bool_or(can_attend),false) as "canAttend",coalesce(bool_or(can_award),false) as "canAward" from hub_active_access(${user},${org}::uuid)`,
+        sql`select coalesce(bool_or(can_attend),false) as "canAttend" from hub_active_access(${user},${org}::uuid)`,
       );
     },
     list(user: string, org: string, p: PageInput) {
@@ -42,11 +42,6 @@ export function createAccessStore(
     history(user: string, org: string, id: string, p: PageInput) {
       return rows(
         sql`select c.id,c.action,c.before,c.after,c.created_at::text as "createdAt",m.display_name as "actorName" from hub_volunteer_assignment_changes c left join hub_memberships m on m.organization_id=c.organization_id and m.user_id=c.actor_id where c.organization_id=${org}::uuid and c.assignment_id=${id}::uuid and hub_is_admin(${user},${org}::uuid) ${page(p, sql`c.created_at`, sql`c.id`)} order by c.created_at desc,c.id desc limit ${p.limit + 1}`,
-      );
-    },
-    members(user: string, org: string, p: PageInput) {
-      return rows(
-        sql`select id,name,archived,version,created_at::text as "createdAt" from hub_people where organization_id=${org}::uuid and archived=${p.archived} and hub_can_award(${user},${org}::uuid,id) and name ilike ${pattern(p.query)} ${page(p, sql`created_at`, sql`id`)} order by created_at desc,id desc limit ${p.limit + 1}`,
       );
     },
     save(

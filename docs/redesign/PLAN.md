@@ -1,5 +1,7 @@
 # Phased rebuild and database reset strategy
 
+Current release: [complete dropped-feature removal and app integration](../REMOVAL.md) supersedes earlier statements below about retained legacy products, standalone People navigation and the previous schema lineage.
+
 Status: delivery plan; owner subsequently authorized local implementation of the first contacts foundation. See [current implementation status](PEOPLE_STATUS.md). Remote reset/deployment remain outside this authorization. Each phase produces a reviewable slice and only its necessary tables. Existing test data needs no migration or backward compatibility. Preserve Git history and useful code.
 
 ## Phase 0 — reviewed design and isolated foundation

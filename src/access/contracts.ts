@@ -8,20 +8,16 @@ export type AccessAssignment = {
   groupId: string | null;
   activityId: string | null;
   canAttend: boolean;
-  canAward: boolean;
   version: number;
   createdAt: string;
   revokedAt: string | null;
   revokeReason: string | null;
 };
 export function accessInput(body: Record<string, unknown>, create: boolean) {
-  if (
-    typeof body.canAttend !== "boolean" ||
-    typeof body.canAward !== "boolean" ||
-    (!body.canAttend && !body.canAward)
-  )
+  if ("canAward" in body) throw new CommunityError("invalid_input");
+  if (typeof body.canAttend !== "boolean" || !body.canAttend)
     throw new CommunityError("access_capabilities");
-  if (!create) return { canAttend: body.canAttend, canAward: body.canAward };
+  if (!create) return { canAttend: body.canAttend };
   if (
     typeof body.userId !== "string" ||
     body.userId.length < 1 ||
@@ -38,6 +34,5 @@ export function accessInput(body: Record<string, unknown>, create: boolean) {
     groupId,
     activityId,
     canAttend: body.canAttend,
-    canAward: body.canAward,
   };
 }

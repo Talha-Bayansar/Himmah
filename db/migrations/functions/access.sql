@@ -5,12 +5,7 @@ $$;
 CREATE FUNCTION hub_active_access(p_actor text,p_org uuid) RETURNS SETOF hub_volunteer_assignments LANGUAGE sql STABLE AS $$
  SELECT v.* FROM hub_volunteer_assignments v JOIN hub_memberships m ON m.organization_id=v.organization_id AND m.user_id=v.user_id AND m.role='volunteer'
  WHERE v.organization_id=p_org AND v.user_id=p_actor AND v.revoked_at IS NULL
- AND (EXISTS(SELECT 1 FROM hub_groups g WHERE g.organization_id=p_org AND g.id=v.group_id AND NOT g.archived) OR EXISTS(SELECT 1 FROM hub_activities a WHERE a.organization_id=p_org AND a.id=v.activity_id AND NOT a.cancelled));
-$$;
---> statement-breakpoint
-CREATE FUNCTION hub_can_award(p_actor text,p_org uuid,p_person uuid) RETURNS boolean LANGUAGE sql STABLE AS $$
- SELECT hub_is_admin(p_actor,p_org) OR EXISTS(SELECT 1 FROM hub_active_access(p_actor,p_org) v WHERE v.can_award AND
- (EXISTS(SELECT 1 FROM hub_group_people gp WHERE gp.organization_id=p_org AND gp.person_id=p_person AND gp.group_id=v.group_id) OR EXISTS(SELECT 1 FROM hub_activities a WHERE a.organization_id=p_org AND a.id=v.activity_id AND (cardinality(a.audience_group_ids)=0 OR EXISTS(SELECT 1 FROM hub_group_people gp WHERE gp.organization_id=p_org AND gp.person_id=p_person AND gp.group_id=ANY(a.audience_group_ids))))));
+ AND (EXISTS(SELECT 1 FROM himmah.activity_groups g WHERE g.organization_id=p_org AND g.id=v.group_id AND NOT g.archived) OR EXISTS(SELECT 1 FROM hub_activities a WHERE a.organization_id=p_org AND a.id=v.activity_id AND NOT a.cancelled));
 $$;
 --> statement-breakpoint
 CREATE FUNCTION hub_can_view_session(p_actor text,p_org uuid,p_activity uuid,p_session uuid) RETURNS boolean LANGUAGE sql STABLE AS $$
@@ -26,24 +21,16 @@ CREATE FUNCTION hub_can_attend_session(p_actor text,p_org uuid,p_activity uuid,p
 $$;
 --> statement-breakpoint
 CREATE FUNCTION hub_can_attend_person(p_actor text,p_org uuid,p_activity uuid,p_session uuid,p_person uuid) RETURNS boolean LANGUAGE sql STABLE AS $$
- SELECT hub_is_admin(p_actor,p_org) OR EXISTS(SELECT 1 FROM hub_active_access(p_actor,p_org) v JOIN hub_activity_sessions s ON s.organization_id=p_org AND s.activity_id=p_activity AND s.id=p_session WHERE v.can_attend AND (v.activity_id=p_activity OR (v.group_id IS NOT NULL AND (cardinality(s.audience_group_ids)=0 OR v.group_id=ANY(s.audience_group_ids)) AND EXISTS(SELECT 1 FROM hub_group_people gp WHERE gp.organization_id=p_org AND gp.group_id=v.group_id AND gp.person_id=p_person))));
+ SELECT hub_is_admin(p_actor,p_org) OR EXISTS(SELECT 1 FROM hub_active_access(p_actor,p_org) v JOIN hub_activity_sessions s ON s.organization_id=p_org AND s.activity_id=p_activity AND s.id=p_session WHERE v.can_attend AND (v.activity_id=p_activity OR (v.group_id IS NOT NULL AND (cardinality(s.audience_group_ids)=0 OR v.group_id=ANY(s.audience_group_ids)) AND EXISTS(SELECT 1 FROM himmah.activity_memberships gp WHERE gp.organization_id=p_org AND gp.group_id=v.group_id AND gp.person_id=p_person))));
 $$;
 --> statement-breakpoint
 CREATE FUNCTION hub_can_view_group(p_actor text,p_org uuid,p_group uuid,p_activity uuid) RETURNS boolean LANGUAGE sql STABLE AS $$
  SELECT hub_is_admin(p_actor,p_org) OR EXISTS(SELECT 1 FROM hub_active_access(p_actor,p_org) WHERE group_id=p_group OR activity_id=p_activity);
 $$;
 --> statement-breakpoint
-CREATE FUNCTION hub_can_view_points(p_actor text,p_org uuid,p_entry uuid) RETURNS boolean LANGUAGE sql STABLE AS $$
- SELECT hub_is_admin(p_actor,p_org) OR EXISTS(SELECT 1 FROM hub_points_entries e LEFT JOIN hub_points_entries original ON original.organization_id=e.organization_id AND original.person_id=e.person_id AND original.id=e.original_id WHERE e.organization_id=p_org AND e.id=p_entry AND ((e.source='manual' AND coalesce(original.actor_id,e.actor_id)=p_actor AND hub_can_award(p_actor,p_org,e.person_id)) OR (e.source='attendance' AND hub_can_attend_person(p_actor,p_org,e.activity_id,e.session_id,e.person_id))));
-$$;
---> statement-breakpoint
-CREATE FUNCTION hub_can_view_member(p_actor text,p_org uuid,p_person uuid) RETURNS boolean LANGUAGE sql STABLE AS $$
- SELECT hub_can_award(p_actor,p_org,p_person) OR EXISTS(SELECT 1 FROM hub_points_entries WHERE organization_id=p_org AND person_id=p_person AND hub_can_view_points(p_actor,p_org,id));
-$$;
---> statement-breakpoint
 CREATE FUNCTION hub_lock_access(p_actor text,p_org uuid) RETURNS void LANGUAGE plpgsql AS $$
 BEGIN
- PERFORM 1 FROM hub_groups WHERE organization_id=p_org AND id IN (SELECT group_id FROM hub_volunteer_assignments WHERE organization_id=p_org AND user_id=p_actor AND revoked_at IS NULL) ORDER BY id FOR SHARE;
+ PERFORM 1 FROM himmah.activity_groups WHERE organization_id=p_org AND id IN (SELECT group_id FROM hub_volunteer_assignments WHERE organization_id=p_org AND user_id=p_actor AND revoked_at IS NULL) ORDER BY id FOR SHARE;
  PERFORM 1 FROM hub_activities WHERE organization_id=p_org AND id IN (SELECT activity_id FROM hub_volunteer_assignments WHERE organization_id=p_org AND user_id=p_actor AND revoked_at IS NULL) ORDER BY id FOR SHARE;
 END;
 $$;
@@ -61,18 +48,18 @@ BEGIN
   IF v_role IS DISTINCT FROM 'volunteer' THEN RETURN jsonb_build_object('code','access_volunteer'); END IF;
   v_group := (p_payload->>'groupId')::uuid; v_activity := (p_payload->>'activityId')::uuid;
   IF (v_group IS NULL)=(v_activity IS NULL) THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
-  IF v_group IS NOT NULL THEN SELECT name INTO v_scope FROM hub_groups WHERE organization_id=p_org AND id=v_group AND NOT archived FOR SHARE;
+  IF v_group IS NOT NULL THEN SELECT name INTO v_scope FROM himmah.activity_groups WHERE organization_id=p_org AND id=v_group AND NOT archived FOR SHARE;
   ELSE SELECT name INTO v_scope FROM hub_activities WHERE organization_id=p_org AND id=v_activity AND NOT cancelled FOR SHARE; END IF;
   IF v_scope IS NULL THEN RETURN jsonb_build_object('code','not_found'); END IF;
-  INSERT INTO hub_volunteer_assignments(organization_id,user_id,staff_name,group_id,activity_id,scope_name,can_attend,can_award,created_by,creation_key)
-  VALUES(p_org,p_payload->>'userId',v_name,v_group,v_activity,v_scope,(p_payload->>'canAttend')::boolean,(p_payload->>'canAward')::boolean,p_actor,p_key) RETURNING * INTO v_new;
+  INSERT INTO hub_volunteer_assignments(organization_id,user_id,staff_name,group_id,activity_id,scope_name,can_attend,created_by,creation_key)
+  VALUES(p_org,p_payload->>'userId',v_name,v_group,v_activity,v_scope,(p_payload->>'canAttend')::boolean,p_actor,p_key) RETURNING * INTO v_new;
  ELSE
   SELECT * INTO v_old FROM hub_volunteer_assignments WHERE organization_id=p_org AND id=p_id FOR UPDATE;
   IF NOT FOUND THEN RETURN jsonb_build_object('code','not_found'); END IF;
   IF v_old.revoked_at IS NOT NULL THEN IF p_payload->>'action'='revoke' THEN RETURN jsonb_build_object('id',p_id); END IF; RETURN jsonb_build_object('code','conflict'); END IF;
   IF v_old.version IS DISTINCT FROM (p_payload->>'version')::integer THEN RETURN jsonb_build_object('code','conflict'); END IF;
   IF p_payload->>'action'='revoke' THEN UPDATE hub_volunteer_assignments SET revoked_at=clock_timestamp(),revoked_by=p_actor,revoke_reason='manual',version=version+1 WHERE id=p_id RETURNING * INTO v_new;
-  ELSIF p_payload->>'action'='edit' THEN UPDATE hub_volunteer_assignments SET can_attend=(p_payload->>'canAttend')::boolean,can_award=(p_payload->>'canAward')::boolean,version=version+1 WHERE id=p_id RETURNING * INTO v_new;
+  ELSIF p_payload->>'action'='edit' THEN UPDATE hub_volunteer_assignments SET can_attend=(p_payload->>'canAttend')::boolean,version=version+1 WHERE id=p_id RETURNING * INTO v_new;
   ELSE RETURN jsonb_build_object('code','invalid_input'); END IF;
  END IF;
  INSERT INTO hub_volunteer_assignment_changes(organization_id,assignment_id,actor_id,action,before,after) VALUES(p_org,v_new.id,p_actor,coalesce(p_payload->>'action','grant'),CASE WHEN p_id IS NOT NULL THEN to_jsonb(v_old) ELSE NULL END,to_jsonb(v_new));
@@ -95,4 +82,4 @@ END; $$;
 --> statement-breakpoint
 CREATE TRIGGER hub_revoke_role_access BEFORE UPDATE OF role OR DELETE ON hub_memberships FOR EACH ROW EXECUTE FUNCTION hub_revoke_role_access();
 --> statement-breakpoint
-CREATE TRIGGER hub_access_history_immutable BEFORE UPDATE OR DELETE ON hub_volunteer_assignment_changes FOR EACH ROW EXECUTE FUNCTION hub_points_immutable();
+CREATE TRIGGER hub_access_history_immutable BEFORE UPDATE OR DELETE ON hub_volunteer_assignment_changes FOR EACH ROW EXECUTE FUNCTION hub_history_immutable();

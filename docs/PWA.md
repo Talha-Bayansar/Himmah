@@ -38,4 +38,4 @@ Android push notifications use a separate 96px white leaf badge on a transparent
 
 ## Separate Futsal installation
 
-Himmah Futsal now has its own manifest identity, icon family and `/futsal` launcher, retaining Hub identity and `/hub`. See [Futsal app](FUTSAL_APP.md) for scope, navigation and installation boundaries. Both use the existing public-only service worker.
+Himmah Futsal now has its own manifest identity, icon family and `/futsal` launcher, retaining Hub identity and `/hub`. See Futsal app (historical; retained in Git) for scope, navigation and installation boundaries. Both use the existing public-only service worker.

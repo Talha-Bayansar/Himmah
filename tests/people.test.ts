@@ -38,10 +38,10 @@ test("People inputs accept name-only contacts and validate direct methods withou
 test("People baseline and actual API/SQL: tenant boundaries, retry receipts, corrections, archive and rollback", async (t) => {
   const db = new PGlite();
   try {
-    for (const file of (await readdir("db/rebuild/generated"))
+    for (const file of (await readdir("db/migrations/generated"))
       .filter((f) => f.endsWith(".sql"))
       .sort())
-      await db.exec(await readFile("db/rebuild/generated/" + file, "utf8"));
+      await db.exec(await readFile("db/migrations/generated/" + file, "utf8"));
     await db.exec(await readFile("db/rebuild/contacts.sql", "utf8"));
     await db.exec(await readFile("db/rebuild/directory.sql", "utf8"));
     await db.exec(await readFile("db/rebuild/communication.sql", "utf8"));

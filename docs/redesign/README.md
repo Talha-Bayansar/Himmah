@@ -1,5 +1,7 @@
 # Himmah redesign — 28 October 2026
 
+Current release: [complete dropped-feature removal and app integration](../REMOVAL.md) supersedes earlier statements below about retained legacy products, standalone People navigation and the previous schema lineage.
+
 Current continuation: [Who to contact and authorized hosted rollout](COMMUNICATION_STATUS.md) supersedes the earlier local-only status below.
 
 Status: contacts, groups, relationships and Who to contact are implemented. The owner authorized committing, pushing and hosted rollout; see [current implementation and rollout](COMMUNICATION_STATUS.md) and [verification record](../INFRASTRUCTURE.md). The new schema has been installed additively on verified Himmah development/onboarding; no reset or legacy contact migration occurred.

@@ -1,41 +1,39 @@
-import { EngagementTabs } from "../challenges/Challenges";
-import { EarningRule } from "./EarningRule";
-import Attendance from "../attendance/Attendance";
-import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
-  CalendarDays,
-  Plus,
-  Search,
-  Pencil,
   Archive,
   ArrowLeft,
   ArrowRight,
+  CalendarDays,
   MapPin,
+  Pencil,
+  Plus,
+  Search,
   Users,
 } from "lucide-react";
-import { m } from "../paraglide/messages.js";
-import { useLocale } from "../localization/locale";
-import type { Organization } from "../organization/contracts";
+import { useEffect, useRef, useState } from "react";
+import Attendance from "../attendance/Attendance";
 import {
   DirectoryError,
-  directoryRequest,
   directoryMessage,
+  directoryRequest,
   useDirectoryPages,
 } from "../community/client";
-import type { Activity, AudienceGroup } from "./contracts";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Checkbox } from "../components/ui/checkbox";
-import { Alert, AlertDescription } from "../components/ui/alert";
 import { ActionButton } from "../components/shared/action-button";
-import { ItemActions } from "../components/shared/item-actions";
-import {
-  ListSkeleton,
-  InfiniteFooter,
-} from "../components/shared/infinite-list";
 import { useConfirmation } from "../components/shared/confirmation";
+import {
+  InfiniteFooter,
+  ListSkeleton,
+} from "../components/shared/infinite-list";
+import { ItemActions } from "../components/shared/item-actions";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { Button } from "../components/ui/button";
+import { Checkbox } from "../components/ui/checkbox";
+import { Input } from "../components/ui/input";
+import { useLocale } from "../localization/locale";
+import type { Organization } from "../organization/contracts";
+import { m } from "../paraglide/messages.js";
+import type { Activity, AudienceGroup } from "./contracts";
 import { EntityEditor } from "./EntityEditor";
 import Sessions from "./Sessions";
 export const activityKey = (user: string, org: string) => [
@@ -245,7 +243,7 @@ export default function Activities({
           <p className="activity-note">{m.sessions_none_scheduled()}</p>
         ))}
       <Audience groups={item.groups} />
-      {full && <EarningRule amount={item.attendancePoints ?? 0} />}
+
       {full && item.location && (
         <p className="activity-location">
           <MapPin size={16} aria-hidden="true" />
@@ -272,9 +270,6 @@ export default function Activities({
   );
   return (
     <section className="activity-page">
-      {!activityId && organization.role !== "volunteer" && (
-        <EngagementTabs organizationId={organization.id} current="activities" />
-      )}
       {activityId ? (
         <>
           <Button variant="link" asChild className="settings-back">

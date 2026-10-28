@@ -1,15 +1,5 @@
 import { CommunityError } from "../community/contracts.ts";
-export const notificationKinds = [
-  "points_awarded",
-  "points_corrected",
-  "challenge_pending",
-  "challenge_approved",
-  "challenge_feedback",
-  "reward_pending",
-  "reward_reserved",
-  "reward_collected",
-  "reward_cancelled",
-] as const;
+export const notificationKinds = ["staff_notice"] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 export type HubNotification = {
   id: string;

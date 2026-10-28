@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Himmah Hub",
+  "name": "Himmah",
   "short_name": "Himmah",
-  "description": "Create your organizer account and your organization’s own workspace with Himmah Hub.",
+  "description": "Manage contacts, relationships, groups, activities and attendance for your community.",
   "lang": "en",
   "dir": "ltr",
   "start_url": "/hub",

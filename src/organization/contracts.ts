@@ -10,7 +10,7 @@ export interface Organization {
   name: string;
   slug: string;
   timezone: string;
-  role: "owner" | "admin" | "volunteer" | "participant";
+  role: "owner" | "admin" | "volunteer";
   createdAt: string;
 }
 export function organizationSlug(name: string) {

@@ -1,17 +1,17 @@
 import {
-  CommunityError,
-  uuid,
-  pageInput,
-  pageResult,
-} from "../community/contracts.ts";
-import {
   attendanceInput,
   attendanceStatuses,
   type AttendanceStatus,
 } from "../attendance/contracts.ts";
-import type { OrganizationStore } from "./store.ts";
+import {
+  CommunityError,
+  pageInput,
+  pageResult,
+  uuid,
+} from "../community/contracts.ts";
 import type { ActivityStore } from "./activity-store.ts";
 import type { AttendanceStore } from "./attendance-store.ts";
+import type { OrganizationStore } from "./store.ts";
 export async function attendanceApi(
   request: Request,
   user: { id: string; emailVerified: boolean },
@@ -21,7 +21,7 @@ export async function attendanceApi(
 ) {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/activities\/([0-9a-f-]{36})\/sessions\/([0-9a-f-]{36})\/attendance(?:\/([0-9a-f-]{36})\/history|\/(preview))?$/i,
+      /^\/api\/organizations\/([0-9a-f-]{36})\/activities\/([0-9a-f-]{36})\/sessions\/([0-9a-f-]{36})\/attendance(?:\/([0-9a-f-]{36})\/history)?$/i,
     );
   if (!match) return null;
   const respond = (body: unknown, status = 200) =>
@@ -46,7 +46,7 @@ export async function attendanceApi(
       throw new CommunityError("forbidden", 403);
     if (!(await activities.session(user.id, org, activity, session))[0])
       throw new CommunityError("not_found", 404);
-    if (request.method === "GET" && !match[5]) {
+    if (request.method === "GET") {
       const status = url.searchParams.get("status") ?? "all";
       if (!["all", ...attendanceStatuses].includes(status))
         throw new CommunityError("invalid_input");
@@ -99,7 +99,7 @@ export async function attendanceApi(
       throw new CommunityError("invalid_input");
     }
     const result = (
-      await attendance[match[5] ? "preview" : "save"](
+      await attendance.save(
         user.id,
         org,
         activity,

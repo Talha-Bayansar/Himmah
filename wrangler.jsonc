@@ -4,6 +4,7 @@
   "main": "src/server.ts",
   "vars": {
     "HIMMAH_PEOPLE_ENABLED": "true",
+    "HIMMAH_MAINTENANCE": "false",
     "HIMMAH_APP_ORIGIN": "https://himmah-hub.talha-bayansar.workers.dev",
     "HIMMAH_AUTH_URL": "https://ep-broad-sea-b9dnqx7c.neonauth.c-7.eu-central-1.aws.neon.tech/himmah_futsal/auth"
   },

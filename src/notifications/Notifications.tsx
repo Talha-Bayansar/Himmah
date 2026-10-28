@@ -1,23 +1,23 @@
-import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Bell, CheckCheck, ArrowRight, Check } from "lucide-react";
-import { m } from "../paraglide/messages.js";
-import { getLocale } from "../paraglide/runtime.js";
-import { useLocale } from "../localization/locale";
+import { ArrowRight, Bell, Check, CheckCheck } from "lucide-react";
+import { useEffect, useRef } from "react";
 import {
   DirectoryError,
   directoryRequest,
   useDirectoryPages,
 } from "../community/client";
 import { ActionButton } from "../components/shared/action-button";
-import { Button } from "../components/ui/button";
-import { Skeleton } from "../components/ui/skeleton";
+import { CollectionError } from "../components/shared/collection-error";
 import {
   InfiniteFooter,
   ListSkeleton,
 } from "../components/shared/infinite-list";
-import { PointsError } from "../points/PointsShared";
+import { Button } from "../components/ui/button";
+import { Skeleton } from "../components/ui/skeleton";
+import { useLocale } from "../localization/locale";
+import { m } from "../paraglide/messages.js";
+import { getLocale } from "../paraglide/runtime.js";
 import type { HubNotification, NotificationKind } from "./contracts";
 const prefix = (user: string, org: string) => ["notifications", user, org];
 export function useUnread(userId: string, organizationId: string) {
@@ -80,20 +80,8 @@ export function NotificationBell({
     </Button>
   );
 }
-export function notificationText(kind: NotificationKind) {
-  return (
-    {
-      points_awarded: m.notification_points_awarded,
-      points_corrected: m.notification_points_corrected,
-      challenge_pending: m.notification_challenge_pending,
-      challenge_approved: m.notification_challenge_approved,
-      challenge_feedback: m.notification_challenge_feedback,
-      reward_pending: m.notification_reward_pending,
-      reward_reserved: m.notification_reward_reserved,
-      reward_collected: m.notification_reward_collected,
-      reward_cancelled: m.notification_reward_cancelled,
-    }[kind]?.() ?? m.notifications_open()
-  );
+export function notificationText(_kind: NotificationKind) {
+  return m.notifications_open();
 }
 export function Notifications({
   userId,
@@ -155,7 +143,7 @@ export function Notifications({
         </ActionButton>
       )}
       {read.isError && !fatal && (
-        <PointsError
+        <CollectionError
           error={read.error}
           retry={() => read.mutate(read.variables ?? null)}
           pending={read.isPending}
@@ -164,7 +152,7 @@ export function Notifications({
       {list.isPending ? (
         <ListSkeleton />
       ) : fatal ? (
-        <PointsError
+        <CollectionError
           error={list.error ?? unread.error ?? read.error}
           retry={() => {
             read.reset();

@@ -1,13 +1,13 @@
+import { accessInput } from "../access/contracts.ts";
 import {
   CommunityError,
-  uuid,
-  versionInput,
   pageInput,
   pageResult,
+  uuid,
+  versionInput,
 } from "../community/contracts.ts";
-import { accessInput } from "../access/contracts.ts";
-import type { OrganizationStore } from "./store.ts";
 import type { AccessStore } from "./access-store.ts";
+import type { OrganizationStore } from "./store.ts";
 export async function accessApi(
   request: Request,
   user: { id: string; emailVerified: boolean },
@@ -16,7 +16,7 @@ export async function accessApi(
 ) {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/(access(?:\/(me|staff|[0-9a-f-]{36})(?:\/(history))?)?|work\/members)$/i,
+      /^\/api\/organizations\/([0-9a-f-]{36})\/(access(?:\/(me|staff|[0-9a-f-]{36})(?:\/(history))?)?)$/i,
     );
   if (!match) return null;
   const respond = (value: unknown, status = 200) =>
@@ -31,28 +31,12 @@ export async function accessApi(
     const org = uuid(match[1]),
       part = match[3],
       history = !!match[4],
-      work = match[2] === "work/members",
       id = part && !["me", "staff"].includes(part) ? uuid(part) : null;
     const membership = await organizations.get(user.id, org);
     if (!membership) throw new CommunityError("not_found", 404);
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
-    if (membership.role === "participant")
-      throw new CommunityError("forbidden", 403);
     if (request.method === "GET" && part === "me")
       return respond({ item: (await access.me(user.id, org))[0] });
-    if (request.method === "GET" && work) {
-      const input = pageInput(url, `${user.id}:${org}/work/members`);
-      if (input.groupId) throw new CommunityError("invalid_input");
-      return respond(
-        pageResult(
-          (await access.members(user.id, org, input)) as {
-            id: string;
-            createdAt: string;
-          }[],
-          input,
-        ),
-      );
-    }
     if (!["owner", "admin"].includes(membership.role))
       throw new CommunityError("forbidden", 403);
     if (id && !(await access.get(user.id, org, id))[0])
@@ -84,7 +68,6 @@ export async function accessApi(
       history ||
       part === "me" ||
       part === "staff" ||
-      work ||
       !(
         (!id && request.method === "POST") ||
         (id && ["PATCH", "DELETE"].includes(request.method))

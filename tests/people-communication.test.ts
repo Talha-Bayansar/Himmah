@@ -10,10 +10,10 @@ const org = "11111111-1111-4111-8111-111111111111",
 test("Communication SQL/API resolves explicit responsibilities, global priorities and tenant-safe audited commands", async (t) => {
   const db = new PGlite();
   try {
-    for (const file of (await readdir("db/rebuild/generated"))
+    for (const file of (await readdir("db/migrations/generated"))
       .filter((f) => f.endsWith(".sql"))
       .sort())
-      await db.exec(await readFile("db/rebuild/generated/" + file, "utf8"));
+      await db.exec(await readFile("db/migrations/generated/" + file, "utf8"));
     for (const file of ["contacts", "directory", "communication"])
       await db.exec(await readFile("db/rebuild/" + file + ".sql", "utf8"));
     await db.query(
@@ -348,17 +348,14 @@ test("Communication SQL/API resolves explicit responsibilities, global prioritie
     await t.test(
       "hosted adapter synchronizes staff authorization, future organizations and revocation atomically",
       async () => {
-        await db.exec(
-          `create table public.hub_organizations(id uuid primary key,name text not null,created_by text not null); create table public.hub_memberships(organization_id uuid references public.hub_organizations,user_id text,role text,primary key(organization_id,user_id));`,
-        );
         await db.exec(await readFile("db/rebuild/hosting.sql", "utf8"));
         const hosted = "33333333-3333-4333-8333-333333333333";
         await db.query(
-          `insert into public.hub_organizations values($1,'Hosted','staff')`,
+          `insert into public.hub_organizations(id,name,slug,timezone,created_by,creation_key) values($1,'Hosted','hosted','UTC','staff',gen_random_uuid())`,
           [hosted],
         );
         await db.query(
-          `insert into public.hub_memberships values($1,'staff','admin')`,
+          `insert into public.hub_memberships(organization_id,user_id,role) values($1,'staff','admin')`,
           [hosted],
         );
         assert.equal((await store.context("staff", hosted))?.name, "Hosted");
@@ -386,12 +383,12 @@ test("Communication SQL/API resolves explicit responsibilities, global prioritie
         );
         assert.equal(await store.context("staff", hosted), null);
         await db.query(
-          `insert into public.hub_memberships values($1,'staff','admin')`,
+          `insert into public.hub_memberships(organization_id,user_id,role) values($1,'staff','admin')`,
           [hosted],
         );
         assert.ok(await store.context("staff", hosted));
         await db.query(
-          `update public.hub_memberships set role='participant' where organization_id=$1`,
+          `delete from public.hub_memberships where organization_id=$1`,
           [hosted],
         );
         assert.equal(await store.context("staff", hosted), null);

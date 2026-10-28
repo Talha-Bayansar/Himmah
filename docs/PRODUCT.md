@@ -28,7 +28,7 @@ The engagement/training loop applies to either format. A short tournament can us
 
 ## Organizer capabilities
 
-Create draft seasons with mode, format, timezone, start/end, registration window, schedule, rules, rewards, and tie-breakers or knockout draw resolution. Use the validated settings builder described in [Season settings](SEASON_SETTINGS.md). Preview fixtures/brackets and training opportunities before activation. Save reusable organization templates and duplicate previous seasons into editable drafts. Assign teams and volunteers. Create custom activities and earning rules, optionally enable attendance or quizzes, approve contributions, and award points manually to individuals or selected groups with individual ledger entries. Schedule training and fixtures. Inspect job failures and retry safely. Make audited corrections. Finalize standings and record prize decisions separately from sporting results.
+Create draft seasons with mode, format, timezone, start/end, registration window, schedule, rules, rewards, and tie-breakers or knockout draw resolution. Use the validated settings builder described in Season settings (historical; retained in Git). Preview fixtures/brackets and training opportunities before activation. Save reusable organization templates and duplicate previous seasons into editable drafts. Assign teams and volunteers. Create custom activities and earning rules, optionally enable attendance or quizzes, approve contributions, and award points manually to individuals or selected groups with individual ledger entries. Schedule training and fixtures. Inspect job failures and retry safely. Make audited corrections. Finalize standings and record prize decisions separately from sporting results.
 
 ## Participant capabilities
 
@@ -58,4 +58,4 @@ Each of the two modes can run a league or tournament. A six-entry knockout creat
 
 ## Organization-defined earning system
 
-See [Engagement system](ENGAGEMENT.md). Configure activity names, points, verification, repeat limits and availability, or award points manually without creating an activity. All sources feed the same audited ledger and capped season conversion rules. Engagement points improve training; they do not directly add football league-table points. A season with no quizzes, and a season with manual awards only, must both complete in either mode/format.
+See Engagement system (historical; retained in Git). Configure activity names, points, verification, repeat limits and availability, or award points manually without creating an activity. All sources feed the same audited ledger and capped season conversion rules. Engagement points improve training; they do not directly add football league-table points. A season with no quizzes, and a season with manual awards only, must both complete in either mode/format.

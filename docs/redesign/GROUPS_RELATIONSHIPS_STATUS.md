@@ -1,5 +1,7 @@
 # Groups and relationships — local implementation
 
+Current release: [complete dropped-feature removal and app integration](../REMOVAL.md) supersedes earlier statements below about retained legacy products, standalone People navigation and the previous schema lineage.
+
 Current continuation: [Who to contact and authorized hosted rollout](COMMUNICATION_STATUS.md) supersedes the earlier local-only status below.
 
 28 October 2026, continuing `rebuild/people-foundation`. The owner authorized continuing the People rebuild after approving the compact cards/mobile controls. This increment implements groups and family/other relationships; it is not a remote cutover.

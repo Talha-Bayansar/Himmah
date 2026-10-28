@@ -1,34 +1,33 @@
-import { EarningRule } from "./EarningRule";
-import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
-  ClipboardCheck,
-  Plus,
-  CalendarDays,
-  Pencil,
-  Ban,
   ArrowRight,
+  Ban,
+  CalendarDays,
+  ClipboardCheck,
   MapPin,
+  Pencil,
+  Plus,
 } from "lucide-react";
-import { m } from "../paraglide/messages.js";
-import { useLocale } from "../localization/locale";
-import type { Organization } from "../organization/contracts";
-import type { Activity, Session } from "./contracts";
+import { useEffect, useRef, useState } from "react";
 import {
   DirectoryError,
   directoryRequest,
   useDirectoryPages,
 } from "../community/client";
-import { activityKey, ErrorNotice, Audience, Schedule } from "./Activities";
-import { EntityEditor } from "./EntityEditor";
+import {
+  InfiniteFooter,
+  ListSkeleton,
+} from "../components/shared/infinite-list";
+import { ItemActions } from "../components/shared/item-actions";
 import { Button } from "../components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
-import { ItemActions } from "../components/shared/item-actions";
-import {
-  ListSkeleton,
-  InfiniteFooter,
-} from "../components/shared/infinite-list";
+import { useLocale } from "../localization/locale";
+import type { Organization } from "../organization/contracts";
+import { m } from "../paraglide/messages.js";
+import { activityKey, Audience, ErrorNotice, Schedule } from "./Activities";
+import type { Activity, Session } from "./contracts";
+import { EntityEditor } from "./EntityEditor";
 export default function Sessions({
   organization,
   userId,
@@ -166,10 +165,7 @@ export default function Sessions({
         {full && (
           <>
             <Audience groups={item.groups} />
-            <EarningRule
-              amount={item.attendancePoints ?? 0}
-              version={item.earningRuleVersion ?? 0}
-            />
+
             {item.location && (
               <p className="activity-location">
                 <MapPin size={16} aria-hidden="true" />

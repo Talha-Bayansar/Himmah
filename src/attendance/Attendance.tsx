@@ -1,39 +1,38 @@
-import { EarningRule } from "../activities/EarningRule";
-import { useState } from "react";
 import {
   useInfiniteQuery,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Search, ClipboardCheck, History, Users, X } from "lucide-react";
-import { m } from "../paraglide/messages.js";
-import { useLocale } from "../localization/locale";
-import type { Organization } from "../organization/contracts";
-import type { Session } from "../activities/contracts";
-import { directoryRequest, DirectoryError } from "../community/client";
+import { ClipboardCheck, History, Search, Users, X } from "lucide-react";
+import { useState } from "react";
 import { ErrorNotice, Schedule } from "../activities/Activities";
+import type { Session } from "../activities/contracts";
+import { DirectoryError, directoryRequest } from "../community/client";
+import { ActionButton } from "../components/shared/action-button";
+import {
+  InfiniteFooter,
+  ListSkeleton,
+} from "../components/shared/infinite-list";
+import { ItemActions } from "../components/shared/item-actions";
 import { Button } from "../components/ui/button";
+import { Checkbox } from "../components/ui/checkbox";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { Checkbox } from "../components/ui/checkbox";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "../components/ui/native-select";
-import { ItemActions } from "../components/shared/item-actions";
-import { ActionButton } from "../components/shared/action-button";
-import {
-  ListSkeleton,
-  InfiniteFooter,
-} from "../components/shared/infinite-list";
+import { useLocale } from "../localization/locale";
+import type { Organization } from "../organization/contracts";
+import { m } from "../paraglide/messages.js";
 import { AttendanceEditor } from "./AttendanceEditor";
 import { AttendanceHistory } from "./AttendanceHistory";
 import {
   attendanceStatuses,
   type AttendancePerson,
+  type AttendanceResult,
   type AttendanceStatus,
   type AttendanceSummary,
-  type AttendanceResult,
 } from "./contracts";
 export function statusLabel(status: AttendanceStatus) {
   return {
@@ -67,7 +66,7 @@ export default function Attendance({
     queryKey: ["organization", userId, organization.id, "my-access"],
     enabled: !isAdmin,
     queryFn: ({ signal }) =>
-      directoryRequest<{ item: { canAttend: boolean; canAward: boolean } }>(
+      directoryRequest<{ item: { canAttend: boolean } }>(
         `/api/organizations/${organization.id}/access/me`,
         { signal },
       ),
@@ -129,15 +128,7 @@ export default function Attendance({
     setNotice(result);
     setEditor(null);
     setSelected(new Map());
-    await Promise.all([
-      cache.invalidateQueries({ queryKey: key }),
-      cache.invalidateQueries({
-        queryKey: ["organization", userId, organization.id, "points"],
-      }),
-      cache.invalidateQueries({
-        queryKey: ["organization", userId, organization.id, "periods"],
-      }),
-    ]);
+    await cache.invalidateQueries({ queryKey: key });
   };
   const saved =
       notice?.items.filter(
@@ -192,25 +183,11 @@ export default function Attendance({
         <div className="attendance-context">
           <h2>{session.data.item.name}</h2>
           <Schedule {...session.data.item} />
-          <EarningRule
-            amount={session.data.item.attendancePoints ?? 0}
-            version={session.data.item.earningRuleVersion ?? 0}
-          />
         </div>
       )}
       {notice && (
         <div className="attendance-notice" role={failed ? "alert" : "status"}>
           <p>{m.attendance_saved({ count: String(saved) })}</p>
-          {notice.items.some((item) => (item.pointsDelta ?? 0) !== 0) && (
-            <p>
-              {m.earning_applied({
-                amount: notice.items.reduce(
-                  (sum, item) => sum + (item.pointsDelta ?? 0),
-                  0,
-                ),
-              })}
-            </p>
-          )}
           {!!failed && (
             <>
               <p>{m.attendance_failed({ count: String(failed) })}</p>
@@ -400,7 +377,6 @@ export default function Attendance({
       {editor && (
         <AttendanceEditor
           records={editor}
-          ruleAmount={session.data?.item.attendancePoints ?? 0}
           path={base + "/attendance"}
           onClose={() => {
             setEditor(null);

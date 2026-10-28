@@ -1,2 +1,4 @@
 /// <reference types="vite/client" />
-declare module 'cloudflare:workers' { export const env: unknown; }
+declare module "cloudflare:workers" {
+  export const env: unknown;
+}

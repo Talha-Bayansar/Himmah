@@ -1,12 +1,10 @@
 import {
   CommunityError,
-  uuid,
-  nameInput,
-  versionInput,
+  invitationInput,
   pageInput,
   pageResult,
-  invitationInput,
   tokenHash,
+  uuid,
   type StaffRole,
 } from "../community/contracts.ts";
 import type { CommunityStore, DirectoryIdentity } from "./community-store.ts";
@@ -58,90 +56,18 @@ export async function communityApi(
       return respond({ organizationId: result[0].id });
     }
     const match = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/(people|groups|staff|invitations)(?:\/([^/]+))?(?:\/groups\/([0-9a-f-]{36}))?$/i,
+      /^\/api\/organizations\/([0-9a-f-]{36})\/(staff|invitations)(?:\/([^/]+))?(?:\/groups\/([0-9a-f-]{36}))?$/i,
     );
-    const options = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/people\/([0-9a-f-]{36})\/group-options$/i,
-    );
-    const members = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/groups\/([0-9a-f-]{36})\/(member-options|members)$/i,
-    );
-    if (!match && !options && !members) return null;
-    const orgId = uuid((match ?? options ?? members)![1]);
-    const kind = members
-      ? members[3]!.toLowerCase()
-      : options
-        ? "group-options"
-        : match![2]!.toLowerCase();
-    const id = options ? options[2] : match?.[3];
-    const groupId = match?.[4];
+    if (!match) return null;
+    const orgId = uuid(match[1]),
+      kind = match[2]!,
+      id = match[3];
     const org = await organizations.get(user.id, orgId);
     if (!org) throw new CommunityError("not_found", 404);
     if (!["owner", "admin"].includes(org.role))
       throw new CommunityError("forbidden", 403);
     if (request.method !== "GET" && !user.emailVerified)
       throw new CommunityError("verify_required", 403);
-    if (members) {
-      const group = uuid(members[2]);
-      if (!(await directory.group(user.id, orgId, group))[0])
-        throw new CommunityError("not_found", 404);
-      if (kind === "member-options" && request.method === "GET") {
-        const input = pageInput(
-          url,
-          user.id + ":" + orgId + "/member-options/" + group,
-        );
-        return respond(
-          pageResult(
-            (await directory.memberOptions(
-              user.id,
-              orgId,
-              group,
-              input,
-            )) as unknown as { id: string; createdAt: string }[],
-            input,
-          ),
-        );
-      }
-      if (kind === "members" && request.method === "POST") {
-        const value = await body();
-        if (
-          !Array.isArray(value.people) ||
-          value.people.length < 1 ||
-          value.people.length > 50
-        )
-          throw new CommunityError("invalid_input");
-        const people = value.people.map((id) => uuid(id).toLowerCase()).sort();
-        if (new Set(people).size !== people.length)
-          throw new CommunityError("invalid_input");
-        const rows = await directory.addMembers(user.id, orgId, group, people);
-        if (rows.length !== people.length)
-          throw new CommunityError("conflict", 409);
-        return respond({ success: true });
-      }
-      return respond({ code: "not_found" }, 404);
-    }
-    if (kind === "group-options") {
-      if (request.method !== "GET") return respond({ code: "not_found" }, 404);
-      const person = uuid(id);
-      if (!(await directory.person(user.id, orgId, person))[0])
-        throw new CommunityError("not_found", 404);
-      const input = pageInput(
-        url,
-        user.id + ":" + orgId + "/group-options/" + person,
-      );
-      const rows = await directory.groupOptions(user.id, orgId, person, input);
-      return respond(
-        pageResult(
-          rows as unknown as { id: string; createdAt: string }[],
-          input,
-        ),
-      );
-    }
-    if (request.method === "GET" && kind === "groups" && id && !groupId) {
-      const rows = await directory.group(user.id, orgId, uuid(id));
-      if (!rows[0]) throw new CommunityError("not_found", 404);
-      return respond({ item: rows[0] });
-    }
     if (request.method === "GET" && !id) {
       const input = pageInput(url, user.id + ":" + orgId + "/" + kind);
       const rows =
@@ -149,12 +75,7 @@ export async function communityApi(
           ? await directory.staff(user.id, orgId, input)
           : kind === "invitations"
             ? await directory.invites(user.id, orgId, input)
-            : await directory.list(
-                user.id,
-                orgId,
-                kind as "people" | "groups",
-                input,
-              );
+            : [];
       return respond(
         pageResult(
           rows as unknown as { id: string; createdAt: string }[],
@@ -163,56 +84,6 @@ export async function communityApi(
       );
     }
     const value = await body();
-    if ((kind === "people" || kind === "groups") && !groupId) {
-      let result;
-      if (!id && request.method === "POST") {
-        if (kind === "people" && value.consent !== true)
-          throw new CommunityError("consent_required");
-        result = await directory.create(
-          user.id,
-          orgId,
-          kind,
-          nameInput(value),
-          uuid(value.key),
-        );
-      } else if (id && request.method === "PATCH") {
-        const name = value.name === undefined ? null : nameInput(value);
-        const archived =
-          typeof value.archived === "boolean" ? value.archived : null;
-        if (name === null && archived === null)
-          throw new CommunityError("invalid_input");
-        result = await directory.update(
-          user.id,
-          orgId,
-          kind,
-          uuid(id),
-          versionInput(value),
-          name,
-          archived,
-        );
-      } else return respond({ code: "not_found" }, 404);
-      if (!result[0]) throw new CommunityError("conflict", 409);
-      return respond(
-        { item: result[0] },
-        request.method === "POST" ? 201 : 200,
-      );
-    }
-    if (
-      kind === "people" &&
-      id &&
-      groupId &&
-      ["PUT", "DELETE"].includes(request.method)
-    ) {
-      const rows = await directory.setGroup(
-        user.id,
-        orgId,
-        uuid(id),
-        uuid(groupId),
-        request.method === "PUT",
-      );
-      if (!rows[0]) throw new CommunityError("conflict", 409);
-      return respond({ success: true });
-    }
     if (
       kind === "staff" &&
       id &&

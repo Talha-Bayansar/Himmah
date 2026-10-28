@@ -1,5 +1,7 @@
 # Who to contact — implementation and rollout
 
+Current release: [complete dropped-feature removal and app integration](../REMOVAL.md) supersedes earlier statements below about retained legacy products, standalone People navigation and the previous schema lineage.
+
 28 October 2026. The owner authorized implementation, commits, pushing and deployment in the current conversation. This supersedes the earlier local-only authorization for this release. No database reset is part of this rollout.
 
 ## Behavior

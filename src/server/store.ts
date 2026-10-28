@@ -1,7 +1,7 @@
-import type { PageInput } from "../community/contracts.ts";
 import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
 import { sql, type SQL } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/neon-http";
+import type { PageInput } from "../community/contracts.ts";
 import type {
   Organization,
   OrganizationInput,
@@ -22,7 +22,7 @@ export function createStore(
       : (await db.execute(statement)).rows,
   });
   const access = (user: string) =>
-    sql`access as (select organization_id,role from hub_memberships where user_id=${user} union all select l.organization_id,'participant'::text as role from hub_participant_links l join hub_people p on p.organization_id=l.organization_id and p.id=l.person_id where l.user_id=${user} and l.revoked_at is null and not p.archived and not exists(select 1 from hub_memberships where organization_id=l.organization_id and user_id=${user}))`;
+    sql`access as (select organization_id,role from hub_memberships where user_id=${user})`;
   const projection = sql`o.id, o.name, o.slug, o.timezone, m.role, o.created_at::text as "createdAt"`;
   return {
     async list(userId, input) {

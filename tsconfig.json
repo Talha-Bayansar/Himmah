@@ -28,8 +28,7 @@
     "vite.config.ts",
     "drizzle.config.ts",
     "tests/**/*.tsx",
-    "vitest.config.ts",
-    "drizzle.rebuild.config.ts"
+    "vitest.config.ts"
   ],
   "exclude": ["node_modules"]
 }

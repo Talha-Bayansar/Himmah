@@ -1,23 +1,26 @@
-import { useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
-import { Save, X, Users, CalendarDays, UserCheck } from "lucide-react";
+import { CalendarDays, Save, UserCheck, Users, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { DirectoryError, directoryRequest } from "../community/client";
+import { ActionButton } from "../components/shared/action-button";
+import { CollectionError } from "../components/shared/collection-error";
+import { useConfirmation } from "../components/shared/confirmation";
+import {
+  RecordOptions,
+  type RecordOption,
+} from "../components/shared/record-options";
 import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
-import { Label } from "../components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "../components/ui/dialog";
-import { ActionButton } from "../components/shared/action-button";
-import { useConfirmation } from "../components/shared/confirmation";
-import { directoryRequest, DirectoryError } from "../community/client";
-import { PointsError } from "../points/PointsShared";
-import { PointsOptions, type PointsOption } from "../points/PointsOptions";
+import { Label } from "../components/ui/label";
 import { m } from "../paraglide/messages.js";
 import type { AccessAssignment } from "./contracts";
 export function AccessEditor({
@@ -41,22 +44,21 @@ export function AccessEditor({
     [mode, setMode] = useState<"groups" | "activities">("groups");
   const form = useForm({
     defaultValues: {
-      volunteer: null as PointsOption | null,
-      target: null as PointsOption | null,
+      volunteer: null as RecordOption | null,
+      target: null as RecordOption | null,
       canAttend: assignment?.canAttend ?? false,
-      canAward: assignment?.canAward ?? false,
     },
     onSubmit: async ({ value }) => {
       if (!attempt.current) {
-        if (!value.canAttend && !value.canAward) {
+        if (!value.canAttend) {
           submit.reset();
           throw new DirectoryError("access_capabilities");
         }
         if (!assignment && (!value.volunteer || !value.target)) return;
         if (
           assignment &&
-          ((assignment.canAttend && !value.canAttend) ||
-            (assignment.canAward && !value.canAward)) &&
+          assignment.canAttend &&
+          !value.canAttend &&
           !(await confirm({
             title: m.access_edit(),
             description: m.access_reduce_help(),
@@ -68,7 +70,6 @@ export function AccessEditor({
         attempt.current = assignment
           ? {
               canAttend: value.canAttend,
-              canAward: value.canAward,
               version: assignment.version,
             }
           : {
@@ -76,7 +77,6 @@ export function AccessEditor({
               groupId: mode === "groups" ? value.target!.id : null,
               activityId: mode === "activities" ? value.target!.id : null,
               canAttend: value.canAttend,
-              canAward: value.canAward,
               key: crypto.randomUUID(),
             };
       }
@@ -142,7 +142,7 @@ export function AccessEditor({
           </DialogTitle>
           <DialogDescription>{m.access_scope_help()}</DialogDescription>
         </DialogHeader>
-        {submit.isError && <PointsError error={submit.error} />}
+        {submit.isError && <CollectionError error={submit.error} />}
         <form
           className="directory-form"
           onSubmit={(e) => {
@@ -167,7 +167,7 @@ export function AccessEditor({
                 {values.volunteer?.name || m.access_volunteer()}
               </Button>
               {picker === "staff" && (
-                <PointsOptions
+                <RecordOptions
                   path={base + "/access/staff"}
                   scope={[...scope, "staff-options"]}
                   selected={
@@ -234,7 +234,7 @@ export function AccessEditor({
                   (mode === "groups" ? m.access_group() : m.access_activity())}
               </Button>
               {picker === mode && (
-                <PointsOptions
+                <RecordOptions
                   key={mode}
                   path={base + "/" + mode}
                   scope={[...scope, mode + "-options"]}
@@ -252,7 +252,7 @@ export function AccessEditor({
               )}
             </>
           )}
-          {(["canAttend", "canAward"] as const).map((name) => (
+          {(["canAttend"] as const).map((name) => (
             <form.Field key={name} name={name}>
               {(field) => (
                 <div>
@@ -264,16 +264,10 @@ export function AccessEditor({
                         field.handleChange(checked === true)
                       }
                     />
-                    <span>
-                      {name === "canAttend"
-                        ? m.access_attend()
-                        : m.access_award()}
-                    </span>
+                    <span>{m.access_attend()}</span>
                   </Label>
                   <p className="access-permission-help">
-                    {name === "canAttend"
-                      ? m.access_attend_help()
-                      : m.access_award_help()}
+                    {m.access_attend_help()}
                   </p>
                 </div>
               )}
@@ -296,7 +290,7 @@ export function AccessEditor({
               pending={submit.isPending}
               disabled={
                 (!assignment && (!values.volunteer || !values.target)) ||
-                (!values.canAttend && !values.canAward)
+                !values.canAttend
               }
             >
               <Save aria-hidden="true" />

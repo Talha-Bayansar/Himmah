@@ -1,42 +1,42 @@
-import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
+  History,
+  Pencil,
   Plus,
   Search,
-  Pencil,
   UserMinus,
-  History,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Checkbox } from "../components/ui/checkbox";
+import { useEffect, useState } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../components/ui/dialog";
-import { ItemActions } from "../components/shared/item-actions";
+  DirectoryError,
+  directoryRequest,
+  useDirectoryPages,
+} from "../community/client";
+import { CollectionError } from "../components/shared/collection-error";
+import { useConfirmation } from "../components/shared/confirmation";
 import {
   InfiniteFooter,
   ListSkeleton,
 } from "../components/shared/infinite-list";
-import { useConfirmation } from "../components/shared/confirmation";
+import { ItemActions } from "../components/shared/item-actions";
+import { Button } from "../components/ui/button";
+import { Checkbox } from "../components/ui/checkbox";
 import {
-  directoryRequest,
-  useDirectoryPages,
-  DirectoryError,
-} from "../community/client";
-import { PointsError } from "../points/PointsShared";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
 import { useLocale } from "../localization/locale";
-import { getLocale } from "../paraglide/runtime.js";
-import { m } from "../paraglide/messages.js";
 import type { Organization } from "../organization/contracts";
-import type { AccessAssignment } from "./contracts";
+import { m } from "../paraglide/messages.js";
+import { getLocale } from "../paraglide/runtime.js";
 import { AccessEditor } from "./AccessEditor";
+import type { AccessAssignment } from "./contracts";
 export default function Assignments({
   organization,
   userId,
@@ -122,11 +122,11 @@ export default function Assignments({
           {m.access_show_revoked()}
         </label>
       </div>
-      {revoke.isError && <PointsError error={revoke.error} />}
+      {revoke.isError && <CollectionError error={revoke.error} />}
       {pages.isPending ? (
         <ListSkeleton />
       ) : blocked ? (
-        <PointsError
+        <CollectionError
           error={pages.error}
           pending={pages.isFetching}
           retry={() => {
@@ -151,10 +151,7 @@ export default function Assignments({
                           : m.access_active()}
                     </small>
                     <p>
-                      {[
-                        item.canAttend ? m.access_attend() : null,
-                        item.canAward ? m.access_award() : null,
-                      ]
+                      {[item.canAttend ? m.access_attend() : null]
                         .filter(Boolean)
                         .join(" · ")}
                     </p>
@@ -258,7 +255,7 @@ function AccessHistory({
     createdAt: string;
     action: string;
     actorName: string | null;
-    after: { can_attend: boolean; can_award: boolean };
+    after: { can_attend: boolean };
   }>(scope, path);
   return (
     <Dialog
@@ -283,7 +280,7 @@ function AccessHistory({
                 ["forbidden", "not_found", "sign_in"].includes(
                   pages.error.code,
                 ))) ? (
-            <PointsError
+            <CollectionError
               error={pages.error}
               pending={pages.isFetching}
               retry={() => {
@@ -311,7 +308,7 @@ function AccessHistory({
                           {row.actorName ??
                             (row.action === "staff_change"
                               ? m.access_system()
-                              : m.points_actor())}{" "}
+                              : m.staff_actor())}{" "}
                           ·{" "}
                           {new Intl.DateTimeFormat(getLocale(), {
                             dateStyle: "medium",
@@ -320,10 +317,7 @@ function AccessHistory({
                           }).format(new Date(row.createdAt))}
                         </p>
                         <small>
-                          {[
-                            row.after.can_attend ? m.access_attend() : null,
-                            row.after.can_award ? m.access_award() : null,
-                          ]
+                          {[row.after.can_attend ? m.access_attend() : null]
                             .filter(Boolean)
                             .join(" · ")}
                         </small>

@@ -1,38 +1,37 @@
-import { EarningRule } from "./EarningRule";
-import { useEffect, useRef, useState } from "react";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
-import { Save, X, Search } from "lucide-react";
-import { m } from "../paraglide/messages.js";
-import type { Organization } from "../organization/contracts";
-import type { Activity, Session } from "./contracts";
-import { localTime } from "./contracts";
+import { Save, Search, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { DirectoryError, useDirectoryPages } from "../community/client";
 import type { Group } from "../community/contracts";
-import { useDirectoryPages, DirectoryError } from "../community/client";
+import { ActionButton } from "../components/shared/action-button";
+import { useConfirmation } from "../components/shared/confirmation";
+import {
+  InfiniteFooter,
+  ListSkeleton,
+} from "../components/shared/infinite-list";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
-import { Label } from "../components/ui/label";
 import { Checkbox } from "../components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import {
   NativeSelect,
   NativeSelectOption,
 } from "../components/ui/native-select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../components/ui/dialog";
-import { ActionButton } from "../components/shared/action-button";
-import {
-  ListSkeleton,
-  InfiniteFooter,
-} from "../components/shared/infinite-list";
-import { useConfirmation } from "../components/shared/confirmation";
-import { ErrorNotice, Audience } from "./Activities";
+import { Textarea } from "../components/ui/textarea";
+import type { Organization } from "../organization/contracts";
+import { m } from "../paraglide/messages.js";
+import { ErrorNotice } from "./Activities";
+import type { Activity, Session } from "./contracts";
+import { localTime } from "./contracts";
 export function EntityEditor({
   kind,
   activity,
@@ -50,9 +49,6 @@ export function EntityEditor({
   onClose: () => void;
   onSave: (value: Record<string, unknown>, key: string) => Promise<void>;
 }) {
-  const [earningEnabled, setEarningEnabled] = useState(
-    (activity?.attendancePoints ?? 0) > 0,
-  );
   const confirm = useConfirmation(),
     key = useRef(crypto.randomUUID());
   const timezone =
@@ -87,7 +83,6 @@ export function EntityEditor({
       startLocal: session ? localTime(session.startsAt, timezone) : "",
       endLocal: session ? localTime(session.endsAt, timezone) : "",
       reason: "",
-      attendancePoints: String(activity?.attendancePoints ?? 0),
       audienceMode: activity?.audienceGroupIds.length ? "groups" : "everyone",
       audienceGroupIds: activity?.audienceGroupIds ?? [],
     },
@@ -95,7 +90,6 @@ export function EntityEditor({
       await submit
         .mutateAsync({
           ...value,
-          attendancePoints: Number(value.attendancePoints),
         })
         .catch(() => {});
     },
@@ -169,14 +163,6 @@ export function EntityEditor({
             void form.handleSubmit();
           }}
         >
-          {kind === "session" && (
-            <div className="session-form-context">
-              <p id="activity-timezone">
-                {m.activities_timezone({ timezone })}
-              </p>
-              <Audience groups={session?.groups ?? activity?.groups ?? []} />
-            </div>
-          )}
           {fields.map(([name, label, type, max]) => (
             <form.Field name={name} key={name}>
               {(field) => (
@@ -213,53 +199,6 @@ export function EntityEditor({
               )}
             </form.Field>
           ))}
-          {kind === "session" && (
-            <EarningRule
-              amount={
-                session?.attendancePoints ?? activity?.attendancePoints ?? 0
-              }
-              {...(session ? { version: session.earningRuleVersion ?? 0 } : {})}
-            />
-          )}
-          {kind === "activity" && (
-            <form.Field name="attendancePoints">
-              {(field) => (
-                <div className="earning-rule-field">
-                  <Label className="directory-check">
-                    <Checkbox
-                      checked={earningEnabled}
-                      disabled={submit.isPending}
-                      onCheckedChange={(checked) => {
-                        setEarningEnabled(checked === true);
-                        field.handleChange(checked ? "1" : "0");
-                      }}
-                    />
-                    <span>{m.earning_enable()}</span>
-                  </Label>
-                  {earningEnabled && (
-                    <>
-                      <Label htmlFor="earning-amount">
-                        {m.earning_amount()}
-                      </Label>
-                      <Input
-                        id="earning-amount"
-                        type="number"
-                        inputMode="numeric"
-                        min={1}
-                        max={10000}
-                        step={1}
-                        required
-                        value={field.state.value}
-                        disabled={submit.isPending}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                      />
-                    </>
-                  )}
-                  <p>{m.earning_help()}</p>
-                </div>
-              )}
-            </form.Field>
-          )}
           {kind === "activity" && (
             <form.Field name="audienceMode">
               {(mode) => (

@@ -340,7 +340,7 @@ it("unconfirmed writes keep the same request key and payload on retry without op
 });
 it("volunteers without assignments cannot load private attendance records", async () => {
   const fetcher = vi.fn(async () =>
-    Response.json({ item: { canAttend: false, canAward: false } }),
+    Response.json({ item: { canAttend: false } }),
   );
   vi.stubGlobal("fetch", fetcher);
   mount("volunteer");

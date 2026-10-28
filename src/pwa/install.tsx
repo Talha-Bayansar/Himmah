@@ -1,8 +1,8 @@
 import { useRouterState } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { useEffect, useState } from "react";
 import { ActionButton } from "../components/shared/action-button";
+import { Button } from "../components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,8 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
-import { m } from "../paraglide/messages.js";
 import { useLocale } from "../localization/locale";
+import { m } from "../paraglide/messages.js";
 interface InstallEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
@@ -20,46 +20,10 @@ export function PwaRegistration() {
   const path = useRouterState({ select: (s) => s.location.pathname }),
     locale = useLocale()?.locale;
   useEffect(() => {
-    const futsal = path.startsWith("/futsal");
     document
       .querySelector('link[rel="manifest"]')
-      ?.setAttribute(
-        "href",
-        `${futsal ? "/futsal" : ""}/manifest.${locale ?? "en"}.webmanifest`,
-      );
-    document
-      .querySelector('link[rel="apple-touch-icon"]')
-      ?.setAttribute(
-        "href",
-        futsal ? "/pwa/futsal/icon-180.png" : "/pwa/apple-touch-icon.png",
-      );
-    document
-      .querySelector('meta[name="apple-mobile-web-app-title"]')
-      ?.setAttribute("content", futsal ? "Himmah Futsal" : "Himmah");
-    document.title = futsal ? m.futsal_title() : m.page_title();
-    document
-      .querySelector('link[rel="icon"][type="image/svg+xml"]')
-      ?.setAttribute("href", futsal ? "/pwa/futsal/icon.svg" : "/pwa/icon.svg");
-    document
-      .querySelector('link[rel="icon"][type="image/png"]')
-      ?.setAttribute(
-        "href",
-        futsal ? "/pwa/futsal/icon-32.png" : "/pwa/icon-32.png",
-      );
-    document
-      .querySelectorAll<HTMLLinkElement>(
-        'link[rel="apple-touch-startup-image"]',
-      )
-      .forEach((link) => {
-        const path = new URL(link.href, location.origin).pathname.replace(
-          "/pwa/futsal/",
-          "/pwa/",
-        );
-        link.setAttribute(
-          "href",
-          futsal ? path.replace("/pwa/", "/pwa/futsal/") : path,
-        );
-      });
+      ?.setAttribute("href", `/manifest.${locale ?? "en"}.webmanifest`);
+    document.title = m.page_title();
   }, [path, locale]);
   useEffect(() => {
     if (import.meta.env.PROD && "serviceWorker" in navigator) {
@@ -72,7 +36,7 @@ export function PwaRegistration() {
   }, []);
   return null;
 }
-export function InstallApp({ futsal = false }: { futsal?: boolean } = {}) {
+export function InstallApp() {
   useLocale();
   const [open, setOpen] = useState(false);
   const [prompt, setPrompt] = useState<InstallEvent | null>(null);
@@ -121,17 +85,13 @@ export function InstallApp({ futsal = false }: { futsal?: boolean } = {}) {
     <>
       <Button variant="outline" onClick={() => setOpen(true)}>
         <Download size={16} />
-        {futsal ? m.arena_install() : m.install_app()}
+        {m.install_app()}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent showCloseButton={false}>
           <DialogHeader>
-            <DialogTitle>
-              {futsal ? m.arena_install() : m.install_title()}
-            </DialogTitle>
-            <DialogDescription>
-              {futsal ? m.arena_install_help() : m.install_description()}
-            </DialogDescription>
+            <DialogTitle>{m.install_title()}</DialogTitle>
+            <DialogDescription>{m.install_description()}</DialogDescription>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {ios ? m.install_ios() : m.install_other()}

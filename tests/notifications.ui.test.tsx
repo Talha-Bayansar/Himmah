@@ -20,8 +20,8 @@ const org = "11111111-1111-4111-8111-111111111111",
   id = "22222222-2222-4222-8222-222222222222",
   row = {
     id,
-    kind: "challenge_approved",
-    href: `/workspace/${org}/challenges/${id}`,
+    kind: "staff_notice",
+    href: `/workspace/${org}/activities`,
     readAt: null,
     createdAt: "2026-10-20T12:00:00Z",
   };
@@ -84,7 +84,7 @@ it("keeps loaded notification pages after next-page failure, retries, and marks 
             {
               ...row,
               id: "33333333-3333-4333-8333-333333333333",
-              kind: "reward_reserved",
+              kind: "staff_notice",
               readAt: read ? row.createdAt : null,
             },
           ],
@@ -97,19 +97,13 @@ it("keeps loaded notification pages after next-page failure, retries, and marks 
       });
     }),
   );
-  mount(<Notifications userId="child" organizationId={org} />);
-  expect(
-    await screen.findByText("Your challenge completion was approved."),
-  ).toBeTruthy();
+  mount(<Notifications userId="staff" organizationId={org} />);
+  expect((await screen.findAllByText("View update"))[0]).toBeTruthy();
   const user = userEvent.setup();
   await user.click(screen.getByRole("button", { name: "Load more" }));
-  expect(
-    await screen.findByText("Your challenge completion was approved."),
-  ).toBeTruthy();
+  expect((await screen.findAllByText("View update"))[0]).toBeTruthy();
   await user.click(await screen.findByRole("button", { name: "Try again" }));
-  expect(
-    await screen.findByText("Your reward has been reserved."),
-  ).toBeTruthy();
+  expect((await screen.findAllByText("View update"))[0]).toBeTruthy();
   await user.click(screen.getByRole("button", { name: "Mark all as read" }));
   await waitFor(() =>
     expect(
@@ -130,15 +124,11 @@ it("hides cached notification content immediately after access is revoked", asyn
           : Response.json({ items: [row], nextCursor: null }),
     ),
   );
-  const client = mount(<Notifications userId="child" organizationId={org} />);
-  await screen.findByText("Your challenge completion was approved.");
+  const client = mount(<Notifications userId="staff" organizationId={org} />);
+  (await screen.findAllByText("View update"))[0];
   denied = true;
-  await client.invalidateQueries({ queryKey: ["notifications", "child", org] });
-  await waitFor(() =>
-    expect(
-      screen.queryByText("Your challenge completion was approved."),
-    ).toBeNull(),
-  );
+  await client.invalidateQueries({ queryKey: ["notifications", "staff", org] });
+  await waitFor(() => expect(screen.queryByText("View update")).toBeNull());
 });
 it("requests browser permission only after explicit enable, preserves errors and allows retry", async () => {
   let permission: NotificationPermission = "default";
@@ -182,7 +172,7 @@ it("requests browser permission only after explicit enable, preserves errors and
         : Response.json({ publicKey: "BAAA" }),
     ),
   );
-  mount(<PushSettings userId="child" />);
+  mount(<PushSettings userId="staff" />);
   const enable = await screen.findByRole("button", {
     name: "Enable on this device",
   });
@@ -225,7 +215,7 @@ it("requires confirmation before disabling this device or all devices", async ()
           : Response.json({ publicKey: "BAAA" }),
   );
   vi.stubGlobal("fetch", fetcher);
-  mount(<PushSettings userId="child" />);
+  mount(<PushSettings userId="staff" />);
   await screen.findByText("Push notifications are enabled on this device.");
   const user = userEvent.setup();
   await user.click(
