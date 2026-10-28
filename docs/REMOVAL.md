@@ -1,5 +1,7 @@
 # Removal of dropped features
 
+Completed: committed, pushed, and deployed on the verified Himmah Worker. Both development and hosted onboarding have zero removed-feature tables/functions/fields. The hosted cutover preserves sixteen contacts, two groups, two activities, three sessions, nine attendance records and existing staff/organization access. See the [verification record](INFRASTRUCTURE.md).
+
 28 October 2026. The owner explicitly requested deleting all dropped features from both the application and database schemas, continuing the earlier authorization to commit, push and deploy. This supersedes previous instructions to retain optional product implementations in the working tree; Git history remains intact.
 
 ## Scope
