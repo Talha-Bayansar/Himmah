@@ -1,3 +1,5 @@
+> Historical scope: superseded for the rebuild on 28 October 2026 by the [current redesign](redesign/README.md) and [owner brief](redesign/OWNER_BRIEF.md). Retained as prior decisions/implementation reference, not current product requirements.
+
 # Participant account access
 
 Owners/admins can open a member's details, choose **Participant access** from its action menu, and invite the participant to a private personal area. This is separate from staff access. Roster creation alone still creates no login.

@@ -1,3 +1,8 @@
+import { peopleApi } from "../modules/people/api.ts";
+import {
+  createPeopleStore,
+  type PeopleStore,
+} from "../modules/people/store.ts";
 import { futsalGameApi } from "./futsal-game-api.ts";
 import {
   createFutsalGameStore,
@@ -49,6 +54,7 @@ import {
 export interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   HIMMAH_DATABASE_URL: string;
+  HIMMAH_PEOPLE_ENABLED?: string;
   HIMMAH_VAPID_PUBLIC_KEY?: string;
   HIMMAH_VAPID_PRIVATE_KEY?: string;
   HIMMAH_AUTH_URL: string;
@@ -70,6 +76,7 @@ type Dependencies = {
   fetch: typeof fetch;
   store: (url: string) => OrganizationStore;
   directory?: (url: string) => CommunityStore;
+  people?: (url: string) => PeopleStore;
   challenges?: (url: string) => ChallengeStore;
   notifications?: (url: string) => NotificationStore;
   futsal?: (url: string) => FutsalStore;
@@ -240,6 +247,25 @@ export function createHandler(
         });
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
+      if (
+        /^\/api\/organizations\/[^/]+\/people\/(context|contacts|groups|relationship-types)(\/|$)/.test(
+          url.pathname,
+        )
+      ) {
+        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+          return json({ code: "people_unavailable" }, 503);
+        if (request.method !== "GET") {
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `people:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        return peopleApi(
+          request,
+          user,
+          (deps.people ?? createPeopleStore)(env.HIMMAH_DATABASE_URL),
+        );
+      }
       const store = deps.store(env.HIMMAH_DATABASE_URL);
       if (/^\/api\/organizations\/[^/]+\/futsal(\/|$)/.test(url.pathname)) {
         if (request.method !== "GET") {

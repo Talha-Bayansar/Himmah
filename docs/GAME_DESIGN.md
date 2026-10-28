@@ -1,3 +1,5 @@
+> Historical scope: superseded for the rebuild on 28 October 2026 by the [current redesign](redesign/README.md) and [owner brief](redesign/OWNER_BRIEF.md). Retained as prior decisions/implementation reference, not current product requirements.
+
 # Game design — version 0 proposal
 
 The engagement-to-development relationship and two modes are confirmed. All numbers below are tunable proposals and must be versioned, simulated, and reviewed before a real season.

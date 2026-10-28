@@ -90,6 +90,26 @@ export function Management({ organization }: { organization: Organization }) {
           <p>{m.manage_intro()}</p>
         </div>
       </div>
+      <section className="management-section">
+        <h2>{m.nav_people()}</h2>
+        <ul className="management-links">
+          <li>
+            <Link
+              to="/workspace/$organizationId/people/contacts"
+              params={{ organizationId: organization.id }}
+            >
+              <span className="management-icon">
+                <UsersRound aria-hidden="true" />
+              </span>
+              <span>
+                <strong>{m.people_contacts()}</strong>
+                <span>{m.people_communication()}</span>
+              </span>
+              <ChevronRight aria-hidden="true" />
+            </Link>
+          </li>
+        </ul>
+      </section>
       {groups.map((group) => (
         <section key={group.title} className="management-section">
           <h2>{group.title}</h2>

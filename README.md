@@ -1,65 +1,22 @@
-# Himmah — Hub and Futsal
+# Himmah — community organization platform
 
-A community engagement platform for mosques and organizations: take part, learn together, develop your players, and compete in simulated five-a-side football leagues and tournaments. Both play modes support either format. Built for independent mosque/organization workspaces, with optional organization billing planned for later.
+Current direction (28 October 2026): contacts, relationships and groups; activities and sessions; registration, attendance and cash tracking; insights; self-paced learning and live hosted quizzes. Staff sign-in is required, contact accounts are optional future work. Points, rewards and Futsal are deferred. There is no platform age restriction.
 
-“Himmah” expresses aspiration and determination. Working project name, chosen 17 October 2026; trademark/domain availability has not been checked.
+**Start with the [redesign package](docs/redesign/README.md)**: owner-confirmed scope, proposed decisions, product specification, workflows, entity model, source audit and phased rebuild/reset plan. The [People foundation](docs/redesign/PEOPLE_STATUS.md)—contacts, groups, relationships and Who to contact—is implemented. This release enables it through Manage → Contacts using existing staff access. See the [implementation and rollout](docs/redesign/COMMUNICATION_STATUS.md) and [infrastructure record](docs/INFRASTRUCTURE.md) for verified deployment status. Activities and later redesign phases remain planned; older workflows stay accessible. No database reset or legacy contact migration is part of this release.
 
-Himmah Hub is the standalone membership, attendance and points app. Himmah Futsal is an optional connected game; future games can use the same contribution history. Hub and game licenses are organization-level. The existing folder and infrastructure retain their himmah-futsal names for continuity; no resources have been renamed.
-
-Installable app for iOS and Android. See [PWA installation and maintenance](docs/PWA.md).
-
-Live app: **https://himmah-hub.talha-bayansar.workers.dev**. The landing page starts organizer onboarding at `/start`. English, Dutch and Turkish are supported through Paraglide JS.
-
-## Project status
-
-The deployed app contains working organizer registration, email verification, sign-in/recovery and persistent organization setup/list/detail. Owners/admins can manage private participant nicknames, groups, group assignments, archiving and staff invitation links. Members, groups, staff and invitations have dedicated mobile-friendly pages and keyboard-aware forms. Fixed navigation and a paginated organization switcher keep daily use compact; personal preferences live in Profile, while organization reports and team tools live under Manage. All growing lists use cursor-based infinite fetching. Activities and scheduled sessions, attendance with optional automatic points, manual point awards, engagement periods, scoped volunteer assignments, and staff-managed rewards/redemptions are implemented. Participant invitations, account linking and private progress, self-service reward claims and single-use QR collection are implemented. Futsal season setup, entry assignment and immutable schedule/rule snapshots are implemented in a separate app area; equal-strength squads, capped training, simulated matches, standings and tournament winners are implemented through organizer-triggered due events, with assigned participant viewing. The old fictional Hub component remains internal development/test material; `/demo` has been removed and returns 404. See [infrastructure](docs/INFRASTRUCTURE.md) and [organization onboarding](docs/ORGANIZATION_ONBOARDING.md).
-
-## Start here
-
-- [Archived prototype and development fixtures](docs/PROTOTYPE.md)
-- [Member/group management and pagination](docs/MEMBERS_AND_GROUPS.md)
-- [Scoped volunteer assignments](docs/VOLUNTEER_ACCESS.md)
-- [Private notifications and opt-in push](docs/NOTIFICATIONS.md)
-- [Rewards and redemption](docs/REWARDS.md)
-- [Participant invitations and personal dashboard](docs/PARTICIPANT_ACCESS.md)
-- [Approved Hub feature design](docs/HUB.md)
-- [Detailed Hub screen designs](docs/HUB_SCREEN_DESIGNS.md)
-- [Visual design board](docs/designs/hub-screens.html)
 - [Agent instructions](AGENTS.md)
-- [Owner preferences and confirmed requirements](docs/PROJECT_CONTEXT.md)
-- [Product specification](docs/PRODUCT.md)
-- [Futsal season setup and supported settings](docs/FUTSAL_SETUP.md)
-- [Game rules and balancing proposals](docs/GAME_DESIGN.md)
-- [Dynamic activities and manual points](docs/ENGAGEMENT.md)
-- [Pre-season configuration](docs/SEASON_SETTINGS.md)
-- [Multi-organization platform and future billing](docs/PLATFORM.md)
-- [Architecture and conceptual data model](docs/ARCHITECTURE.md)
-- [Delivery roadmap](docs/ROADMAP.md)
-- [Youth privacy and safeguarding](docs/SAFEGUARDING.md)
-- [Development and infrastructure](docs/DEVELOPMENT.md)
-- [Decision log](docs/DECISIONS.md)
+- [Verbatim owner brief](docs/redesign/OWNER_BRIEF.md)
+- [Infrastructure history and isolation](docs/INFRASTRUCTURE.md)
+- [Decision history](docs/DECISIONS.md)
+- [Stack/UI implementation reference](docs/STACK_AND_UI.md)
+- [PWA implementation reference](docs/PWA.md)
 
-## Local foundation
+Keep TypeScript, TanStack Start/Router/Query/Form, Better Auth (currently managed Neon), PostgreSQL/Neon/Drizzle, Cloudflare, shadcn/ui/Lucide and Paraglide EN/NL/TR unless a specific audit finding justifies change. Preserve Himmah visual identity and mobile-first PWA behavior.
 
-Requires Node.js 24 and npm. Run `npm ci` then `npm run check`.
-Run `npm run dev` for the TanStack Start app on port **3101**. `npm run build` creates the Cloudflare client/server build in `dist/`; `npm start` previews it on the same port. `npm run test:contrast` audits button colors from the production build. `npm run deploy` publishes the generated Worker configuration. `npm run check` verifies types, documentation links, domain/API tests and component interaction tests.
+## Local development
 
-Required stack: **TanStack Start, Router, Query, Form · Better Auth (managed by Neon) · Paraglide JS · shadcn/ui · PostgreSQL/Drizzle · Cloudflare Workers**. See [stack and UI conventions](docs/STACK_AND_UI.md).
+Node.js 24 and npm. `npm ci`, `npm run check`, `npm run dev` (reserved port **3101**). `npm run build` produces the Cloudflare build. For this documentation pass, `npm run docs:check` verifies links without credentials. Old feature tests reflect old behavior and are not redesign acceptance criteria.
 
-The organizer portal uses managed Better Auth and a dedicated Neon branch. The archived Hub component and tests use fictional data and are not routed or included in the production JavaScript graph. Participant access requires the organization to complete its enrollment/consent process and attest this when inviting. See [prototype archive](docs/PROTOTYPE.md).
+This repository is independent of `/workspace/kermes-pay`. Never modify that project/shared configuration or use inherited credentials for Himmah. The new clone does not contain the previous ignored Himmah env files. Use only verified Himmah-specific configuration; follow the reset runbook before any future database operation.
 
-This repository is independent of `/workspace/kermes-pay`. Never reuse its credentials, database, auth, deployment, or repository.
-
-Private project; no open-source license has been selected.
-
-## Navigation redesign — 19 October 2026
-
-Daily organizer navigation is Activities, People, Rewards and Manage. People groups Members/Groups with real-route tabs; Manage groups reporting, team access and organization details. Personal profile preferences remain behind the header shortcut. Volunteers see Activities/People and participants retain personal progress/rewards/history/profile. The PWA starts at `/hub`, routing single-organization staff to Activities and participants to My progress; `/app` remains a compatibility redirect. Existing feature/detail URLs and role checks are retained. See [navigation guide](docs/NAVIGATION.md).
-
-## Configurable challenges — 19 October 2026
-
-Optional organization-authored challenges now support drafts, frozen publication settings, group eligibility, private participant submissions, organizer review/direct recording and exactly-once ledger awards. Attendance/quizzes remain optional and independent. See [Challenges](docs/CHALLENGES.md).
-
-Gameplay v1 now supports organizer-triggered due training/matches and read-only assigned-participant competitions in both modes/formats. See [gameplay](docs/FUTSAL_GAMEPLAY.md) for scope, fixed lineup policy, late-record handling and the isolated full-season runner.
-
-Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See [Futsal app](docs/FUTSAL_APP.md).
+Existing source, migrations and historical docs remain intact for reuse and Git history. Older product requirements are superseded by the owner brief; historical implementation/deployment reports are not fresh verification. Private project; no open-source license selected.

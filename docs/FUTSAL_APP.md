@@ -1,3 +1,5 @@
+> Historical scope: superseded for the rebuild on 28 October 2026 by the [current redesign](redesign/README.md) and [owner brief](redesign/OWNER_BRIEF.md). Retained as prior decisions/implementation reference, not current product requirements.
+
 # Himmah Futsal app and identity
 
 The owner approved a separately installable Futsal experience on 20 October 2026, explicitly retaining Himmah identity. Futsal uses the same leaf, forest green `#12382f`, lime `#def19e`, warm canvas, typography, accessible controls and accounts. A leaf-and-shield icon, club crests, pitch markings, illustrated jerseys and player cards give it football character. No real photographs or third-party club branding is used.

@@ -1,3 +1,5 @@
+> Historical scope: superseded for the rebuild on 28 October 2026 by the [current redesign](redesign/README.md) and [owner brief](redesign/OWNER_BRIEF.md). Retained as prior decisions/implementation reference, not current product requirements.
+
 # Himmah Hub — detailed screen designs v1
 
 Design proposal for review, not implemented application behavior. All names and values in the visual mockup are fictional. [Open the visual design board](designs/hub-screens.html). Approved feature scope remains in [Hub](HUB.md).

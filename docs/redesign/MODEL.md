@@ -1,0 +1,75 @@
+# Proposed domain and data model
+
+Status: conceptual relational design, not executable schema or approved DDL. Owner confirmed optional paid activities and per-session charging initially; whole-program fees are deferred. Add each module's tables in its implementation phase, not speculative placeholder tables now.
+
+For Phase 1, the [concrete People implementation design](PEOPLE_IMPLEMENTATION.md) refines these conceptual entities into fields/constraints and supersedes earlier tentative details for that slice.
+
+## Boundaries
+
+One TypeScript application and PostgreSQL database, with organization/access, people, scheduling, participation, cash, learning, live and insights modules. Recommend `src/modules/<module>/{contracts,service,store}` as modules are rebuilt; routes stay thin. Shared UI stays central. Server services own authorization and transactions; stores never expose unrestricted generic row access. Insights reads defined projections, never writes operational state.
+
+Participation owns registration and attendance. Cash references registration charges but cannot require attendance; attendance cannot require cash or learning. Learning consumes authorized activity/session audience and attendance eligibility through interfaces, never point ledgers. Live consumes immutable assessment versions; it owns room scores. Later points integrations consume results/events without becoming a write prerequisite.
+
+Use explicit in-process service interfaces initially. Durable cross-module side effects use a transactional outbox only when needed: `ContactArchived`, `RegistrationConfirmed/Cancelled`, `AttendanceChanged`, `CashReceived/Refunded`, `AssessmentPublished/Graded`, `LiveRoomCompleted`. Event envelope has org, event ID, entity/version, actor and occurrence time; consumers deduplicate and recheck scope. Do not build a generic event platform first.
+
+## Common conventions
+
+UUID primary IDs; every tenant entity carries `organization_id`. Parent tables expose unique `(organization_id,id)` and child references use composite FKs, including nullable links. Staff identities reference managed auth user IDs through a local identity mapping if cross-schema provider FKs are unsupported; never manufacture an authentication row for a contact. Identity is global, staff membership is organization-local.
+
+Mutable operational records have revision and created/updated actor/time. Corrections preserve append-only history with reason, before/after or linked compensating record. Archive/end-date referenced records; do not cascade-delete history. PII erasure needs a separate authorized retention/redaction process. Audit payloads must minimize copied contact/answer data.
+
+Idempotency receipts unique on organization + actor + operation + key, storing canonical request hash and response in the mutation transaction. Same key with changed payload conflicts; retries still enforce current access. Optimistic versions protect edits; row locks protect capacity, allocations, refunds and room transitions. Tenant authorization applies to queries, cache keys, cursors, jobs, tokens, files and exports. Database constraints provide defense against cross-tenant references; do not claim RLS exists without implementing/testing it.
+
+## Entity catalog
+
+All IDs below are organization-scoped unless explicitly global. Fields listed are meaningful domain fields, in addition to common IDs/audit fields.
+
+| Module / entity | Proposed fields and cardinality / invariants |
+| --- | --- |
+| Access: organization | name, slug, timezone, default locale/currency; one to many staff memberships. Currency immutable once used or change affects only future charges. |
+| StaffMembership / StaffInvitation | auth user ID, role, active state; invitation verified-email binding, token hash, expiry, accepted/revoked times. Unique org/user. Owner removal must retain another owner. |
+| StaffGrant | membership, capability, activity/group scope; distinct attendance/cash/learning permissions. Deny by default; audited revocation. |
+| Contact | display name, optional structured names, archived state; optional birth date only if justified. No required auth ID, email, phone or age gate. |
+| ContactMethod | contact, phone/email type, value, preferred flag, optional verification/source; owns that person's method. Normalize for search, allow shared numbers and duplicates. |
+| Group / GroupMembership | group name/archive; contact/group, valid_from/valid_to. No overlapping intervals for same pair; supports historical group metrics. |
+| RelationshipType | org-defined stable code, forward/inverse labels, family/other category, symmetric flag, definition version. Seed father/child, mother/child, parent/child, sibling/sibling and guardian/ward labels; guardian label alone is not legal verification. |
+| ContactRelationship | source contact, target contact, type/version, start/end, notes access class. One stored edge; inverse derived, not two editable rows. Direction convention: source **is forward role of** target (A is father of B); inverse shows B is child of A. Symmetric edges canonicalize IDs. Reject self/duplicate active edges. |
+| CommunicationAssignment | subject contact, responsible contact, purpose (routine/emergency), priority, allowed channel, active dates, instructions. Independent of family/legal ties; many per subject. Same-org contacts, distinct IDs; priority ties shown explicitly. |
+| GuardianshipAssertion | subject, guardian contact, authority kind, verification state, verified actor/time, validity, restricted evidence reference. Legal assertion is separately recorded and never grants application access. Avoid storing document uploads initially. |
+| Activity | title, description, default location/timezone, default free/paid mode, optional session price/currency, archive state. One to many sessions. One-off uses one session. |
+| AudienceRule / AudienceTarget | activity or session owner, all/selected groups/contacts, revision. Constrain exactly one owner; session snapshots rules. Eligibility evaluates these rules; no implied registration. |
+| RecurrenceRule | activity, IANA timezone, local start/duration, bounded rule, generation horizon/revision. Unique occurrence key per activity prevents duplicate generation/retries. Exceptions reference occurrence key. |
+| Session | activity, occurrence key, UTC starts/ends, timezone, location/title snapshot, status, free/paid mode and published price/currency, audience revision, overrides. Starts before ends. Generation bounded; completed sessions never overwritten. |
+| Registration | session/contact, confirmed/cancelled, registered actor/time, cancellation reason/time, price snapshot. Unique session/contact row; reactivation audited and cannot create a second principal charge. Capacity checked under session lock. Program enrollment deferred. |
+| ExpectedRoster / ExpectedContact | session, revision/frozen time, contact, source registration/audience/manual, effective inclusion/exclusion. Unique session/contact per revision. Changes explicit and audited; reports identify revision. Attendance does not silently change denominator. |
+| Attendance / AttendanceChange | session/contact, present/absent/excused/unmarked, revision; changes carry old/new status, reason, actor/time. Unique session/contact; no row means unmarked. Registration optional. |
+| Charge | registration, contact/session, original amount in minor units, currency, pricing snapshot. One principal per paid-session registration initially; free registrations have no charge. Nonnegative. Amount never recomputed from today's price. |
+| ChargeAdjustment | charge, signed delta, kind waiver/reduction/correction, reason, actor, optional reversal link. Net payable cannot become negative; full waiver distinct from payment. |
+| CashReceipt | amount, currency, optional payer contact/label, collected_by, occurred_at, recorded_at, request receipt. Positive minor units, no card/bank/provider fields. |
+| PaymentAllocation | receipt + charge, amount, actor/time. Same org and currency; total allocations <= receipt less refunds; net allocation <= charge net due. Lock receipt and charges in stable ID order. |
+| CashRefund / RefundAllocation | original receipt, refunded amount, reason, actor/time; references allocation portions returned (or unallocated receipt cash). Net refunds <= cash actually received. Refund reduces allocated paid balance but not charge principal; cancellation/waiver adjustment independently changes due. |
+| CashCorrection | linked reversal/replacement receipts or allocations with reason; append-only. No deleting/editing finalized receipts. Allocation reversal need not imply physical cash refund; model/report these separately. |
+| Assessment | activity and optional matching session, quiz/test format, draft metadata, publication pointer. Learning without session allowed at activity level. |
+| AssessmentVersion | immutable numbered publication, audience/eligibility snapshot policy, availability, attempts, pass threshold, grading/selection rules, answer/result visibility. Pin to attempts; later edits create a new version. Explicitly distinguish frozen recipients from group rules evaluated at issuance. |
+| QuestionVersion / Option / Rubric | belongs to assessment version, type, text, order, max score, protected correct key/rubric. Initial types single/multiple choice, numeric/exact answers and organizer-reviewed free text. Optional bank copies content into version. |
+| AssessmentRecipient / AccessCredential | version, approved identity/contact optional, assignment time, expiry, hashed token, revocation; staff-attested link provenance. Contact-linked reporting only after staff verification; no arbitrary nickname matching. |
+| Attempt / AttemptAnswer | version, recipient, sequence, server start/submission time, status, answer snapshots; unique version/recipient/sequence. Reserve attempt limit under lock. Submit key deduplicates; cannot alter after submission. |
+| Grade / GradeRevision | attempt/question, automatic/manual score, reviewer, reason, grading version, released time; sum bounded by published maxima. Regrades append revision and preserve prior released result. Pending manual grades are not zero/fail. |
+| LiveRoom / RoomEvent | assessment version, host, join code hash/expiry, status, sequence, current question, server timestamps, scoring/tie/privacy snapshot. Persist ordered authoritative transitions. |
+| LiveParticipant | room, approved nickname, token hash, approval/removal, optional staff-confirmed contact link and provenance. One reconnect identity, no permanent account required. |
+| LiveResponse / LiveScore | room/question/participant unique answer, server received time, question event version, correctness, speed component, score; final result immutable with explicit correction/void events. Keep general engagement points absent. |
+| AuditEvent / OperationReceipt | tenant, actor (staff or temporary identity), command/entity/version, reason, time, redacted delta; receipt hash/result. No tokens/secrets in audit. |
+
+## Cash arithmetic and examples
+
+For a charge: `net_due = original + sum(signed adjustments)`; `net_paid = allocations - allocation reversals - allocated refunds`; `outstanding = max(net_due - net_paid, 0)`; `credit_due = max(net_paid - net_due, 0)`. Enforce no new over-allocation; later reductions can create credit due requiring refund/reallocation. A positive net due with zero paid is unpaid, between zero and due is partial, equal is paid; net due zero with waiver is waived. Free is distinct from waived.
+
+Example: siblings each owe EUR 10. One EUR 15 receipt allocates 10 and 5: first paid, second partial, EUR 5 outstanding. Retrying does not add another receipt. A EUR 5 refund of the second allocation leaves the second owing EUR 10 unless a separate waiver/reduction applies. Cash movement total is EUR 10. Parent payer association never grants account access or proves guardianship.
+
+Financial invariants span rows: use transactional locks plus database operation functions/constraints; application-only prechecks are insufficient. Define correction event kinds precisely in executable schema; no double subtracting an allocation reversal and its refund. All sums use integer minor units (bigint with safe API serialization), never floating point. Multi-currency reports partition currency; no conversion proposed.
+
+## Index and access plan
+
+Initial indexes start with organization scope: contact/group `(org,archived,created_at,id)`; reverse membership `(org,contact,valid_from)`; relationships both endpoint directions; communication `(org,subject,purpose,priority)`; sessions `(org,activity,starts_at,id)` and `(org,status,starts_at,id)`; registrations `(org,session,status,created_at,id)`; attendance unique `(org,session,contact)` and contact/session history; charges by session/contact; allocations by charge/receipt; cash `(org,occurred_at,id)`; attempts `(org,version,recipient,sequence)`; room responses unique `(org,room,question,participant)`.
+
+Validate filters/cursors, use stable timestamp+ID ordering, project minimum columns and aggregate reports in SQL. Scope cursor/query keys to user, org and filters. Assess representative explain plans during implementation; these proposed indexes do not establish scale performance. Do not poll historical lists. Live subscription state is distinct from paged catalogs/history.

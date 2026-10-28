@@ -1,3 +1,5 @@
+> Historical scope: superseded for the rebuild on 28 October 2026 by the [current redesign](redesign/README.md) and [owner brief](redesign/OWNER_BRIEF.md). Retained as prior decisions/implementation reference, not current product requirements.
+
 # Pre-season settings
 
 Owner-confirmed: organizers can configure a variety of game parameters before starting a season. The catalog below is proposed scope; precise defaults and ranges need validation, not all controls exist yet.

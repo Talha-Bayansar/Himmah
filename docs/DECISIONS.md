@@ -1,3 +1,5 @@
+> Historical scope: superseded for the rebuild on 28 October 2026 by the [current redesign](redesign/README.md) and [owner brief](redesign/OWNER_BRIEF.md). Retained as prior decisions/implementation reference, not current product requirements.
+
 # Decision log
 
 ## 2026-10-17 — Product requirements
@@ -244,3 +246,52 @@ Owner authorized gameplay and configurable conversion previews together. Preserv
 ### 20 October 2026 — Futsal app identity
 
 Owner approved a distinct installable Futsal game experience that keeps Himmah identity: leaf/forest/warm canvas, club/player cards and real clubhouse/squad/competition/training routes. Separate manifest identity `/futsal` shares the existing origin, account/backend and public-only service worker; no new domain or database is required. See [Futsal app](FUTSAL_APP.md).
+
+
+## 28 October 2026 — product foundation redesign
+
+Owner-confirmed requirements in the [verbatim brief](redesign/OWNER_BRIEF.md) supersede earlier core-game/points and account-preservation scope. Core: contacts/relationships/groups, scheduling, registration, attendance and cash; then insights, self-paced learning and live quizzes. Staff auth remains required; permanent contact accounts and Futsal/points/rewards are deferred. All data is disposable, with Himmah-only target verification required before reset.
+
+The [design package](redesign/README.md) records proposals, tradeoffs, entity model, workflows, source audit and acceptance-based rebuild plan. Session-level charges, modular monolith and temporary learner identities are recommendations, not owner approvals. No app rebuild/reset/deployment occurred.
+
+
+### Follow-up — optional paid activities confirmed
+
+Owner accepted free-by-default activities with optional paid status/default price, inherited session settings with explicit overrides, and per-session charging initially. Paid registrations snapshot the amount owed; free registrations create no charge/cash workflow. Attendance and payment remain independent. Whole-program fees are deferred. This confirms that portion of the redesign proposal only; see the [current decisions](redesign/README.md).
+
+
+### Follow-up — delegated starting policies
+
+Owner asked the agent to choose logical starting permissions and expected-attendance rules. Selected owner/admin/volunteer role presets, independent scoped check-in and cash grants, admin-only directory/scheduling changes and refunds/waivers, explicit expected rosters (no default denominator for open sessions), check-in from 30 minutes before start, and scoped volunteer corrections until 24 hours after session end. Roster amendments and attendance changes remain audited; unknown is never automatic absence. See the [detailed defaults](redesign/WORKFLOWS.md). These are delegated starting choices, not individually owner-authored requirements. No implementation/reset/deployment authorized by this decision.
+
+
+### Follow-up — concrete People design
+
+Prepared the [contacts, relationships and groups implementation design](redesign/PEOPLE_IMPLEMENTATION.md): new isolated `himmah` application schema proposal, exact fields/constraints, group membership intervals, versioned relationship types, separate communication preferences and guardianship assertions, transactional command/API contracts, route map and acceptance checks. These are concrete agent-selected design defaults for review, not implemented tables or individually owner-specified technical requirements. No executable migration, reset, remote access or app rebuild performed.
+
+
+### Follow-up — local contacts foundation authorized and implemented
+
+Owner authorized proceeding with local implementation after reviewing the concrete People plan. Added the first contacts slice with independent contacts/direct methods, routed localized UI, isolated rebuild schema and transactional audited/versioned/idempotent commands. The API is default-off pending verified Himmah development setup. Groups/relationships/routing/guardianship and foundation onboarding remain subsequent increments. See [status and executed verification](redesign/PEOPLE_STATUS.md). No remote migration/reset/deployment occurred.
+
+
+### Follow-up — compact People cards and mobile section actions
+
+Owner requested less white space in informational cards and a compact mobile add-contact-detail action. Removed stacked padding, added shared opt-in compact Card density and placed name fields side by side. The add-detail action is icon-only with localized accessible name and 44px touch target on phones, retaining its visible label at wider widths. See [People status and preview](redesign/PEOPLE_STATUS.md). No database or deployment change.
+
+
+### Follow-up — groups and relationships continuation
+
+Owner authorized continuing after approving compact cards/mobile section controls. Added local groups/effective membership history, profile/group assignment with paged selection, reasoned membership ending, archive propagation, directional/reciprocal relationships and organization-defined versioned labels. Family links stay separate from communication, legal authority and account access. See [implementation status and validation boundaries](redesign/GROUPS_RELATIONSHIPS_STATUS.md). The new API remains default-off; no remote reset, migration or deployment.
+
+
+### Follow-up — bounded profile previews with dedicated full lists
+
+Owner approved the proposed native-style list structure: profile sections show up to three records with a total and a real View all link. The complete methods, groups, relationships and history lists have dedicated routes, independent infinite pagination and URL-backed filters where applicable. Profile sections have no infinite-scroll sentinel or independent scroll area. Preview/full query caches are isolated; SQL totals remain tenant-scoped. See [current People status](redesign/PEOPLE_STATUS.md). Local implementation only; no schema, remote database or deployment change.
+
+
+## 28 October 2026 — explicit communication routing and hosted People release
+
+Owner authorized Who to contact plus commits, push and deployment. Implement independent routine/emergency assignments, allowed channels, priorities and direct-contact policies; family/legal relationships grant neither routing nor access. Bounded previews retain full bookmarkable management pages. See [implementation and rollout](redesign/COMMUNICATION_STATUS.md).
+
+For this additive rollout, preserve the existing hosted Hub organization/staff workflows as the access authority and synchronize their minimal identity/role scaffolding transactionally into People. Do not migrate old contacts, reset databases, replace managed auth or alter other projects. The deployment explicitly enables the People Worker flag after verifying/installing the new schema. Legacy workflows remain accessible.

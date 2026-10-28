@@ -6365,3 +6365,22 @@ button.item-actions-trigger {
     gap: 8px;
   }
 }
+
+/* Contextual add stays a compact touch target beside phone section headings. */
+button[data-slot="button"].people-section-add {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 9999px;
+}
+@media (min-width: 640px) {
+  button[data-slot="button"].people-section-add {
+    flex-basis: auto;
+    width: auto;
+    padding-inline: 12px;
+    border-radius: var(--radius-md);
+  }
+}

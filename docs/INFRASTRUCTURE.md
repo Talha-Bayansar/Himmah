@@ -1,3 +1,5 @@
+> 28 October 2026: this is historical infrastructure evidence, not current endpoint/credential verification. The repository was freshly cloned; old ignored Himmah configuration was not restored. No remote database/auth/deployment access was used in the redesign audit. Existing data is disposable, superseding older preservation requirements, but reset remains deferred until the [Himmah-only verification runbook](redesign/PLAN.md) succeeds.
+
 # Infrastructure status
 
 Verified 17 October 2026. Resource identifiers only; never commit credentials.
@@ -489,3 +491,17 @@ Worker `cf72fd11-d9cb-486b-9da4-551cb58bb3d3` is verified active at 100% traffic
 Worker `dd557d66-ce4d-4d4f-b145-c65989626b2d` is deployed at 100% traffic, verified through Cloudflare deployments API. Game tabs retain the selected club in the URL. Cancelled organizer views combine setup status and the polled game cancellation flag, retain saved history and suppress future-play/completion prompts. Cancellation copy supports EN/NL/TR. No migration, game execution or Hub points changes. The minute push schedule is preserved.
 
 `npm run check` passes 197 tests (73 domain/API/PostgreSQL/PWA, three Worker-runtime, 121 UI), strict types and documentation checks. Five new UI regressions cover club navigation with a fresh router load and cancellation across active/completed snapshots and stale metadata. Production build and contrast checks pass (minimum 5.87:1). No new physical-device or hosted signed-in browser test was performed for this patch.
+
+## 28 October 2026 — People hosted rollout preparation
+
+Owner explicitly authorized implementation, Git commit/push and deployment of the reviewed People work, including Who to contact. Earlier local-only status reports above describe the authorization at those times. This rollout is additive; no reset, deletion or legacy contact migration occurred. See [communication implementation](redesign/COMMUNICATION_STATUS.md).
+
+Reverified through current control-plane reads: Neon project `blue-glade-25303766` (`himmah-futsal`), development `br-wandering-truth-b9rcp1wm`, onboarding `br-cool-art-b9jm6gkq`, onboarding compute `ep-broad-sea-b9dnqx7c`; database `himmah_futsal`, role `himmah_owner`. Cloudflare API verified the existing `himmah-hub` Worker, dedicated database/VAPID secret binding names, expected managed-auth URL and app origin. No secret values were read or printed. Inherited generic database/auth variables were not used. Kermes Pay and reserved Neon main were untouched.
+
+The seven-file People installation (three generated migrations, contacts/directory/communication commands and hosted adapter) was applied transactionally to development first, verified, then onboarding. The install guard required absent `himmah` schema, expected database/role and existing hosted organization/staff tables. Recorded SHA-256: `34a238dbb6cf28718c9e6dc5a470ed8020e67de444a6de171b505b91ce581ce7`. Both databases retain `himmah.installation_receipts`. Development has matching one organization/one staff scaffold and zero new contacts. Onboarding preserved two organizations, two staff memberships and sixteen legacy people; new People contacts and communication assignments remain empty. No real accounts, contacts, invites or device pushes were created for testing.
+
+The hosted adapter uses transactional triggers to keep current organization/staff access authoritative, including revocations and role changes. It copies only the minimum organization identity/name and staff-role scaffolding; no old contact data. Manage → Contacts exposes the new module when deployed with `HIMMAH_PEOPLE_ENABLED=true`. Existing areas remain available. Rollback disables the flag or deploys the prior Worker, keeping the additive schema/history.
+
+Production build and CSS button contrast audit passed (minimum 5.87:1). Chromium verified 54 synthetic-API production views across EN/NL/TR at 320/390/768px, next-page scrolling, Back preview bounds and reloadable URL filters, with no overflow, nested section scroll or browser exceptions. These do not prove hosted signed-in or physical-device workflows. Full automated check and Worker activation are recorded below when complete.
+
+Final `npm run check` passed all 257 tests: 106 Node/domain/SQL/API, three actual Worker-runtime tests and 148 UI tests, plus strict TypeScript and documentation validation. Focused Prettier, documentation links and `git diff --check` pass. Local real SQL tested the complete additive installer; the exact digest was then verified on both dedicated Neon branches. The prior active Worker version was `dd557d66-ce4d-4d4f-b145-c65989626b2d` at 100%; its minute push schedule is retained in the release configuration.
