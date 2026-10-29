@@ -267,7 +267,12 @@ it("group audience picker fetches bounded pages, retains selected IDs and append
         return Response.json({ item });
       }
       const url = new URL(String(input), "https://test");
-      if (url.pathname.endsWith("/groups"))
+      if (
+        url.pathname.endsWith("/groups") &&
+        url.pathname !== `/api/organizations/${org.id}/people/groups`
+      )
+        return Response.json({ code: "not_found" }, { status: 404 });
+      if (url.pathname === `/api/organizations/${org.id}/people/groups`)
         return Response.json({
           items: url.searchParams.has("cursor") ? [two] : [one],
           nextCursor: url.searchParams.has("cursor") ? null : "more",

@@ -5,7 +5,7 @@ import { useBlocker } from "@tanstack/react-router";
 import { Save, Search, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DirectoryError, useDirectoryPages } from "../community/client";
-import type { Group } from "../community/contracts";
+import type { PeopleGroup } from "../modules/people/contracts";
 import { ActionButton } from "../components/shared/action-button";
 import { useConfirmation } from "../components/shared/confirmation";
 import {
@@ -275,21 +275,28 @@ function GroupChoices({
   disabled: boolean;
 }) {
   const [search, setSearch] = useState("");
-  const query = useDirectoryPages<Group>(
+  const query = useDirectoryPages<PeopleGroup>(
     [
       "organization",
       userId,
       organizationId,
       "directory",
-      "activity-group-options",
+      "activity-people-group-options",
       search,
     ],
-    `/api/organizations/${organizationId}/groups?q=${encodeURIComponent(search)}`,
+    `/api/organizations/${organizationId}/people/groups?q=${encodeURIComponent(search)}`,
     { staleTime: 0, refetchOnMount: "always" },
   );
   const [known, setKnown] = useState(initialGroups);
   useEffect(() => {
-    const loaded = query.data?.pages.flatMap((page) => page.items) ?? [];
+    const loaded =
+      query.data?.pages
+        .flatMap((page) => page.items)
+        .map((group) => ({
+          id: group.id,
+          name: group.name,
+          archived: !!group.archivedAt,
+        })) ?? [];
     if (loaded.length)
       setKnown((previous) => [
         ...new Map(
