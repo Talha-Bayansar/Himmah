@@ -19,6 +19,12 @@ export type Activity = {
   } | null;
 };
 export type Session = {
+  registration?: {
+    mode: "open" | "required";
+    capacity: number | null;
+    confirmed: number;
+    remaining: number | null;
+  } | null;
   canAttend?: boolean;
   registrationLocked?: boolean;
   id: string;

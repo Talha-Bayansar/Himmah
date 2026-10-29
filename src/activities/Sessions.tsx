@@ -112,6 +112,7 @@ export default function Sessions({
   });
   const row = (item: Session, full = false) => {
     const past = Date.parse(item.startsAt) <= Date.now();
+    const canOperate = canManage || item.canAttend === true;
     const label = new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
       timeStyle: "short",
@@ -170,6 +171,71 @@ export default function Sessions({
           )}
         </div>
         <Schedule {...item} />
+        {canOperate && item.registration && (
+          <div className="session-registration-summary">
+            <p className="activity-status">
+              {item.registration.mode === "required"
+                ? m.registration_required()
+                : m.registration_optional()}
+            </p>
+            <p>
+              {m.registration_reserved({
+                count: String(item.registration.confirmed),
+              })}
+            </p>
+            <p>
+              {item.registration.remaining === null
+                ? m.registration_unlimited()
+                : item.registration.remaining === 0
+                  ? m.sessions_full()
+                  : m.registration_seats({
+                      remaining: String(item.registration.remaining),
+                      capacity: String(item.registration.capacity),
+                    })}
+            </p>
+            {!canManage && (
+              <p className="activity-note">{m.registration_scoped()}</p>
+            )}
+            {(item.cancelled ||
+              activity.cancelled ||
+              Date.parse(item.endsAt) <= Date.now()) && (
+              <p className="activity-note">
+                {m.directory_registration_closed()}
+              </p>
+            )}
+          </div>
+        )}
+        {canOperate && (
+          <div className="session-actions">
+            <Button variant="outline" asChild>
+              <Link
+                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations"
+                params={{
+                  organizationId: organization.id,
+                  activityId: activity.id,
+                  sessionId: item.id,
+                }}
+                search={{ q: "", view: "confirmed" }}
+              >
+                <Plus aria-hidden="true" size={16} />
+                {m.registration_title()}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link
+                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+                params={{
+                  organizationId: organization.id,
+                  activityId: activity.id,
+                  sessionId: item.id,
+                }}
+              >
+                <ClipboardCheck size={16} aria-hidden="true" />
+                {m.attendance_open()}
+              </Link>
+            </Button>
+          </div>
+        )}
         {full && (
           <>
             <Audience groups={item.groups} />
@@ -189,41 +255,6 @@ export default function Sessions({
               <p className="activity-note">
                 {m.registration_schedule_locked()}
               </p>
-            )}
-            {(canManage || item.canAttend === true) && (
-              <Button
-                variant="outline"
-                className="activity-card-primary"
-                asChild
-              >
-                <Link
-                  to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations"
-                  params={{
-                    organizationId: organization.id,
-                    activityId: activity.id,
-                    sessionId: item.id,
-                  }}
-                  search={{ q: "", view: "confirmed" }}
-                >
-                  <Plus aria-hidden="true" size={16} />
-                  {m.registration_title()}
-                </Link>
-              </Button>
-            )}
-            {(canManage || item.canAttend === true) && (
-              <Button asChild className="activity-card-primary">
-                <Link
-                  to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
-                  params={{
-                    organizationId: organization.id,
-                    activityId: activity.id,
-                    sessionId: item.id,
-                  }}
-                >
-                  <ClipboardCheck size={16} aria-hidden="true" />
-                  {m.attendance_open()}
-                </Link>
-              </Button>
             )}
           </>
         )}

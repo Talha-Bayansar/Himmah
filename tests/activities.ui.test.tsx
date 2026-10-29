@@ -437,3 +437,91 @@ it("started session details remain read-only for an owner", async () => {
     ),
   ).toBeTruthy();
 });
+
+it("session overview exposes capacity and direct operational links without extra requests", async () => {
+  const fetcher = vi.fn(async (input: RequestInfo | URL) =>
+    Response.json(
+      String(input).includes("/sessions")
+        ? {
+            items: [
+              {
+                ...session,
+                registration: {
+                  mode: "required",
+                  capacity: 12,
+                  confirmed: 12,
+                  remaining: 0,
+                },
+              },
+            ],
+            nextCursor: null,
+          }
+        : { item },
+    ),
+  );
+  vi.stubGlobal("fetch", fetcher);
+  mount("owner", item.id);
+  await screen.findByText("Fully booked");
+  expect(screen.getByText("Reserved places: 12")).toBeTruthy();
+  expect(
+    screen.getByRole("link", { name: "Registrations" }).getAttribute("href"),
+  ).toContain(`/sessions/${session.id}/registrations`);
+  expect(
+    screen.getByRole("link", { name: "Check attendance" }).getAttribute("href"),
+  ).toContain(`/sessions/${session.id}/attendance`);
+  expect(fetcher).toHaveBeenCalledTimes(2);
+});
+it.each([
+  {
+    mode: "open",
+    capacity: null,
+    confirmed: 0,
+    remaining: null,
+    text: "No reservation limit",
+    cancelled: false,
+  },
+  {
+    mode: "required",
+    capacity: 10,
+    confirmed: 3,
+    remaining: 7,
+    text: "7 places left · capacity 10",
+    cancelled: true,
+  },
+])(
+  "session summary handles optional, limited and closed sessions: $text",
+  async (registration) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) =>
+        Response.json(
+          String(input).includes("/sessions")
+            ? {
+                items: [
+                  {
+                    ...session,
+                    canAttend: true,
+                    cancelled: registration.cancelled,
+                    registration,
+                  },
+                ],
+                nextCursor: null,
+              }
+            : { item },
+        ),
+      ),
+    );
+    mount("volunteer", item.id);
+    await screen.findByText(registration.text);
+    expect(
+      screen.getByText(
+        "You only see contacts within your current staff access.",
+      ),
+    ).toBeTruthy();
+    if (registration.cancelled)
+      expect(
+        screen.getByText("Registration is closed for this session."),
+      ).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Actions for/ })).toBeNull();
+  },
+);

@@ -92,6 +92,11 @@ test("Session registration SQL/API enforces reservations, frozen rosters, histor
       "open sessions default to optional registration and no expected denominator",
       async () => {
         const s = await summary();
+        assert.deepEqual(
+          (await activities.session("owner", org, activity, session))[0]!
+            .registration,
+          { mode: "open", capacity: null, confirmed: 0, remaining: null },
+        );
         assert.equal(s.mode, "open");
         assert.equal(s.expected, null);
         assert.equal(s.version, 0);
@@ -188,6 +193,27 @@ test("Session registration SQL/API enforces reservations, frozen rosters, histor
           3,
         );
         assert.equal((await summary()).confirmed, 1);
+        assert.deepEqual(
+          (await activities.session("owner", org, activity, session))[0]!
+            .registration,
+          { mode: "required", capacity: 1, confirmed: 1, remaining: 0 },
+        );
+        assert.deepEqual(
+          await activities.session("other", org, activity, session),
+          [],
+        );
+        const overview = await activities.sessions(
+          "owner",
+          org,
+          activity,
+          p,
+          "upcoming",
+        );
+        assert.deepEqual(
+          overview.find((row) => row.id === session)!.registration,
+          { mode: "required", capacity: 1, confirmed: 1, remaining: 0 },
+        );
+
         assert.equal(
           (await db.query<any>(`select count(*)::int n from hub_attendance`))
             .rows[0]!.n,
@@ -437,6 +463,11 @@ test("Session registration SQL/API enforces reservations, frozen rosters, histor
             canAttend: true,
           })
         )[0]!.result as any;
+        assert.deepEqual(
+          (await activities.session("volunteer", org, activity, s))[0]!
+            .registration,
+          { mode: "required", capacity: 3, confirmed: 1, remaining: 2 },
+        );
         const walkKey = key(),
           payload = {
             action: "register",
@@ -463,6 +494,11 @@ test("Session registration SQL/API enforces reservations, frozen rosters, histor
         assert.equal(
           (await command(s, payload, "volunteer", walkKey)).code,
           "forbidden",
+        );
+        assert.equal(
+          (await activities.session("volunteer", org, activity, s))[0]
+            ?.registration ?? null,
+          null,
         );
         assert.equal((await summary(s)).originalExpected, 1);
         assert.equal((await summary(s)).expected, 2);

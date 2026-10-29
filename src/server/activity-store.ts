@@ -18,8 +18,19 @@ const base = (user: string, org: string, activity: SQL) =>
   sql`id,name,description,location,timezone,cancelled,version,created_at::text as "createdAt",CASE WHEN hub_is_admin(${user},${org}::uuid) THEN audience_group_ids ELSE ARRAY(SELECT gid FROM unnest(audience_group_ids) gid WHERE hub_can_view_group(${user},${org}::uuid,gid,${activity})) END as "audienceGroupIds"`;
 const activityFrom = (user: string, org: string) =>
   sql`${base(user, org, sql`parent_row.id`)},${groupProjection(user, org, sql`parent_row.id`)}, (select jsonb_build_object('id',s.id,'startsAt',s.starts_at,'endsAt',s.ends_at,'timezone',s.timezone) from hub_activity_sessions s where s.organization_id=${org}::uuid and s.activity_id=parent_row.id and hub_can_view_session(${user},${org}::uuid,s.activity_id,s.id) and not s.cancelled and s.ends_at>now() order by s.starts_at,s.id limit 1) as "nextSession"`;
+// Read-only overview: never materialize a roster or take command locks while listing.
+const registrationOverview = (
+  user: string,
+  org: string,
+) => sql`case when hub_can_attend_session(${user},${org}::uuid,parent_row.activity_id,parent_row.id) then (
+ select jsonb_build_object('mode',coalesce(rs.mode,'open'),'capacity',rs.capacity,
+ 'confirmed',totals.visible,'remaining',case when rs.capacity is null then null else greatest(0,rs.capacity-totals.total) end)
+ from (select count(*)::int as total,count(*) filter(where hub_can_attend_person(${user},${org}::uuid,parent_row.activity_id,parent_row.id,r.person_id))::int as visible
+ from hub_session_registrations r where r.organization_id=parent_row.organization_id and r.session_id=parent_row.id and r.status='confirmed') totals
+ left join hub_session_registration_settings rs on rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id
+ ) else null end as "registration"`;
 const sessionProjection = (user: string, org: string) =>
-  sql`${base(user, org, sql`parent_row.activity_id`)},exists(select 1 from hub_session_registration_settings rs where rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id and rs.mode='required' and parent_row.starts_at<=clock_timestamp()+interval '30 minutes') as "registrationLocked",hub_can_attend_session(${user},${org}::uuid,activity_id,id) as "canAttend",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(user, org, sql`parent_row.activity_id`)}`;
+  sql`${base(user, org, sql`parent_row.activity_id`)},${registrationOverview(user, org)},exists(select 1 from hub_session_registration_settings rs where rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id and rs.mode='required' and parent_row.starts_at<=clock_timestamp()+interval '30 minutes') as "registrationLocked",hub_can_attend_session(${user},${org}::uuid,activity_id,id) as "canAttend",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(user, org, sql`parent_row.activity_id`)}`;
 const logged = (user: string, org: string, action: string) =>
   sql`logged as (insert into hub_directory_audit(organization_id,actor_id,action,entity_id) select ${org}::uuid,${user},${action},id::text from changed parent_row returning id)`;
 export type ActivityStore = ReturnType<typeof createActivityStore>;

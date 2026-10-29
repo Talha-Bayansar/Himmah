@@ -4,6 +4,8 @@ The owner approved this operational slice after reviewing the distinction betwee
 
 ## Staff workflow
 
+The activity session list and session detail show optional/required participation, scoped confirmed reservation counts and remaining capacity (including fully booked). Direct Registrations and Check attendance links retain independent workflows. Cancelled/ended sessions show registration closed while keeping historical records accessible. Counts arrive in the bounded session query, without separate per-card requests or roster-freezing writes. Capacity availability uses all reservations; limited staff counts disclose their current contact scope.
+
 Open an activity, open a session, then choose Registrations. The page independently reloads its session and authorized registration data. It provides confirmed/cancelled reservations, the amended expected roster, the original roster and administrator change history. Search/view filters live in the URL. Lists and contact pickers use stable timestamp/ID cursors, 25 default/50 maximum, automatic append and manual Load more.
 
 The registration settings sheet chooses optional drop-in or required registration and an optional capacity. Existing sessions default to optional/unlimited without backfilling records. Capacity cannot fall below confirmed reservations. Settings lock when check-in opens, 30 minutes before the session starts. Session schedule changes that would move a required-registration session across that boundary are rejected; the session UI explains the lock. Cancellation remains separate and preserves reservations/history.

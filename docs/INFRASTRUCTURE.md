@@ -566,3 +566,11 @@ The reported audience-picker error was caused by a stale request to `/api/organi
 The picker now uses the canonical People groups API and its `archivedAt` response shape, with a fresh scoped query key. The existing bounded-pagination/selection regression previously matched any URL ending in `/groups`; it now only serves the current endpoint and rejects the retired path. Typecheck, all eight activity UI tests, production build and diff checks pass. No database/auth changes or live signed-in test were required.
 
 Published code commit `0479103` on `rebuild/people-foundation`. Cloudflare confirmed `himmah-hub` version `3ab879af-8049-4e7d-802b-a79154dc0a20` active at 100%, maintenance false, People enabled, existing bindings and minute cron retained.
+
+## 29 October 2026 — Session overview registration shortcuts
+
+Session list/detail cards now show optional/required registration, confirmed reservations and remaining capacity or fully booked. Closed sessions retain history links and explain that registration is closed. Compact wrapping actions link directly to registrations and attendance. EN/NL/TR labels reuse the existing card style and 44px controls.
+
+The bounded session query returns read-only registration aggregates in the same request, with current attendance permission checks and contact-scoped confirmed counts. Global remaining capacity follows the existing registration summary contract; limited staff see a scope explanation. Listing never freezes expected rosters. No schema, auth or database migration is required.
+
+Validation: strict types, 19 focused activity/registration UI tests, 19 core/registration SQL/domain/API checks (final expanded registration rerun: nine passed), production build, documentation links and contrast audit pass. Coverage includes optional/unlimited defaults, full capacity, cancellation/re-registration counts, tenant denial, volunteer access/revocation, closed states and direct links without per-card requests. These checks do not constitute live signed-in or physical-device validation; the owner deferred that validation.

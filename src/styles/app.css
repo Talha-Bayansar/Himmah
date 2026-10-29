@@ -5269,3 +5269,20 @@ button[data-slot="button"].people-section-add {
   font-size: 16px;
   min-height: 48px;
 }
+
+.session-registration-summary {
+  display: grid;
+  gap: 0.35rem;
+}
+.session-registration-summary p {
+  margin: 0;
+}
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.session-actions > * {
+  min-height: 44px;
+  max-width: 100%;
+}
