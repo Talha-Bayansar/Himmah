@@ -665,4 +665,5 @@ it("payment-only staff use the shared management view without attendance reads",
   ).toBe(false);
   expect(screen.queryByRole("button", { name: "Add participant" })).toBeNull();
   expect(screen.queryByText("Present")).toBeNull();
+  expect(screen.queryByRole("link", { name: "View session" })).toBeNull();
 });

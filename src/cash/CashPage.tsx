@@ -298,19 +298,23 @@ function Content(
     <section className="directory cash-page">
       {!props.historyOnly && (
         <>
-          <Button variant="link" className="settings-back" asChild>
-            <Link
-              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
-              params={{
-                organizationId: org,
-                activityId: activity,
-                sessionId: session,
-              }}
-            >
-              <ArrowLeft aria-hidden="true" />
-              {m.sessions_view()}
-            </Link>
-          </Button>
+          {!props.unified && (
+            <>
+              <Button variant="link" className="settings-back" asChild>
+                <Link
+                  to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
+                  params={{
+                    organizationId: org,
+                    activityId: activity,
+                    sessionId: session,
+                  }}
+                >
+                  <ArrowLeft aria-hidden="true" />
+                  {m.sessions_view()}
+                </Link>
+              </Button>
+            </>
+          )}
           <DirectoryHeader
             title={props.unified ? m.management_title() : m.cash_title()}
             description={summary.name}
