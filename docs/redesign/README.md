@@ -18,6 +18,10 @@ Read in order:
 6. [Concrete contacts, relationships and groups implementation design](PEOPLE_IMPLEMENTATION.md)
 7. [Groups and relationships implementation status](GROUPS_RELATIONSHIPS_STATUS.md)
 
+## Design research
+
+[Airbnb design language research and proposed Himmah redesign direction](AIRBNB_DESIGN_RESEARCH.md) — researched 29 October 2026. Covers public principles, visual and interaction language, component states, accessibility and a proposed prototype sequence. Research and recommendations only; it does not change the shipped design or existing product rules.
+
 ## Foundation map
 
 ```mermaid
