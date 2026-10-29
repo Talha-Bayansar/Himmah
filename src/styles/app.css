@@ -5369,3 +5369,8 @@ button[data-slot="button"].people-section-add {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* One prominent action per entity card, regardless of viewport width. */
+.session-actions.session-actions-primary {
+  grid-template-columns: minmax(0, 1fr);
+}

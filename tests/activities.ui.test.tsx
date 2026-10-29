@@ -432,7 +432,13 @@ it("started session details remain read-only for an owner", async () => {
   );
   mount("owner", item.id, session.id);
   await screen.findByRole("heading", { name: session.name });
-  expect(screen.queryByRole("button", { name: /Actions for/ })).toBeNull();
+  expect(screen.getByRole("button", { name: /Actions for/ })).toBeTruthy();
+  expect(
+    screen
+      .getAllByRole("link")
+      .filter((link) => link.hasAttribute("data-slot")),
+  ).toHaveLength(2);
+
   expect(
     screen.getByRole("link", { name: "Check attendance" }).getAttribute("href"),
   ).toBe(
@@ -445,7 +451,7 @@ it("started session details remain read-only for an owner", async () => {
   ).toBeTruthy();
 });
 
-it("session overview exposes capacity and direct operational links without extra requests", async () => {
+it("session list has one primary action and operational shortcuts in its more menu", async () => {
   const fetcher = vi.fn(async (input: RequestInfo | URL) =>
     Response.json(
       String(input).includes("/sessions")
@@ -470,12 +476,25 @@ it("session overview exposes capacity and direct operational links without extra
   mount("owner", item.id);
   await screen.findByText("Fully booked");
   expect(screen.getByText("Reserved places: 12")).toBeTruthy();
+  const card = screen.getByText("Fully booked").closest("article")!;
+  expect(within(card).getAllByRole("link")).toHaveLength(1);
   expect(
-    screen.getByRole("link", { name: "Registrations" }).getAttribute("href"),
-  ).toContain(`/sessions/${session.id}/registrations`);
+    within(card)
+      .getByRole("link", { name: "View session" })
+      .getAttribute("href"),
+  ).toContain(`/sessions/${session.id}`);
+  expect(within(card).getByRole("link").getAttribute("data-variant")).toBe(
+    "default",
+  );
+  await userEvent
+    .setup()
+    .click(within(card).getByRole("button", { name: /Actions for/ }));
   expect(
-    screen.getByRole("link", { name: "Check attendance" }).getAttribute("href"),
-  ).toContain(`/sessions/${session.id}/attendance`);
+    await screen.findByRole("menuitem", { name: "Registrations" }),
+  ).toBeTruthy();
+  expect(
+    screen.getByRole("menuitem", { name: "Check attendance" }),
+  ).toBeTruthy();
   expect(fetcher).toHaveBeenCalledTimes(2);
 });
 it.each([
@@ -529,6 +548,15 @@ it.each([
       expect(
         screen.getByText("Registration is closed for this session."),
       ).toBeTruthy();
-    expect(screen.queryByRole("button", { name: /Actions for/ })).toBeNull();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: /Actions for/ }));
+    expect(
+      await screen.findByRole("menuitem", { name: "Registrations" }),
+    ).toBeTruthy();
+    expect(screen.queryByRole("menuitem", { name: "Edit session" })).toBeNull();
+    expect(
+      screen.queryByRole("menuitem", { name: "Cancel session" }),
+    ).toBeNull();
   },
 );

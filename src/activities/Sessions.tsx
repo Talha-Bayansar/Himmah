@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
   Ban,
@@ -39,6 +39,7 @@ export default function Sessions({
   activity: Activity;
   sessionId: string | null;
 }) {
+  const navigate = useNavigate();
   const locale = useLocale()?.locale ?? "en",
     cache = useQueryClient(),
     [view, setView] = useState("upcoming"),
@@ -141,31 +142,70 @@ export default function Sessions({
               <p className="activity-status">{m.sessions_cancelled()}</p>
             )}
           </div>
-          {canManage && !item.cancelled && !past && (
+          {(canOperate || (canManage && !item.cancelled && !past)) && (
             <ItemActions
               name={label}
               actions={[
-                ...(!item.registrationLocked
+                ...(canOperate
                   ? [
                       {
-                        label: m.sessions_edit(),
-                        icon: Pencil,
+                        label: m.registration_title(),
+                        icon: Plus,
                         onSelect: () =>
-                          setEditor({
-                            kind: "session",
-                            item,
-                            parent: activity,
+                          navigate({
+                            to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations",
+                            params: {
+                              organizationId: organization.id,
+                              activityId: activity.id,
+                              sessionId: item.id,
+                            },
+                            search: { q: "", view: "confirmed" },
                           }),
+                      },
+                      ...(!full
+                        ? [
+                            {
+                              label: m.attendance_open(),
+                              icon: ClipboardCheck,
+                              onSelect: () =>
+                                navigate({
+                                  to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
+                                  params: {
+                                    organizationId: organization.id,
+                                    activityId: activity.id,
+                                    sessionId: item.id,
+                                  },
+                                }),
+                            },
+                          ]
+                        : []),
+                    ]
+                  : []),
+                ...(canManage && !item.cancelled && !past
+                  ? [
+                      ...(!item.registrationLocked
+                        ? [
+                            {
+                              label: m.sessions_edit(),
+                              icon: Pencil,
+                              onSelect: () =>
+                                setEditor({
+                                  kind: "session",
+                                  item,
+                                  parent: activity,
+                                }),
+                            },
+                          ]
+                        : []),
+                      {
+                        label: m.sessions_cancel(),
+                        icon: Ban,
+                        destructive: true,
+                        onSelect: () =>
+                          setEditor({ kind: "cancel", item, parent: activity }),
                       },
                     ]
                   : []),
-                {
-                  label: m.sessions_cancel(),
-                  icon: Ban,
-                  destructive: true,
-                  onSelect: () =>
-                    setEditor({ kind: "cancel", item, parent: activity }),
-                },
               ]}
             />
           )}
@@ -232,22 +272,8 @@ export default function Sessions({
             </details>
           </>
         )}
-        {canOperate && (
-          <div className="session-actions">
-            <Button variant="outline" asChild>
-              <Link
-                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations"
-                params={{
-                  organizationId: organization.id,
-                  activityId: activity.id,
-                  sessionId: item.id,
-                }}
-                search={{ q: "", view: "confirmed" }}
-              >
-                <Plus aria-hidden="true" size={16} />
-                {m.registration_title()}
-              </Link>
-            </Button>
+        {full && canOperate && (
+          <div className="session-actions session-actions-primary">
             <Button asChild>
               <Link
                 to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
@@ -267,7 +293,7 @@ export default function Sessions({
           <p className="activity-description">{item.cancellationReason}</p>
         )}
         {!full && (
-          <Button variant="outline" className="activity-card-primary" asChild>
+          <Button className="activity-card-primary" asChild>
             <Link
               to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
               params={{

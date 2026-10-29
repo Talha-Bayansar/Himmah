@@ -256,7 +256,7 @@ export default function Activities({
         <p className="activity-description">{item.description}</p>
       )}
       {!full && (
-        <Button variant="outline" className="activity-card-primary" asChild>
+        <Button className="activity-card-primary" asChild>
           <Link
             to="/workspace/$organizationId/activities/$activityId"
             params={{ organizationId: organization.id, activityId: item.id }}
