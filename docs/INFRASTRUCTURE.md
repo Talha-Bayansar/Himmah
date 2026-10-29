@@ -584,3 +584,5 @@ Full-page form action bars now use a transparent background to blend with their 
 Regression coverage includes activity creation with a failed save/retry and return to the original filtered list without a discard prompt, activity editing with the loaded version, and existing unsaved Back/Cancel behavior. Deployment and executed validation are recorded below.
 
 Executed validation: all 25 focused form/activity UI tests, strict types, production build, documentation links, Prettier and contrast audit pass. No schema/auth/database changes or live signed-in/physical-device tests were performed.
+
+Published commit `a1d22e2` with the previously blocked session overview (`31d5bcd`). Cloudflare upload recovered; version `719c9a5a-4531-48fd-b88a-d121aa30d4d0` is verified active at 100%. Maintenance false, People enabled, all existing bindings and minute cron retained. No hosted data mutations were used for verification.
