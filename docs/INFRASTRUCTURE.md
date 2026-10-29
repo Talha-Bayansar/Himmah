@@ -636,3 +636,5 @@ Published commit `99828da`; Cloudflare version `da89a6f4-129c-4b35-b589-da53494d
 ## 29 October 2026 — One-hour default session duration
 
 At the owner's request, start changes now prefill the end one hour later. Existing saved durations remain intact when opening a form, and staff can override the calculated end. All 11 activity UI tests, strict types, production build, docs and Prettier pass; regression assertions cover year rollover and manual end override. No schema/database changes.
+
+Published commit `29edf1a`; Cloudflare version `2f489efd-81eb-453e-bf67-6f7e7dcd1b88` is verified active at 100%. Dedicated bindings, maintenance false, People enabled and minute cron retained.
