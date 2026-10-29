@@ -592,3 +592,5 @@ Published commit `a1d22e2` with the previously blocked session overview (`31d5bc
 Changing a session start now prefills its end 30 calendar minutes later; the end remains editable and saved durations are preserved on opening. Arithmetic uses the entered calendar value rather than the device timezone, handles midnight/year rollover and retains server DST validation. Documented the existing per-session reservation-limit settings path in REGISTRATION.md; no duplicate capacity configuration or schema change was added.
 
 Executed validation: strict types, all 33 focused activity/form/registration UI tests, production build, Prettier and documentation links pass. Regression coverage verifies year rollover, recomputation after a start change, and saving a manually overridden end. No live account or physical-device tests were performed.
+
+Published commit `5ff369b`; Cloudflare version `611d64b9-1546-46ba-b6d2-c58f60944283` is verified active at 100%. Dedicated bindings, maintenance false, People enabled and minute cron retained.
