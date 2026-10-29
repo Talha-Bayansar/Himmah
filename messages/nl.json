@@ -572,6 +572,7 @@
   "sessions_full": "Volgeboekt",
   "registration_title": "Inschrijvingen",
   "registration_add": "Contact inschrijven",
+  "registration_settings_locked_help": "Je kunt de inschrijfinstellingen alleen wijzigen voor een actieve sessie, meer dan 30 minuten voor de start. De huidige limiet staat hierboven.",
   "registration_settings": "Inschrijfinstellingen",
   "registration_confirmed": "Bevestigd",
   "registration_cancelled": "Geannuleerd",

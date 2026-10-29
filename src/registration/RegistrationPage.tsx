@@ -235,18 +235,6 @@ function Content({
             <strong>
               {m.registration_reserved({ count: summary.confirmed })}
             </strong>
-            {summary.canConfigure && (
-              <ItemActions
-                name={m.registration_settings()}
-                actions={[
-                  {
-                    label: m.registration_settings(),
-                    icon: Settings2,
-                    onSelect: () => setEditor("configure"),
-                  },
-                ]}
-              />
-            )}
           </div>
           <p>
             {summary.capacity === null
@@ -275,6 +263,28 @@ function Content({
               })}
             </p>
           ) : null}
+          {summary.canManage && (
+            <div>
+              <Button
+                variant="outline"
+                disabled={!summary.canConfigure}
+                aria-describedby={
+                  !summary.canConfigure
+                    ? "registration-settings-locked"
+                    : undefined
+                }
+                onClick={() => setEditor("configure")}
+              >
+                <Settings2 aria-hidden="true" />
+                {m.registration_settings()}
+              </Button>
+              {!summary.canConfigure && (
+                <p id="registration-settings-locked">
+                  {m.registration_settings_locked_help()}
+                </p>
+              )}
+            </div>
+          )}
           {summary.cancelled && <p>{m.sessions_cancelled()}</p>}
           {!summary.canManage && <p>{m.registration_scoped()}</p>}
         </CardContent>

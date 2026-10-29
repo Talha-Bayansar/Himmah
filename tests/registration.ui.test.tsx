@@ -272,12 +272,7 @@ it("configures a finite capacity and required registration in a short sheet", as
   mount();
   const user = userEvent.setup();
   await user.click(
-    await screen.findByRole("button", {
-      name: "Actions for Registration settings",
-    }),
-  );
-  await user.click(
-    await screen.findByRole("menuitem", { name: "Registration settings" }),
+    await screen.findByRole("button", { name: "Registration settings" }),
   );
   const sheet = await screen.findByRole("dialog");
   const capacity = within(sheet).getByLabelText(
@@ -336,6 +331,9 @@ it("restricted staff cannot see settings, cancellations or organization-wide his
   expect(screen.queryByRole("button", { name: "Register contact" })).toBeNull();
   expect(screen.queryByRole("button", { name: "Actions for Ali" })).toBeNull();
   expect(screen.queryByRole("option", { name: "Change history" })).toBeNull();
+  expect(
+    screen.queryByRole("button", { name: "Registration settings" }),
+  ).toBeNull();
 });
 
 it("policy edits retain the opened version when a background refresh changes the settings", async () => {
@@ -349,12 +347,7 @@ it("policy edits retain the opened version when a background refresh changes the
   const { client } = mount();
   const user = userEvent.setup();
   await user.click(
-    await screen.findByRole("button", {
-      name: "Actions for Registration settings",
-    }),
-  );
-  await user.click(
-    await screen.findByRole("menuitem", { name: "Registration settings" }),
+    await screen.findByRole("button", { name: "Registration settings" }),
   );
   const sheet = await screen.findByRole("dialog");
   client.setQueryData(
@@ -411,3 +404,42 @@ it("reveals the amendment reason if check-in opens while the reservation sheet i
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   expect(writes[1]).toMatchObject({ reason: "Late reservation" });
 });
+
+it.each([null, 25])(
+  "locked settings remain discoverable with the saved capacity %s",
+  async (capacity) => {
+    backend((u) =>
+      u.pathname.endsWith("/registrations")
+        ? Response.json({
+            items: [],
+            nextCursor: null,
+            summary: {
+              ...summary,
+              capacity,
+              remaining: capacity === null ? null : 24,
+              canConfigure: false,
+            },
+          })
+        : undefined,
+    );
+    mount();
+    const settings = await screen.findByRole("button", {
+      name: "Registration settings",
+    });
+    expect((settings as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      screen.getByText(
+        "Registration settings can only be changed for an active session, more than 30 minutes before it starts. The current limit is shown above.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        capacity === null
+          ? "No reservation limit"
+          : "24 places left · capacity 25",
+      ),
+    ).toBeTruthy();
+    await userEvent.setup().click(settings);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  },
+);

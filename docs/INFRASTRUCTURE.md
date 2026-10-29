@@ -594,3 +594,9 @@ Changing a session start now prefills its end 30 calendar minutes later; the end
 Executed validation: strict types, all 33 focused activity/form/registration UI tests, production build, Prettier and documentation links pass. Regression coverage verifies year rollover, recomputation after a start change, and saving a manually overridden end. No live account or physical-device tests were performed.
 
 Published commit `5ff369b`; Cloudflare version `611d64b9-1546-46ba-b6d2-c58f60944283` is verified active at 100%. Dedicated bindings, maintenance false, People enabled and minute cron retained.
+
+## 29 October 2026 — Discoverable registration settings
+
+Replaced the reservation summary's conditionally hidden settings menu with a labeled Registration settings button for owners/admins. It remains visible but disabled when the server reports configuration unavailable, accompanied by an EN/NL/TR explanation of the active-session/30-minute rule. Current limited/unlimited capacity remains visible. Scoped volunteers still cannot see privileged settings controls; existing server restrictions are unchanged.
+
+Executed validation: all ten registration UI tests, strict types, production build, documentation links, Prettier and contrast audit pass. Tests cover the direct settings button, saved finite/unlimited limits while locked, disabled interaction and privileged-control exclusion for restricted staff. No schema/auth/database changes or live signed-in/physical-device tests.

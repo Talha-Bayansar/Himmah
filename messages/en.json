@@ -572,6 +572,7 @@
   "sessions_full": "Fully booked",
   "registration_title": "Registrations",
   "registration_add": "Register contact",
+  "registration_settings_locked_help": "Registration settings can only be changed for an active session, more than 30 minutes before it starts. The current limit is shown above.",
   "registration_settings": "Registration settings",
   "registration_confirmed": "Confirmed",
   "registration_cancelled": "Cancelled",

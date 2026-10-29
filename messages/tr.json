@@ -572,6 +572,7 @@
   "sessions_full": "Kontenjan dolu",
   "registration_title": "Kayıtlar",
   "registration_add": "Kişiyi kaydet",
+  "registration_settings_locked_help": "Kayıt ayarları yalnızca aktif bir oturum için, başlamasına 30 dakikadan fazla süre varken değiştirilebilir. Mevcut sınır yukarıda gösterilir.",
   "registration_settings": "Kayıt ayarları",
   "registration_confirmed": "Onaylandı",
   "registration_cancelled": "İptal edildi",
