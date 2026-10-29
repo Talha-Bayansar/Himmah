@@ -5287,3 +5287,85 @@ button[data-slot="button"].people-section-add {
   min-height: 44px;
   max-width: 100%;
 }
+
+/* Session operations: compact facts, one action group, secondary guidance on demand. */
+.registration-page .directory-heading {
+  flex-direction: row;
+  align-items: center;
+}
+.registration-page .people-section-add > span {
+  display: none;
+}
+.registration-summary {
+  display: grid;
+  gap: 12px;
+}
+.registration-page .registration-summary > p {
+  margin: 0;
+  color: #52665b;
+  font-size: 14px;
+}
+.registration-settings-row {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+.registration-settings-row p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #52665b;
+}
+.session-help {
+  color: #52665b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.session-help > summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+  font-weight: 600;
+  color: var(--forest);
+}
+.session-help > summary:focus-visible {
+  outline: 3px solid var(--forest);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.session-help > p,
+.activity-card .session-help > p {
+  margin: 8px 0 0;
+}
+.registration-help {
+  margin: 0 0 20px;
+}
+.session-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.session-actions > [data-slot="button"] {
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+}
+.activity-card .session-registration-summary > p {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.activity-card .session-registration-summary > .activity-status {
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .registration-page .people-section-add > span {
+    display: inline;
+  }
+  .session-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

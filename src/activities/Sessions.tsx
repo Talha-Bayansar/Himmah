@@ -205,6 +205,33 @@ export default function Sessions({
             )}
           </div>
         )}
+        {full && (
+          <>
+            <Audience groups={item.groups} />
+
+            {item.location && (
+              <p className="activity-location">
+                <MapPin size={16} aria-hidden="true" />
+                <span>{item.location}</span>
+              </p>
+            )}
+            {item.description && (
+              <p className="activity-description">{item.description}</p>
+            )}
+            <details className="session-help">
+              <summary>{m.sessions_details()}</summary>
+              <p className="activity-note">{m.sessions_snapshot_help()}</p>
+              {past && (
+                <p className="activity-note">{m.sessions_past_help()}</p>
+              )}
+              {item.registrationLocked && (
+                <p className="activity-note">
+                  {m.registration_schedule_locked()}
+                </p>
+              )}
+            </details>
+          </>
+        )}
         {canOperate && (
           <div className="session-actions">
             <Button variant="outline" asChild>
@@ -235,28 +262,6 @@ export default function Sessions({
               </Link>
             </Button>
           </div>
-        )}
-        {full && (
-          <>
-            <Audience groups={item.groups} />
-
-            {item.location && (
-              <p className="activity-location">
-                <MapPin size={16} aria-hidden="true" />
-                <span>{item.location}</span>
-              </p>
-            )}
-            {item.description && (
-              <p className="activity-description">{item.description}</p>
-            )}
-            <p className="activity-note">{m.sessions_snapshot_help()}</p>
-            {past && <p className="activity-note">{m.sessions_past_help()}</p>}
-            {item.registrationLocked && (
-              <p className="activity-note">
-                {m.registration_schedule_locked()}
-              </p>
-            )}
-          </>
         )}
         {item.cancelled && item.cancellationReason && (
           <p className="activity-description">{item.cancellationReason}</p>

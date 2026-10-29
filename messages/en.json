@@ -572,7 +572,7 @@
   "sessions_full": "Fully booked",
   "registration_title": "Registrations",
   "registration_add": "Register contact",
-  "registration_settings_locked_help": "Registration settings can only be changed for an active session, more than 30 minutes before it starts. The current limit is shown above.",
+  "registration_settings_locked_help": "Settings lock 30 minutes before start or when the session is cancelled.",
   "registration_settings": "Registration settings",
   "registration_confirmed": "Confirmed",
   "registration_cancelled": "Cancelled",
@@ -616,5 +616,7 @@
   "attendance_roster_expected": "Expected contacts",
   "attendance_roster_registered": "Confirmed registrations",
   "registration_schedule_locked": "The schedule is locked because check-in has opened for this registered session.",
-  "registration_reason_label": "Reason"
+  "registration_reason_label": "Reason",
+  "registration_about": "About registration",
+  "sessions_details": "Session information"
 }

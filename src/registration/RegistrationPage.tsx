@@ -222,15 +222,19 @@ function Content({
         description={session.name}
         action={
           summary.canRegister ? (
-            <Button onClick={() => setEditor("register")}>
+            <Button
+              className="people-section-add"
+              aria-label={m.registration_add()}
+              onClick={() => setEditor("register")}
+            >
               <Plus aria-hidden="true" />
-              {m.registration_add()}
+              <span>{m.registration_add()}</span>
             </Button>
           ) : undefined
         }
       />
       <Card density="compact">
-        <CardContent>
+        <CardContent className="registration-summary">
           <div className="registration-summary-heading">
             <strong>
               {m.registration_reserved({ count: summary.confirmed })}
@@ -247,7 +251,7 @@ function Content({
           <p>
             {summary.mode === "required"
               ? m.registration_expected_count({ count: summary.expected ?? 0 })
-              : m.registration_open_help()}
+              : m.registration_optional()}
           </p>
           {summary.frozenAt ? (
             <p>
@@ -264,8 +268,9 @@ function Content({
             </p>
           ) : null}
           {summary.canManage && (
-            <div>
+            <div className="registration-settings-row">
               <Button
+                size="sm"
                 variant="outline"
                 disabled={!summary.canConfigure}
                 aria-describedby={
@@ -289,7 +294,11 @@ function Content({
           {!summary.canManage && <p>{m.registration_scoped()}</p>}
         </CardContent>
       </Card>
-      <p className="registration-independent">{m.registration_independent()}</p>
+      <details className="session-help registration-help">
+        <summary>{m.registration_about()}</summary>
+        {summary.mode === "open" && <p>{m.registration_open_help()}</p>}
+        <p>{m.registration_independent()}</p>
+      </details>
       <DirectoryToolbar
         id="registration-search"
         label={m.directory_search()}

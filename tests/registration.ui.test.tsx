@@ -429,7 +429,7 @@ it.each([null, 25])(
     expect((settings as HTMLButtonElement).disabled).toBe(true);
     expect(
       screen.getByText(
-        "Registration settings can only be changed for an active session, more than 30 minutes before it starts. The current limit is shown above.",
+        "Settings lock 30 minutes before start or when the session is cancelled.",
       ),
     ).toBeTruthy();
     expect(

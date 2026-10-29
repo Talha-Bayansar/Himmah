@@ -572,7 +572,7 @@
   "sessions_full": "Kontenjan dolu",
   "registration_title": "Kayıtlar",
   "registration_add": "Kişiyi kaydet",
-  "registration_settings_locked_help": "Kayıt ayarları yalnızca aktif bir oturum için, başlamasına 30 dakikadan fazla süre varken değiştirilebilir. Mevcut sınır yukarıda gösterilir.",
+  "registration_settings_locked_help": "Ayarlar başlangıçtan 30 dakika önce veya oturum iptal edildiğinde kilitlenir.",
   "registration_settings": "Kayıt ayarları",
   "registration_confirmed": "Onaylandı",
   "registration_cancelled": "İptal edildi",
@@ -616,5 +616,7 @@
   "attendance_roster_expected": "Beklenen kişiler",
   "attendance_roster_registered": "Onaylı kayıtlar",
   "registration_schedule_locked": "Kayıtlı oturum için yoklama açıldığından program kilitli.",
-  "registration_reason_label": "Neden"
+  "registration_reason_label": "Neden",
+  "registration_about": "Kayıt hakkında",
+  "sessions_details": "Oturum bilgileri"
 }

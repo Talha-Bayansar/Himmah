@@ -602,3 +602,9 @@ Replaced the reservation summary's conditionally hidden settings menu with a lab
 Executed validation: all ten registration UI tests, strict types, production build, documentation links, Prettier and contrast audit pass. Tests cover the direct settings button, saved finite/unlimited limits while locked, disabled interaction and privileged-control exclusion for restricted staff. No schema/auth/database changes or live signed-in/physical-device tests.
 
 Published commit `32f6d05`; Cloudflare version `766dd2cc-bb81-4af4-bf54-b27aaa90a003` is verified active at 100%. All dedicated bindings, maintenance false, People enabled and minute cron retained.
+
+## 29 October 2026 — Registration/session information and action layout
+
+Registration headings now use the shared compact phone add control, with a text label on wider screens. Summary facts have deliberate spacing; settings occupy a separate divided row with concise muted lock guidance. Longer registration explanations remain available in an expandable About registration section. Session cards group equally sized operational actions after the session information, stacked on phones and paired on wider screens. Snapshot/read-only guidance moves into an accessible Session information disclosure; audience, capacity and core facts remain visible. All new/shortened labels are localized EN/NL/TR.
+
+Executed validation: strict types, all 21 focused registration/activity UI tests, production build, Prettier, docs and button contrast audit pass. Production Chromium with synthetic APIs checked both pages in EN/NL/TR at 320/390/768px (18 views): no horizontal overflow, 44px touch targets, compact heading add control and equal mobile session action widths. Dutch phone screenshots were visually reviewed: [registrations](redesign/previews/registrations-layout-phone.png), [session](redesign/previews/session-layout-phone.png). No live signed-in data, physical-device, database/schema or auth changes.
