@@ -392,3 +392,222 @@ it("saving cash for an uncharged participant creates the fee and payment in one 
     ),
   ).toBe(false);
 });
+
+it("records one contact's full cash payment in a sheet with a single reviewed save", async () => {
+  let submitted: Record<string, unknown> | undefined;
+  backend((_url, init) => {
+    if (init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return Response.json({ id: chargeA });
+    }
+  });
+  const { router } = mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  const sheet = await screen.findByRole("dialog");
+  const input = within(sheet).getByLabelText(
+    "Cash received (EUR)",
+  ) as HTMLInputElement;
+  expect(input.value).toBe("10.00");
+  expect(document.activeElement).not.toBe(input);
+  expect(within(sheet).queryByLabelText("Payer label (optional)")).toBeNull();
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  await waitFor(() =>
+    expect(submitted).toMatchObject({
+      action: "record",
+      amountMinor: 1000,
+      payerLabel: "",
+      allocations: [{ chargeId: chargeA, version: 1, amountMinor: 1000 }],
+    }),
+  );
+  expect(screen.queryByRole("alertdialog")).toBeNull();
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(router.state.location.pathname).toContain("/cash");
+  expect(await screen.findByText(/recorded for Sibling A/)).toBeTruthy();
+});
+it("quick cash supports partial payments and blocks excess allocations", async () => {
+  let submitted: Record<string, unknown> | undefined;
+  backend((_url, init) => {
+    if (init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return Response.json({ id: chargeA });
+    }
+  });
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  const sheet = await screen.findByRole("dialog"),
+    input = within(sheet).getByLabelText("Cash received (EUR)");
+  await user.clear(input);
+  await user.type(input, "11");
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  expect(submitted).toBeUndefined();
+  expect(await within(sheet).findByRole("alert")).toBeTruthy();
+  await user.clear(input);
+  await user.type(input, "4,50");
+  expect(
+    within(sheet).getByText(/Remaining after payment:.*5.50/),
+  ).toBeTruthy();
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  await waitFor(() =>
+    expect(submitted).toMatchObject({
+      amountMinor: 450,
+      allocations: [{ chargeId: chargeA, version: 1, amountMinor: 450 }],
+    }),
+  );
+});
+it("quick cash retries the identical payload after an uncertain response", async () => {
+  const attempts: Record<string, unknown>[] = [];
+  backend((_url, init) => {
+    if (init?.method === "POST") {
+      attempts.push(JSON.parse(String(init.body)));
+      return attempts.length === 1
+        ? Response.json({ code: "service" }, { status: 503 })
+        : Response.json({ id: chargeA });
+    }
+  });
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  const sheet = await screen.findByRole("dialog");
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  expect(
+    (within(sheet).getByLabelText("Cash received (EUR)") as HTMLInputElement)
+      .disabled,
+  ).toBe(true);
+  await user.click(
+    await within(sheet).findByRole("button", { name: "Try again" }),
+  );
+  await waitFor(() => expect(attempts).toHaveLength(2));
+  expect(attempts[1]).toEqual(attempts[0]);
+});
+it("quick cash exposes the full receipt page as an optional alternative", async () => {
+  backend();
+  const { router } = mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  await user.click(
+    await screen.findByRole("button", {
+      name: "More people or receipt details",
+    }),
+  );
+  await waitFor(() =>
+    expect(router.state.location.pathname).toContain("/record-cash"),
+  );
+  await screen.findByLabelText("Payer label (optional)");
+  expect(screen.queryByRole("alertdialog")).toBeNull();
+});
+it("quick cash creates an explicit walk-in charge with payment without registration", async () => {
+  let submitted: Record<string, unknown> | undefined;
+  const candidate = {
+    ...a,
+    personId: chargeA,
+    contactVersion: 3,
+    sessionVersion: 4,
+    version: 0,
+    status: "not_charged",
+    canCharge: true,
+  };
+  const fetcher = backend((_url, init) => {
+    if (init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return Response.json({ id: chargeB });
+    }
+    if (_url.pathname.endsWith("/cash"))
+      return Response.json({ items: [candidate], summary, nextCursor: null });
+  });
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  const sheet = await screen.findByRole("dialog");
+  expect(within(sheet).getByText(/also adds.*session fee/)).toBeTruthy();
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  await waitFor(() =>
+    expect(submitted).toMatchObject({
+      allocations: [
+        {
+          personId: chargeA,
+          contactVersion: 3,
+          sessionVersion: 4,
+          version: 0,
+          amountMinor: 1000,
+        },
+      ],
+    }),
+  );
+  expect(
+    fetcher.mock.calls.some(([path]) =>
+      String(path).includes("/registrations"),
+    ),
+  ).toBe(false);
+});
+it("quick cash requires an explicit balance refresh after a conflict", async () => {
+  let fresh = false;
+  const submitted: Record<string, unknown>[] = [];
+  backend((url, init) => {
+    if (init?.method === "POST") {
+      submitted.push(JSON.parse(String(init.body)));
+      return submitted.length === 1
+        ? Response.json({ code: "conflict" }, { status: 409 })
+        : Response.json({ id: chargeA });
+    }
+    if (url.pathname.endsWith("/charges/" + chargeA)) {
+      fresh = true;
+      return Response.json({
+        item: { ...a, outstandingMinor: 600, paidMinor: 400, version: 2 },
+      });
+    }
+  });
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  const sheet = await screen.findByRole("dialog");
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  await user.click(
+    await within(sheet).findByRole("button", {
+      name: "Refresh selected balances",
+    }),
+  );
+  await waitFor(() =>
+    expect(
+      (within(sheet).getByLabelText("Cash received (EUR)") as HTMLInputElement)
+        .value,
+    ).toBe("6.00"),
+  );
+  expect(fresh).toBe(true);
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  await waitFor(() => expect(submitted).toHaveLength(2));
+  expect(submitted[1]).toMatchObject({
+    amountMinor: 600,
+    allocations: [{ chargeId: chargeA, version: 2, amountMinor: 600 }],
+  });
+  expect(submitted[1]!.key).not.toBe(submitted[0]!.key);
+});
+it("quick cash clears its private sheet after collection permission is denied", async () => {
+  backend((_url, init) =>
+    init?.method === "POST"
+      ? Response.json({ code: "forbidden" }, { status: 403 })
+      : undefined,
+  );
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Record payment for Sibling A" }),
+  );
+  const sheet = await screen.findByRole("dialog");
+  await user.click(within(sheet).getByRole("button", { name: /Record.*cash/ }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(screen.queryByText("Sibling A")).toBeNull();
+});

@@ -128,9 +128,10 @@ export function Communication({
           />
         )}
       </div>
-      <p className="text-sm text-muted-foreground">
-        {m.people_communication_hint()}
-      </p>
+      <details className="session-help profile-guidance">
+        <summary>{m.page_help()}</summary>
+        <p>{m.people_communication_hint()}</p>
+      </details>
       {!contact.archivedAt && (
         <>
           <div className="flex flex-wrap items-center gap-2">

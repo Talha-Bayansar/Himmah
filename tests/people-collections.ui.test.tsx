@@ -241,6 +241,10 @@ it("bounds every profile section to three server-requested rows and never mounts
     screen.queryByRole("checkbox", { name: "Include ended records" }),
   ).toBeNull();
   expect(observer).not.toHaveBeenCalled();
+  expect(
+    document.querySelector("details.profile-history")?.hasAttribute("open"),
+  ).toBe(false);
+  await userEvent.click(screen.getByText("History", { selector: "summary" }));
   for (const name of [
     "View all contact details",
     "View all groups",

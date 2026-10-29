@@ -84,6 +84,12 @@ Use compact roster rows with visible attendance actions and subordinate payment 
 
 Financial summaries emphasize the amount and its label. Before recording cash, show received, allocated, unallocated and any new charge. Preserve current scope checks, exact retries, atomicity and reasoned correction history. Styling must not hide a relevant conflict, permission error or uncertain save.
 
+### Information hierarchy and daily tasks
+
+Show the identity, current state and next action first. Repeated lists use compact time ranges rather than full scheduling panels. Do not place several explanatory paragraphs or accounting breakdowns before the work. Attendance keeps search visible and groups secondary filters in a disclosure; non-default filters remain expanded so their effect is apparent. Keep essential restrictions and positive unallocated cash visible; move background guidance, secondary totals and profile history into clearly labeled disclosures. Full detail routes retain complete information.
+
+A routine single-person cash payment uses a short sheet with the person already selected, the balance prefilled, an editable partial amount and the remaining balance. The explicit amount-labeled save is its confirmation; do not add a second confirmation for the same reviewed action. Keep a visible compact payment action in attendance and Payments, plus the full page for several people or receipt details. This is an intentional contextual-action exception alongside attendance, not permission to stack prominent card buttons. Preserve exact retries and current authorization.
+
 ### Feedback and states
 
 Every new component must define loading, empty, populated, long-content, pending, failure, disabled/read-only and permission states where relevant. Keep skeleton geometry close to content. End-of-list guidance is quiet. Unavailable actions explain their actual rule when useful. Use contextual messages, not long repeated policy paragraphs.
@@ -111,3 +117,4 @@ These are synthetic-data Chromium captures of the implemented design in Dutch at
 - [Session detail](design/session-mobile.png)
 - [Short contact form sheet](design/contact-sheet-mobile.png)
 - [Complex cash form page](design/cash-form-mobile.png)
+- [Quick single-person payment sheet](design/quick-payment-mobile.png)

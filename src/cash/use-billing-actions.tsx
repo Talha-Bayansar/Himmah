@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { QuickCash } from "./QuickCash";
+import { useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useBlocker,
@@ -25,6 +26,8 @@ export function useBillingActions(
     confirm = useConfirmation(),
     locale = useLocale()?.locale ?? "en",
     returnTo = useRouterState({ select: (s) => s.location.href });
+  const [quick, setQuick] = useState<CashCharge | null>(null);
+  const [success, setSuccess] = useState("");
   const attempt = useRef<Record<string, unknown> | null>(null);
   const operation = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
@@ -42,8 +45,11 @@ export function useBillingActions(
           ["forbidden", "not_found", "sign_in", "verify_required"].includes(
             e.code,
           )
-        )
+        ) {
+          setSuccess("");
+          setQuick(null);
           onDenied?.(e);
+        }
         if (!["service", "rate_limit"].includes(e.code)) attempt.current = null;
       }
       void cache.invalidateQueries({ queryKey: ["organization", user, org] });
@@ -61,25 +67,25 @@ export function useBillingActions(
         }))),
     enableBeforeUnload: () => !!attempt.current,
   });
+  const advanced = (bill: CashCharge) =>
+    void navigate({
+      to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash",
+      params: { organizationId: org, activityId: activity, sessionId: session },
+      search: {
+        chargeId: bill.status === "not_charged" ? "" : bill.id,
+        personId:
+          bill.status === "not_charged" ? (bill.personId ?? bill.id) : "",
+        returnTo,
+      },
+    });
   return {
     pending: operation.isPending,
     blocked: operation.isPending || !!attempt.current,
     personId: attempt.current?.personId,
-    record: (bill: CashCharge) =>
-      void navigate({
-        to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash",
-        params: {
-          organizationId: org,
-          activityId: activity,
-          sessionId: session,
-        },
-        search: {
-          chargeId: bill.status === "not_charged" ? "" : bill.id,
-          personId:
-            bill.status === "not_charged" ? (bill.personId ?? bill.id) : "",
-          returnTo,
-        },
-      }),
+    record: (bill: CashCharge) => {
+      setSuccess("");
+      setQuick(bill);
+    },
     charge: async (bill: CashCharge) => {
       if (attempt.current) return;
       if (
@@ -102,23 +108,64 @@ export function useBillingActions(
       };
       await operation.mutateAsync(attempt.current).catch(() => {});
     },
-    notice: operation.isError ? (
-      <div className="space-y-3">
-        <CollectionError error={operation.error} />
-        {attempt.current && (
-          <>
-            <p>{m.billing_uncertain()}</p>
-            <ActionButton
-              pending={operation.isPending}
-              onClick={() =>
-                void operation.mutateAsync(attempt.current!).catch(() => {})
-              }
-            >
-              {m.try_again()}
-            </ActionButton>
-          </>
+    notice: (
+      <>
+        {success && (
+          <p className="directory-notice" role="status">
+            {success}
+          </p>
         )}
-      </div>
-    ) : null,
+        {quick && (
+          <QuickCash
+            bill={quick}
+            user={user}
+            org={org}
+            activity={activity}
+            session={session}
+            onClose={() => setQuick(null)}
+            onAdvanced={(bill) => {
+              setQuick(null);
+              advanced(bill);
+            }}
+            onSaved={(name, amount) => {
+              setQuick(null);
+              setSuccess(
+                m.quick_cash_saved({
+                  name,
+                  amount: sessionPrice(amount, locale),
+                }),
+              );
+            }}
+            onDenied={(e) => {
+              setSuccess("");
+              setQuick(null);
+              {
+                setSuccess("");
+                setQuick(null);
+                onDenied?.(e);
+              }
+            }}
+          />
+        )}
+        {operation.isError ? (
+          <div className="space-y-3">
+            <CollectionError error={operation.error} />
+            {attempt.current && (
+              <>
+                <p>{m.billing_uncertain()}</p>
+                <ActionButton
+                  pending={operation.isPending}
+                  onClick={() =>
+                    void operation.mutateAsync(attempt.current!).catch(() => {})
+                  }
+                >
+                  {m.try_again()}
+                </ActionButton>
+              </>
+            )}
+          </div>
+        ) : null}
+      </>
+    ),
   };
 }

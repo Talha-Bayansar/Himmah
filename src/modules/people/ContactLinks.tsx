@@ -333,9 +333,10 @@ export function ContactRelationships({
           />
         )}
       </div>
-      <p className="text-sm text-muted-foreground">
-        {m.people_relationship_scope_hint()}
-      </p>
+      <details className="session-help profile-guidance">
+        <summary>{m.page_help()}</summary>
+        <p>{m.people_relationship_scope_hint()}</p>
+      </details>
       {full && (
         <div className="space-y-3">
           <Label htmlFor="relationships-search">

@@ -2233,3 +2233,107 @@ button[data-slot="button"].people-section-add {
     padding-inline-start: 0;
   }
 }
+
+/* Daily work comes first; secondary explanation and accounting detail are on demand. */
+.cash-row-actions,
+.attendance-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.attendance-row-actions {
+  padding-inline-start: 56px;
+}
+.attendance-row-actions > button {
+  flex: 1 1 0;
+}
+.cash-page > .cash-totals {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 4px;
+}
+.cash-total-details {
+  margin-bottom: var(--space-6);
+}
+.cash-total-details > .cash-totals {
+  margin-block: var(--space-2) 0;
+}
+.quick-cash-balance {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.quick-cash-balance > span {
+  color: var(--muted-foreground);
+  font-size: var(--text-supporting);
+}
+.quick-cash-balance > strong {
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+.quick-cash-remainder {
+  color: var(--muted-foreground);
+  font-size: var(--text-supporting);
+}
+.quick-cash-advanced {
+  justify-self: center;
+  padding-inline: 0;
+}
+.compact-schedule {
+  color: var(--muted-foreground);
+  font-size: var(--text-supporting);
+  margin: 0;
+}
+.profile-guidance {
+  font-size: var(--text-supporting);
+}
+.profile-guidance > summary {
+  font-weight: 400;
+  min-height: 44px;
+}
+.profile-history > summary {
+  cursor: pointer;
+  min-height: 48px;
+  font-size: 20px;
+  font-weight: 600;
+  align-content: center;
+}
+.directory-profile > .profile-history {
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-6);
+}
+@media (max-width: 639px) {
+  .cash-page .directory-item:has(.cash-row-actions) {
+    flex-wrap: wrap;
+  }
+  .cash-row-actions {
+    margin-inline-start: auto;
+  }
+  .attendance-row-actions {
+    padding-inline-start: 0;
+    flex-wrap: wrap;
+  }
+}
+
+.session-payment-link {
+  justify-content: space-between;
+  padding-inline: 0;
+  align-self: stretch;
+  border-block: 1px solid var(--border);
+}
+.receipt-details > .directory-form {
+  margin-block: var(--space-3);
+}
+
+.attendance-filter-options > div {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+.attendance-filter-options > summary {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding-inline: var(--space-3);
+}

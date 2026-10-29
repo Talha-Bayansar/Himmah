@@ -226,7 +226,6 @@ export default function Attendance({
           <h1 tabIndex={-1} data-page-heading>
             {m.attendance_title()}
           </h1>
-          <p>{m.attendance_help()}</p>
         </div>
       </div>
       {session.isPending ? (
@@ -240,7 +239,7 @@ export default function Attendance({
       ) : (
         <div className="attendance-context">
           <h2>{session.data.item.name}</h2>
-          <Schedule {...session.data.item} />
+          <Schedule {...session.data.item} compact />
         </div>
       )}
       {billingActions.notice}
@@ -313,35 +312,42 @@ export default function Attendance({
             onChange={(e) => changeFilter("search", e.target.value)}
           />
         </label>
-        <div>
-          <Label htmlFor="attendance-roster">{m.attendance_roster()}</Label>
-          <NativeSelect
-            id="attendance-roster"
-            value={rosterFilter}
-            onChange={(e) => changeFilter("roster", e.target.value)}
-          >
-            {(["all", "registered", "expected"] as const).map((v) => (
-              <NativeSelectOption key={v} value={v}>
-                {m[("attendance_roster_" + v) as "attendance_roster_all"]()}
+        <details
+          className="session-help attendance-filter-options"
+          open={rosterFilter !== "all" || status !== "all" ? true : undefined}
+        >
+          <summary>{m.attendance_filter()}</summary>
+          <div>
+            <Label htmlFor="attendance-roster">{m.attendance_roster()}</Label>
+            <NativeSelect
+              id="attendance-roster"
+              value={rosterFilter}
+              onChange={(e) => changeFilter("roster", e.target.value)}
+            >
+              {(["all", "registered", "expected"] as const).map((v) => (
+                <NativeSelectOption key={v} value={v}>
+                  {m[("attendance_roster_" + v) as "attendance_roster_all"]()}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+            <Label htmlFor="attendance-filter">{m.attendance_filter()}</Label>
+            <NativeSelect
+              id="attendance-filter"
+              value={status}
+              onChange={(e) => changeFilter("status", e.target.value)}
+            >
+              <NativeSelectOption value="all">
+                {m.attendance_all()}
               </NativeSelectOption>
-            ))}
-          </NativeSelect>
-          <Label htmlFor="attendance-filter">{m.attendance_filter()}</Label>
-          <NativeSelect
-            id="attendance-filter"
-            value={status}
-            onChange={(e) => changeFilter("status", e.target.value)}
-          >
-            <NativeSelectOption value="all">
-              {m.attendance_all()}
-            </NativeSelectOption>
-            {attendanceStatuses.map((value) => (
-              <NativeSelectOption key={value} value={value}>
-                {statusLabel(value)}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-        </div>
+              {attendanceStatuses.map((value) => (
+                <NativeSelectOption key={value} value={value}>
+                  {statusLabel(value)}
+                </NativeSelectOption>
+              ))}
+            </NativeSelect>
+            <p className="activity-note">{m.attendance_help()}</p>
+          </div>
+        </details>
       </div>
       {!!selected.size && (
         <div className="attendance-bulkbar">
@@ -420,17 +426,18 @@ export default function Attendance({
                             : row.billing.status === "partial"
                               ? m.cash_partial()
                               : m.cash_unpaid()}
-                        {" · " +
-                          (row.billing.status === "not_charged"
-                            ? m.pricing_amount_short()
-                            : m.cash_outstanding()) +
-                          ": " +
-                          sessionPrice(
-                            row.billing.status === "not_charged"
-                              ? row.billing.amountMinor
-                              : row.billing.outstandingMinor,
-                            locale,
-                          )}
+                        {row.billing.status !== "paid" &&
+                          " · " +
+                            (row.billing.status === "not_charged"
+                              ? m.pricing_amount_short()
+                              : m.cash_outstanding()) +
+                            ": " +
+                            sessionPrice(
+                              row.billing.status === "not_charged"
+                                ? row.billing.amountMinor
+                                : row.billing.outstandingMinor,
+                              locale,
+                            )}
                         {row.billing.reviewRequired && (
                           <>
                             <br />
@@ -494,15 +501,36 @@ export default function Attendance({
                     ]}
                   />
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!canEdit}
-                  onClick={() => setEditor([row])}
-                >
-                  <ClipboardCheck size={16} aria-hidden="true" />
-                  {row.version ? m.attendance_update() : m.attendance_record()}
-                </Button>
+                <div className="attendance-row-actions">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={!canEdit}
+                    onClick={() => setEditor([row])}
+                  >
+                    <ClipboardCheck size={16} aria-hidden="true" />
+                    {row.version
+                      ? m.attendance_update()
+                      : m.attendance_record()}
+                  </Button>
+                  {!financialDenied &&
+                    row.billing &&
+                    !row.billing.reviewRequired &&
+                    !row.billing.registrationRequired &&
+                    row.billing.outstandingMinor > 0 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={billingActions.blocked}
+                        onClick={() => billingActions.record(row.billing!)}
+                        aria-label={m.quick_cash_for({ name: row.name })}
+                      >
+                        <Banknote aria-hidden="true" />
+                        {m.quick_cash_title()}
+                      </Button>
+                    )}
+                </div>
               </article>
             ))}
           </div>

@@ -252,7 +252,7 @@ function Content({
           <p>
             {summary.mode === "required"
               ? m.registration_expected_count({ count: summary.expected ?? 0 })
-              : m.registration_optional()}
+              : m.registration_optional_short()}
           </p>
           {summary.frozenAt ? (
             <p>
@@ -312,9 +312,12 @@ function Content({
                 </Button>
               )}
               {!summary.canConfigure && (
-                <p id="registration-settings-locked">
-                  {m.registration_settings_locked_help()}
-                </p>
+                <details className="session-help">
+                  <summary id="registration-settings-locked">
+                    {m.registration_settings_locked_short()}
+                  </summary>
+                  <p>{m.registration_settings_locked_help()}</p>
+                </details>
               )}
             </div>
           )}

@@ -152,7 +152,7 @@ export default function Sessions({
             <ItemActions
               name={label}
               actions={[
-                ...(canCash && (!full || canOperate)
+                ...(canCash && !full
                   ? [
                       {
                         label: m.cash_title(),
@@ -234,7 +234,7 @@ export default function Sessions({
             />
           )}
         </div>
-        <Schedule {...item} />
+        <Schedule {...item} compact={!full} />
         {(item.priceMinor ?? 0) > 0 && (
           <p className="activity-status">
             {m.pricing_per_session({
@@ -242,28 +242,47 @@ export default function Sessions({
             })}
           </p>
         )}
+        {full && canCash && canOperate && (
+          <Button variant="link" className="session-payment-link" asChild>
+            <Link
+              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
+              params={{
+                organizationId: organization.id,
+                activityId: activity.id,
+                sessionId: item.id,
+              }}
+              search={{ q: "", view: "all" }}
+            >
+              <Banknote aria-hidden="true" />
+              {m.cash_title()}
+              <ArrowRight aria-hidden="true" />
+            </Link>
+          </Button>
+        )}
         {canOperate && item.registration && (
           <div className="session-registration-summary">
             <p className="activity-status">
               {item.registration.mode === "required"
                 ? m.registration_required()
-                : m.registration_optional()}
+                : m.registration_optional_short()}
             </p>
             <p>
               {m.registration_reserved({
                 count: String(item.registration.confirmed),
               })}
             </p>
-            <p>
-              {item.registration.remaining === null
-                ? m.registration_unlimited()
-                : item.registration.remaining === 0
-                  ? m.sessions_full()
-                  : m.registration_seats({
-                      remaining: String(item.registration.remaining),
-                      capacity: String(item.registration.capacity),
-                    })}
-            </p>
+            {
+              <p>
+                {item.registration.remaining === null
+                  ? m.registration_unlimited()
+                  : item.registration.remaining === 0
+                    ? m.sessions_full()
+                    : m.registration_seats({
+                        remaining: String(item.registration.remaining),
+                        capacity: String(item.registration.capacity),
+                      })}
+              </p>
+            }
             {!canManage && (
               <p className="activity-note">{m.registration_scoped()}</p>
             )}

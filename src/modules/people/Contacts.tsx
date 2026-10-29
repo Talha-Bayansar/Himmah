@@ -132,7 +132,6 @@ function ContactList({ org, user }: { org: string; user: string }) {
     <section className="directory">
       <DirectoryHeader
         title={m.people_contacts()}
-        description={m.directory_roster_help()}
         action={
           <Button onClick={() => setEditing(true)}>
             <Plus aria-hidden="true" />
@@ -537,11 +536,12 @@ function ContactDetail({
         />
       )}
       {(!view || view === "history") && (
-        <section className="space-y-3">
+        <details
+          className="profile-history space-y-3"
+          open={view === "history" ? true : undefined}
+        >
+          <summary>{m.people_history()}</summary>
           <div className="flex items-baseline gap-2">
-            {!view && (
-              <h2 className="text-xl font-semibold">{m.people_history()}</h2>
-            )}
             <CollectionCount
               total={history.data?.pages[0]?.total}
               compact={!view}
@@ -573,7 +573,7 @@ function ContactDetail({
               )}
             </>
           )}
-        </section>
+        </details>
       )}
       {editing && (
         <Editor

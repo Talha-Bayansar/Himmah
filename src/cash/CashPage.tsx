@@ -329,15 +329,8 @@ function Content(
       )}
       <dl className="cash-totals">
         {[
-          [m.cash_owed(), summary.owedMinor],
-          [m.cash_applied(), summary.paidMinor],
           [m.cash_outstanding(), summary.outstandingMinor],
-          ...(summary.canManage
-            ? [
-                [m.cash_collected(), summary.collectedMinor ?? 0],
-                [m.cash_unallocated(), summary.unallocatedMinor ?? 0],
-              ]
-            : []),
+          [m.cash_applied(), summary.paidMinor],
         ].map(([title, value]) => (
           <div key={String(title)}>
             <dt>{title}</dt>
@@ -345,6 +338,32 @@ function Content(
           </div>
         ))}
       </dl>
+      {(summary.unallocatedMinor ?? 0) > 0 && (
+        <p className="directory-notice">
+          {m.cash_unallocated()}: {money(summary.unallocatedMinor!)}
+        </p>
+      )}
+      <details className="session-help cash-total-details">
+        <summary>{m.cash_more_totals()}</summary>
+        <dl className="cash-totals">
+          <div>
+            <dt>{m.cash_owed()}</dt>
+            <dd>{money(summary.owedMinor)}</dd>
+          </div>
+          {summary.canManage && (
+            <>
+              <div>
+                <dt>{m.cash_collected()}</dt>
+                <dd>{money(summary.collectedMinor ?? 0)}</dd>
+              </div>
+              <div>
+                <dt>{m.cash_unallocated()}</dt>
+                <dd>{money(summary.unallocatedMinor ?? 0)}</dd>
+              </div>
+            </>
+          )}
+        </dl>
+      </details>
       {!summary.canManage && <p className="activity-note">{m.cash_scoped()}</p>}
       <DirectoryToolbar
         id="cash-search"
@@ -456,18 +475,18 @@ function Content(
                         name={c.name}
                         detail={
                           <>
-                            {label(c.status)} ·{" "}
                             {c.status === "not_charged"
-                              ? m.pricing_amount_short()
-                              : m.cash_owed()}
-                            : {money(c.amountMinor)}
-                            {c.status !== "not_charged" && (
-                              <>
-                                <br />
-                                {m.cash_applied()}: {money(c.paidMinor)} ·{" "}
-                                {m.cash_outstanding()}:{" "}
-                                {money(c.outstandingMinor)}
-                              </>
+                              ? m.cash_row_fee({ amount: money(c.amountMinor) })
+                              : c.status === "paid"
+                                ? m.cash_paid()
+                                : m.cash_row_due({
+                                    amount: money(c.outstandingMinor),
+                                  })}
+                            {c.status === "partial" && (
+                              <> · {m.cash_partial()}</>
+                            )}
+                            {c.status === "not_charged" && (
+                              <> · {m.billing_not_charged()}</>
                             )}
                             {c.registrationRequired && (
                               <>
@@ -488,27 +507,32 @@ function Content(
                         !c.reviewRequired &&
                         !c.registrationRequired &&
                         c.outstandingMinor > 0 && (
-                          <ItemActions
-                            name={c.name}
-                            actions={[
-                              {
-                                label: m.cash_record(),
-                                icon: Banknote,
-                                disabled: billingActions.blocked,
-                                onSelect: () => billingActions.record(c),
-                              },
-                              ...(c.status === "not_charged"
-                                ? [
-                                    {
-                                      label: m.billing_add_charge(),
-                                      icon: Banknote,
-                                      disabled: billingActions.blocked,
-                                      onSelect: () => billingActions.charge(c),
-                                    },
-                                  ]
-                                : []),
-                            ]}
-                          />
+                          <div className="cash-row-actions">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={billingActions.blocked}
+                              onClick={() => billingActions.record(c)}
+                              aria-label={m.quick_cash_for({ name: c.name })}
+                            >
+                              <Banknote aria-hidden="true" />
+                              {m.quick_cash_title()}
+                            </Button>
+                            {c.status === "not_charged" && (
+                              <ItemActions
+                                name={c.name}
+                                actions={[
+                                  {
+                                    label: m.billing_add_charge(),
+                                    icon: Banknote,
+                                    disabled: billingActions.blocked,
+                                    onSelect: () => billingActions.charge(c),
+                                  },
+                                ]}
+                              />
+                            )}
+                          </div>
                         )}
                     </DirectoryItem>
                   );
@@ -890,33 +914,39 @@ function CashForm(
               onChange={(e) => setAmount(e.target.value)}
             />
           </div>
-          <div>
-            <Label htmlFor="cash-payer">{m.cash_payer()}</Label>
-            <Input
-              id="cash-payer"
-              value={payer}
-              maxLength={100}
-              disabled={frozen}
-              onChange={(e) => setPayer(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label htmlFor="cash-occurred">{m.cash_occurred()}</Label>
-            <Input
-              id="cash-occurred"
-              type="datetime-local"
-              value={occurred}
-              required
-              disabled={frozen}
-              onChange={(e) => setOccurred(e.target.value)}
-            />
-            <p className="activity-note">
-              {m.activities_timezone({ timezone: summary.timezone })}
-            </p>
-          </div>
+          <details className="session-help receipt-details">
+            <summary>{m.quick_cash_receipt_details()}</summary>
+            <div className="directory-form">
+              {" "}
+              <div>
+                <Label htmlFor="cash-payer">{m.cash_payer()}</Label>
+                <Input
+                  id="cash-payer"
+                  value={payer}
+                  maxLength={100}
+                  disabled={frozen}
+                  onChange={(e) => setPayer(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="cash-occurred">{m.cash_occurred()}</Label>
+                <Input
+                  id="cash-occurred"
+                  type="datetime-local"
+                  value={occurred}
+                  required
+                  disabled={frozen}
+                  onChange={(e) => setOccurred(e.target.value)}
+                />
+                <p className="activity-note">
+                  {m.activities_timezone({ timezone: summary.timezone })}
+                </p>
+              </div>
+            </div>
+          </details>
           <section className="space-y-3" aria-label={m.cash_allocations()}>
             <h2>
-              {m.cash_allocations()} · {selected.size}/50
+              {m.quick_cash_people()} · {selected.size}/50
             </h2>
             {[...selected.values()].map(({ charge, text }) => (
               <div className="cash-allocation" key={charge.id}>

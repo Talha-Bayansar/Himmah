@@ -95,7 +95,9 @@ export function Schedule({
   startsAt,
   endsAt,
   timezone,
+  compact = false,
 }: {
+  compact?: boolean;
   startsAt: string;
   endsAt: string;
   timezone: string;
@@ -111,6 +113,23 @@ export function Schedule({
       timeStyle: "short",
       timeZone: timezone,
     }).format(new Date(value));
+  if (compact)
+    return (
+      <p className="compact-schedule">
+        <time dateTime={startsAt}>
+          {date(startsAt)} · {time(startsAt)}
+        </time>
+        <span aria-hidden="true"> – </span>
+        <time dateTime={endsAt}>
+          {date(startsAt) !== date(endsAt) ? date(endsAt) + " · " : ""}
+          {time(endsAt)}
+        </time>
+        <span className="sr-only">
+          {" "}
+          · {m.activities_timezone({ timezone })}
+        </span>
+      </p>
+    );
   return (
     <div className="activity-schedule">
       <dl className="activity-details">
