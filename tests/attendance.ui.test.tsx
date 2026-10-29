@@ -486,12 +486,14 @@ it("read-only sessions disable adding and removing", async () => {
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(true);
+  const user = userEvent.setup();
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Member One" }),
+  );
   expect(
-    (
-      screen.getByRole("button", {
-        name: "Remove Member One from attendance",
-      }) as HTMLButtonElement
-    ).disabled,
+    (await screen.findByRole("menuitem", { name: "Remove" })).hasAttribute(
+      "data-disabled",
+    ),
   ).toBe(true);
 });
 it("denied writes clear the private picker and list", async () => {
@@ -538,4 +540,129 @@ it("attendance-only users never see financial data or paid controls", async () =
     screen.queryByRole("button", { name: "Mark Member One paid" }),
   ).toBeNull();
   expect(screen.queryByText("Recorded paid")).toBeNull();
+});
+
+it.each([false, true])(
+  "row actions have a single paid toggle and menu-only removal (paid=%s)",
+  async (paid) => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) =>
+        Response.json(
+          String(input).includes("/attendance")
+            ? {
+                items: [
+                  {
+                    ...present,
+                    billing: paid
+                      ? {
+                          ...unpaid,
+                          status: "paid",
+                          paidMinor: 1000,
+                          outstandingMinor: 0,
+                        }
+                      : unpaid,
+                  },
+                ],
+                summary,
+                nextCursor: null,
+              }
+            : { item: session },
+        ),
+      ),
+    );
+    mount();
+    const user = userEvent.setup();
+    await screen.findByRole("heading", { name: first.name });
+    expect(
+      screen.getAllByRole("button", {
+        name: paid ? "Mark Member One unpaid" : "Mark Member One paid",
+      }),
+    ).toHaveLength(1);
+    expect(
+      screen.queryByRole("button", {
+        name: "Remove Member One from attendance",
+      }),
+    ).toBeNull();
+    await user.click(
+      screen.getByRole("button", { name: "Actions for Member One" }),
+    );
+    await screen.findByRole("menuitem", { name: "Remove" });
+    expect(screen.queryByRole("menuitem", { name: "Mark unpaid" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Mark paid" })).toBeNull();
+    expect(screen.queryByRole("menuitem", { name: "Record cash" })).toBeNull();
+  },
+);
+it("receipt history stays inside management and loads only when expanded", async () => {
+  const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/cash"))
+      return Response.json({
+        items: [],
+        nextCursor: null,
+        summary: {
+          name: session.name,
+          timezone: "UTC",
+          canManage: true,
+          canRecord: true,
+          owedMinor: 0,
+          paidMinor: 0,
+          outstandingMinor: 0,
+          collectedMinor: 0,
+          unallocatedMinor: 0,
+        },
+      });
+    return Response.json(
+      url.includes("/attendance")
+        ? { items: [present], summary, nextCursor: null }
+        : { item: { ...session, priceMinor: 1000 } },
+    );
+  });
+  vi.stubGlobal("fetch", fetcher);
+  mount();
+  await screen.findByRole("heading", { name: first.name });
+  expect(
+    fetcher.mock.calls.some(([input]) => String(input).includes("/cash")),
+  ).toBe(false);
+  await userEvent.setup().click(screen.getByText("Receipt history"));
+  await waitFor(() =>
+    expect(
+      fetcher.mock.calls.some(([input]) =>
+        String(input).includes("/cash?view=history"),
+      ),
+    ).toBe(true),
+  );
+  expect(screen.queryByRole("heading", { name: "Payments" })).toBeNull();
+});
+
+it("payment-only staff use the shared management view without attendance reads", async () => {
+  const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/access/me"))
+      return Response.json({ item: { canAttend: false, canCollect: true } });
+    return Response.json({
+      items: [unpaid],
+      nextCursor: null,
+      summary: {
+        name: session.name,
+        timezone: "UTC",
+        canManage: false,
+        canRecord: true,
+        owedMinor: 1000,
+        paidMinor: 0,
+        outstandingMinor: 1000,
+        collectedMinor: null,
+        unallocatedMinor: null,
+      },
+    });
+  });
+  vi.stubGlobal("fetch", fetcher);
+  mount("volunteer");
+  await screen.findByRole("heading", { name: "Attendance & payments" });
+  await screen.findByText(first.name);
+  expect(
+    fetcher.mock.calls.some(([input]) => String(input).includes("/attendance")),
+  ).toBe(false);
+  expect(screen.queryByRole("button", { name: "Add participant" })).toBeNull();
+  expect(screen.queryByText("Present")).toBeNull();
 });

@@ -299,15 +299,15 @@ function Content({
               {(summary.priceMinor ?? 0) > 0 && (
                 <Button variant="link" size="sm" asChild>
                   <Link
-                    to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
+                    to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
                     params={{
                       organizationId: organization.id,
                       activityId,
                       sessionId,
                     }}
-                    search={{ q: "", view: "all" }}
+                    search={{ q: "" }}
                   >
-                    {m.cash_title()}
+                    {m.management_open()}
                   </Link>
                 </Button>
               )}

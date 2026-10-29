@@ -105,7 +105,7 @@ function mount(record = false) {
     root = createRootRoute({ component: () => <Outlet /> });
   const cash = createRoute({
     getParentRoute: () => root,
-    path: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash",
+    path: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
     validateSearch: (s: Record<string, unknown>) => ({
       q: String(s.q ?? ""),
       view: String(s.view ?? "all") as CashView,
@@ -116,7 +116,7 @@ function mount(record = false) {
       return (
         <CashPage
           {...cash.useParams()}
-          filters={f}
+          filters={f as { q: string; view: CashView }}
           onFiltersChange={(search) => void nav({ search, replace: true })}
         />
       );
@@ -139,7 +139,7 @@ function mount(record = false) {
     routeTree: root.addChildren([cash, form]),
     history: createMemoryHistory({
       initialEntries: [
-        `/workspace/${org}/activities/${activity}/sessions/${session}/${record ? "record-cash" : "cash"}`,
+        `/workspace/${org}/activities/${activity}/sessions/${session}/${record ? "record-cash" : "attendance"}`,
       ],
     }),
   });
@@ -192,7 +192,7 @@ it("multi-contact cash uses a page, confirms the allocation, and returns after s
   expect(submitted).toBeUndefined();
   await user.click(within(dialog).getByRole("button", { name: "Record cash" }));
   await waitFor(() =>
-    expect(router.state.location.pathname).toMatch(/\/cash$/),
+    expect(router.state.location.pathname).toMatch(/\/attendance$/),
   );
   expect(submitted).toMatchObject({
     action: "record",
@@ -424,7 +424,7 @@ it("records one contact's full cash payment in a sheet with a single reviewed sa
   );
   expect(screen.queryByRole("alertdialog")).toBeNull();
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  expect(router.state.location.pathname).toContain("/cash");
+  expect(router.state.location.pathname).toContain("/attendance");
   expect(await screen.findByText(/recorded for Sibling A/)).toBeTruthy();
 });
 it("quick cash supports partial payments and blocks excess allocations", async () => {

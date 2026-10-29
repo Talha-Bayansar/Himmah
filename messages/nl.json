@@ -721,5 +721,6 @@
   "management_partial_count": "{count} deels betaald, meegeteld bij onbetaald.",
   "management_scope": "Betalingstotalen gelden voor de contacten die je mag beheren.",
   "management_add_selected": "Toevoegen ({count})",
-  "management_corrected": "Betaling gecorrigeerd"
+  "management_corrected": "Betaling gecorrigeerd",
+  "management_payment_details": "Deelbetaling of betalingsgegevens"
 }

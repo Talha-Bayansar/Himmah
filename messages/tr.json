@@ -721,5 +721,6 @@
   "management_partial_count": "{count} kısmen ödendi; ödenmeyenlere dahildir.",
   "management_scope": "Ödeme toplamları yönetebildiğiniz kişileri kapsar.",
   "management_add_selected": "Ekle ({count})",
-  "management_corrected": "Ödeme düzeltildi"
+  "management_corrected": "Ödeme düzeltildi",
+  "management_payment_details": "Kısmi ödeme veya makbuz ayrıntıları"
 }

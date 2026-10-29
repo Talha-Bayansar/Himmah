@@ -57,6 +57,8 @@ type Props = {
   activityId: string;
   sessionId: string;
   record?: boolean;
+  historyOnly?: boolean;
+  unified?: boolean;
   chargeId?: string;
   personId?: string;
   returnTo?: string;
@@ -86,7 +88,7 @@ export default function CashPage(props: Props) {
       workspaceSection="activities"
     >
       {(user, organization) => (
-        <Scope
+        <CashScope
           key={
             user +
             organization.id +
@@ -103,7 +105,9 @@ export default function CashPage(props: Props) {
     </OrganizationPortal>
   );
 }
-function Scope(props: Props & { user: string; organization: Organization }) {
+export function CashScope(
+  props: Props & { user: string; organization: Organization },
+) {
   const cache = useQueryClient(),
     [error, setError] = useState<unknown>(null);
   const onDenied = useCallback(
@@ -191,7 +195,7 @@ function Content(
       directoryRequest(path, { method: "POST", body: JSON.stringify(body) }),
     onSuccess: async () => {
       await cache.invalidateQueries({
-        queryKey: ["organization", user, org, "activities"],
+        queryKey: ["organization", user, org],
       });
       setReversal(null);
       setReason("");
@@ -280,7 +284,7 @@ function Content(
       params: { organizationId: org, activityId: activity, sessionId: session },
       search: {
         chargeId: chargeId ?? "",
-        returnTo: `/workspace/${org}/activities/${activity}/sessions/${session}/cash?q=${encodeURIComponent(filters.q)}&view=${filters.view}`,
+        returnTo: `/workspace/${org}/activities/${activity}/sessions/${session}/attendance?q=${encodeURIComponent(filters.q)}&cashView=${filters.view}`,
       },
     });
   const money = (n: number) => sessionPrice(n, locale),
@@ -292,104 +296,123 @@ function Content(
       }).format(new Date(v));
   return (
     <section className="directory cash-page">
-      <Button variant="link" className="settings-back" asChild>
-        <Link
-          to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
-          params={{
-            organizationId: org,
-            activityId: activity,
-            sessionId: session,
-          }}
-        >
-          <ArrowLeft aria-hidden="true" />
-          {m.sessions_view()}
-        </Link>
-      </Button>
-      <DirectoryHeader
-        title={m.cash_title()}
-        description={summary.name}
-        action={
-          summary.canRecord ? (
-            <Button
-              className="people-section-add"
-              aria-label={m.cash_record()}
-              onClick={() => record()}
+      {!props.historyOnly && (
+        <>
+          <Button variant="link" className="settings-back" asChild>
+            <Link
+              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
+              params={{
+                organizationId: org,
+                activityId: activity,
+                sessionId: session,
+              }}
             >
-              <Banknote aria-hidden="true" />
-              <span className="hidden sm:inline">{m.cash_record()}</span>
-            </Button>
-          ) : undefined
-        }
-      />
-      {billingActions.notice}
-      {!!summary.toChargeCount && (
-        <p className="activity-note">
-          {m.billing_to_charge({ count: summary.toChargeCount })}
-        </p>
+              <ArrowLeft aria-hidden="true" />
+              {m.sessions_view()}
+            </Link>
+          </Button>
+          <DirectoryHeader
+            title={props.unified ? m.management_title() : m.cash_title()}
+            description={summary.name}
+            action={
+              summary.canRecord ? (
+                <Button
+                  className="people-section-add"
+                  aria-label={m.cash_record()}
+                  onClick={() => record()}
+                >
+                  <Banknote aria-hidden="true" />
+                  <span className="hidden sm:inline">{m.cash_record()}</span>
+                </Button>
+              ) : undefined
+            }
+          />
+          {billingActions.notice}
+          {!!summary.toChargeCount && (
+            <p className="activity-note">
+              {m.billing_to_charge({ count: summary.toChargeCount })}
+            </p>
+          )}
+          <dl className="cash-totals">
+            {[
+              [m.cash_outstanding(), summary.outstandingMinor],
+              [m.cash_applied(), summary.paidMinor],
+            ].map(([title, value]) => (
+              <div key={String(title)}>
+                <dt>{title}</dt>
+                <dd>{money(Number(value))}</dd>
+              </div>
+            ))}
+          </dl>
+          {(summary.unallocatedMinor ?? 0) > 0 && (
+            <p className="directory-notice">
+              {m.cash_unallocated()}: {money(summary.unallocatedMinor!)}
+            </p>
+          )}
+          <details className="session-help cash-total-details">
+            <summary>{m.cash_more_totals()}</summary>
+            <dl className="cash-totals">
+              <div>
+                <dt>{m.cash_owed()}</dt>
+                <dd>{money(summary.owedMinor)}</dd>
+              </div>
+              {summary.canManage && (
+                <>
+                  <div>
+                    <dt>{m.cash_collected()}</dt>
+                    <dd>{money(summary.collectedMinor ?? 0)}</dd>
+                  </div>
+                  <div>
+                    <dt>{m.cash_unallocated()}</dt>
+                    <dd>{money(summary.unallocatedMinor ?? 0)}</dd>
+                  </div>
+                </>
+              )}
+            </dl>
+          </details>
+          {!summary.canManage && (
+            <p className="activity-note">{m.cash_scoped()}</p>
+          )}
+        </>
       )}
-      <dl className="cash-totals">
-        {[
-          [m.cash_outstanding(), summary.outstandingMinor],
-          [m.cash_applied(), summary.paidMinor],
-        ].map(([title, value]) => (
-          <div key={String(title)}>
-            <dt>{title}</dt>
-            <dd>{money(Number(value))}</dd>
-          </div>
-        ))}
-      </dl>
-      {(summary.unallocatedMinor ?? 0) > 0 && (
+      {props.historyOnly && (summary.unallocatedMinor ?? 0) > 0 && (
         <p className="directory-notice">
           {m.cash_unallocated()}: {money(summary.unallocatedMinor!)}
         </p>
       )}
-      <details className="session-help cash-total-details">
-        <summary>{m.cash_more_totals()}</summary>
-        <dl className="cash-totals">
-          <div>
-            <dt>{m.cash_owed()}</dt>
-            <dd>{money(summary.owedMinor)}</dd>
-          </div>
-          {summary.canManage && (
-            <>
-              <div>
-                <dt>{m.cash_collected()}</dt>
-                <dd>{money(summary.collectedMinor ?? 0)}</dd>
-              </div>
-              <div>
-                <dt>{m.cash_unallocated()}</dt>
-                <dd>{money(summary.unallocatedMinor ?? 0)}</dd>
-              </div>
-            </>
-          )}
-        </dl>
-      </details>
-      {!summary.canManage && <p className="activity-note">{m.cash_scoped()}</p>}
       <DirectoryToolbar
         id="cash-search"
         label={m.directory_search()}
         value={filters.q}
         onChange={(q) => onFiltersChange({ ...filters, q })}
       >
-        <Label htmlFor="cash-view">{m.registration_view()}</Label>
-        <NativeSelect
-          id="cash-view"
-          value={filters.view}
-          onChange={(e) =>
-            onFiltersChange({ ...filters, view: e.target.value as CashView })
-          }
-        >
-          {cashViews
-            .filter(
-              (v) =>
-                v !== "participants" && (v !== "history" || summary.canManage),
-            )
-            .map((v) => (
-              <NativeSelectOption key={v} value={v}>
-                {label(v)}
-              </NativeSelectOption>
-            ))}
-        </NativeSelect>
+        {!props.historyOnly && (
+          <>
+            <Label htmlFor="cash-view">{m.registration_view()}</Label>
+            <NativeSelect
+              id="cash-view"
+              value={filters.view}
+              onChange={(e) =>
+                onFiltersChange({
+                  ...filters,
+                  view: e.target.value as CashView,
+                })
+              }
+            >
+              {cashViews
+                .filter(
+                  (v) =>
+                    v !== "participants" &&
+                    (v !== "history" || summary.canManage),
+                )
+                .map((v) => (
+                  <NativeSelectOption key={v} value={v}>
+                    {label(v)}
+                  </NativeSelectOption>
+                ))}
+            </NativeSelect>
+          </>
+        )}
       </DirectoryToolbar>
       <DirectoryList label={m.cash_title()}>
         {pages
@@ -688,7 +711,7 @@ function CashForm(
     if (denied(error)) onDenied(error);
   }, [initial.error, options.error, onDenied]);
   const returnTo = formReturn(props.returnTo, props.organizationId),
-    fallback = `/workspace/${props.organizationId}/activities/${props.activityId}/sessions/${props.sessionId}/cash`;
+    fallback = `/workspace/${props.organizationId}/activities/${props.activityId}/sessions/${props.sessionId}/attendance`;
   const leave = async () => {
     if (operation.isPending) return;
     if (

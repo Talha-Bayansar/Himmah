@@ -721,5 +721,6 @@
   "management_partial_count": "{count} partially paid, included in unpaid.",
   "management_scope": "Payment totals cover the contacts you can manage.",
   "management_add_selected": "Add ({count})",
-  "management_corrected": "Payment corrected"
+  "management_corrected": "Payment corrected",
+  "management_payment_details": "Partial payment or receipt details"
 }

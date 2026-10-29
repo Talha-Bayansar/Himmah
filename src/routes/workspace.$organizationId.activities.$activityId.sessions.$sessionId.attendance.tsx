@@ -1,10 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { cashViews, type CashView } from "../cash/contracts";
 import OrganizationPortal from "../organization/OrganizationPortal";
 export const Route = createFileRoute(
   "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
 )({
-  validateSearch: (s: Record<string, unknown>): { q?: string } => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { q?: string; cashView?: CashView } => ({
     q: typeof s.q === "string" ? s.q.slice(0, 80) : "",
+    ...(cashViews.includes(s.cashView as CashView)
+      ? { cashView: s.cashView as CashView }
+      : {}),
   }),
   component: AttendancePage,
 });

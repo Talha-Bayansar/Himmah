@@ -1,5 +1,7 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAttendanceMembership } from "./use-attendance-membership";
+import { CashScope } from "../cash/CashPage";
+import type { CashFilters } from "../cash/CashPage";
 import { useBillingActions } from "../cash/use-billing-actions";
 import { sessionPrice } from "../activities/contracts";
 import {
@@ -61,14 +63,14 @@ export default function Attendance({
   const locale = useLocale()?.locale ?? "en";
   const navigate = useNavigate();
   const filters = useRouterState({
-    select: (s) => s.location.search as { q?: string },
+    select: (s) => s.location.search as { q?: string; cashView?: string },
   });
   const isAdmin = ["owner", "admin"].includes(organization.role);
   const access = useQuery({
     queryKey: ["organization", userId, organization.id, "my-access"],
     enabled: !isAdmin,
     queryFn: ({ signal }) =>
-      directoryRequest<{ item: { canAttend: boolean } }>(
+      directoryRequest<{ item: { canAttend: boolean; canCollect?: boolean } }>(
         `/api/organizations/${organization.id}/access/me`,
         { signal },
       ),
@@ -78,6 +80,11 @@ export default function Attendance({
       isAdmin || (!access.isError && access.data?.item.canAttend === true),
     [financialDenied, setFinancialDenied] = useState(false),
     [adding, setAdding] = useState(false),
+    [historyOpen, setHistoryOpen] = useState(filters.cashView === "history"),
+    [receiptFilters, setReceiptFilters] = useState<CashFilters>({
+      q: "",
+      view: "history",
+    }),
     [selected, setSelected] = useState<Map<string, AttendancePerson>>(
       new Map(),
     ),
@@ -199,6 +206,29 @@ export default function Attendance({
         retry={() => {
           void roster.refetch().then(() => membership.reset());
         }}
+      />
+    );
+  if (!canManage && access.data?.item.canCollect)
+    return (
+      <CashScope
+        user={userId}
+        organization={organization}
+        organizationId={organization.id}
+        activityId={activityId}
+        sessionId={sessionId}
+        unified
+        filters={{
+          q: search,
+          view: (filters.cashView as CashFilters["view"]) ?? "all",
+        }}
+        onFiltersChange={(value) =>
+          void navigate({
+            to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
+            params: { organizationId: organization.id, activityId, sessionId },
+            search: { q: value.q, cashView: value.view },
+            replace: true,
+          })
+        }
       />
     );
   if (!canManage) return <p role="alert">{m.attendance_access()}</p>;
@@ -422,7 +452,7 @@ export default function Attendance({
                       row.billing.outstandingMinor > 0
                         ? [
                             {
-                              label: m.cash_record(),
+                              label: m.management_payment_details(),
                               icon: Banknote,
                               disabled: billingActions.blocked,
                               onSelect: () =>
@@ -441,20 +471,15 @@ export default function Attendance({
                               : []),
                           ]
                         : []),
-                      ...(!financialDenied &&
-                      row.billing &&
-                      row.billing.paidMinor > 0
-                        ? [
-                            {
-                              label: m.management_mark_unpaid(),
-                              icon: Banknote,
-                              disabled: membership.blocked || !canEdit,
-                              onSelect: async () => {
-                                await membership.change(row, "unpaid");
-                              },
-                            },
-                          ]
-                        : []),
+                      {
+                        label: m.attendance_remove(),
+                        icon: UserMinus,
+                        disabled: !canEdit || membership.blocked,
+                        onSelect: async () => {
+                          await membership.change(row, "remove");
+                        },
+                        destructive: true,
+                      },
                       {
                         label: m.attendance_history(),
                         icon: History,
@@ -464,16 +489,6 @@ export default function Attendance({
                   />
                 </div>
                 <div className="attendance-row-actions">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    disabled={!canEdit || membership.blocked}
-                    onClick={() => void membership.change(row, "remove")}
-                    aria-label={m.attendance_remove_for({ name: row.name })}
-                  >
-                    <UserMinus size={16} aria-hidden="true" />
-                  </Button>
                   {!financialDenied &&
                     row.billing &&
                     !row.billing.reviewRequired &&
@@ -510,6 +525,27 @@ export default function Attendance({
           )}
           <InfiniteFooter {...roster} />
         </>
+      )}
+      {isAdmin && (session.data?.item.priceMinor ?? 0) > 0 && (
+        <details
+          className="session-help"
+          open={historyOpen}
+          onToggle={(event) => setHistoryOpen(event.currentTarget.open)}
+        >
+          <summary>{m.cash_history()}</summary>
+          {historyOpen && (
+            <CashScope
+              user={userId}
+              organization={organization}
+              organizationId={organization.id}
+              activityId={activityId}
+              sessionId={sessionId}
+              historyOnly
+              filters={receiptFilters}
+              onFiltersChange={setReceiptFilters}
+            />
+          )}
+        </details>
       )}
       {adding && canEdit && (
         <AttendancePicker

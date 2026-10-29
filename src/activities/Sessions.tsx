@@ -153,20 +153,20 @@ export default function Sessions({
             <ItemActions
               name={label}
               actions={[
-                ...(canCash
+                ...(!canOperate && canCash && !full
                   ? [
                       {
-                        label: m.cash_title(),
+                        label: m.management_open(),
                         icon: Banknote,
                         onSelect: () =>
                           navigate({
-                            to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash",
+                            to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
                             params: {
                               organizationId: organization.id,
                               activityId: activity.id,
                               sessionId: item.id,
                             },
-                            search: { q: "", view: "all" },
+                            search: { q: "" },
                           }),
                       },
                     ]
@@ -335,16 +335,16 @@ export default function Sessions({
         {full && !canOperate && canCash && (
           <Button className="activity-card-primary" asChild>
             <Link
-              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
+              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
               params={{
                 organizationId: organization.id,
                 activityId: activity.id,
                 sessionId: item.id,
               }}
-              search={{ q: "", view: "all" }}
+              search={{ q: "" }}
             >
               <Banknote aria-hidden="true" />
-              {m.cash_title()}
+              {m.management_open()}
             </Link>
           </Button>
         )}
