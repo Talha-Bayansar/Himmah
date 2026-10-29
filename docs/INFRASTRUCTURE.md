@@ -690,3 +690,5 @@ Deployment verified: `803d88b` pushed; himmah-hub version `f04b1933-d8cf-45f5-8d
 ## 29 October 2026 — restore an outlined Payments button
 
 Owner clarified that Payments should remain visibly a button. Replaced the borderless row with the shared outline variant: a complete border and normal control corners, full width within the parent content box, and 16px internal padding around the leading icon/label and trailing arrow. This supersedes the borderless treatment above. Typecheck, build, contrast and diff checks passed; nine Chromium EN/NL/TR views at 320/390/768px verified all four 1px borders, 12px corners, padded icons, preserved page gutters, 44px minimum height and no overflow. Updated the synthetic mobile reference.
+
+Deployment verified: `231190a` pushed; himmah-hub version `e67634e1-7d51-4333-8cb6-c677bde74c2b` at 100%. Binding names/types, People enabled, maintenance false and minute cron preserved. No database/auth changes.
