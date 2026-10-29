@@ -576,3 +576,11 @@ The bounded session query returns read-only registration aggregates in the same 
 Validation: strict types, 19 focused activity/registration UI tests, 19 core/registration SQL/domain/API checks (final expanded registration rerun: nine passed), production build, documentation links and contrast audit pass. Coverage includes optional/unlimited defaults, full capacity, cancellation/re-registration counts, tenant denial, volunteer access/revocation, closed states and direct links without per-card requests. These checks do not constitute live signed-in or physical-device validation; the owner deferred that validation.
 
 Code commit `31d5bcd` is pushed to `rebuild/people-foundation`. Three deployment attempts failed at Cloudflare's assets-upload-session endpoint with HTTP 500 / API code 10013. The deployments API confirms the previous version `3ab879af-8049-4e7d-802b-a79154dc0a20` remains active at 100%; this overview update is not yet deployed. Preflight verified the dedicated Himmah Worker, maintenance false, People enabled, existing bindings and minute cron retained. Retry deployment of the tested build when the Cloudflare upload service recovers.
+
+## 29 October 2026 — Activity save return and form action background
+
+Full-page form action bars now use a transparent background to blend with their page; bottom-sheet action bars retain their own surface. Activity editing/creation now approves the leave guard synchronously after a successful save and invokes close from the mutation's success handler. Removed the parent's premature navigation call; returning no longer depends on the render timing of a pending mutation. Failed saves retain their draft and request key.
+
+Regression coverage includes activity creation with a failed save/retry and return to the original filtered list without a discard prompt, activity editing with the loaded version, and existing unsaved Back/Cancel behavior. Deployment and executed validation are recorded below.
+
+Executed validation: all 25 focused form/activity UI tests, strict types, production build, documentation links, Prettier and contrast audit pass. No schema/auth/database changes or live signed-in/physical-device tests were performed.

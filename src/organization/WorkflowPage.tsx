@@ -203,7 +203,6 @@ export function Workflow({
           await cache.invalidateQueries({
             queryKey: ["organization", user, org, "activities"],
           });
-          close();
         }}
       />
     );

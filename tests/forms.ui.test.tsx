@@ -84,7 +84,7 @@ function backend(
   vi.stubGlobal("fetch", fetcher);
   return fetcher;
 }
-function mount(form: PageForm, recordId = "new") {
+function mount(form: PageForm, recordId = "new", returnTo?: string) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -111,7 +111,9 @@ function mount(form: PageForm, recordId = "new") {
   const router = createRouter({
     routeTree: root.addChildren([workflow, destination]),
     history: createMemoryHistory({
-      initialEntries: [`/workspace/${org}/forms/${form}/${recordId}`],
+      initialEntries: [
+        `/workspace/${org}/forms/${form}/${recordId}${returnTo ? "?returnTo=" + encodeURIComponent(returnTo) : ""}`,
+      ],
     }),
   });
   render(
@@ -324,4 +326,39 @@ it("a denied People save clears the workflow's private cache and hides its draft
   );
   expect(screen.queryByText(/Subject contact ·/)).toBeNull();
   expect(client.getQueriesData({ queryKey: ["people"] })).toHaveLength(0);
+});
+
+it("activity creation returns to its filtered source after retry without a discard prompt", async () => {
+  const writes: Record<string, unknown>[] = [];
+  backend("owner", (u, init) => {
+    if (u.pathname.endsWith("/activities") && init?.method === "POST") {
+      writes.push(JSON.parse(String(init.body)));
+      return writes.length === 1
+        ? Response.json({ code: "service" }, { status: 503 })
+        : Response.json({ item: { id } });
+    }
+  });
+  const { router } = mount(
+    "activity",
+    "new",
+    `/workspace/${org}/activities?q=Evening`,
+  );
+  const user = userEvent.setup();
+  await user.type(
+    await screen.findByLabelText("Activity name"),
+    "Evening activity",
+  );
+  await user.click(screen.getByRole("button", { name: "Save" }));
+  await screen.findByRole("alert");
+  expect(router.state.location.pathname).toContain("/forms/activity/new");
+  expect(
+    (screen.getByLabelText("Activity name") as HTMLInputElement).value,
+  ).toBe("Evening activity");
+  await user.click(screen.getByRole("button", { name: "Save" }));
+  await screen.findByText("Returned to list");
+  expect(router.state.location.pathname).toBe(`/workspace/${org}/activities`);
+  expect(router.state.location.search).toMatchObject({ q: "Evening" });
+  expect(writes).toHaveLength(2);
+  expect(writes[0]).toEqual(writes[1]);
+  expect(screen.queryByRole("alertdialog")).toBeNull();
 });

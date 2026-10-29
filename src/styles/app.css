@@ -5220,6 +5220,7 @@ button[data-slot="button"].people-section-add {
   max-width: 680px;
 }
 .form-page .directory-actions {
+  background: transparent;
   position: static;
   margin-bottom: 0;
 }

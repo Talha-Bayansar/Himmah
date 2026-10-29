@@ -44,7 +44,8 @@ export function EntityEditor({
   onSave: (value: Record<string, unknown>, key: string) => Promise<void>;
 }) {
   const confirm = useConfirmation(),
-    key = useRef(crypto.randomUUID());
+    key = useRef(crypto.randomUUID()),
+    approved = useRef(false);
   const timezone =
     session?.timezone ?? activity?.timezone ?? organization.timezone;
   const submit = useMutation({
@@ -66,7 +67,11 @@ export function EntityEditor({
       )
         return false;
       await onSave(value, key.current);
+      approved.current = true;
       return true;
+    },
+    onSuccess: (saved) => {
+      if (saved) onClose();
     },
   });
   const form = useForm({
@@ -104,7 +109,6 @@ export function EntityEditor({
     enableBeforeUnload: () =>
       !approved.current && dirty && !(submit.isSuccess && submit.data === true),
   });
-  const approved = useRef(false);
   const close = async () => {
     if (!submit.isPending && (await canLeave())) {
       approved.current = true;
