@@ -6,6 +6,7 @@ People is the primary owner/admin entry, with a shared organization switcher, Pr
 
 Futsal, games, points, engagement periods, rewards/coupons, challenges and participant-account workflows have been deleted from the active source and clean database schema. See [removal and rollout](docs/REMOVAL.md) for executed verification and remote deployment status. Git retains prior versions.
 
+- [Design system and standing UI preference](docs/DESIGN_SYSTEM.md)
 - [Product and implementation context](docs/redesign/README.md)
 - [People and communication](docs/redesign/COMMUNICATION_STATUS.md)
 - [Infrastructure record](docs/INFRASTRUCTURE.md)

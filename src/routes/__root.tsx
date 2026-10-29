@@ -15,6 +15,7 @@ import { PwaRegistration } from "../pwa/install";
 import { splashScreens } from "../pwa/splash-screens";
 import appCss from "../styles/app.css?url";
 import themeCss from "../styles/theme.css?url";
+import workspaceCss from "../styles/workspace.css?url";
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     head: ({ matches }) => {
@@ -69,6 +70,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           })),
           { rel: "stylesheet", href: themeCss },
           { rel: "stylesheet", href: appCss },
+          { rel: "stylesheet", href: workspaceCss },
         ],
       };
     },

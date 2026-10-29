@@ -20,7 +20,7 @@ Read in order:
 
 ## Design research
 
-[Airbnb design language research and proposed Himmah redesign direction](AIRBNB_DESIGN_RESEARCH.md) — researched 29 October 2026. Covers public principles, visual and interaction language, component states, accessibility and a proposed prototype sequence. Research and recommendations only; it does not change the shipped design or existing product rules.
+[Airbnb design language research and proposed Himmah redesign direction](AIRBNB_DESIGN_RESEARCH.md) — researched 29 October 2026. Covers public principles, visual and interaction language, component states, accessibility and a proposed prototype sequence. The owner subsequently authorized the redesign and adopted the [Himmah design system](../DESIGN_SYSTEM.md) as a standing preference for all existing and future UI work. The research remains the historical source; the design system records implementation choices.
 
 ## Foundation map
 

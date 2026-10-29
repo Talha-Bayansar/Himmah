@@ -4,7 +4,7 @@ import { Input } from "../ui/input";
 import { cn } from "../../lib/utils";
 import { getLocale } from "../../paraglide/runtime.js";
 
-/** The original Himmah directory layout is the shared pattern for entity lists. */
+/** Shared directory pattern; see docs/DESIGN_SYSTEM.md for its visual contract. */
 export function DirectoryHeader({
   title,
   description,

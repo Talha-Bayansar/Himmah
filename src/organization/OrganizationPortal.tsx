@@ -464,7 +464,7 @@ function QueryError({
   useLocale();
   return (
     <Card>
-      <CardContent className="space-y-4 pt-6">
+      <CardContent className="space-y-4">
         <ErrorAlert message={message} />
         <ActionButton pending={pending} onClick={() => retry()}>
           {m.try_again()}

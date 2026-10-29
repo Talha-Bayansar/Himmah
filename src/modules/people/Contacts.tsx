@@ -328,7 +328,7 @@ function ContactDetail({
     },
   ];
   return (
-    <>
+    <div className="directory-profile space-y-6">
       <Button variant="link" asChild>
         {view ? (
           <Link
@@ -602,7 +602,7 @@ function ContactDetail({
           onClose={() => setAdding(false)}
         />
       )}
-    </>
+    </div>
   );
 }
 function Editor({

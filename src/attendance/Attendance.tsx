@@ -409,7 +409,10 @@ export default function Attendance({
                       {statusLabel(row.status)}
                     </p>
                     {!financialDenied && row.billing && (
-                      <p className="attendance-payment">
+                      <p
+                        className="attendance-payment"
+                        data-billing-state={row.billing.status}
+                      >
                         {row.billing.status === "not_charged"
                           ? m.billing_not_charged()
                           : row.billing.status === "paid"

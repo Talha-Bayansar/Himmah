@@ -1,6 +1,6 @@
 # Form presentation
 
-The owner requested two form categories on 28 October 2026. The implementation keeps Himmah's original typography, page padding, forest/lime palette and controls.
+The owner requested two form categories on 28 October 2026. The owner subsequently adopted the [Himmah design system](DESIGN_SYSTEM.md): forms use its system typography, shared spacing, forest actions, warm neutral surfaces and consistent controls.
 
 | Form | Presentation | Reason |
 | --- | --- | --- |

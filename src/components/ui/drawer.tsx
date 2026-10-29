@@ -54,6 +54,43 @@ function DrawerContent({
   onCloseAutoFocus,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+  const content = React.useRef<HTMLDivElement | null>(null);
+  React.useEffect(() => {
+    // With autofocus disabled, the trigger can retain focus outside the modal.
+    // Enter its tab sequence only on an explicit keyboard action, without opening
+    // a phone keyboard or moving focus to a field as the sheet appears.
+    const enter = (event: KeyboardEvent) => {
+      const panel = content.current;
+      const active = document.activeElement;
+      if (
+        event.key !== "Tab" ||
+        event.defaultPrevented ||
+        !panel ||
+        panel.contains(active) ||
+        (active instanceof Element &&
+          active.closest(
+            '[role="dialog"], [role="alertdialog"], [role="menu"]',
+          ))
+      )
+        return;
+      const controls = [
+        ...panel.querySelectorAll<HTMLElement>(
+          'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), a[href], [tabindex="0"]',
+        ),
+      ].filter(
+        (element) =>
+          element.getClientRects().length > 0 &&
+          element.getAttribute("aria-hidden") !== "true",
+      );
+      const target = event.shiftKey ? controls.at(-1) : controls[0];
+      if (target) {
+        event.preventDefault();
+        target.focus();
+      }
+    };
+    document.addEventListener("keydown", enter);
+    return () => document.removeEventListener("keydown", enter);
+  }, []);
   const viewport = useVisibleViewport();
   const focus = useDialogFocusRestore(onOpenAutoFocus, onCloseAutoFocus);
   return (
@@ -61,6 +98,7 @@ function DrawerContent({
       <DrawerOverlay />
       <DrawerPrimitive.Content
         data-slot="drawer-content"
+        ref={content}
         style={{ ...viewport, ...style }}
         {...focus}
         className={cn(

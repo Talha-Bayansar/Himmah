@@ -1,6 +1,6 @@
 # Airbnb design research and a direction for Himmah
 
-Research date: **29 October 2026**. Status: **research and proposed redesign direction; no application redesign implemented by this document**.
+Research date: **29 October 2026**. Status: **historical research and proposed direction**. The owner subsequently authorized implementation and made this a standing preference. The adopted choices and future implementation contract are in the [Himmah design system](../DESIGN_SYSTEM.md); numeric research proposals below remain distinct from that implementation contract.
 
 Airbnb makes a complex service feel approachable through clear information hierarchy, a coherent visual vocabulary, contextual actions and carefully staged decisions. Its more recent dimensional imagery adds personality to that foundation. For Himmah, the valuable goal is the same feeling of clarity, care and confidence, adapted to staff working with people, sessions and money.
 

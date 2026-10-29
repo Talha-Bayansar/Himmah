@@ -2,25 +2,52 @@
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 :root {
-  --background: #f7f8f3;
-  --foreground: #233c34;
+  --background: #fdfcf9;
+  --foreground: #242a27;
   --card: #fff;
-  --card-foreground: #233c34;
+  --card-foreground: #242a27;
   --popover: #fff;
-  --popover-foreground: #233c34;
+  --popover-foreground: #242a27;
   --primary: #153f36;
   --primary-foreground: #fff;
-  --secondary: #eaf0dd;
+  --secondary: #eef3ee;
   --secondary-foreground: #153f36;
-  --muted: #edf1e6;
-  --muted-foreground: #63745a;
-  --accent: #def19e;
+  --muted: #f2f3ef;
+  --muted-foreground: #626962;
+  --accent: #e9efe9;
   --accent-foreground: #153f36;
   --destructive: #b63731;
-  --border: #dfe6d7;
-  --input: #dfe6d7;
-  --ring: #82a84d;
-  --radius: 0.65rem;
+  --border: #e3e5df;
+  --input: #858e85;
+  --ring: #153f36;
+  --radius: 0.75rem;
+  --radius-control: 12px;
+  --radius-card: 20px;
+  --radius-sheet: 24px;
+  --font-ui:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --text-page: clamp(28px, 4vw, 32px);
+  --text-body: 16px;
+  --text-supporting: 14px;
+  --page-gutter: 24px;
+  --form-width: 680px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --elevation-control: 0 2px 8px #192d2110;
+  --elevation-overlay: 0 -12px 48px #192d2124;
+  --motion-press: 120ms;
+  --motion-enter: 200ms;
+  --status-positive: #226344;
+  --status-positive-surface: #eaf4ec;
+  --status-warning: #80591c;
+  --status-warning-surface: #fcf3df;
+  --status-critical: #b63731;
   --chart-1: #628757;
   --chart-2: #153f36;
   --chart-3: #c1b16e;
@@ -53,6 +80,16 @@
   --border: #355845;
   --input: #355845;
   --ring: #b4cf8a;
+}
+@media (max-width: 767px) {
+  :root {
+    --page-gutter: 20px;
+  }
+}
+@media (max-width: 360px) {
+  :root {
+    --page-gutter: 16px;
+  }
 }
 @theme inline {
   --color-background: var(--background);
@@ -97,5 +134,17 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* Every shared control participates in the same focus and motion language. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
