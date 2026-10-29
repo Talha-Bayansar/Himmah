@@ -16,6 +16,7 @@ import { Route as JoinRouteImport } from './routes/join'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
+import { Route as WorkspaceOrganizationIdInsightsRouteImport } from './routes/workspace.$organizationId.insights'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
 import { Route as WorkspaceOrganizationIdManageRelationshipTypesRouteImport } from './routes/workspace.$organizationId.manage.relationship-types'
 import { Route as WorkspaceOrganizationIdPeopleContactsRouteImport } from './routes/workspace.$organizationId.people.contacts'
@@ -64,6 +65,12 @@ const WorkspaceOrganizationIdSectionRoute =
   WorkspaceOrganizationIdSectionRouteImport.update({
     id: '/workspace/$organizationId/$section',
     path: '/workspace/$organizationId/$section',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const WorkspaceOrganizationIdInsightsRoute =
+  WorkspaceOrganizationIdInsightsRouteImport.update({
+    id: '/workspace/$organizationId/insights',
+    path: '/workspace/$organizationId/insights',
     getParentRoute: () => rootRouteImport,
   } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdRoute =
@@ -167,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
@@ -189,6 +197,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
@@ -212,6 +221,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
@@ -280,6 +292,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/start'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/activities/$activityId'
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
@@ -303,6 +316,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdInsightsRoute: typeof WorkspaceOrganizationIdInsightsRoute
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   WorkspaceOrganizationIdManageRelationshipTypesRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   WorkspaceOrganizationIdPeopleContactsRoute: typeof WorkspaceOrganizationIdPeopleContactsRoute
@@ -362,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/workspace/$organizationId/$section'
       fullPath: '/workspace/$organizationId/$section'
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/workspace/$organizationId/insights': {
+      id: '/workspace/$organizationId/insights'
+      path: '/workspace/$organizationId/insights'
+      fullPath: '/workspace/$organizationId/insights'
+      preLoaderRoute: typeof WorkspaceOrganizationIdInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/workspace/$organizationId/activities/$activityId': {
@@ -505,6 +526,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
   WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+  WorkspaceOrganizationIdInsightsRoute: WorkspaceOrganizationIdInsightsRoute,
   WorkspaceOrganizationIdActivitiesActivityIdRoute:
     WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
   WorkspaceOrganizationIdManageRelationshipTypesRoute:

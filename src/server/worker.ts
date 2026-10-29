@@ -1,3 +1,5 @@
+import { insightsApi } from "./insights-api.ts";
+import { createInsightsStore } from "./insights-store.ts";
 import { cashApi } from "./cash-api.ts";
 import { createCashStore } from "./cash-store.ts";
 import { registrationApi } from "./registration-api.ts";
@@ -64,6 +66,7 @@ type Dependencies = {
   directory?: (url: string) => CommunityStore;
   people?: (url: string) => PeopleStore;
   notifications?: (url: string) => NotificationStore;
+  insights?: (url: string) => ReturnType<typeof createInsightsStore>;
 };
 const json = (body: unknown, status = 200) =>
   Response.json(body, {
@@ -257,6 +260,19 @@ export function createHandler(
         );
       }
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (/^\/api\/organizations\/[^/]+\/insights(\/|$)/.test(url.pathname)) {
+        const allowed = await (
+          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+        ).limit({ key: `insights:${user.id}` });
+        if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        const response = await insightsApi(
+          request,
+          user,
+          store,
+          (deps.insights ?? createInsightsStore)(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
       if (
         /^\/api\/(organizations\/[^/]+\/notifications|notifications\/push)(\/|$)/.test(
           url.pathname,

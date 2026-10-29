@@ -128,3 +128,9 @@ The add sheet supports multiple contacts, with currently present contacts checke
 ### Session row action consistency
 
 Each attendance row has one labelled paid/unpaid button and the shared square more menu. Put Remove and attendance history in the menu. Do not repeat paid/unpaid in that menu or place an unlabeled Remove icon beside the labelled primary action. Partial payment/receipt details is a distinct secondary task and must say so explicitly. Use one session management destination; receipt history is a lazy disclosure within it, with no second Payments page. Payment-only access renders its authorized subset on that same route.
+
+### Insights
+
+Use a focused report overview: four compact participation metrics, a restrained single-series trend with accessible period details, financial totals and divided activity rows. Keep advanced filters and metric definitions in labelled disclosures; applied date/cohort context stays visible. Searchable paginated filter choices use the shared bottom sheet with no autofocus. Preserve the distinction between recorded session balances and receipt-date cashflow, current access and data freshness. See [Insights definitions](INSIGHTS.md).
+
+Insights mobile reference (synthetic data): [overview](design/insights-mobile.png).

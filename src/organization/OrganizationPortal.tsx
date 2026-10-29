@@ -1,3 +1,4 @@
+import Insights from "../insights/Insights";
 import {
   DirectoryList,
   DirectoryItem,
@@ -290,6 +291,8 @@ export default function OrganizationPortal({
         );
       if (!["owner", "admin"].includes(org.role))
         return <p role="alert">{m.people_denied()}</p>;
+      if (workspaceSection === "insights")
+        return <Insights organization={org} userId={user.id} />;
       if (workspaceSection === "manage")
         return <Management organization={org} />;
       if (workspaceSection === "access")

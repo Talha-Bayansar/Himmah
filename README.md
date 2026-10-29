@@ -1,14 +1,16 @@
 # Himmah
 
-Himmah manages community contacts, relationships, groups, activities and attendance. Staff accounts and organization access are retained; contacts do not need accounts. Registration, operational cash, insights and learning remain planned redesign increments.
+Himmah manages community contacts, relationships, groups, activities, registration, attendance and operational payment tracking. Staff accounts and organization access are retained; contacts do not need accounts. Organization Insights reports participation and payments; learning is the next extension.
 
-People is the primary owner/admin entry, with a shared organization switcher, Profile and People / Activities / Manage navigation. Volunteers open their scoped Activities. English, Dutch and Turkish are supported.
+People is the primary owner/admin entry, with a shared organization switcher, Profile and People / Activities / Insights / Manage navigation. Volunteers open their scoped Activities. English, Dutch and Turkish are supported.
 
 Futsal, games, points, engagement periods, rewards/coupons, challenges and participant-account workflows have been deleted from the active source and clean database schema. See [removal and rollout](docs/REMOVAL.md) for executed verification and remote deployment status. Git retains prior versions.
 
 - [Design system and standing UI preference](docs/DESIGN_SYSTEM.md)
 - [Product and implementation context](docs/redesign/README.md)
 - [People and communication](docs/redesign/COMMUNICATION_STATUS.md)
+- [Insights and metric definitions](docs/INSIGHTS.md)
+- [Unified attendance and payments](docs/CASH.md)
 - [Infrastructure record](docs/INFRASTRUCTURE.md)
 - [Development](docs/DEVELOPMENT.md)
 

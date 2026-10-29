@@ -32,6 +32,8 @@ Deliver weekly/monthly contact/group/activity summaries using PRODUCT metric def
 
 Acceptance: fixtures cover first-recorded/returning, archived contacts, overlapping groups, changed historical membership, walk-ins, cancellations, ungraded tests (when available), charge reductions, unallocated cash and refunds across report windows. Contact/session distinct counts reconcile with source rows; group totals disclose overlap. Insights permission is enforced independently. Review SQL plans with representative disposable data before claiming performance.
 
+The 29 October [Insights implementation](../INSIGHTS.md) covers attendance, historical group/activity cohorts, first/returning attendees, registrations, session balances and receipt-date cash. Learning metrics and contact outreach remain separate increments.
+
 ## Phase 4 — self-paced learning
 
 Deliver activity-local quiz/test creation, manual question editing, publication versions, recipient credentials, availability/attempt controls, automatic/manual grading and release/results. Add reusable questions/AI drafts only after the core workflow; no AI dependency.

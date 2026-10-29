@@ -1,11 +1,17 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, SlidersHorizontal, Users } from "lucide-react";
+import {
+  CalendarDays,
+  SlidersHorizontal,
+  Users,
+  ChartNoAxesColumnIncreasing,
+} from "lucide-react";
 import { Skeleton } from "../components/ui/skeleton";
 import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 export const workspaceSections = [
   "people",
   "activities",
+  "insights",
   "manage",
   "organization",
   "staff",
@@ -54,6 +60,17 @@ export function WorkspaceNavigation({
         <CalendarDays aria-hidden="true" size={20} />
         <span>{m.activities_title()}</span>
       </Link>
+      {admin && (
+        <Link
+          to="/workspace/$organizationId/insights"
+          search={{ from: "", to: "", activity: "", group: "", bucket: "week" }}
+          params={{ organizationId }}
+          aria-current={section === "insights" ? "page" : undefined}
+        >
+          <ChartNoAxesColumnIncreasing aria-hidden="true" size={20} />
+          <span>{m.insights_title()}</span>
+        </Link>
+      )}
       {admin && (
         <Link
           to="/workspace/$organizationId/$section"

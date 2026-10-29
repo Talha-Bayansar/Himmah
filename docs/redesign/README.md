@@ -6,6 +6,8 @@ Current continuation: [Who to contact and authorized hosted rollout](COMMUNICATI
 
 Status: contacts, groups, relationships and Who to contact are implemented. The owner authorized committing, pushing and hosted rollout; see [current implementation and rollout](COMMUNICATION_STATUS.md) and [verification record](../INFRASTRUCTURE.md). The new schema has been installed additively on verified Himmah development/onboarding; no reset or legacy contact migration occurred.
 
+Current implementation also includes session registration, [unified attendance/payments](../CASH.md) and [organization Insights](../INSIGHTS.md). Their current definitions and the infrastructure record supersede older planned-only status for these increments.
+
 The [owner brief](OWNER_BRIEF.md) is the verbatim revised request and supersedes conflicting older product scope. Recommendations below are not owner approvals. Existing source describes the old implementation, not the target product.
 
 Read in order:
