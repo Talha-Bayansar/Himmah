@@ -66,5 +66,6 @@ This is a verification strategy, **not a currently verified live reset target**.
 
 Run the repository documentation link checker and `git diff --check`. No application runtime behavior is changed, so do not claim build, runtime, database or hosted tests passed based on historical reports. Rebuild phases require typecheck, applicable unit/SQL/Workerd/UI tests, production build/contrast checks and actual phone verification for keyboard/PWA behavior as relevant.
 
-
 Executed 28 October 2026: `npm run docs:check` passed (all local Markdown links); `git diff --check` passed. Reviewed Git status: documentation and agent-context changes only. Application source, schema, migrations and deployment configuration are unchanged. Runtime/build/database tests were not run for this documentation-only change.
+
+29 October clarification: paid participation is independent of required registration. Optional paid sessions support explicit session/contact charges and cash without a reservation; attendance never creates debt. See [cash flow](../CASH.md).

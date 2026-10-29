@@ -90,7 +90,7 @@ BEGIN
    INSERT INTO hub_session_registrations(organization_id,activity_id,session_id,person_id,status,source) VALUES(p_org,p_activity,p_session,person,'confirmed',CASE WHEN clock_timestamp()>=s.starts_at THEN 'walk_in' ELSE 'advance' END)
    ON CONFLICT(organization_id,session_id,person_id) DO UPDATE SET status='confirmed',source=excluded.source,version=hub_session_registrations.version+1,updated_at=clock_timestamp() RETURNING * INTO r;
    IF s.price_minor>0 THEN
-    INSERT INTO hub_registration_charges(organization_id,registration_id,amount_minor,created_by) VALUES(p_org,r.id,s.price_minor,p_actor) ON CONFLICT(organization_id,registration_id) DO NOTHING;
+    INSERT INTO hub_registration_charges(organization_id,activity_id,session_id,person_id,registration_id,amount_minor,created_by) VALUES(p_org,p_activity,p_session,person,r.id,s.price_minor,p_actor) ON CONFLICT(organization_id,session_id,person_id) DO NOTHING;
    END IF;
    IF policy.frozen_at IS NOT NULL THEN
     INSERT INTO hub_session_expected_contacts(organization_id,activity_id,session_id,person_id,initial,included) VALUES(p_org,p_activity,p_session,person,false,true)
@@ -102,7 +102,7 @@ BEGIN
    UPDATE hub_session_registrations SET status='cancelled',version=version+1,updated_at=clock_timestamp() WHERE id=old_r.id RETURNING * INTO r;
    IF policy.frozen_at IS NOT NULL THEN UPDATE hub_session_expected_contacts SET included=false WHERE organization_id=p_org AND session_id=p_session AND person_id=person; END IF;
   END IF;
-  after_value:=jsonb_build_object('registration',to_jsonb(r),'expected',CASE WHEN policy.mode='required' THEN r.status='confirmed' ELSE NULL END,'charge',(SELECT jsonb_build_object('id',id,'amountMinor',amount_minor,'currency',currency) FROM hub_registration_charges WHERE organization_id=p_org AND registration_id=r.id));
+  after_value:=jsonb_build_object('registration',to_jsonb(r),'expected',CASE WHEN policy.mode='required' THEN r.status='confirmed' ELSE NULL END,'charge',(SELECT jsonb_build_object('id',id,'amountMinor',amount_minor,'currency',currency) FROM hub_registration_charges WHERE organization_id=p_org AND session_id=p_session AND person_id=person));
   result:=jsonb_build_object('id',r.id,'version',r.version);
  END IF;
  INSERT INTO hub_session_registration_events(organization_id,activity_id,session_id,person_id,actor_id,action,reason,before,after) VALUES(p_org,p_activity,p_session,person,p_actor,action,trim(reason),before_value,after_value);

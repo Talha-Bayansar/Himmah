@@ -1,3 +1,4 @@
+import { useBillingActions } from "./use-billing-actions";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -57,6 +58,7 @@ type Props = {
   sessionId: string;
   record?: boolean;
   chargeId?: string;
+  personId?: string;
   returnTo?: string;
   filters: CashFilters;
   onFiltersChange: (f: CashFilters) => void;
@@ -67,6 +69,8 @@ const denied = (e: unknown) =>
 const label = (v: CashView) =>
   ({
     all: m.cash_all,
+    not_charged: m.billing_not_charged,
+    participants: m.cash_choose_contacts,
     outstanding: m.cash_outstanding,
     unpaid: m.cash_unpaid,
     partial: m.cash_partial,
@@ -87,7 +91,9 @@ export default function CashPage(props: Props) {
             user +
             organization.id +
             props.sessionId +
-            (props.record ? "record" : "list")
+            (props.record
+              ? "record" + (props.personId || props.chargeId || "")
+              : "list")
           }
           {...props}
           user={user}
@@ -111,6 +117,14 @@ function Scope(props: Props & { user: string; organization: Organization }) {
       ];
       void cache.cancelQueries({ queryKey });
       cache.removeQueries({ queryKey });
+      const attendanceKey = [
+        "organization",
+        props.user,
+        props.organizationId,
+        "attendance",
+      ];
+      void cache.cancelQueries({ queryKey: attendanceKey });
+      cache.removeQueries({ queryKey: attendanceKey });
     },
     [cache, props.user, props.organizationId],
   );
@@ -153,6 +167,13 @@ function Content(
     ],
     path = `/api/organizations/${org}/activities/${activity}/sessions/${session}/cash`,
     q = useSearch(filters.q);
+  const billingActions = useBillingActions(
+    user,
+    org,
+    activity,
+    session,
+    onDenied,
+  );
   const pages = useDirectoryPages<CashCharge | CashReceipt>(
     [...scope, filters.view, q],
     `${path}?view=${filters.view}&q=${encodeURIComponent(q)}`,
@@ -300,6 +321,12 @@ function Content(
           ) : undefined
         }
       />
+      {billingActions.notice}
+      {!!summary.toChargeCount && (
+        <p className="activity-note">
+          {m.billing_to_charge({ count: summary.toChargeCount })}
+        </p>
+      )}
       <dl className="cash-totals">
         {[
           [m.cash_owed(), summary.owedMinor],
@@ -334,7 +361,10 @@ function Content(
           }
         >
           {cashViews
-            .filter((v) => v !== "history" || summary.canManage)
+            .filter(
+              (v) =>
+                v !== "participants" && (v !== "history" || summary.canManage),
+            )
             .map((v) => (
               <NativeSelectOption key={v} value={v}>
                 {label(v)}
@@ -426,11 +456,25 @@ function Content(
                         name={c.name}
                         detail={
                           <>
-                            {label(c.status)} · {m.cash_owed()}:{" "}
-                            {money(c.amountMinor)}
-                            <br />
-                            {m.cash_applied()}: {money(c.paidMinor)} ·{" "}
-                            {m.cash_outstanding()}: {money(c.outstandingMinor)}
+                            {label(c.status)} ·{" "}
+                            {c.status === "not_charged"
+                              ? m.pricing_amount_short()
+                              : m.cash_owed()}
+                            : {money(c.amountMinor)}
+                            {c.status !== "not_charged" && (
+                              <>
+                                <br />
+                                {m.cash_applied()}: {money(c.paidMinor)} ·{" "}
+                                {m.cash_outstanding()}:{" "}
+                                {money(c.outstandingMinor)}
+                              </>
+                            )}
+                            {c.registrationRequired && (
+                              <>
+                                <br />
+                                {m.billing_required_help()}
+                              </>
+                            )}
                             {c.reviewRequired && (
                               <>
                                 <br />
@@ -442,6 +486,7 @@ function Content(
                       />
                       {summary.canRecord &&
                         !c.reviewRequired &&
+                        !c.registrationRequired &&
                         c.outstandingMinor > 0 && (
                           <ItemActions
                             name={c.name}
@@ -449,8 +494,19 @@ function Content(
                               {
                                 label: m.cash_record(),
                                 icon: Banknote,
-                                onSelect: () => record(c.id),
+                                disabled: billingActions.blocked,
+                                onSelect: () => billingActions.record(c),
                               },
+                              ...(c.status === "not_charged"
+                                ? [
+                                    {
+                                      label: m.billing_add_charge(),
+                                      icon: Banknote,
+                                      disabled: billingActions.blocked,
+                                      onSelect: () => billingActions.charge(c),
+                                    },
+                                  ]
+                                : []),
                             ]}
                           />
                         )}
@@ -565,15 +621,18 @@ function CashForm(
     query = useSearch(search);
   const options = useDirectoryPages<CashCharge>(
     [...scope, "options", query],
-    path + "?view=outstanding&q=" + encodeURIComponent(query),
+    path + "?view=participants&q=" + encodeURIComponent(query),
     { enabled: summary.canRecord },
   );
   const initial = useQuery({
-    queryKey: [...scope, "initial", props.chargeId],
-    enabled: !!props.chargeId,
+    queryKey: [...scope, "initial", props.chargeId, props.personId],
+    enabled: !!(props.chargeId || props.personId),
     queryFn: ({ signal }) =>
       directoryRequest<{ item: CashCharge }>(
-        path + "/charges/" + props.chargeId,
+        path +
+          (props.personId
+            ? "/participants/" + props.personId
+            : "/charges/" + props.chargeId),
         { signal },
       ),
     retry: false,
@@ -582,7 +641,11 @@ function CashForm(
     if (initial.data && !initialized.current) {
       initialized.current = true;
       const charge = initial.data.item;
-      if (!charge.reviewRequired && charge.outstandingMinor > 0) {
+      if (
+        !charge.reviewRequired &&
+        charge.outstandingMinor > 0 &&
+        !charge.registrationRequired
+      ) {
         setSelected(
           new Map([
             [
@@ -628,12 +691,7 @@ function CashForm(
     onSuccess: async () => {
       approved.current = true;
       await cache.invalidateQueries({
-        queryKey: [
-          "organization",
-          props.user,
-          props.organizationId,
-          "activities",
-        ],
+        queryKey: ["organization", props.user, props.organizationId],
       });
       await navigate({
         to:
@@ -680,7 +738,10 @@ function CashForm(
         [...selected.values()].map(async (value) => ({
           value,
           result: await directoryRequest<{ item: CashCharge }>(
-            path + "/charges/" + value.charge.id,
+            path +
+              (value.charge.status === "not_charged"
+                ? "/participants/" + value.charge.personId
+                : "/charges/" + value.charge.id),
           ),
         })),
       );
@@ -710,7 +771,8 @@ function CashForm(
   try {
     received = priceFromText(amount);
   } catch {}
-  if (initial.isPending && props.chargeId) return <ListSkeleton />;
+  if (initial.isPending && (props.chargeId || props.personId))
+    return <ListSkeleton />;
   if (initial.isError)
     return (
       <CollectionError
@@ -725,6 +787,9 @@ function CashForm(
       description={summary.name + " · " + m.cash_form_help()}
       onClose={() => void leave()}
     >
+      {initial.data?.item.registrationRequired && (
+        <p role="alert">{m.billing_required_help()}</p>
+      )}
       {!summary.canRecord ? (
         <p role="alert">{m.cash_closed()}</p>
       ) : (
@@ -741,14 +806,23 @@ function CashForm(
                       const allocated = priceFromText(text);
                       if (
                         charge.reviewRequired ||
+                        charge.registrationRequired ||
                         allocated > charge.outstandingMinor
                       )
                         throw Error();
-                      return {
-                        chargeId: charge.id,
-                        version: charge.version,
-                        amountMinor: allocated,
-                      };
+                      return charge.status === "not_charged"
+                        ? {
+                            personId: charge.personId!,
+                            contactVersion: charge.contactVersion!,
+                            sessionVersion: charge.sessionVersion!,
+                            version: 0,
+                            amountMinor: allocated,
+                          }
+                        : {
+                            chargeId: charge.id,
+                            version: charge.version,
+                            amountMinor: allocated,
+                          };
                     },
                   );
                 if (
@@ -761,11 +835,29 @@ function CashForm(
                 if (
                   !(await confirm({
                     title: m.cash_record(),
-                    description: m.cash_confirm({
-                      amount: money(amountMinor),
-                      allocated: money(total),
-                      unallocated: money(amountMinor - total),
-                    }),
+                    description:
+                      m.cash_confirm({
+                        amount: money(amountMinor),
+                        allocated: money(total),
+                        unallocated: money(amountMinor - total),
+                      }) +
+                      ([...selected.values()].some(
+                        (v) => v.charge.status === "not_charged",
+                      )
+                        ? " " +
+                          m.billing_new_charges({
+                            price: money(
+                              [...selected.values()]
+                                .filter(
+                                  (v) => v.charge.status === "not_charged",
+                                )
+                                .reduce(
+                                  (sum, v) => sum + v.charge.amountMinor,
+                                  0,
+                                ),
+                            ),
+                          })
+                        : ""),
                     confirmLabel: m.cash_record(),
                   }))
                 )
@@ -829,9 +921,19 @@ function CashForm(
             {[...selected.values()].map(({ charge, text }) => (
               <div className="cash-allocation" key={charge.id}>
                 <Label htmlFor={"cash-allocation-" + charge.id}>
-                  {charge.name} · {m.cash_outstanding()}:{" "}
-                  {money(charge.outstandingMinor)}
+                  {charge.name} ·{" "}
+                  {charge.status === "not_charged"
+                    ? m.pricing_amount_short()
+                    : m.cash_outstanding()}
+                  : {money(charge.outstandingMinor)}
                 </Label>
+                {charge.status === "not_charged" && (
+                  <p className="activity-note">
+                    {m.billing_charge_on_save({
+                      price: money(charge.amountMinor),
+                    })}
+                  </p>
+                )}
                 <div className="flex items-center gap-2">
                   <Input
                     id={"cash-allocation-" + charge.id}

@@ -64,7 +64,7 @@ BEGIN
   IF (SELECT count(distinct value->>'chargeId') FROM jsonb_array_elements(p_payload->'allocations'))<>jsonb_array_length(p_payload->'allocations') THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
   -- Replays also recheck every contact's current collection scope.
   FOR item IN SELECT value FROM jsonb_array_elements(p_payload->'allocations') LOOP
-   IF NOT EXISTS(SELECT 1 FROM hub_registration_charges ch JOIN hub_session_registrations r ON r.organization_id=ch.organization_id AND r.id=ch.registration_id WHERE ch.organization_id=p_org AND ch.id=(item->>'chargeId')::uuid AND r.activity_id=p_activity AND r.session_id=p_session AND hub_can_collect_person(p_actor,p_org,p_activity,p_session,r.person_id)) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
+   IF NOT EXISTS(SELECT 1 FROM hub_registration_charges ch WHERE ch.organization_id=p_org AND ch.id=(item->>'chargeId')::uuid AND ch.activity_id=p_activity AND ch.session_id=p_session AND hub_can_collect_person(p_actor,p_org,p_activity,p_session,ch.person_id)) THEN RETURN jsonb_build_object('code','forbidden'); END IF;
   END LOOP;
  END IF;
  SELECT * INTO retry FROM hub_cash_requests WHERE organization_id=p_org AND request_key=p_key;
@@ -77,7 +77,7 @@ BEGIN
   amount:=(p_payload->>'amountMinor')::int;
   IF amount IS NULL OR amount NOT BETWEEN 1 AND 100000000 OR length(p_payload->>'payerLabel')>100 OR (p_payload->>'occurredAt')::timestamptz>clock_timestamp()+interval '5 minutes' THEN RETURN jsonb_build_object('code','invalid_input'); END IF;
   FOR item IN SELECT value FROM jsonb_array_elements(p_payload->'allocations') ORDER BY value->>'chargeId' LOOP
-   SELECT ch.*,r.status INTO charge FROM hub_registration_charges ch JOIN hub_session_registrations r ON r.organization_id=ch.organization_id AND r.id=ch.registration_id WHERE ch.organization_id=p_org AND ch.id=(item->>'chargeId')::uuid FOR UPDATE OF ch;
+   SELECT ch.*,r.status INTO charge FROM hub_registration_charges ch LEFT JOIN hub_session_registrations r ON r.organization_id=ch.organization_id AND r.id=ch.registration_id WHERE ch.organization_id=p_org AND ch.id=(item->>'chargeId')::uuid FOR UPDATE OF ch;
    balance:=hub_cash_balance(p_org,charge.id); allocated:=(item->>'amountMinor')::int;
    IF charge.status<>'confirmed' THEN RETURN jsonb_build_object('code','cash_closed'); END IF;
    IF (balance->>'version')::int IS DISTINCT FROM (item->>'version')::int THEN RETURN jsonb_build_object('code','conflict'); END IF;

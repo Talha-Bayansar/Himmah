@@ -622,8 +622,8 @@
   "pricing_paid": "Betaalde deelname",
   "pricing_amount": "Prijs per contact per sessie (EUR)",
   "pricing_activity_help": "Standaard gratis. Deze prijs geldt alleen voor nieuw geplande sessies.",
-  "pricing_session_help": "Deze sessie neemt de activiteitsprijs over. Je kunt deze aanpassen tot de eerste inschrijving.",
-  "pricing_locked": "De sessieprijs is vergrendeld omdat er al inschrijvingen zijn.",
+  "pricing_session_help": "Deze sessie neemt de activiteitsprijs over. Inschrijving is optioneel tenzij apart verplicht. De prijs vergrendelt na de eerste inschrijving of het eerste bedrag.",
+  "pricing_locked": "De sessieprijs is vergrendeld omdat er al inschrijvingen of bedragen zijn vastgelegd.",
   "pricing_per_session": "{price} per contact · per sessie",
   "pricing_charge": "Verschuldigd: {price}",
   "pricing_review": "Bedrag controleren",
@@ -668,5 +668,15 @@
   "directory_cash_reason": "Geef een reden voor het terugdraaien.",
   "directory_cash_time": "Gebruik een geldige ontvangsttijd die niet in de toekomst ligt.",
   "cash_recorded_at": "Geregistreerd: {time}",
-  "cash_reversed_by": "Teruggedraaid door {name} · {time}"
+  "cash_reversed_by": "Teruggedraaid door {name} · {time}",
+  "billing_not_charged": "Nog niet in rekening gebracht",
+  "pricing_amount_short": "Sessieprijs",
+  "billing_add_charge": "Sessiebedrag vastleggen",
+  "billing_confirm_charge": "Leg {price} vast voor {name} voor deze sessie. Dit maakt geen inschrijving en registreert geen aanwezigheid of betaling.",
+  "billing_charge_on_save": "Bij opslaan wordt het sessiebedrag van {price} vastgelegd samen met deze ontvangst. Er wordt geen inschrijving gemaakt.",
+  "billing_required_help": "Deze sessie vereist inschrijving. Schrijf de deelnemer eerst in.",
+  "billing_to_charge": "Aanwezig maar nog geen bedrag vastgelegd: {count}. Je kunt geld registreren of het sessiebedrag vastleggen zonder inschrijving.",
+  "billing_uncertain": "Het resultaat is onzeker. Probeer dit opgeslagen verzoek opnieuw voordat je nog een bedrag vastlegt.",
+  "directory_billing_registration_required": "Voor deze sessie is inschrijving verplicht. Schrijf de deelnemer eerst in.",
+  "billing_new_charges": "Legt ook {price} aan sessiebedragen vast. Er wordt geen inschrijving gemaakt."
 }

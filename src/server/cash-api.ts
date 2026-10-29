@@ -15,7 +15,7 @@ export async function cashApi(
 ) {
   const url = new URL(request.url),
     match = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/activities\/([0-9a-f-]{36})\/sessions\/([0-9a-f-]{36})\/cash(?:\/charges\/([0-9a-f-]{36}))?$/i,
+      /^\/api\/organizations\/([0-9a-f-]{36})\/activities\/([0-9a-f-]{36})\/sessions\/([0-9a-f-]{36})\/cash(?:\/(charges|participants)\/([0-9a-f-]{36}))?$/i,
     );
   if (!match) return null;
   const respond = (value: unknown, status = 200) =>
@@ -30,7 +30,7 @@ export async function cashApi(
     const org = uuid(match[1]),
       activity = uuid(match[2]),
       session = uuid(match[3]),
-      id = match[4] ? uuid(match[4]) : undefined;
+      id = match[5] ? uuid(match[5]) : undefined;
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
     if (!(await organizations.get(user.id, org)))
       throw new CommunityError("not_found", 404);
@@ -50,6 +50,13 @@ export async function cashApi(
         throw new CommunityError("service", 503);
     }
     if (request.method === "GET") {
+      if (id && match[4] === "participants") {
+        const item = (
+          await store.person(user.id, org, activity, session, id)
+        )[0]?.item;
+        if (!item) throw new CommunityError("not_found", 404);
+        return respond({ item, summary });
+      }
       const view = id ? "all" : (url.searchParams.get("view") ?? "all");
       if (!cashViews.includes(view as CashView))
         throw new CommunityError("invalid_input");

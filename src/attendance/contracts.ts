@@ -1,3 +1,4 @@
+import type { CashCharge } from "../cash/contracts";
 import { CommunityError, uuid } from "../community/contracts.ts";
 export const attendanceStatuses = [
   "unmarked",
@@ -7,6 +8,7 @@ export const attendanceStatuses = [
 ] as const;
 export type AttendanceStatus = (typeof attendanceStatuses)[number];
 export type AttendancePerson = {
+  billing?: CashCharge | null;
   registered?: boolean;
   expected?: boolean | null;
   id: string;

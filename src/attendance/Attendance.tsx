@@ -1,9 +1,19 @@
+import { useNavigate, useRouterState } from "@tanstack/react-router";
+import { useBillingActions } from "../cash/use-billing-actions";
+import { sessionPrice } from "../activities/contracts";
 import {
   useInfiniteQuery,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { ClipboardCheck, History, Search, Users, X } from "lucide-react";
+import {
+  Banknote,
+  ClipboardCheck,
+  History,
+  Search,
+  Users,
+  X,
+} from "lucide-react";
 import { useState } from "react";
 import { ErrorNotice, Schedule } from "../activities/Activities";
 import type { Session } from "../activities/contracts";
@@ -60,7 +70,12 @@ export default function Attendance({
   activityId: string;
   sessionId: string;
 }) {
-  useLocale();
+  const locale = useLocale()?.locale ?? "en";
+  const navigate = useNavigate();
+  const filters = useRouterState({
+    select: (s) =>
+      s.location.search as { q?: string; status?: string; roster?: string },
+  });
   const isAdmin = ["owner", "admin"].includes(organization.role);
   const access = useQuery({
     queryKey: ["organization", userId, organization.id, "my-access"],
@@ -74,9 +89,7 @@ export default function Attendance({
   const cache = useQueryClient(),
     canManage =
       isAdmin || (!access.isError && access.data?.item.canAttend === true),
-    [search, setSearch] = useState(""),
-    [status, setStatus] = useState("all"),
-    [rosterFilter, setRosterFilter] = useState("all"),
+    [financialDenied, setFinancialDenied] = useState(false),
     [selected, setSelected] = useState<Map<string, AttendancePerson>>(
       new Map(),
     ),
@@ -84,6 +97,37 @@ export default function Attendance({
     [history, setHistory] = useState<AttendancePerson | null>(null),
     [notice, setNotice] = useState<AttendanceResult | null>(null),
     [lastPeople, setLastPeople] = useState<AttendancePerson[]>([]);
+  const search = typeof filters.q === "string" ? filters.q : "",
+    status = filters.status ?? "all",
+    rosterFilter = filters.roster ?? "all";
+  const billingActions = useBillingActions(
+    userId,
+    organization.id,
+    activityId,
+    sessionId,
+    () => {
+      setFinancialDenied(true);
+      cache.setQueriesData<{ pages?: { items: AttendancePerson[] }[] }>(
+        { queryKey: ["organization", userId, organization.id, "attendance"] },
+        (data) =>
+          data?.pages
+            ? {
+                ...data,
+                pages: data.pages.map((page) => ({
+                  ...page,
+                  items: page.items.map((row) => ({ ...row, billing: null })),
+                })),
+              }
+            : data,
+      );
+      void cache.cancelQueries({
+        queryKey: ["organization", userId, organization.id, "activities"],
+      });
+      cache.removeQueries({
+        queryKey: ["organization", userId, organization.id, "activities"],
+      });
+    },
+  );
   const base = `/api/organizations/${organization.id}/activities/${activityId}/sessions/${sessionId}`,
     key = attendanceKey(userId, organization.id, sessionId);
   const session = useQuery({
@@ -122,9 +166,16 @@ export default function Attendance({
     value: string,
   ) => {
     setSelected(new Map());
-    if (kind === "search") setSearch(value);
-    else if (kind === "status") setStatus(value);
-    else setRosterFilter(value);
+    void navigate({
+      to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
+      params: { organizationId: organization.id, activityId, sessionId },
+      search: {
+        q: kind === "search" ? value : search,
+        status: kind === "status" ? value : status,
+        roster: kind === "roster" ? value : rosterFilter,
+      },
+      replace: true,
+    });
   };
   const openSelected = () => {
     const current = new Map(rows.map((row) => [row.id, row]));
@@ -192,6 +243,7 @@ export default function Attendance({
           <Schedule {...session.data.item} />
         </div>
       )}
+      {billingActions.notice}
       {notice && (
         <div className="attendance-notice" role={failed ? "alert" : "status"}>
           <p>{m.attendance_saved({ count: String(saved) })}</p>
@@ -356,6 +408,40 @@ export default function Attendance({
                     >
                       {statusLabel(row.status)}
                     </p>
+                    {!financialDenied && row.billing && (
+                      <p className="attendance-payment">
+                        {row.billing.status === "not_charged"
+                          ? m.billing_not_charged()
+                          : row.billing.status === "paid"
+                            ? m.cash_paid()
+                            : row.billing.status === "partial"
+                              ? m.cash_partial()
+                              : m.cash_unpaid()}
+                        {" · " +
+                          (row.billing.status === "not_charged"
+                            ? m.pricing_amount_short()
+                            : m.cash_outstanding()) +
+                          ": " +
+                          sessionPrice(
+                            row.billing.status === "not_charged"
+                              ? row.billing.amountMinor
+                              : row.billing.outstandingMinor,
+                            locale,
+                          )}
+                        {row.billing.reviewRequired && (
+                          <>
+                            <br />
+                            {m.pricing_review()}
+                          </>
+                        )}
+                        {row.billing.registrationRequired && (
+                          <>
+                            <br />
+                            {m.billing_required_help()}
+                          </>
+                        )}
+                      </p>
+                    )}
                     {(row.archived || !row.eligible) && (
                       <p className="attendance-retained">
                         {row.archived
@@ -366,7 +452,37 @@ export default function Attendance({
                   </div>
                   <ItemActions
                     name={row.name}
+                    pending={
+                      billingActions.pending &&
+                      billingActions.personId === row.id
+                    }
                     actions={[
+                      ...(!financialDenied &&
+                      row.billing &&
+                      !row.billing.reviewRequired &&
+                      !row.billing.registrationRequired &&
+                      row.billing.outstandingMinor > 0
+                        ? [
+                            {
+                              label: m.cash_record(),
+                              icon: Banknote,
+                              disabled: billingActions.blocked,
+                              onSelect: () =>
+                                billingActions.record(row.billing!),
+                            },
+                            ...(row.billing.status === "not_charged"
+                              ? [
+                                  {
+                                    label: m.billing_add_charge(),
+                                    icon: Banknote,
+                                    disabled: billingActions.blocked,
+                                    onSelect: () =>
+                                      billingActions.charge(row.billing!),
+                                  },
+                                ]
+                              : []),
+                          ]
+                        : []),
                       {
                         label: m.attendance_history(),
                         icon: History,

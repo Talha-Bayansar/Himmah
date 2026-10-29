@@ -267,7 +267,6 @@ Migration 0004 is also applied transactionally to onboarding with its journal en
 
 Latest Worker: e87d4027-bac5-4b92-b7a7-bba2a17c75b6, confirmed active at 100% traffic.
 
-
 ## Search layout and bulk group membership checkpoint (2026-10-18)
 
 Deployed Worker `2a17650a-a7c6-4b26-9b94-06c421952cc3` to Himmah Hub; Cloudflare deployments API verified the version receives 100% of traffic. Shared search/filter controls are vertically centered and mobile search uses a full-width row. Group detail pages offer a paginated bulk member picker with existing memberships disabled and an atomic, audited batch endpoint (1–50 people). No migration or new infrastructure was required; neither Kermes nor the reserved Neon main branch was changed.
@@ -508,7 +507,6 @@ Final `npm run check` passed all 257 tests: 106 Node/domain/SQL/API, three actua
 
 Worker version `90a8c2a5-4186-4b7b-8b05-a06bef3e86a8` is deployed and verified active at 100% through Cloudflare's deployments API. Settings confirm `HIMMAH_PEOPLE_ENABLED=true`, all dedicated database/VAPID secrets, both rate limiters and assets binding retained. The schedules API confirms the existing `* * * * *` trigger. Application commit `9bcae3f` is pushed to `origin/rebuild/people-foundation`. Hosted signed-in UI was not exercised; this environment restricts direct workers.dev access, so functional UI verification used local production assets and synthetic APIs.
 
-
 ## 28 October 2026 — complete removal of dropped products
 
 The owner explicitly required full deletion from the application and database schemas. This supersedes the earlier decision to leave legacy products accessible. The [removal record](REMOVAL.md) defines the exact scope, retained features and validation. No other project or auth/provider schema is in scope.
@@ -652,3 +650,11 @@ Executed validation: `npm run check` passed 200 tests (91 Node/domain/SQL/API, t
 Production Chromium with synthetic APIs checked balances, receipt forms and history in EN/NL/TR at 320/390/768px (27 views, nine complete flows), including explicit sibling allocation, exact lost-response retry and reasoned correction. No horizontal overflow; form input text at least 16px. Dutch phone screenshots visually reviewed: [balances](redesign/previews/cash-balances-phone.png), [record receipt](redesign/previews/cash-record-phone.png), [history](redesign/previews/cash-history-phone.png). This is not live signed-in or physical-device validation.
 
 Published commit `e96b734`; Cloudflare version `46f256ea-66e3-4ec2-b020-3c5f87ef3b09` is verified active at 100%. All dedicated bindings, maintenance false, People enabled and minute cron retained. Both verified databases have the matching cash receipt digest. No real hosted cash receipt was entered as a deployment test.
+
+## 29 October 2026 — independent paid drop-in billing
+
+Deployed paid drop-in billing: explicit session/contact charges and combined charge/cash save without reservations; attendance remains independent. Migration 0004 and pricing/registration/cash/billing functions installed transactionally on reverified development and onboarding in project blue-glade-25303766, database himmah_futsal, role himmah_owner. Main and provider schemas untouched. Digest: `fbaf3711579e4f8ef310e4eecaadcfd19cad1ad213e5cf371bedf385391a67f9`. Development retained one EUR 12.50 principal, one receipt and EUR 12.50 allocated; hosted retained zero charges and receipts. No hosted synthetic financial mutations or historical debt backfill.
+
+Validation: full check passed (100 domain/API tests, 3 Worker tests, 110 UI tests); final changed SQL suite passed 17 tests after the attendance visibility restriction; final strict typecheck, build, documentation links, contrast and diff checks passed. Upgrade regression starts from e690068 and preserves existing financial IDs, allocations and retry behavior. New UI tests cover attendance charge creation, attendance-only denial and combined walk-in charge/payment. Chromium synthetic API regression passed 27 views and nine cash flows across EN/NL/TR at 320/390/768px, including sibling allocation, exact lost-response retry and reasoned correction; no overflow or small form fonts. Browser regression uses synthetic data, not hosted authenticated cash transactions or physical devices.
+
+Cloudflare himmah-hub version `85fb3ea6-df88-492d-8b14-daa2c412a520` verified at 100%. Dedicated binding names/types retained; maintenance false, People enabled, minute cron retained. URL: https://himmah-hub.talha-bayansar.workers.dev.

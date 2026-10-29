@@ -700,7 +700,11 @@ export const registrationCharges = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     organizationId: uuid("organization_id").notNull(),
-    registrationId: uuid("registration_id").notNull(),
+    registrationId: uuid("registration_id"),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    personId: uuid("person_id").notNull(),
+    source: text("source").notNull().default("registration"),
     amountMinor: integer("amount_minor").notNull(),
     currency: text("currency").notNull().default("EUR"),
     createdBy: text("created_by").notNull(),
@@ -709,6 +713,27 @@ export const registrationCharges = pgTable(
       .defaultNow(),
   },
   (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.personId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    unique("hub_charge_session_person").on(
+      t.organizationId,
+      t.sessionId,
+      t.personId,
+    ),
+    check(
+      "hub_charge_source",
+      sql`(${t.source}='registration' and ${t.registrationId} is not null) or (${t.source}='walk_in' and ${t.registrationId} is null)`,
+    ),
     foreignKey({
       columns: [t.organizationId, t.registrationId],
       foreignColumns: [registrations.organizationId, registrations.id],
@@ -814,6 +839,33 @@ export const cashReversals = pgTable(
 );
 export const cashRequests = pgTable(
   "hub_cash_requests",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.requestKey] }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+  ],
+);
+
+export const billingRequests = pgTable(
+  "hub_billing_requests",
   {
     organizationId: uuid("organization_id").notNull(),
     requestKey: uuid("request_key").notNull(),

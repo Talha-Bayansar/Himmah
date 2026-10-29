@@ -34,23 +34,25 @@ Every detail route reloads independently with authorized metadata. Growing lists
 
 Windows use organization timezone, Monday-start weeks and calendar months, converted to half-open UTC ranges. Participation dates use session start; cash uses occurrence date. Exclude cancelled sessions from participation; retain financial transactions. Corrections recompute reports; show generation time and filters. Archived contacts remain in historical counts.
 
-| Metric | Definition |
-| --- | --- |
-| Attendance count | Number of distinct contact/session records currently marked present in the window. |
-| Unique attendees | Distinct verified contact IDs among those present records. |
-| First-time / returning | First-time: earliest known present session in this organization falls in the window; returning: present now with earlier recorded presence. This means first recorded, not first-ever mosque visit. |
-| Activity trends | Attendance count and distinct contacts grouped by activity and session period, with prior comparable windows. |
-| Group trends | Use membership effective at session start; disclose overlapping groups, so group totals are not additive. |
-| No recent participation | Active contacts in selected scope with zero recorded presence in a chosen lookback, default 30 days; label missing data, never confirmed disengagement/absence. Show never-recorded separately. |
-| Registered versus attended | Confirmed registrations for sessions in the window, present among those registrants, plus walk-in attendance separately; exclude cancelled registrations from denominator. |
-| Attendance percentage | Expected contacts marked present / frozen expected contacts for those sessions. Present walk-ins outside that roster are separate. Show unmarked count and denominator; no denominator means no percentage. |
-| Amount owed / outstanding | Owed: charge principal minus signed reductions/waivers for selected sessions. Outstanding: sum of positive net charge minus net allocations after refunds. Report credits separately. |
-| Cash collected | Gross cash receipts minus actual refunds by cash occurrence window; include unallocated cash separately. Session-attributed allocated receipts are a different report, not identical to cash flow. Never sum currencies. |
-| Assessment completion | Submitted valid attempts / assigned eligible recipients for a publication version; anonymous joins are separate and cannot create a contact-based completion rate. |
-| Scores / pass rate | Use selected final reviewed attempt per version/contact (recommended best eligible score); pending review excluded and disclosed. Pass rate is passed / graded completed contacts under frozen threshold. |
+| Metric                     | Definition                                                                                                                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Attendance count           | Number of distinct contact/session records currently marked present in the window.                                                                                                                                       |
+| Unique attendees           | Distinct verified contact IDs among those present records.                                                                                                                                                               |
+| First-time / returning     | First-time: earliest known present session in this organization falls in the window; returning: present now with earlier recorded presence. This means first recorded, not first-ever mosque visit.                      |
+| Activity trends            | Attendance count and distinct contacts grouped by activity and session period, with prior comparable windows.                                                                                                            |
+| Group trends               | Use membership effective at session start; disclose overlapping groups, so group totals are not additive.                                                                                                                |
+| No recent participation    | Active contacts in selected scope with zero recorded presence in a chosen lookback, default 30 days; label missing data, never confirmed disengagement/absence. Show never-recorded separately.                          |
+| Registered versus attended | Confirmed registrations for sessions in the window, present among those registrants, plus walk-in attendance separately; exclude cancelled registrations from denominator.                                               |
+| Attendance percentage      | Expected contacts marked present / frozen expected contacts for those sessions. Present walk-ins outside that roster are separate. Show unmarked count and denominator; no denominator means no percentage.              |
+| Amount owed / outstanding  | Owed: charge principal minus signed reductions/waivers for selected sessions. Outstanding: sum of positive net charge minus net allocations after refunds. Report credits separately.                                    |
+| Cash collected             | Gross cash receipts minus actual refunds by cash occurrence window; include unallocated cash separately. Session-attributed allocated receipts are a different report, not identical to cash flow. Never sum currencies. |
+| Assessment completion      | Submitted valid attempts / assigned eligible recipients for a publication version; anonymous joins are separate and cannot create a contact-based completion rate.                                                       |
+| Scores / pass rate         | Use selected final reviewed attempt per version/contact (recommended best eligible score); pending review excluded and disclosed. Pass rate is passed / graded completed contacts under frozen threshold.                |
 
 No universal engagement score or religious-worth ranking. Reports require distinct server permissions and avoid leaking small-group sensitive detail to volunteers or live participants.
 
 ## Selected operational defaults
 
 The owner delegated routine permission and attendance choices. Use the selected [permission matrix and roster rules](WORKFLOWS.md): separate scoped attendance/cash grants, administrator-only waivers/refunds, explicit expected rosters frozen at check-in opening (30 minutes before start), audited amendments, and volunteer attendance corrections until 24 hours after session end. Open/drop-in sessions have no percentage unless staff defines an expected roster. These selected defaults supersede earlier tentative wording on these topics.
+
+29 October clarification: paid participation is independent of required registration. Optional paid sessions support explicit session/contact charges and cash without a reservation; attendance never creates debt. See [cash flow](../CASH.md).

@@ -36,7 +36,7 @@ export function createAttendanceStore(
       filter: "all" | "registered" | "expected" = "all",
     ) {
       return rows(
-        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
       );
     },
     summary(user: string, org: string, activity: string, session: string) {

@@ -1,6 +1,8 @@
 import { CommunityError, uuid, versionInput } from "../community/contracts.ts";
 export const cashViews = [
   "all",
+  "not_charged",
+  "participants",
   "outstanding",
   "unpaid",
   "partial",
@@ -10,13 +12,18 @@ export const cashViews = [
 ] as const;
 export type CashView = (typeof cashViews)[number];
 export type CashCharge = {
+  personId?: string;
+  contactVersion?: number;
+  sessionVersion?: number;
+  canCharge?: boolean;
+  registrationRequired?: boolean;
   id: string;
   name: string;
   amountMinor: number;
   paidMinor: number;
   outstandingMinor: number;
   version: number;
-  status: "unpaid" | "partial" | "paid";
+  status: "unpaid" | "partial" | "paid" | "not_charged";
   reviewRequired: boolean;
   createdAt: string;
 };
@@ -37,6 +44,7 @@ export type CashReceipt = {
 export type CashSummary = {
   name: string;
   timezone: string;
+  toChargeCount?: number;
   canManage: boolean;
   canRecord: boolean;
   owedMinor: number;
@@ -47,6 +55,16 @@ export type CashSummary = {
 };
 export function cashInput(body: Record<string, unknown>, timezone: string) {
   const key = uuid(body.key);
+  if (body.action === "charge")
+    return {
+      key,
+      payload: {
+        action: "charge",
+        personId: uuid(body.personId),
+        contactVersion: versionInput({ version: body.contactVersion }),
+        sessionVersion: versionInput({ version: body.sessionVersion }),
+      },
+    };
   if (body.action === "reverse") {
     if (
       typeof body.reason !== "string" ||
@@ -87,15 +105,27 @@ export function cashInput(body: Record<string, unknown>, timezone: string) {
         Number(a.amountMinor) > 100000000
       )
         throw new CommunityError("cash_allocation");
+      if (a.chargeId !== undefined)
+        return {
+          chargeId: uuid(a.chargeId),
+          version: versionInput(a),
+          amountMinor: Number(a.amountMinor),
+        };
+      if (a.version !== 0) throw new CommunityError("invalid_input");
       return {
-        chargeId: uuid(a.chargeId),
-        version: versionInput(a),
+        personId: uuid(a.personId),
+        contactVersion: versionInput({ version: a.contactVersion }),
+        sessionVersion: versionInput({ version: a.sessionVersion }),
+        version: 0,
         amountMinor: Number(a.amountMinor),
       };
     })
-    .sort((a, b) => a.chargeId.localeCompare(b.chargeId));
+    .sort((a, b) =>
+      (a.chargeId ?? a.personId!).localeCompare(b.chargeId ?? b.personId!),
+    );
   if (
-    new Set(allocations.map((a) => a.chargeId)).size !== allocations.length ||
+    new Set(allocations.map((a) => a.chargeId ?? a.personId)).size !==
+      allocations.length ||
     allocations.reduce((sum, a) => sum + a.amountMinor, 0) >
       Number(body.amountMinor)
   )

@@ -622,8 +622,8 @@
   "pricing_paid": "Ücretli katılım",
   "pricing_amount": "Oturum başına kişi ücreti (EUR)",
   "pricing_activity_help": "Varsayılan olarak ücretsizdir. Bu ücret yalnızca yeni planlanan oturumlara uygulanır.",
-  "pricing_session_help": "Bu oturum etkinlik ücretini devralır. İlk kayda kadar değiştirebilirsiniz.",
-  "pricing_locked": "Kayıtlar bulunduğu için oturum ücreti kilitlidir.",
+  "pricing_session_help": "Bu oturum etkinlik ücretini devralır. Ayrı zorunluluk yoksa kayıt isteğe bağlıdır. İlk kayıt veya borçtan sonra ücret kilitlenir.",
+  "pricing_locked": "Kayıt veya borç bulunduğu için oturum ücreti kilitlidir.",
   "pricing_per_session": "Kişi başına {price} · oturum başına",
   "pricing_charge": "Borç: {price}",
   "pricing_review": "Borç incelenmeli",
@@ -668,5 +668,15 @@
   "directory_cash_reason": "Geri almak için bir gerekçe girin.",
   "directory_cash_time": "Gelecekte olmayan geçerli bir alınma zamanı girin.",
   "cash_recorded_at": "Kayıt zamanı: {time}",
-  "cash_reversed_by": "Geri alan: {name} · {time}"
+  "cash_reversed_by": "Geri alan: {name} · {time}",
+  "billing_not_charged": "Henüz ücretlendirilmedi",
+  "pricing_amount_short": "Oturum ücreti",
+  "billing_add_charge": "Oturum borcu ekle",
+  "billing_confirm_charge": "Bu oturum için {name} adına {price} borç eklensin. Rezervasyon, yoklama veya ödeme oluşturulmaz.",
+  "billing_charge_on_save": "Kaydetmek {price} oturum borcunu ve bu tahsilatı birlikte ekler. Rezervasyon oluşturulmaz.",
+  "billing_required_help": "Bu oturum kayıt gerektirir. Ücretlendirmeden önce katılımcıyı kaydedin.",
+  "billing_to_charge": "Katıldı, henüz borç eklenmedi: {count}. Rezervasyon olmadan nakit veya oturum borcu ekleyebilirsiniz.",
+  "billing_uncertain": "Borç işleminin sonucu belirsiz. Yeni borç eklemeden önce kayıtlı isteği tekrar deneyin.",
+  "directory_billing_registration_required": "Bu oturumda kayıt zorunludur. Önce katılımcıyı kaydedin.",
+  "billing_new_charges": "Ayrıca {price} oturum borcu oluşturur. Rezervasyon oluşturulmaz."
 }

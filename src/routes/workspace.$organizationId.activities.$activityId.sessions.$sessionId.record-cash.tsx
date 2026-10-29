@@ -12,7 +12,9 @@ export const Route = createFileRoute(
       throw notFound();
     }
   },
-  validateSearch: (s: Record<string, unknown>) => {
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { chargeId: string; personId?: string; returnTo: string | undefined } => {
     let chargeId = "";
     if (typeof s.chargeId === "string")
       try {
@@ -20,6 +22,10 @@ export const Route = createFileRoute(
       } catch {}
     return {
       chargeId,
+      personId:
+        typeof s.personId === "string" && /^[0-9a-f-]{36}$/i.test(s.personId)
+          ? s.personId
+          : "",
       returnTo: typeof s.returnTo === "string" ? s.returnTo : undefined,
     };
   },

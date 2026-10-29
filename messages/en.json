@@ -622,8 +622,8 @@
   "pricing_paid": "Paid participation",
   "pricing_amount": "Price per contact per session (EUR)",
   "pricing_activity_help": "Free by default. This price applies only to newly scheduled sessions.",
-  "pricing_session_help": "This session inherits the activity price. You can override it until the first registration.",
-  "pricing_locked": "The session price is locked because registrations already exist.",
+  "pricing_session_help": "This session inherits the activity price. Registration is optional unless separately required. Price locks after the first registration or charge.",
+  "pricing_locked": "The session price is locked because registrations or charges already exist.",
   "pricing_per_session": "{price} per contact · per session",
   "pricing_charge": "Charge: {price}",
   "pricing_review": "Charge needs review",
@@ -668,5 +668,15 @@
   "directory_cash_reason": "Provide a reason for reversing this entry.",
   "directory_cash_time": "Use a valid receipt time that is not in the future.",
   "cash_recorded_at": "Recorded: {time}",
-  "cash_reversed_by": "Reversed by {name} · {time}"
+  "cash_reversed_by": "Reversed by {name} · {time}",
+  "billing_not_charged": "Not charged yet",
+  "pricing_amount_short": "Session price",
+  "billing_add_charge": "Add session charge",
+  "billing_confirm_charge": "Add {price} for {name} for this session. This does not create a reservation, mark attendance or record payment.",
+  "billing_charge_on_save": "Saving adds the {price} session charge and records this cash together. No reservation is created.",
+  "billing_required_help": "This session requires registration. Register the participant before charging.",
+  "billing_to_charge": "Attended without a charge yet: {count}. You can record cash or add their session charge without a reservation.",
+  "billing_uncertain": "The charge result is uncertain. Retry this saved request before adding another charge.",
+  "directory_billing_registration_required": "Registration is required for this session. Register the participant first.",
+  "billing_new_charges": "Also creates {price} in session charges. No reservation is created."
 }

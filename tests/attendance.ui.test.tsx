@@ -71,7 +71,12 @@ function mount(role = "owner") {
   const root = createRootRoute({ component: () => <Outlet /> });
   const index = createRoute({
     getParentRoute: () => root,
-    path: "/",
+    path: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
+    validateSearch: (s: Record<string, unknown>) => ({
+      q: s.q ?? "",
+      status: s.status ?? "all",
+      roster: s.roster ?? "all",
+    }),
     component: () => (
       <Attendance
         organization={{ ...org, role: role as "owner" | "volunteer" }}
@@ -83,7 +88,11 @@ function mount(role = "owner") {
   });
   const router = createRouter({
     routeTree: root.addChildren([index]),
-    history: createMemoryHistory({ initialEntries: ["/"] }),
+    history: createMemoryHistory({
+      initialEntries: [
+        `/workspace/${org.id}/activities/${activity}/sessions/${sessionId}/attendance`,
+      ],
+    }),
   });
   render(
     <QueryClientProvider client={client}>
@@ -383,4 +392,97 @@ it("future or cancelled sessions show a read-only roster with disabled write con
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(true);
+});
+it("attendance can add a paid drop-in charge without creating a reservation", async () => {
+  let charged = false;
+  const writes: { path: string; body: Record<string, unknown> }[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = new URL(String(input), "https://test").pathname;
+      if (init?.method === "POST") {
+        writes.push({ path, body: JSON.parse(String(init.body)) });
+        charged = true;
+        return Response.json({ id: second.id });
+      }
+      if (path.endsWith("/attendance"))
+        return Response.json({
+          items: [
+            {
+              ...first,
+              status: "present",
+              version: 1,
+              billing: {
+                id: charged ? second.id : first.id,
+                personId: first.id,
+                name: first.name,
+                contactVersion: 1,
+                sessionVersion: 1,
+                amountMinor: 1000,
+                paidMinor: 0,
+                outstandingMinor: 1000,
+                version: charged ? 1 : 0,
+                status: charged ? "unpaid" : "not_charged",
+                canCharge: !charged,
+                reviewRequired: false,
+                createdAt: first.createdAt,
+              },
+            },
+          ],
+          summary,
+          nextCursor: null,
+        });
+      return Response.json({
+        item: { ...session, priceMinor: 1000, canCollect: true },
+      });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await screen.findByText(/Not charged yet/);
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Member One" }),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Add session charge" }),
+  );
+  const confirm = await screen.findByRole("alertdialog");
+  expect(
+    within(confirm).getByText(/does not create a reservation/),
+  ).toBeTruthy();
+  await user.click(
+    within(confirm).getByRole("button", { name: "Add session charge" }),
+  );
+  await screen.findByText(/Unpaid/);
+  expect(writes).toHaveLength(1);
+  expect(writes[0]!.path).toContain("/cash");
+  expect(writes[0]!.body).toMatchObject({
+    action: "charge",
+    personId: first.id,
+    contactVersion: 1,
+    sessionVersion: 1,
+  });
+});
+it("attendance-only rows have no payment controls or financial amounts", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) =>
+      Response.json(
+        String(input).includes("/attendance")
+          ? { items: [{ ...first, billing: null }], summary, nextCursor: null }
+          : { item: session },
+      ),
+    ),
+  );
+  mount();
+  const user = userEvent.setup();
+  await screen.findByText(first.name);
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Member One" }),
+  );
+  expect(screen.queryByRole("menuitem", { name: "Record cash" })).toBeNull();
+  expect(
+    screen.queryByRole("menuitem", { name: "Add session charge" }),
+  ).toBeNull();
+  expect(screen.queryByText(/Not charged yet/)).toBeNull();
 });

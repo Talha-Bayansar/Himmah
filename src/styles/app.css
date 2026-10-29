@@ -5455,3 +5455,9 @@ button[data-slot="button"].people-section-add {
 .cash-receipt-record > details {
   margin-inline-start: 52px;
 }
+.attendance-row .attendance-payment {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--forest);
+}

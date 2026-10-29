@@ -341,3 +341,54 @@ it("a balance conflict keeps the draft, refreshes selected versions and requires
   });
   expect(writes[0]!.key).not.toBe(writes[1]!.key);
 });
+it("saving cash for an uncharged participant creates the fee and payment in one explicit action", async () => {
+  let submitted: Record<string, unknown> | undefined;
+  const offer = {
+    ...a,
+    id: chargeA,
+    personId: chargeA,
+    contactVersion: 1,
+    sessionVersion: 4,
+    status: "not_charged",
+    version: 0,
+    canCharge: true,
+  };
+  const fetcher = backend((u, init) => {
+    if (init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return Response.json({ id: chargeB });
+    }
+    if (u.pathname.endsWith("/charges/" + chargeA))
+      return Response.json({ item: offer, summary });
+  });
+  mount(true);
+  const user = userEvent.setup();
+  await screen.findByLabelText("Cash received (EUR)");
+  expect(screen.getByText(/Saving adds the/)).toBeTruthy();
+  await user.click(screen.getByRole("button", { name: "Record cash" }));
+  const confirmation = await screen.findByRole("alertdialog");
+  expect(within(confirmation).getByText(/Also creates/)).toBeTruthy();
+  expect(submitted).toBeUndefined();
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Record cash" }),
+  );
+  await waitFor(() => expect(submitted).toBeTruthy());
+  expect(submitted).toMatchObject({
+    action: "record",
+    amountMinor: 1000,
+    allocations: [
+      {
+        personId: chargeA,
+        contactVersion: 1,
+        sessionVersion: 4,
+        version: 0,
+        amountMinor: 1000,
+      },
+    ],
+  });
+  expect(
+    fetcher.mock.calls.some(([input]) =>
+      String(input).includes("/registrations"),
+    ),
+  ).toBe(false);
+});
