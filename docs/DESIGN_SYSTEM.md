@@ -86,7 +86,7 @@ Financial summaries emphasize the amount and its label. Before recording cash, s
 
 ### Information hierarchy and daily tasks
 
-Show the identity, current state and next action first. Repeated lists use compact time ranges rather than full scheduling panels. Do not place several explanatory paragraphs or accounting breakdowns before the work. Attendance shows only present contacts, a present count and search; adding/removing replaces status forms and filters. Keep essential restrictions and positive unallocated cash visible; move background guidance, secondary totals and profile history into clearly labeled disclosures. Full detail routes retain complete information.
+Show the identity, current state and next action first. Repeated lists use compact time ranges rather than full scheduling panels. Do not place several explanatory paragraphs or accounting breakdowns before the work. Session detail shows compact attendance/payment counts. Management shows scoped counts/amounts and present contacts with compact selection/bulk actions; adding/removing replaces status forms. Keep essential restrictions and positive unallocated cash visible; move background guidance, secondary totals and profile history into clearly labeled disclosures. Full detail routes retain complete information.
 
 A routine single-person cash payment uses a short sheet with the person already selected, the balance prefilled, an editable partial amount and the remaining balance. The explicit amount-labeled save is its confirmation; do not add a second confirmation for the same reviewed action. Keep a visible compact payment action in attendance and Payments, plus the full page for several people or receipt details. This is an intentional contextual-action exception alongside attendance, not permission to stack prominent card buttons. Preserve exact retries and current authorization.
 
@@ -119,6 +119,8 @@ These are synthetic-data Chromium captures of the implemented design in Dutch at
 - [Complex cash form page](design/cash-form-mobile.png)
 - [Quick single-person payment sheet](design/quick-payment-mobile.png)
 
-### Present-only session attendance
+### Unified attendance and payment management
 
-Use attendance as the current present list. Add participant opens a searchable sheet that excludes anyone already present; selection adds them immediately and the sheet stays open for more additions. Done returns to the list. Remove is a compact confirmed row action. No redundant Present badge, status form, counters for other statuses, selection checkbox or roster filters. Registration does not imply presence. Keep payment status and recording on each row; removal must preserve all financial and audit records.
+Session detail uses a short present/paid/unpaid summary and one management action. Management combines scoped counts and expected/paid/outstanding amounts with the present-contact list. Use compact divided rows, visible paid/unpaid actions and selection-local bulk controls for up to 50 contacts. Secondary receipt details/history remain on demand. Do not restore absent/excused status forms or stack large action buttons.
+
+The add sheet supports multiple contacts, with currently present contacts checked, greyed out and disabled. Add selected explicitly saves; Done dismisses. Remove and Mark unpaid have one concise confirmation describing the payment correction; Mark paid reviews the exact remaining cash total. Preserve current scope, original audit/receipt history, independent registration, exact retries, conflict handling, and no autofocus. Remove clears that contact's active payment tracking without modifying another contact's receipt allocation.

@@ -8,7 +8,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Banknote, Plus, UserMinus, History, Search } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ErrorNotice, Schedule } from "../activities/Activities";
 import type { Session } from "../activities/contracts";
 import { DirectoryError, directoryRequest } from "../community/client";
@@ -18,6 +18,8 @@ import {
   ListSkeleton,
 } from "../components/shared/infinite-list";
 import { ItemActions } from "../components/shared/item-actions";
+import { Checkbox } from "../components/ui/checkbox";
+import { SessionStats } from "./SessionStats";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { useLocale } from "../localization/locale";
@@ -76,6 +78,9 @@ export default function Attendance({
       isAdmin || (!access.isError && access.data?.item.canAttend === true),
     [financialDenied, setFinancialDenied] = useState(false),
     [adding, setAdding] = useState(false),
+    [selected, setSelected] = useState<Map<string, AttendancePerson>>(
+      new Map(),
+    ),
     [history, setHistory] = useState<AttendancePerson | null>(null);
   const search = typeof filters.q === "string" ? filters.q : "";
   const billingActions = useBillingActions(
@@ -109,6 +114,7 @@ export default function Attendance({
   const base = `/api/organizations/${organization.id}/activities/${activityId}/sessions/${sessionId}`,
     key = attendanceKey(userId, organization.id, sessionId);
   const membership = useAttendanceMembership(base + "/attendance", key);
+  useEffect(() => setSelected(new Map()), [membership.completed]);
   const session = useQuery({
     queryKey: [...key, "session", activityId],
     enabled: canManage,
@@ -146,6 +152,33 @@ export default function Attendance({
       search: { q: value },
       replace: true,
     });
+  };
+  const current = new Map(rows.map((row) => [row.id, row]));
+  const selectedRows = [...selected.values()].map(
+    (row) => current.get(row.id) ?? row,
+  );
+  const paidTargets = selectedRows.filter(
+    (row) =>
+      row.billing &&
+      row.billing.outstandingMinor > 0 &&
+      !row.billing.reviewRequired &&
+      !row.billing.registrationRequired,
+  );
+  const unpaidTargets = selectedRows.filter(
+    (row) => row.billing && row.billing.paidMinor > 0,
+  );
+  const bulk = async (action: "remove" | "paid" | "unpaid") => {
+    if (
+      await membership.change(
+        action === "paid"
+          ? paidTargets
+          : action === "unpaid"
+            ? unpaidTargets
+            : selectedRows,
+        action,
+      )
+    )
+      setSelected(new Map());
   };
   if (!isAdmin && access.isPending) return <ListSkeleton />;
   if (!isAdmin && access.isError)
@@ -188,12 +221,15 @@ export default function Attendance({
       <div className="directory-heading">
         <div>
           <h1 tabIndex={-1} data-page-heading>
-            {m.attendance_title()}
+            {m.management_title()}
           </h1>
         </div>
         <Button
           disabled={!canEdit || membership.blocked}
-          onClick={() => setAdding(true)}
+          onClick={() => {
+            setSelected(new Map());
+            setAdding(true);
+          }}
         >
           <Plus aria-hidden="true" />
           {m.attendance_add()}
@@ -217,9 +253,10 @@ export default function Attendance({
       {!adding && membership.notice}
       {summary && (
         <>
-          <p className="activity-note" role="status">
-            {m.attendance_present_count({ count: String(summary.present) })}
-          </p>
+          <SessionStats
+            summary={summary}
+            paidSession={(session.data?.item.priceMinor ?? 0) > 0}
+          />
           {!canEdit && (
             <div className="attendance-notice">
               <p>
@@ -252,6 +289,46 @@ export default function Attendance({
           />
         </label>
       </div>
+      {!!selected.size && (
+        <div className="participant-bulkbar">
+          <p>{m.attendance_selected({ count: String(selected.size) })}</p>
+          <div>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!canEdit || membership.blocked || !paidTargets.length}
+              onClick={() => void bulk("paid")}
+            >
+              {m.management_mark_paid()}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!canEdit || membership.blocked || !unpaidTargets.length}
+              onClick={() => void bulk("unpaid")}
+            >
+              {m.management_mark_unpaid()}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={membership.blocked}
+              onClick={() => void bulk("remove")}
+            >
+              <UserMinus aria-hidden="true" />
+              {m.attendance_remove()}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={membership.blocked}
+              onClick={() => setSelected(new Map())}
+            >
+              {m.attendance_clear()}
+            </Button>
+          </div>
+        </div>
+      )}
       {roster.isPending ? (
         <ListSkeleton />
       ) : roster.isError && !roster.data ? (
@@ -266,6 +343,23 @@ export default function Attendance({
             {rows.map((row) => (
               <article className="attendance-row" key={row.id}>
                 <div className="attendance-row-heading">
+                  <Checkbox
+                    aria-label={m.attendance_select({ name: row.name })}
+                    checked={selected.has(row.id)}
+                    disabled={
+                      !canEdit ||
+                      membership.blocked ||
+                      (!selected.has(row.id) && selected.size >= 50)
+                    }
+                    onCheckedChange={(checked) =>
+                      setSelected((previous) => {
+                        const next = new Map(previous);
+                        if (checked) next.set(row.id, row);
+                        else next.delete(row.id);
+                        return next;
+                      })
+                    }
+                  />
                   <div>
                     <h2>{row.name}</h2>
                     {!financialDenied && row.billing && (
@@ -347,6 +441,20 @@ export default function Attendance({
                               : []),
                           ]
                         : []),
+                      ...(!financialDenied &&
+                      row.billing &&
+                      row.billing.paidMinor > 0
+                        ? [
+                            {
+                              label: m.management_mark_unpaid(),
+                              icon: Banknote,
+                              disabled: membership.blocked || !canEdit,
+                              onSelect: async () => {
+                                await membership.change(row, "unpaid");
+                              },
+                            },
+                          ]
+                        : []),
                       {
                         label: m.attendance_history(),
                         icon: History,
@@ -359,29 +467,36 @@ export default function Attendance({
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     disabled={!canEdit || membership.blocked}
                     onClick={() => void membership.change(row, "remove")}
                     aria-label={m.attendance_remove_for({ name: row.name })}
                   >
                     <UserMinus size={16} aria-hidden="true" />
-                    {m.attendance_remove()}
                   </Button>
                   {!financialDenied &&
                     row.billing &&
                     !row.billing.reviewRequired &&
-                    !row.billing.registrationRequired &&
-                    row.billing.outstandingMinor > 0 && (
+                    !row.billing.registrationRequired && (
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        disabled={billingActions.blocked}
-                        onClick={() => billingActions.record(row.billing!)}
-                        aria-label={m.quick_cash_for({ name: row.name })}
+                        disabled={!canEdit || membership.blocked}
+                        onClick={() =>
+                          void membership.change(
+                            row,
+                            row.billing!.status === "paid" ? "unpaid" : "paid",
+                          )
+                        }
+                        aria-label={(row.billing.status === "paid"
+                          ? m.management_unpaid_for
+                          : m.management_paid_for)({ name: row.name })}
                       >
                         <Banknote aria-hidden="true" />
-                        {m.quick_cash_title()}
+                        {row.billing.status === "paid"
+                          ? m.management_mark_unpaid()
+                          : m.management_mark_paid()}
                       </Button>
                     )}
                 </div>
@@ -404,8 +519,9 @@ export default function Attendance({
             if (membership.allowClose()) setAdding(false);
           }}
           pending={membership.blocked}
+          completed={membership.completed}
           notice={membership.notice}
-          onSelect={(person) => void membership.change(person, "add")}
+          onSelect={(people) => membership.change(people, "add")}
         />
       )}
       {history && (

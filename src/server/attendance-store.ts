@@ -3,6 +3,7 @@ import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import type {
   AttendanceInput,
+  ParticipantCommand,
   AttendanceStatus,
 } from "../attendance/contracts.ts";
 import type { PageInput } from "../community/contracts.ts";
@@ -36,17 +37,27 @@ export function createAttendanceStore(
       filter:
         | "all"
         | "participants"
+        | "picker"
         | "available"
         | "registered"
         | "expected" = "all",
     ) {
       return rows(
-        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "participants" ? sql`status='present'` : filter === "available" ? sql`(status<>'present' and eligible)` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "participants" ? sql`status='present'` : filter === "picker" ? sql`eligible` : filter === "available" ? sql`(status<>'present' and eligible)` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
       );
     },
     summary(user: string, org: string, activity: string, session: string) {
       return rows(
-        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select count(*)::int as total,count(*) filter(where status='present')::int as present,coalesce((select not cancelled and starts_at<=clock_timestamp() from session),false) as "canEdit",(select cancelled from session) as cancelled,(select starts_at::text from session) as "startsAt" from visible where status='present'`,
+        sql`with ${actor(user, org)},${roster(user, org, activity, session)}, present as(select *,hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as bill from visible where status='present')
+        select count(*)::int as total,count(*)::int as present,
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then count(bill)::int else null end as "paymentCount",
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then count(*) filter(where bill->>'status'='paid')::int else null end as paid,
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then count(*) filter(where bill->>'status' in ('unpaid','not_charged'))::int else null end as unpaid,
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then count(*) filter(where bill->>'status'='partial')::int else null end as partial,
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then coalesce(sum((bill->>'amountMinor')::bigint),0)::float8 else null end as "expectedMinor",
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then coalesce(sum((bill->>'paidMinor')::bigint),0)::float8 else null end as "paidMinor",
+        case when hub_can_collect_session(${user},${org}::uuid,${activity}::uuid,${session}::uuid) then coalesce(sum((bill->>'outstandingMinor')::bigint),0)::float8 else null end as "outstandingMinor",
+        coalesce((select not cancelled and starts_at<=clock_timestamp() from session),false) as "canEdit",(select cancelled from session) as cancelled,(select starts_at::text from session) as "startsAt" from present`,
       );
     },
     history(
@@ -59,6 +70,18 @@ export function createAttendanceStore(
     ) {
       return rows(
         sql`with ${actor(user, org)} select c.id,to_char(c.created_at at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') as "createdAt",c.before_status as "beforeStatus",c.after_status as "afterStatus",c.reason,c.version,m.display_name as "actorName" from hub_attendance_changes c join hub_activity_sessions s on s.organization_id=c.organization_id and s.id=c.session_id left join hub_memberships m on m.organization_id=c.organization_id and m.user_id=c.actor_id where c.organization_id=${org}::uuid and s.activity_id=${activity}::uuid and c.session_id=${session}::uuid and c.person_id=${person}::uuid and exists(select 1 from actor) and hub_can_attend_person(${user},${org}::uuid,${activity}::uuid,${session}::uuid,c.person_id) ${p.after ? sql`and (c.created_at,c.id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by c.created_at desc,c.id desc limit ${p.limit + 1}`,
+      );
+    },
+    manage(
+      user: string,
+      org: string,
+      activity: string,
+      session: string,
+      input: ParticipantCommand,
+    ) {
+      const { key, ...payload } = input;
+      return rows(
+        sql`select hub_manage_participants(${user},${org}::uuid,${activity}::uuid,${session}::uuid,${key}::uuid,${JSON.stringify(payload)}::jsonb) as result`,
       );
     },
     save(

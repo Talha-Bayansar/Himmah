@@ -1,3 +1,4 @@
+import { SessionStatsPreview } from "../attendance/SessionStats";
 import { sessionPrice } from "./contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -189,7 +190,7 @@ export default function Sessions({
                       ...(!full
                         ? [
                             {
-                              label: m.attendance_open(),
+                              label: m.management_open(),
                               icon: ClipboardCheck,
                               onSelect: () =>
                                 navigate({
@@ -241,6 +242,15 @@ export default function Sessions({
               price: sessionPrice(item.priceMinor!, locale),
             })}
           </p>
+        )}
+        {full && canOperate && (
+          <SessionStatsPreview
+            user={userId}
+            org={organization.id}
+            activity={activity.id}
+            session={item.id}
+            paidSession={(item.priceMinor ?? 0) > 0}
+          />
         )}
         {canOperate && item.registration && (
           <div className="session-registration-summary">
@@ -317,7 +327,7 @@ export default function Sessions({
                 }}
               >
                 <ClipboardCheck size={16} aria-hidden="true" />
-                {m.attendance_open()}
+                {m.management_open()}
               </Link>
             </Button>
           </div>

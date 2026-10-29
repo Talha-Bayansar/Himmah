@@ -36,10 +36,11 @@ export type CashReceipt = {
   occurredAt: string;
   createdAt: string;
   reversed: boolean;
+  correctedMinor?: number;
   reason: string | null;
   reversedAt?: string | null;
   reversedBy?: string | null;
-  allocations: { name: string; amountMinor: number }[];
+  allocations: { name: string; amountMinor: number; corrected?: boolean }[];
 };
 export type CashSummary = {
   name: string;

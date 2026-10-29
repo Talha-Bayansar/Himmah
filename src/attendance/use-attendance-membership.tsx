@@ -9,19 +9,23 @@ import {
 import { useConfirmation } from "../components/shared/confirmation";
 import { ActionButton } from "../components/shared/action-button";
 import { m } from "../paraglide/messages.js";
-import type { AttendancePerson, AttendanceResult } from "./contracts";
+import { sessionPrice } from "../activities/contracts";
+import { useLocale } from "../localization/locale";
+import type {
+  ParticipantAction,
+  ParticipantCommand,
+  AttendancePerson,
+  AttendanceResult,
+} from "./contracts";
 
-type Command = {
-  key: string;
-  action: "add" | "remove";
-  personId: string;
-  version: number;
-};
+type Command = ParticipantCommand;
 export function useAttendanceMembership(path: string, queryKey: string[]) {
   const cache = useQueryClient(),
-    confirm = useConfirmation();
+    confirm = useConfirmation(),
+    locale = useLocale()?.locale ?? "en";
   const attempt = useRef<Command | null>(null);
   const [message, setMessage] = useState("");
+  const [completed, setCompleted] = useState(0);
   const operation = useMutation({
     mutationFn: (command: Command) =>
       directoryRequest<AttendanceResult>(path, {
@@ -30,19 +34,24 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
       }),
     onSuccess: async (result, command) => {
       attempt.current = null;
-      const outcome = result.items.find(
-        (item) => item.personId === command.personId,
-      )?.outcome;
+      const outcome = result.items.every((item) =>
+        ["saved", "unchanged"].includes(item.outcome),
+      )
+        ? "saved"
+        : "conflict";
       setMessage(
-        outcome === "saved" || outcome === "unchanged"
+        outcome === "saved"
           ? command.action === "add"
             ? m.attendance_added_success()
-            : m.attendance_removed_success()
+            : command.action === "remove"
+              ? m.attendance_removed_success()
+              : m.management_updated()
           : outcome === "conflict"
             ? m.attendance_conflict()
             : m.attendance_ineligible(),
       );
-      await cache.invalidateQueries({ queryKey });
+      setCompleted((value) => value + 1);
+      await cache.invalidateQueries({ queryKey: queryKey.slice(0, 3) });
     },
     onError: async (error) => {
       if (
@@ -50,7 +59,7 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
         !["service", "rate_limit"].includes(error.code)
       ) {
         attempt.current = null;
-        await cache.invalidateQueries({ queryKey });
+        await cache.invalidateQueries({ queryKey: queryKey.slice(0, 3) });
       }
     },
   });
@@ -60,30 +69,79 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
     shouldBlockFn: () => blocked,
     enableBeforeUnload: () => blocked,
   });
-  const change = async (person: AttendancePerson, action: "add" | "remove") => {
-    if (blocked || (action === "add" && person.status === "present")) return;
+  const change = async (
+    people: AttendancePerson | AttendancePerson[],
+    action: ParticipantAction,
+  ) => {
+    const records = Array.isArray(people) ? people : [people];
     if (
-      action === "remove" &&
+      blocked ||
+      !records.length ||
+      records.length > 50 ||
+      (action === "add" && records.some((p) => p.status === "present"))
+    )
+      return false;
+    const amount = records.reduce(
+      (sum, p) => sum + (p.billing?.outstandingMinor ?? 0),
+      0,
+    );
+    if (
+      action !== "add" &&
       !(await confirm({
-        title: m.attendance_remove(),
-        description: m.attendance_remove_help({ name: person.name }),
-        confirmLabel: m.attendance_remove(),
-        destructive: true,
+        title:
+          action === "remove"
+            ? m.attendance_remove()
+            : action === "paid"
+              ? m.management_mark_paid()
+              : m.management_mark_unpaid(),
+        description:
+          action === "paid"
+            ? m.management_pay_confirm({
+                count: String(records.length),
+                amount: sessionPrice(amount, locale),
+              })
+            : m.management_clear_confirm({ count: String(records.length) }),
+        confirmLabel:
+          action === "remove"
+            ? m.attendance_remove()
+            : action === "paid"
+              ? m.management_mark_paid()
+              : m.management_mark_unpaid(),
+        destructive: action !== "paid",
       }))
     )
-      return;
-    // Recheck after asynchronous confirmation; never replace an uncertain request.
-    if (attempt.current) return;
+      return false;
+    if (attempt.current) return false;
     setMessage("");
     attempt.current = {
       key: crypto.randomUUID(),
       action,
-      personId: person.id,
-      version: person.version,
+      items: records.map((person) => ({
+        personId: person.id,
+        version: person.version,
+        ...(action !== "add" && person.billing
+          ? {
+              paymentVersion: person.billing.version,
+              sessionVersion: person.billing.sessionVersion,
+              ...(action === "paid"
+                ? { amountMinor: person.billing.outstandingMinor }
+                : {}),
+            }
+          : {}),
+      })),
     };
-    await operation.mutateAsync(attempt.current).catch(() => {});
+    const result = await operation
+      .mutateAsync(attempt.current)
+      .catch(() => null);
+    return (
+      !!result &&
+      result.items.every((item) =>
+        ["saved", "unchanged"].includes(item.outcome),
+      )
+    );
   };
   return {
+    completed,
     denied:
       operation.error instanceof DirectoryError &&
       ["forbidden", "not_found", "sign_in", "verify_required"].includes(

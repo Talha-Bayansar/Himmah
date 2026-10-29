@@ -890,3 +890,62 @@ export const billingRequests = pgTable(
     }),
   ],
 );
+
+// Append-only, contact-specific payment corrections; sibling allocations remain intact.
+export const cashAllocationCorrections = pgTable(
+  "hub_cash_allocation_corrections",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    receiptId: uuid("receipt_id").notNull(),
+    chargeId: uuid("charge_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    reason: text("reason").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({
+      name: "hub_cash_correction_pk",
+      columns: [t.organizationId, t.receiptId, t.chargeId],
+    }),
+    foreignKey({
+      name: "hub_cash_correction_allocation_fk",
+      columns: [t.organizationId, t.receiptId, t.chargeId],
+      foreignColumns: [
+        cashAllocations.organizationId,
+        cashAllocations.receiptId,
+        cashAllocations.chargeId,
+      ],
+    }),
+    index("hub_cash_correction_charge").on(t.organizationId, t.chargeId),
+  ],
+);
+export const sessionOperations = pgTable(
+  "hub_session_operations",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.requestKey] }),
+    foreignKey({
+      name: "hub_session_operation_session_fk",
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+  ],
+);

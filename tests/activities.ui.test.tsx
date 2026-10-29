@@ -440,7 +440,9 @@ it("started session details remain read-only for an owner", async () => {
   ).toHaveLength(2);
 
   expect(
-    screen.getByRole("link", { name: "Check attendance" }).getAttribute("href"),
+    screen
+      .getByRole("link", { name: "Manage attendance & payments" })
+      .getAttribute("href"),
   ).toBe(
     `/workspace/${org.id}/activities/${item.id}/sessions/${session.id}/attendance`,
   );
@@ -493,7 +495,7 @@ it("session list has one primary action and operational shortcuts in its more me
     await screen.findByRole("menuitem", { name: "Registrations" }),
   ).toBeTruthy();
   expect(
-    screen.getByRole("menuitem", { name: "Check attendance" }),
+    screen.getByRole("menuitem", { name: "Manage attendance & payments" }),
   ).toBeTruthy();
   expect(fetcher).toHaveBeenCalledTimes(2);
 });
@@ -560,3 +562,44 @@ it.each([
     ).toBeNull();
   },
 );
+
+it("session detail shows a compact attendance and payment summary", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).includes("/attendance"))
+        return Response.json({
+          summary: {
+            present: 3,
+            paid: 2,
+            unpaid: 1,
+            partial: 0,
+            paymentCount: 3,
+            expectedMinor: 3000,
+            paidMinor: 2000,
+            outstandingMinor: 1000,
+          },
+        });
+      return Response.json({
+        item: String(input).includes("/sessions/")
+          ? { ...session, priceMinor: 1000 }
+          : item,
+      });
+    }),
+  );
+  mount("owner", item.id, session.id);
+  await waitFor(() =>
+    expect(document.querySelectorAll(".session-stats-compact dd")).toHaveLength(
+      3,
+    ),
+  );
+  expect(
+    [...document.querySelectorAll(".session-stats-compact dd")].map(
+      (node) => node.textContent,
+    ),
+  ).toEqual(["3", "2", "1"]);
+  expect(screen.queryByText("Expected")).toBeNull();
+  expect(
+    screen.getByRole("link", { name: "Manage attendance & payments" }),
+  ).toBeTruthy();
+});

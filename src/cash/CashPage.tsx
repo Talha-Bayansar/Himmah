@@ -441,6 +441,7 @@ function Content(
                           {r.allocations.map((a, i) => (
                             <p key={i}>
                               {a.name}: {money(a.amountMinor)}
+                              {a.corrected && " · " + m.management_corrected()}
                             </p>
                           ))}
                         </details>

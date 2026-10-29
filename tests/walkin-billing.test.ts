@@ -219,7 +219,7 @@ test("paid drop-in participants can be charged and pay without any reservation",
       },
     );
     await t.test(
-      "present-only API removes and re-adds with exact retry, without changing payments",
+      "session management clears payment on removal, preserves siblings and retries exactly",
       async () => {
         const path = `https://himmah.test/api/organizations/${org}/activities/${activity}/sessions/${session}/attendance`;
         const call = async (
@@ -263,8 +263,14 @@ test("paid drop-in participants can be charged and pay without any reservation",
         const payload = {
           key: key(),
           action: "remove",
-          personId: a,
-          version: 1,
+          items: [
+            {
+              personId: a,
+              version: 1,
+              paymentVersion: (before as any).version,
+              sessionVersion: 1,
+            },
+          ],
         };
         const removed = await call(payload);
         assert.equal(removed.status, 200);
@@ -306,13 +312,23 @@ test("paid drop-in participants can be charged and pay without any reservation",
           available.some((row: any) => row.id === b),
           false,
         );
-        assert.deepEqual(
-          (await cash.person("owner", org, activity, session, a))[0]!.item,
-          before,
+        assert.equal(
+          (
+            (await cash.person("owner", org, activity, session, a))[0]!
+              .item as any
+          ).paidMinor,
+          0,
+        );
+        assert.equal(
+          (
+            (await cash.person("owner", org, activity, session, b))[0]!
+              .item as any
+          ).paidMinor,
+          500,
         );
         assert.equal(
           (await call({ key: key(), action: "add", personId: a, version: 1 }))
-            .body.items[0].outcome,
+            .body.code,
           "conflict",
         );
         const readded = await call({
@@ -323,9 +339,19 @@ test("paid drop-in participants can be charged and pay without any reservation",
         });
         assert.equal(readded.body.items[0].outcome, "saved");
         assert.equal((await call()).body.summary.present, 2);
-        assert.deepEqual(
-          (await cash.person("owner", org, activity, session, a))[0]!.item,
-          before,
+        assert.equal(
+          (
+            (await cash.person("owner", org, activity, session, a))[0]!
+              .item as any
+          ).paidMinor,
+          0,
+        );
+        assert.equal(
+          (
+            (await cash.person("owner", org, activity, session, b))[0]!
+              .item as any
+          ).paidMinor,
+          500,
         );
         assert.equal(await count("hub_cash_receipts"), 1);
         assert.equal(await count("hub_registration_charges"), 2);
@@ -344,8 +370,8 @@ test("paid drop-in participants can be charged and pay without any reservation",
         // A duplicate add cannot create another participant or attendance event.
         assert.equal(
           (await call({ key: key(), action: "add", personId: a, version: 3 }))
-            .body.items[0].outcome,
-          "unchanged",
+            .body.code,
+          "conflict",
         );
         assert.equal(
           (await attendance.history("owner", org, activity, session, a, p))

@@ -25,6 +25,13 @@ export type AttendanceSummary = {
   canEdit: boolean;
   cancelled: boolean;
   startsAt: string;
+  paid?: number | null;
+  unpaid?: number | null;
+  partial?: number | null;
+  paymentCount?: number | null;
+  expectedMinor?: number | null;
+  paidMinor?: number | null;
+  outstandingMinor?: number | null;
 };
 export type AttendanceChange = {
   id: string;
@@ -94,21 +101,75 @@ export function attendanceInput(
   };
 }
 
-/** Public attendance commands are binary; legacy states remain only in audit storage. */
+export type ParticipantAction = "add" | "remove" | "paid" | "unpaid";
+export type ParticipantCommand = {
+  key: string;
+  action: ParticipantAction;
+  items: {
+    personId: string;
+    version: number;
+    paymentVersion?: number;
+    sessionVersion?: number;
+    amountMinor?: number;
+  }[];
+};
 export function attendanceMembershipInput(
   body: Record<string, unknown>,
-): AttendanceInput {
-  if (body.action !== "add" && body.action !== "remove")
+): ParticipantCommand {
+  if (
+    !["add", "remove", "paid", "unpaid"].includes(String(body.action)) ||
+    "status" in body ||
+    "reason" in body
+  )
     throw new CommunityError("invalid_input");
-  if ("status" in body || "reason" in body || "items" in body)
+  const source = Array.isArray(body.items)
+    ? body.items
+    : [{ personId: body.personId, version: body.version }];
+  if (source.length < 1 || source.length > 50)
     throw new CommunityError("invalid_input");
-  return attendanceInput({
-    key: body.key,
-    status: body.action === "add" ? "present" : "unmarked",
-    reason:
-      body.action === "add"
-        ? "Added to attendance list"
-        : "Removed from attendance list",
-    items: [{ personId: body.personId, version: body.version }],
-  });
+  const items = source
+    .map((v: Record<string, unknown>) => {
+      if (
+        !v ||
+        !Number.isSafeInteger(v.version) ||
+        Number(v.version) < 0 ||
+        Number(v.version) > 2147483646
+      )
+        throw new CommunityError("invalid_input");
+      const item: ParticipantCommand["items"][number] = {
+        personId: uuid(v.personId),
+        version: Number(v.version),
+      };
+      for (const field of [
+        "paymentVersion",
+        "sessionVersion",
+        "amountMinor",
+      ] as const) {
+        if (v[field] !== undefined) {
+          if (
+            !Number.isSafeInteger(v[field]) ||
+            Number(v[field]) < 0 ||
+            Number(v[field]) > 2147483646
+          )
+            throw new CommunityError("invalid_input");
+          item[field] = Number(v[field]);
+        }
+      }
+      if (
+        ["paid", "unpaid"].includes(String(body.action)) &&
+        (item.paymentVersion === undefined ||
+          item.sessionVersion === undefined ||
+          (body.action === "paid" && !item.amountMinor))
+      )
+        throw new CommunityError("invalid_input");
+      return item;
+    })
+    .sort((a, b) => a.personId.localeCompare(b.personId));
+  if (new Set(items.map((v) => v.personId)).size !== items.length)
+    throw new CommunityError("invalid_input");
+  return {
+    key: uuid(body.key),
+    action: body.action as ParticipantAction,
+    items,
+  };
 }
