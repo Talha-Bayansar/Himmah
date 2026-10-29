@@ -243,7 +243,7 @@ export default function Sessions({
           </p>
         )}
         {full && canCash && canOperate && (
-          <Button variant="ghost" className="session-payment-link" asChild>
+          <Button variant="outline" className="session-payment-link" asChild>
             <Link
               to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
               params={{

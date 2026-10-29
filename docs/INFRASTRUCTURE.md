@@ -686,3 +686,7 @@ Deployment confirmed: implementation `0632f45` pushed to `rebuild/people-foundat
 Fixed the Payments navigation row on session detail: a rounded link button with only block borders produced a broken curved outline. It now uses the shared ghost variant with a square, borderless row, leading icon/label and trailing arrow. The primary attendance action is unchanged. Updated the synthetic mobile reference. Typecheck, production build, contrast and diff checks passed; Chromium verified nine EN/NL/TR views at 320/390/768px for zero borders, zero radius, aligned edge icons, 44px minimum height and no overflow.
 
 Deployment verified: `803d88b` pushed; himmah-hub version `f04b1933-d8cf-45f5-8dd8-abcf7027e189` at 100%. Binding names/types, People enabled, maintenance false and minute cron preserved. No database/auth changes.
+
+## 29 October 2026 — restore an outlined Payments button
+
+Owner clarified that Payments should remain visibly a button. Replaced the borderless row with the shared outline variant: a complete border and normal control corners, full width within the parent content box, and 16px internal padding around the leading icon/label and trailing arrow. This supersedes the borderless treatment above. Typecheck, build, contrast and diff checks passed; nine Chromium EN/NL/TR views at 320/390/768px verified all four 1px borders, 12px corners, padded icons, preserved page gutters, 44px minimum height and no overflow. Updated the synthetic mobile reference.

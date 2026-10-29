@@ -2319,9 +2319,10 @@ button[data-slot="button"].people-section-add {
 
 .session-payment-link {
   justify-content: flex-start;
-  padding-inline: 0;
+  width: 100%;
+  min-width: 0;
+  padding-inline: var(--space-4);
   align-self: stretch;
-  border-radius: 0;
 }
 .session-payment-link > svg:last-child {
   margin-inline-start: auto;
