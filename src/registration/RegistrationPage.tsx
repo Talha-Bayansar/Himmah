@@ -296,6 +296,21 @@ function Content({
                 <Settings2 aria-hidden="true" />
                 {m.registration_settings()}
               </Button>
+              {(summary.priceMinor ?? 0) > 0 && (
+                <Button variant="link" size="sm" asChild>
+                  <Link
+                    to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
+                    params={{
+                      organizationId: organization.id,
+                      activityId,
+                      sessionId,
+                    }}
+                    search={{ q: "", view: "all" }}
+                  >
+                    {m.cash_title()}
+                  </Link>
+                </Button>
+              )}
               {!summary.canConfigure && (
                 <p id="registration-settings-locked">
                   {m.registration_settings_locked_help()}
@@ -387,6 +402,14 @@ function Content({
                               locale,
                             ),
                           })}
+                          {" · " +
+                            ((item as RegistrationRow).charge!.paidMinor ===
+                            (item as RegistrationRow).charge!.amountMinor
+                              ? m.cash_paid()
+                              : ((item as RegistrationRow).charge!.paidMinor ??
+                                    0) > 0
+                                ? m.cash_partial()
+                                : m.cash_unpaid())}
                           {(item as RegistrationRow).charge!.reviewRequired &&
                             " · " + m.pricing_review()}
                         </>

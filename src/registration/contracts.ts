@@ -29,6 +29,7 @@ export type RegistrationSummary = {
 export type RegistrationRow = {
   charge?: {
     amountMinor: number;
+    paidMinor?: number;
     currency: string;
     reviewRequired: boolean;
   } | null;

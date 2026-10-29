@@ -26,6 +26,8 @@ import { Route as WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport } from '
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId_.$view'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
+import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.cash'
+import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.record-cash'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.registrations'
 
 const IndexRoute = IndexRouteImport.update({
@@ -129,6 +131,24 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRout
         WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute,
     } as any,
   )
+const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute =
+  WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRouteImport.update(
+    {
+      id: '/cash',
+      path: '/cash',
+      getParentRoute: () =>
+        WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute,
+    } as any,
+  )
+const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute =
+  WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRouteImport.update(
+    {
+      id: '/record-cash',
+      path: '/record-cash',
+      getParentRoute: () =>
+        WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute,
+    } as any,
+  )
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute =
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRouteImport.update(
     {
@@ -157,6 +177,8 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 export interface FileRoutesByTo {
@@ -177,6 +199,8 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 export interface FileRoutesById {
@@ -198,6 +222,8 @@ export interface FileRoutesById {
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts_/$contactId_/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
+  '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 export interface FileRouteTypes {
@@ -220,6 +246,8 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -240,6 +268,8 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
   id:
     | '__root__'
@@ -260,6 +290,8 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts_/$contactId_/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
+    | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
   fileRoutesById: FileRoutesById
 }
@@ -402,6 +434,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport
       parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute
     }
+    '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': {
+      id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
+      path: '/cash'
+      fullPath: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
+      preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute
+    }
+    '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': {
+      id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
+      path: '/record-cash'
+      fullPath: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
+      preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute
+    }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations': {
       id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/registrations'
       path: '/registrations'
@@ -414,6 +460,8 @@ declare module '@tanstack/react-router' {
 
 interface WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteChildren {
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
+  WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
+  WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute
 }
 
@@ -421,6 +469,10 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteChildren:
   {
     WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute:
       WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute,
+    WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute:
+      WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute,
+    WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute:
+      WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute,
     WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute:
       WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRegistrationsRoute,
   }

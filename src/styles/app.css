@@ -5396,3 +5396,62 @@ button[data-slot="button"].people-section-add {
 .pricing-fields label + input {
   margin-top: 8px;
 }
+
+.cash-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 16px;
+  margin: 0 0 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--white);
+}
+.cash-totals dt {
+  font-size: 13px;
+  color: #52665b;
+}
+.cash-totals dd {
+  margin: 4px 0 0;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.cash-page .directory-heading {
+  flex-direction: row;
+  align-items: center;
+}
+.cash-page .people-section-add span {
+  display: none;
+}
+.cash-allocation {
+  display: grid;
+  gap: 8px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.cash-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  width: 100%;
+  cursor: pointer;
+}
+.cash-allocation-total {
+  font-weight: 600;
+}
+@media (min-width: 640px) {
+  .cash-page .people-section-add span {
+    display: inline;
+  }
+  .cash-totals {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.cash-receipt-record {
+  flex: 1;
+  min-width: 0;
+}
+.cash-receipt-record > details {
+  margin-inline-start: 52px;
+}

@@ -41,18 +41,19 @@ export function AccessEditor({
       volunteer: null as RecordOption | null,
       target: null as RecordOption | null,
       canAttend: assignment?.canAttend ?? false,
+      canCollect: assignment?.canCollect ?? false,
     },
     onSubmit: async ({ value }) => {
       if (!attempt.current) {
-        if (!value.canAttend) {
+        if (!value.canAttend && !value.canCollect) {
           submit.reset();
           throw new DirectoryError("access_capabilities");
         }
         if (!assignment && (!value.volunteer || !value.target)) return;
         if (
           assignment &&
-          assignment.canAttend &&
-          !value.canAttend &&
+          ((assignment.canAttend && !value.canAttend) ||
+            (assignment.canCollect && !value.canCollect)) &&
           !(await confirm({
             title: m.access_edit(),
             description: m.access_reduce_help(),
@@ -64,6 +65,7 @@ export function AccessEditor({
         attempt.current = assignment
           ? {
               canAttend: value.canAttend,
+              canCollect: value.canCollect,
               version: assignment.version,
             }
           : {
@@ -71,6 +73,7 @@ export function AccessEditor({
               groupId: mode === "groups" ? value.target!.id : null,
               activityId: mode === "activities" ? value.target!.id : null,
               canAttend: value.canAttend,
+              canCollect: value.canCollect,
               key: crypto.randomUUID(),
             };
       }
@@ -245,7 +248,7 @@ export function AccessEditor({
             )}
           </>
         )}
-        {(["canAttend"] as const).map((name) => (
+        {(["canAttend", "canCollect"] as const).map((name) => (
           <form.Field key={name} name={name}>
             {(field) => (
               <div>
@@ -257,10 +260,16 @@ export function AccessEditor({
                       field.handleChange(checked === true)
                     }
                   />
-                  <span>{m.access_attend()}</span>
+                  <span>
+                    {name === "canAttend"
+                      ? m.access_attend()
+                      : m.cash_collect_permission()}
+                  </span>
                 </Label>
                 <p className="access-permission-help">
-                  {m.access_attend_help()}
+                  {name === "canAttend"
+                    ? m.access_attend_help()
+                    : m.cash_collect_permission_help()}
                 </p>
               </div>
             )}
@@ -283,7 +292,7 @@ export function AccessEditor({
             pending={submit.isPending}
             disabled={
               (!assignment && (!values.volunteer || !values.target)) ||
-              !values.canAttend
+              (!values.canAttend && !values.canCollect)
             }
           >
             <Save aria-hidden="true" />

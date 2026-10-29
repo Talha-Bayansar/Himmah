@@ -200,6 +200,7 @@ test("paid registration charges are atomic, immutable, tenant scoped and indepen
     assert.deepEqual(rows[0]!.charge, {
       amountMinor: 1000,
       currency: "EUR",
+      paidMinor: 0,
       reviewRequired: false,
     });
     await access.save("owner", org, null, key(), {

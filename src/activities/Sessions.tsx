@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   ArrowRight,
+  Banknote,
   Ban,
   CalendarDays,
   ClipboardCheck,
@@ -115,6 +116,8 @@ export default function Sessions({
   const row = (item: Session, full = false) => {
     const past = Date.parse(item.startsAt) <= Date.now();
     const canOperate = canManage || item.canAttend === true;
+    const canCash =
+      (canManage || item.canCollect === true) && (item.priceMinor ?? 0) > 0;
     const label = new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
       timeStyle: "short",
@@ -143,10 +146,30 @@ export default function Sessions({
               <p className="activity-status">{m.sessions_cancelled()}</p>
             )}
           </div>
-          {(canOperate || (canManage && !item.cancelled && !past)) && (
+          {(canOperate ||
+            canCash ||
+            (canManage && !item.cancelled && !past)) && (
             <ItemActions
               name={label}
               actions={[
+                ...(canCash && (!full || canOperate)
+                  ? [
+                      {
+                        label: m.cash_title(),
+                        icon: Banknote,
+                        onSelect: () =>
+                          navigate({
+                            to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash",
+                            params: {
+                              organizationId: organization.id,
+                              activityId: activity.id,
+                              sessionId: item.id,
+                            },
+                            search: { q: "", view: "all" },
+                          }),
+                      },
+                    ]
+                  : []),
                 ...(canOperate
                   ? [
                       {
@@ -296,6 +319,22 @@ export default function Sessions({
               </Link>
             </Button>
           </div>
+        )}
+        {full && !canOperate && canCash && (
+          <Button className="activity-card-primary" asChild>
+            <Link
+              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
+              params={{
+                organizationId: organization.id,
+                activityId: activity.id,
+                sessionId: item.id,
+              }}
+              search={{ q: "", view: "all" }}
+            >
+              <Banknote aria-hidden="true" />
+              {m.cash_title()}
+            </Link>
+          </Button>
         )}
         {item.cancelled && item.cancellationReason && (
           <p className="activity-description">{item.cancellationReason}</p>

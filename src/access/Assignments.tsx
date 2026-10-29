@@ -146,6 +146,9 @@ export default function Assignments({
                             ? m.access_inactive()
                             : m.access_active()}
                         {item.canAttend && <> · {m.access_attend()}</>}
+                        {item.canCollect && (
+                          <> · {m.cash_collect_permission()}</>
+                        )}
                       </>
                     }
                   />
@@ -233,7 +236,7 @@ function AccessHistory({
     createdAt: string;
     action: string;
     actorName: string | null;
-    after: { can_attend: boolean };
+    after: { can_attend: boolean; can_collect?: boolean };
   }>(scope, path);
   return (
     <Dialog
@@ -295,7 +298,12 @@ function AccessHistory({
                           }).format(new Date(row.createdAt))}
                         </p>
                         <small>
-                          {[row.after.can_attend ? m.access_attend() : null]
+                          {[
+                            row.after.can_attend ? m.access_attend() : null,
+                            row.after.can_collect
+                              ? m.cash_collect_permission()
+                              : null,
+                          ]
                             .filter(Boolean)
                             .join(" · ")}
                         </small>

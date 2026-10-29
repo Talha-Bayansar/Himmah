@@ -8,7 +8,7 @@ const page = (p: PageInput, at: SQL, id: SQL, idType = "uuid") =>
     ? sql`and (${at},${id})<(${p.after.at}::timestamptz,${p.after.id}${sql.raw("::" + idType)})`
     : sql``;
 const pattern = (q: string) => "%" + q.replace(/[\\%_]/g, "\\$&") + "%";
-const projection = sql`exists(select 1 from hub_active_access(v.user_id,v.organization_id) active where active.id=v.id) as effective,v.id,v.user_id as "userId",coalesce(m.display_name,v.staff_name) as "staffName",v.scope_name as "scopeName",v.group_id as "groupId",v.activity_id as "activityId",v.can_attend as "canAttend",v.version,v.created_at::text as "createdAt",v.revoked_at::text as "revokedAt",v.revoke_reason as "revokeReason"`;
+const projection = sql`exists(select 1 from hub_active_access(v.user_id,v.organization_id) active where active.id=v.id) as effective,v.id,v.user_id as "userId",coalesce(hub_cash_actor_name(v.user_id,v.organization_id),nullif(v.staff_name,''),'') as "staffName",v.scope_name as "scopeName",v.group_id as "groupId",v.activity_id as "activityId",v.can_attend as "canAttend",v.can_collect as "canCollect",v.version,v.created_at::text as "createdAt",v.revoked_at::text as "revokedAt",v.revoke_reason as "revokeReason"`;
 export function createAccessStore(
   url: string,
   execute?: (s: SQL) => Promise<Record<string, unknown>[]>,
@@ -21,12 +21,12 @@ export function createAccessStore(
   return {
     me(user: string, org: string) {
       return rows(
-        sql`select coalesce(bool_or(can_attend),false) as "canAttend" from hub_active_access(${user},${org}::uuid)`,
+        sql`select coalesce(bool_or(can_attend),false) as "canAttend",coalesce(bool_or(can_collect),false) as "canCollect" from hub_active_access(${user},${org}::uuid)`,
       );
     },
     list(user: string, org: string, p: PageInput) {
       return rows(
-        sql`select ${projection} from hub_volunteer_assignments v left join hub_memberships m on m.organization_id=v.organization_id and m.user_id=v.user_id where v.organization_id=${org}::uuid and hub_is_admin(${user},${org}::uuid) and (v.revoked_at is not null)=${p.archived} and (v.scope_name ilike ${pattern(p.query)} or coalesce(m.display_name,v.staff_name) ilike ${pattern(p.query)}) ${page(p, sql`v.created_at`, sql`v.id`)} order by v.created_at desc,v.id desc limit ${p.limit + 1}`,
+        sql`select ${projection} from hub_volunteer_assignments v left join hub_memberships m on m.organization_id=v.organization_id and m.user_id=v.user_id where v.organization_id=${org}::uuid and hub_is_admin(${user},${org}::uuid) and (v.revoked_at is not null)=${p.archived} and (v.scope_name ilike ${pattern(p.query)} or coalesce(hub_cash_actor_name(v.user_id,v.organization_id),nullif(v.staff_name,''),'') ilike ${pattern(p.query)}) ${page(p, sql`v.created_at`, sql`v.id`)} order by v.created_at desc,v.id desc limit ${p.limit + 1}`,
       );
     },
     get(user: string, org: string, id: string) {
@@ -36,7 +36,7 @@ export function createAccessStore(
     },
     staff(user: string, org: string, p: PageInput) {
       return rows(
-        sql`select user_id as id,coalesce(display_name,'') as name,created_at::text as "createdAt" from hub_memberships where organization_id=${org}::uuid and role='volunteer' and hub_is_admin(${user},${org}::uuid) and coalesce(display_name,'') ilike ${pattern(p.query)} ${page(p, sql`created_at`, sql`user_id`, "text")} order by created_at desc,user_id desc limit ${p.limit + 1}`,
+        sql`select user_id as id,coalesce(hub_cash_actor_name(user_id,organization_id),'') as name,created_at::text as "createdAt" from hub_memberships where organization_id=${org}::uuid and role='volunteer' and hub_is_admin(${user},${org}::uuid) and coalesce(hub_cash_actor_name(user_id,organization_id),'') ilike ${pattern(p.query)} ${page(p, sql`created_at`, sql`user_id`, "text")} order by created_at desc,user_id desc limit ${p.limit + 1}`,
       );
     },
     history(user: string, org: string, id: string, p: PageInput) {

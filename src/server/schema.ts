@@ -357,6 +357,7 @@ export const volunteerAssignments = pgTable(
     activityId: uuid("activity_id"),
     scopeName: text("scope_name").notNull(),
     canAttend: boolean("can_attend").notNull(),
+    canCollect: boolean("can_collect").notNull().default(false),
     version: integer("version").notNull().default(1),
     createdBy: text("created_by").notNull(),
     creationKey: uuid("creation_key").notNull(),
@@ -712,8 +713,128 @@ export const registrationCharges = pgTable(
       columns: [t.organizationId, t.registrationId],
       foreignColumns: [registrations.organizationId, registrations.id],
     }),
+    unique("hub_charge_scope").on(t.organizationId, t.id),
     unique("hub_charge_registration").on(t.organizationId, t.registrationId),
     check("hub_charge_amount", sql`${t.amountMinor} between 1 and 100000000`),
     check("hub_charge_currency", sql`${t.currency}='EUR'`),
+  ],
+);
+
+export const cashReceipts = pgTable(
+  "hub_cash_receipts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    payerLabel: text("payer_label").notNull().default(""),
+    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_cash_receipt_scope").on(t.organizationId, t.id),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
+    check(
+      "hub_cash_receipt_amount",
+      sql`${t.amountMinor} between 1 and 100000000`,
+    ),
+    check("hub_cash_receipt_currency", sql`${t.currency}='EUR'`),
+    check("hub_cash_payer_bound", sql`length(${t.payerLabel})<=100`),
+    index("hub_cash_receipt_page").on(
+      t.organizationId,
+      t.sessionId,
+      t.createdAt,
+      t.id,
+    ),
+  ],
+);
+export const cashAllocations = pgTable(
+  "hub_cash_allocations",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    receiptId: uuid("receipt_id").notNull(),
+    chargeId: uuid("charge_id").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.receiptId, t.chargeId] }),
+    foreignKey({
+      columns: [t.organizationId, t.receiptId],
+      foreignColumns: [cashReceipts.organizationId, cashReceipts.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.chargeId],
+      foreignColumns: [
+        registrationCharges.organizationId,
+        registrationCharges.id,
+      ],
+    }),
+    check(
+      "hub_cash_allocation_amount",
+      sql`${t.amountMinor} between 1 and 100000000`,
+    ),
+    index("hub_cash_allocation_charge").on(t.organizationId, t.chargeId),
+  ],
+);
+export const cashReversals = pgTable(
+  "hub_cash_reversals",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    receiptId: uuid("receipt_id").notNull(),
+    reason: text("reason").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_cash_reversal_receipt").on(t.organizationId, t.receiptId),
+    foreignKey({
+      columns: [t.organizationId, t.receiptId],
+      foreignColumns: [cashReceipts.organizationId, cashReceipts.id],
+    }),
+    check(
+      "hub_cash_reversal_reason",
+      sql`length(trim(${t.reason})) between 1 and 300`,
+    ),
+  ],
+);
+export const cashRequests = pgTable(
+  "hub_cash_requests",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id").notNull(),
+    actorId: text("actor_id").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.requestKey] }),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }),
   ],
 );

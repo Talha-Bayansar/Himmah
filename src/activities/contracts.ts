@@ -29,6 +29,7 @@ export type Session = {
     remaining: number | null;
   } | null;
   canAttend?: boolean;
+  canCollect?: boolean;
   registrationLocked?: boolean;
   id: string;
   activityId: string;

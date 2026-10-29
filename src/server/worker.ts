@@ -1,3 +1,5 @@
+import { cashApi } from "./cash-api.ts";
+import { createCashStore } from "./cash-store.ts";
 import { registrationApi } from "./registration-api.ts";
 import { createRegistrationStore } from "./registration-store.ts";
 import { peopleApi } from "../modules/people/api.ts";
@@ -304,6 +306,13 @@ export function createHandler(
           ).limit({ key: `activities:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
         }
+        const cashResponse = await cashApi(
+          request,
+          user,
+          store,
+          createCashStore(env.HIMMAH_DATABASE_URL),
+        );
+        if (cashResponse) return cashResponse;
         const registrationResponse = await registrationApi(
           request,
           user,

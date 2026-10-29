@@ -10,6 +10,8 @@ The owner requested two form categories on 28 October 2026. The implementation k
 | Contact relationship creation | Dedicated page | Contact/type selection, direction and relationship preview |
 | Communication responsibility creation | Dedicated page | Contact, purpose, channel and priority |
 | Bulk group member assignment | Dedicated page | Paginated multiple selection and partial-save outcomes |
+| Session cash receipt and multi-contact allocation | Dedicated page | Receipt details, occurrence time and up to 50 allocations |
+| Incorrect cash receipt correction | Bottom sheet | Short reason, preserved request identity and confirmation |
 | Contact creation/name editing | Bottom sheet | Three short name fields |
 | Contact phone/email editing | Bottom sheet | Kind, value and preferred flag |
 | Group creation/editing | Bottom sheet | Name and description |
@@ -22,10 +24,12 @@ The owner requested two form categories on 28 October 2026. The implementation k
 | End membership/relationship/responsibility | Bottom sheet | Reason and optional note |
 | Sign-in, sign-up, verification, password recovery, organization setup and profile/settings | Existing page | Already have page space and established navigation |
 
-Complex workflows have independently reloadable routes at `/workspace/$organizationId/forms/$form/$recordId`; `new` identifies creation. Existing records load through authorized APIs, independently of the previous screen's cache. The surrounding organization portal remains responsible for account/organization scope. Server permissions, optimistic versions, request keys and audit rules remain authoritative.
+Directory edit workflows have independently reloadable routes at `/workspace/$organizationId/forms/$form/$recordId`; `new` identifies creation. Existing records load through authorized APIs, independently of the previous screen's cache. The surrounding organization portal remains responsible for account/organization scope. Server permissions, optimistic versions, request keys and audit rules remain authoritative.
 
 `FormSurface` provides a named page heading or the existing shadcn Drawer/Vaul primitive. Short forms open from the bottom on all viewport sizes, with a drag handle, rounded top, constrained desktop width, focus restoration, safe-area padding and visual-viewport sizing. Long sheet content can scroll when the keyboard reduces space. Page forms use document scrolling. Opening a form does not autofocus a field or page heading. Keyboard navigation, sheet focus trapping and focus restoration remain available. Every form retains explicit Cancel/Save controls and mutation-local pending states. Read-only history, organization switching, link sharing and destructive confirmation overlays are outside the form classification.
 
 Unsaved drafts prompt on navigation/dismissal. An approved Cancel/Back action bypasses the navigation guard once, avoiding a second prompt. Pending saves cannot be dismissed. Failed saves preserve entered values and retry identity; successful saves return without a discard prompt. Page return links retain the originating route and filters, are normalized and restricted to the same organization. Directly opened forms have a stable fallback destination.
 
 No database schema or API contract change is required. Browser viewport/gesture evidence and deployment status are recorded in [infrastructure history](INFRASTRUCTURE.md). Browser fixtures use synthetic records and do not replace physical iOS/Android keyboard testing.
+
+Session cash collection uses the independently reloadable record-cash route because receipt details, occurrence time and multi-contact allocations form one complex workflow. Reasoned correction of an incorrect receipt uses the shared short bottom sheet and confirmation alert. Both preserve uncertain request identity and unsaved drafts.

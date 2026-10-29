@@ -49,6 +49,8 @@ Owner card action hierarchy: each entity card has at most one prominent primary 
 
 Owner-approved pricing increment: follow docs/PRICING.md. Free by default; per-contact EUR session fees use bounded integer cents, activity defaults snapshot into new sessions, first registration locks session pricing. A paid reservation and immutable principal charge commit together; current access precedes receipt replay. Cancellation retains charges for explicit review; no inferred cash, waiver/refund or attendance. Monetary per-contact reads remain administrator-only until separate cash capabilities are implemented.
 
+Owner-approved cash collection: follow docs/CASH.md. Separate canCollect grants from attendance; scope every balance/read/write/retry to current contacts/session. Immutable receipts and allocations use integer cents, charge-version checks and one transactional request receipt. One same-session receipt may cover multiple contacts; unallocated cash is explicit. Correcting an incorrect receipt is owner/admin-only, reasoned and append-only; it is not a refund or charge waiver. No inferred money from attendance, no offline financial writes, no full receipt/history or organization cash totals for scoped collectors.
+
 ## Workflow and validation
 
 Use rg for discovery. Carry authorized work through relevant checks without repeated routine permission questions. Do not send external messages/invitations, synthetic real-device pushes, provision services or deploy without applicable authorization. No delegation requested.

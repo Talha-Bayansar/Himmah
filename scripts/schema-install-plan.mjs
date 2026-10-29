@@ -17,6 +17,7 @@ export async function schemaInstallPlan() {
       "notifications",
       "registration",
       "pricing",
+      "cash",
     ].map((f) => "db/migrations/functions/" + f + ".sql"),
   ];
   const sources = await Promise.all(
