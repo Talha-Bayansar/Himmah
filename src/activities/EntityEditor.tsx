@@ -215,7 +215,7 @@ export function EntityEditor({
                         form.setFieldValue(
                           "endLocal",
                           Number.isFinite(start)
-                            ? new Date(start + 30 * 60_000)
+                            ? new Date(start + 60 * 60_000)
                                 .toISOString()
                                 .slice(0, 16)
                             : "",

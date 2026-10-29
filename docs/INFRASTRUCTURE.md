@@ -632,3 +632,7 @@ Validation: `npm run check` passed 184 tests (81 Node/domain/SQL/API, three actu
 Final targeted SQL rerun after tightening session-creation price replay passed all 13 core/pricing checks. Both current-baseline pricing upgrade and older-baseline registration upgrade plans are covered; the older registration plan now includes required pricing dependencies. The four pricing/upgrade tests pass separately. Final strict types, Prettier and documentation checks pass.
 
 Published commit `99828da`; Cloudflare version `da89a6f4-129c-4b35-b589-da53494d8d4d` is verified active at 100%. All dedicated bindings, maintenance false, People enabled and minute cron retained. Both verified databases have the matching pricing receipt. No real hosted registration/charge was created as a deployment test.
+
+## 29 October 2026 — One-hour default session duration
+
+At the owner's request, start changes now prefill the end one hour later. Existing saved durations remain intact when opening a form, and staff can override the calculated end. All 11 activity UI tests, strict types, production build, docs and Prettier pass; regression assertions cover year rollover and manual end override. No schema/database changes.
