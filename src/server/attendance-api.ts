@@ -49,7 +49,7 @@ export async function attendanceApi(
     if (request.method === "GET") {
       const status = url.searchParams.get("status") ?? "all",
         roster = url.searchParams.get("roster") ?? "all";
-      if (!["all", "registered", "expected"].includes(roster))
+      if (!["all", "participants", "registered", "expected"].includes(roster))
         throw new CommunityError("invalid_input");
       if (!["all", ...attendanceStatuses].includes(status))
         throw new CommunityError("invalid_input");
@@ -81,7 +81,7 @@ export async function attendanceApi(
           session,
           input,
           status as AttendanceStatus | "all",
-          roster as "all" | "registered" | "expected",
+          roster as "all" | "participants" | "registered" | "expected",
         ),
         attendance.summary(user.id, org, activity, session),
       ]);

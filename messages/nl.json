@@ -694,5 +694,9 @@
   "registration_optional_short": "Inschrijven is optioneel",
   "registration_settings_locked_short": "Instellingen zijn vergrendeld",
   "quick_cash_receipt_details": "Bongegevens (optioneel)",
-  "quick_cash_people": "Personen"
+  "quick_cash_people": "Personen",
+  "attendance_add": "Deelnemer toevoegen",
+  "attendance_add_help": "Kies een contact en registreer de aanwezigheid. Betalingen registreer je daarna bij de deelnemer.",
+  "attendance_roster_participants": "Deelnemers van deze sessie",
+  "attendance_added": "Staat al op deze lijst"
 }

@@ -1020,16 +1020,15 @@ html {
   overflow-wrap: anywhere;
 }
 .attendance-totals {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
   margin: 0;
 }
 .attendance-totals > div {
-  padding: var(--space-4);
-  border: 0;
-  border-radius: var(--radius-control);
-  background: var(--muted);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
 }
 .attendance-totals dt {
   font-size: var(--text-supporting);
@@ -1037,8 +1036,8 @@ html {
   color: var(--muted-foreground);
 }
 .attendance-totals dd {
-  margin: 4px 0 0;
-  font-size: 24px;
+  margin: 0;
+  font-size: 18px;
   line-height: 1.2;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1185,9 +1184,6 @@ html {
   color: var(--muted-foreground);
 }
 @media (min-width: 768px) {
-  .attendance-totals {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
   .attendance-filters {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     align-items: end;
@@ -2197,6 +2193,7 @@ button[data-slot="button"].people-section-add {
 .attendance-payment[data-billing-state="paid"] {
   color: var(--status-positive);
 }
+.attendance-payment[data-billing-state="not_charged"],
 .attendance-payment[data-billing-state="unpaid"],
 .attendance-payment[data-billing-state="partial"] {
   color: var(--status-warning);
@@ -2340,4 +2337,23 @@ button[data-slot="button"].people-section-add {
   border: 1px solid var(--border);
   border-radius: var(--radius-control);
   padding-inline: var(--space-3);
+}
+
+.attendance-picker-list {
+  margin-block: var(--space-4);
+}
+.attendance-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+.attendance-picker-row > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.attendance-picker-row > button {
+  flex-shrink: 0;
 }

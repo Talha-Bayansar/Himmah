@@ -193,6 +193,26 @@ test("Retained scheduling, attendance, staff access and notifications operate on
           [contact],
         );
         assert.equal(rows[0]!.status, "unmarked");
+        // Eligible contacts are searchable, but do not populate the session list until recorded.
+        assert.equal(
+          (
+            await attendance.list(
+              "owner",
+              org,
+              activity,
+              session,
+              p,
+              "all",
+              "participants",
+            )
+          ).length,
+          0,
+        );
+        assert.equal(
+          (await attendance.summary("owner", org, activity, session))[0]!.total,
+          0,
+        );
+
         const k = key(),
           input = {
             key: k,
@@ -205,6 +225,26 @@ test("Retained scheduling, attendance, staff access and notifications operate on
         )[0]!.result as any;
         assert.equal(first.items[0].outcome, "saved");
         assert.equal(first.items[0].pointsDelta, undefined);
+        assert.deepEqual(
+          (
+            await attendance.list(
+              "owner",
+              org,
+              activity,
+              session,
+              p,
+              "all",
+              "participants",
+            )
+          ).map((row) => row.id),
+          [contact],
+        );
+        assert.equal(
+          (await attendance.summary("owner", org, activity, session))[0]!
+            .present,
+          1,
+        );
+
         assert.deepEqual(
           (await attendance.save("owner", org, activity, session, input))[0]!
             .result,

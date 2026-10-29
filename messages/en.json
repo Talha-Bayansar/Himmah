@@ -694,5 +694,9 @@
   "registration_optional_short": "Registration optional",
   "registration_settings_locked_short": "Settings are locked",
   "quick_cash_receipt_details": "Receipt details (optional)",
-  "quick_cash_people": "People"
+  "quick_cash_people": "People",
+  "attendance_add": "Add participant",
+  "attendance_add_help": "Choose a contact and record their attendance. Payment can be recorded from their row.",
+  "attendance_roster_participants": "Session participants",
+  "attendance_added": "Already on this list"
 }

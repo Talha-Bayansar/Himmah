@@ -152,7 +152,7 @@ export default function Sessions({
             <ItemActions
               name={label}
               actions={[
-                ...(canCash && !full
+                ...(canCash
                   ? [
                       {
                         label: m.cash_title(),
@@ -241,23 +241,6 @@ export default function Sessions({
               price: sessionPrice(item.priceMinor!, locale),
             })}
           </p>
-        )}
-        {full && canCash && canOperate && (
-          <Button variant="outline" className="session-payment-link" asChild>
-            <Link
-              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash"
-              params={{
-                organizationId: organization.id,
-                activityId: activity.id,
-                sessionId: item.id,
-              }}
-              search={{ q: "", view: "all" }}
-            >
-              <Banknote aria-hidden="true" />
-              {m.cash_title()}
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          </Button>
         )}
         {canOperate && item.registration && (
           <div className="session-registration-summary">

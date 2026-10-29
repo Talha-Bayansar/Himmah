@@ -118,3 +118,7 @@ These are synthetic-data Chromium captures of the implemented design in Dutch at
 - [Short contact form sheet](design/contact-sheet-mobile.png)
 - [Complex cash form page](design/cash-form-mobile.png)
 - [Quick single-person payment sheet](design/quick-payment-mobile.png)
+
+### Attendance-first session work
+
+Use attendance as the main daily participant list: add a contact, record attendance, and see or record their payment on that row. Keep eligible-contact discovery in the Add participant sheet and secondary roster filters. Do not require a separate Payments visit for ordinary collection. Retain explicit financial review, scope restrictions and correction history.

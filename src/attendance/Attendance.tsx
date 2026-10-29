@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import {
   Banknote,
+  Plus,
   ClipboardCheck,
   History,
   Search,
@@ -35,6 +36,7 @@ import {
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
+import { AttendancePicker } from "./AttendancePicker";
 import { AttendanceEditor } from "./AttendanceEditor";
 import { AttendanceHistory } from "./AttendanceHistory";
 import {
@@ -90,6 +92,7 @@ export default function Attendance({
     canManage =
       isAdmin || (!access.isError && access.data?.item.canAttend === true),
     [financialDenied, setFinancialDenied] = useState(false),
+    [adding, setAdding] = useState(false),
     [selected, setSelected] = useState<Map<string, AttendancePerson>>(
       new Map(),
     ),
@@ -99,7 +102,7 @@ export default function Attendance({
     [lastPeople, setLastPeople] = useState<AttendancePerson[]>([]);
   const search = typeof filters.q === "string" ? filters.q : "",
     status = filters.status ?? "all",
-    rosterFilter = filters.roster ?? "all";
+    rosterFilter = filters.roster ?? "participants";
   const billingActions = useBillingActions(
     userId,
     organization.id,
@@ -227,6 +230,10 @@ export default function Attendance({
             {m.attendance_title()}
           </h1>
         </div>
+        <Button disabled={!canEdit} onClick={() => setAdding(true)}>
+          <Plus aria-hidden="true" />
+          {m.attendance_add()}
+        </Button>
       </div>
       {session.isPending ? (
         <ListSkeleton />
@@ -314,7 +321,11 @@ export default function Attendance({
         </label>
         <details
           className="session-help attendance-filter-options"
-          open={rosterFilter !== "all" || status !== "all" ? true : undefined}
+          open={
+            rosterFilter !== "participants" || status !== "all"
+              ? true
+              : undefined
+          }
         >
           <summary>{m.attendance_filter()}</summary>
           <div>
@@ -324,11 +335,13 @@ export default function Attendance({
               value={rosterFilter}
               onChange={(e) => changeFilter("roster", e.target.value)}
             >
-              {(["all", "registered", "expected"] as const).map((v) => (
-                <NativeSelectOption key={v} value={v}>
-                  {m[("attendance_roster_" + v) as "attendance_roster_all"]()}
-                </NativeSelectOption>
-              ))}
+              {(["participants", "all", "registered", "expected"] as const).map(
+                (v) => (
+                  <NativeSelectOption key={v} value={v}>
+                    {m[("attendance_roster_" + v) as "attendance_roster_all"]()}
+                  </NativeSelectOption>
+                ),
+              )}
             </NativeSelect>
             <Label htmlFor="attendance-filter">{m.attendance_filter()}</Label>
             <NativeSelect
@@ -420,7 +433,7 @@ export default function Attendance({
                         data-billing-state={row.billing.status}
                       >
                         {row.billing.status === "not_charged"
-                          ? m.billing_not_charged()
+                          ? m.cash_unpaid()
                           : row.billing.status === "paid"
                             ? m.cash_paid()
                             : row.billing.status === "partial"
@@ -539,6 +552,17 @@ export default function Attendance({
           )}
           <InfiniteFooter {...roster} />
         </>
+      )}
+      {adding && canEdit && (
+        <AttendancePicker
+          path={base + "/attendance"}
+          queryKey={key}
+          onClose={() => setAdding(false)}
+          onSelect={(person) => {
+            setAdding(false);
+            setEditor([person]);
+          }}
+        />
       )}
       {editor && (
         <AttendanceEditor

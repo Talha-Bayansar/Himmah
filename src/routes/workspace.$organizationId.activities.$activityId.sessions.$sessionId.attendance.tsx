@@ -12,9 +12,11 @@ export const Route = createFileRoute(
     )
       ? String(s.status)
       : "all",
-    roster: ["all", "registered", "expected"].includes(String(s.roster))
+    roster: ["all", "participants", "registered", "expected"].includes(
+      String(s.roster),
+    )
       ? String(s.roster)
-      : "all",
+      : "participants",
   }),
   component: AttendancePage,
 });

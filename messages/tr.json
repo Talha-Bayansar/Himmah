@@ -694,5 +694,9 @@
   "registration_optional_short": "Kayıt isteğe bağlı",
   "registration_settings_locked_short": "Ayarlar kilitli",
   "quick_cash_receipt_details": "Makbuz bilgileri (isteğe bağlı)",
-  "quick_cash_people": "Kişiler"
+  "quick_cash_people": "Kişiler",
+  "attendance_add": "Katılımcı ekle",
+  "attendance_add_help": "Bir kişi seçip katılımını kaydedin. Ardından kişinin satırından ödeme kaydedebilirsiniz.",
+  "attendance_roster_participants": "Oturum katılımcıları",
+  "attendance_added": "Zaten bu listede"
 }

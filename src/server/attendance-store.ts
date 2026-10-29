@@ -33,15 +33,15 @@ export function createAttendanceStore(
       session: string,
       p: PageInput,
       status: AttendanceStatus | "all",
-      filter: "all" | "registered" | "expected" = "all",
+      filter: "all" | "participants" | "registered" | "expected" = "all",
     ) {
       return rows(
-        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "participants" ? sql`(version>0 or registered or expected)` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
       );
     },
     summary(user: string, org: string, activity: string, session: string) {
       return rows(
-        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select count(*)::int as total,count(*) filter(where status='present')::int as present,count(*) filter(where status='absent')::int as absent,count(*) filter(where status='excused')::int as excused,count(*) filter(where status='unmarked')::int as unmarked,coalesce((select not cancelled and starts_at<=clock_timestamp() from session),false) as "canEdit",(select cancelled from session) as cancelled,(select starts_at::text from session) as "startsAt" from visible`,
+        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select count(*)::int as total,count(*) filter(where status='present')::int as present,count(*) filter(where status='absent')::int as absent,count(*) filter(where status='excused')::int as excused,count(*) filter(where status='unmarked')::int as unmarked,coalesce((select not cancelled and starts_at<=clock_timestamp() from session),false) as "canEdit",(select cancelled from session) as cancelled,(select starts_at::text from session) as "startsAt" from visible where version>0 or registered or expected`,
       );
     },
     history(

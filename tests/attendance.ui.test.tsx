@@ -75,7 +75,7 @@ function mount(role = "owner") {
     validateSearch: (s: Record<string, unknown>) => ({
       q: s.q ?? "",
       status: s.status ?? "all",
-      roster: s.roster ?? "all",
+      roster: s.roster ?? "participants",
     }),
     component: () => (
       <Attendance
@@ -439,7 +439,7 @@ it("attendance can add a paid drop-in charge without creating a reservation", as
   );
   mount();
   const user = userEvent.setup();
-  await screen.findByText(/Not charged yet/);
+  await screen.findByText(/Unpaid/);
   await user.click(
     screen.getByRole("button", { name: "Actions for Member One" }),
   );
@@ -485,4 +485,102 @@ it("attendance-only rows have no payment controls or financial amounts", async (
     screen.queryByRole("menuitem", { name: "Add session charge" }),
   ).toBeNull();
   expect(screen.queryByText(/Not charged yet/)).toBeNull();
+});
+
+it("adds a participant and records payment directly from the attendance list", async () => {
+  let attended = false,
+    paid = false;
+  const writes: { path: string; body: Record<string, unknown> }[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://test");
+      if (init?.method === "POST") {
+        const body = JSON.parse(String(init.body));
+        writes.push({ path: url.pathname, body });
+        if (url.pathname.endsWith("/attendance")) {
+          attended = true;
+          return Response.json({
+            items: [
+              {
+                personId: first.id,
+                outcome: "saved",
+                status: "present",
+                version: 1,
+              },
+            ],
+          });
+        }
+        paid = true;
+        return Response.json({ id: second.id });
+      }
+      if (url.pathname.endsWith("/attendance")) {
+        const person = {
+          ...first,
+          status: attended ? "present" : "unmarked",
+          version: attended ? 1 : 0,
+          billing: {
+            id: paid ? second.id : first.id,
+            personId: first.id,
+            name: first.name,
+            contactVersion: 1,
+            sessionVersion: 1,
+            amountMinor: 1000,
+            paidMinor: paid ? 1000 : 0,
+            outstandingMinor: paid ? 0 : 1000,
+            version: paid ? 1 : 0,
+            status: paid ? "paid" : "not_charged",
+            reviewRequired: false,
+            canCharge: !paid,
+            createdAt: first.createdAt,
+          },
+        };
+        return Response.json({
+          items:
+            attended || url.searchParams.get("roster") === "all"
+              ? [person]
+              : [],
+          nextCursor: null,
+          summary,
+        });
+      }
+      return Response.json({ item: { ...session, priceMinor: 1000 } });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Add participant" }),
+  );
+  let sheet = await screen.findByRole("dialog");
+  await user.click(
+    await within(sheet).findByRole("button", { name: "Select Member One" }),
+  );
+  sheet = await screen.findByRole("dialog");
+  await user.click(
+    within(sheet).getByRole("button", { name: "Save attendance" }),
+  );
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  await screen.findByRole("heading", { name: first.name });
+  expect(writes).toHaveLength(1);
+  expect(writes[0]!.path).toMatch(/attendance$/);
+  await user.click(
+    screen.getByRole("button", { name: "Record payment for Member One" }),
+  );
+  sheet = await screen.findByRole("dialog");
+  await user.click(
+    within(sheet).getByRole("button", { name: /Record.*10.*cash/ }),
+  );
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  await screen.findByText("Paid");
+  expect(writes).toHaveLength(2);
+  expect(writes[1]!.path).toMatch(/cash$/);
+  expect(writes[1]!.body).toMatchObject({
+    action: "record",
+    amountMinor: 1000,
+    allocations: [{ personId: first.id, amountMinor: 1000 }],
+  });
+  expect(
+    screen.queryByRole("button", { name: "Record payment for Member One" }),
+  ).toBeNull();
 });
