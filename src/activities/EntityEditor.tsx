@@ -191,7 +191,22 @@ export function EntityEditor({
                     }
                     value={field.state.value}
                     onBlur={field.handleBlur}
-                    onChange={(e) => field.handleChange(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      field.handleChange(value);
+                      if (name === "startLocal") {
+                        // Calendar arithmetic must not use the device's timezone.
+                        const start = Date.parse(value + "Z");
+                        form.setFieldValue(
+                          "endLocal",
+                          Number.isFinite(start)
+                            ? new Date(start + 30 * 60_000)
+                                .toISOString()
+                                .slice(0, 16)
+                            : "",
+                        );
+                      }
+                    }}
                   />
                 )}
               </div>

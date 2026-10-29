@@ -345,15 +345,22 @@ it("session tabs load their own paginated view and future session form sends par
     (within(dialog).getByLabelText("Location (optional)") as HTMLInputElement)
       .value,
   ).toBe(item.location);
+  const end = within(dialog).getByLabelText("Ends") as HTMLInputElement;
+  fireEvent.change(within(dialog).getByLabelText("Starts"), {
+    target: { value: "2099-12-31T23:45" },
+  });
+  expect(end.value).toBe("2100-01-01T00:15");
   fireEvent.change(within(dialog).getByLabelText("Starts"), {
     target: { value: "2099-11-06T18:00" },
   });
+  expect(end.value).toBe("2099-11-06T18:30");
   fireEvent.change(within(dialog).getByLabelText("Ends"), {
     target: { value: "2099-11-06T19:00" },
   });
   await user.click(within(dialog).getByRole("button", { name: "Save" }));
   await waitFor(() => expect(payload?.version).toBe(1));
   expect(payload?.startLocal).toBe("2099-11-06T18:00");
+  expect(payload?.endLocal).toBe("2099-11-06T19:00");
 });
 it("session cancellation preserves its reason and confirmation cancellation does not write", async () => {
   let writes = 0;

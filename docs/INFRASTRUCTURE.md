@@ -586,3 +586,9 @@ Regression coverage includes activity creation with a failed save/retry and retu
 Executed validation: all 25 focused form/activity UI tests, strict types, production build, documentation links, Prettier and contrast audit pass. No schema/auth/database changes or live signed-in/physical-device tests were performed.
 
 Published commit `a1d22e2` with the previously blocked session overview (`31d5bcd`). Cloudflare upload recovered; version `719c9a5a-4531-48fd-b88a-d121aa30d4d0` is verified active at 100%. Maintenance false, People enabled, all existing bindings and minute cron retained. No hosted data mutations were used for verification.
+
+## 29 October 2026 — Default session duration
+
+Changing a session start now prefills its end 30 calendar minutes later; the end remains editable and saved durations are preserved on opening. Arithmetic uses the entered calendar value rather than the device timezone, handles midnight/year rollover and retains server DST validation. Documented the existing per-session reservation-limit settings path in REGISTRATION.md; no duplicate capacity configuration or schema change was added.
+
+Executed validation: strict types, all 33 focused activity/form/registration UI tests, production build, Prettier and documentation links pass. Regression coverage verifies year rollover, recomputation after a start change, and saving a manually overridden end. No live account or physical-device tests were performed.
