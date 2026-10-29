@@ -1,6 +1,6 @@
 # Phased rebuild and database reset strategy
 
-Current Phase 2 increment: [session registration and expected rosters](../REGISTRATION.md) adds reservations, capacity, cancellation/history and attendance filters to the retained scheduling/attendance foundation. Recurrence and cash are still pending.
+Current Phase 2 increment: [session registration and expected rosters](../REGISTRATION.md) adds reservations, capacity, cancellation/history and attendance filters to the retained scheduling/attendance foundation. [Paid session pricing and registration charges](../PRICING.md) are also implemented. Recurrence and cash collection are still pending.
 
 Current release: [complete dropped-feature removal and app integration](../REMOVAL.md) supersedes earlier statements below about retained legacy products, standalone People navigation and the previous schema lineage.
 

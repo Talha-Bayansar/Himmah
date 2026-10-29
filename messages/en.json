@@ -618,5 +618,17 @@
   "registration_schedule_locked": "The schedule is locked because check-in has opened for this registered session.",
   "registration_reason_label": "Reason",
   "registration_about": "About registration",
-  "sessions_details": "Session information"
+  "sessions_details": "Session information",
+  "pricing_paid": "Paid participation",
+  "pricing_amount": "Price per contact per session (EUR)",
+  "pricing_activity_help": "Free by default. This price applies only to newly scheduled sessions.",
+  "pricing_session_help": "This session inherits the activity price. You can override it until the first registration.",
+  "pricing_locked": "The session price is locked because registrations already exist.",
+  "pricing_per_session": "{price} per contact · per session",
+  "pricing_charge": "Charge: {price} · unpaid",
+  "pricing_review": "Charge needs review",
+  "pricing_review_count": "Charges needing cancellation review: {count}",
+  "pricing_confirm": "Registering reserves a place and creates a charge of {price}. This does not record a payment or attendance.",
+  "pricing_cancel_review": "The charge is retained for review. No waiver or refund is recorded automatically.",
+  "directory_pricing_amount": "Enter a price from EUR 0.01 to EUR 1,000,000 with at most two decimal places."
 }

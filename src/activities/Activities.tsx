@@ -1,3 +1,4 @@
+import { sessionPrice } from "./contracts";
 import { useFormNavigation } from "../components/shared/form-navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -145,7 +146,7 @@ export default function Activities({
   sessionId?: string | null;
   attendance?: boolean;
 }) {
-  useLocale();
+  const locale = useLocale()?.locale ?? "en";
   const openForm = useFormNavigation(organization.id);
   const cache = useQueryClient(),
     confirm = useConfirmation();
@@ -242,6 +243,13 @@ export default function Activities({
         ) : (
           <p className="activity-note">{m.sessions_none_scheduled()}</p>
         ))}
+      {(item.priceMinor ?? 0) > 0 && (
+        <p className="activity-status">
+          {m.pricing_per_session({
+            price: sessionPrice(item.priceMinor!, locale),
+          })}
+        </p>
+      )}
       <Audience groups={item.groups} />
 
       {full && item.location && (

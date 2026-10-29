@@ -618,5 +618,17 @@
   "registration_schedule_locked": "De planning is vergrendeld omdat de check-in voor deze sessie met inschrijving is geopend.",
   "registration_reason_label": "Reden",
   "registration_about": "Over inschrijvingen",
-  "sessions_details": "Sessie-informatie"
+  "sessions_details": "Sessie-informatie",
+  "pricing_paid": "Betaalde deelname",
+  "pricing_amount": "Prijs per contact per sessie (EUR)",
+  "pricing_activity_help": "Standaard gratis. Deze prijs geldt alleen voor nieuw geplande sessies.",
+  "pricing_session_help": "Deze sessie neemt de activiteitsprijs over. Je kunt deze aanpassen tot de eerste inschrijving.",
+  "pricing_locked": "De sessieprijs is vergrendeld omdat er al inschrijvingen zijn.",
+  "pricing_per_session": "{price} per contact · per sessie",
+  "pricing_charge": "Verschuldigd: {price} · onbetaald",
+  "pricing_review": "Bedrag controleren",
+  "pricing_review_count": "Bedragen te controleren na annulering: {count}",
+  "pricing_confirm": "Inschrijven reserveert een plaats en legt {price} als verschuldigd vast. Dit registreert geen betaling of aanwezigheid.",
+  "pricing_cancel_review": "Het bedrag blijft bewaard ter controle. Er wordt niet automatisch kwijtgescholden of terugbetaald.",
+  "directory_pricing_amount": "Voer een prijs in van EUR 0,01 tot EUR 1.000.000 met maximaal twee decimalen."
 }

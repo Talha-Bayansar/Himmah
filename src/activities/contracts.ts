@@ -1,6 +1,7 @@
 import { CommunityError, nameInput, uuid } from "../community/contracts.ts";
 export type AudienceGroup = { id: string; name: string; archived: boolean };
 export type Activity = {
+  priceMinor?: number;
   id: string;
   name: string;
   description: string;
@@ -19,6 +20,8 @@ export type Activity = {
   } | null;
 };
 export type Session = {
+  priceMinor?: number;
+  pricingLocked?: boolean;
   registration?: {
     mode: "open" | "required";
     capacity: number | null;
@@ -110,6 +113,7 @@ export function activityInput(body: Record<string, unknown>, timezone: string) {
   if (new Set(audienceGroupIds).size !== ids.length)
     throw new CommunityError("activity_audience");
   return {
+    ...pricingInput(body),
     name,
     description,
     location,
@@ -128,10 +132,38 @@ export function sessionInput(body: Record<string, unknown>, timezone: string) {
     throw new CommunityError("activity_time");
   if (Date.parse(startsAt) <= Date.now())
     throw new CommunityError("session_future");
-  return { location, startsAt, endsAt, timezone };
+  return { ...pricingInput(body), location, startsAt, endsAt, timezone };
 }
 export function cancellationReason(body: Record<string, unknown>) {
   return boundedText(body, "reason", 300);
 }
 export type ActivityInput = ReturnType<typeof activityInput>;
 export type SessionInput = ReturnType<typeof sessionInput>;
+
+export function pricingInput(body: Record<string, unknown>): {
+  priceMinor?: number;
+} {
+  if (body.priceMinor === undefined) return {};
+  if (
+    !Number.isSafeInteger(body.priceMinor) ||
+    Number(body.priceMinor) < 0 ||
+    Number(body.priceMinor) > 100000000
+  )
+    throw new CommunityError("invalid_input");
+  return { priceMinor: Number(body.priceMinor) };
+}
+export function priceFromText(value: string): number {
+  if (!/^\d{1,7}([.,]\d{1,2})?$/.test(value))
+    throw new CommunityError("invalid_input");
+  const [whole, fraction = ""] = value.replace(",", ".").split(".");
+  const result = Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
+  if (result < 1 || result > 100000000)
+    throw new CommunityError("invalid_input");
+  return result;
+}
+export function sessionPrice(minor: number, locale: string) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "EUR",
+  }).format(minor / 100);
+}

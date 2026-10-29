@@ -1,3 +1,4 @@
+import { sessionPrice } from "../activities/contracts";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   useInfiniteQuery,
@@ -267,6 +268,18 @@ function Content({
               })}
             </p>
           ) : null}
+          {(summary.priceMinor ?? 0) > 0 && (
+            <p>
+              {m.pricing_per_session({
+                price: sessionPrice(summary.priceMinor!, locale),
+              })}
+            </p>
+          )}
+          {summary.canManage && (summary.chargeReviewCount ?? 0) > 0 && (
+            <p>
+              {m.pricing_review_count({ count: summary.chargeReviewCount! })}
+            </p>
+          )}
           {summary.canManage && (
             <div className="registration-settings-row">
               <Button
@@ -365,6 +378,19 @@ function Content({
                       {viewLabel((item as RegistrationRow).status)}
                       {(item as RegistrationRow).source === "walk_in" &&
                         " · " + m.registration_walk_in()}
+                      {(item as RegistrationRow).charge && (
+                        <>
+                          <br />
+                          {m.pricing_charge({
+                            price: sessionPrice(
+                              (item as RegistrationRow).charge!.amountMinor,
+                              locale,
+                            ),
+                          })}
+                          {(item as RegistrationRow).charge!.reviewRequired &&
+                            " · " + m.pricing_review()}
+                        </>
+                      )}
                     </>
                   }
                 />
@@ -429,6 +455,7 @@ function Editor({
   onSaved: () => Promise<void>;
   onDenied: (e: unknown) => void;
 }) {
+  const locale = useLocale()?.locale ?? "en";
   const cache = useQueryClient();
   const confirm = useConfirmation(),
     [opening] = useState(summary),
@@ -506,10 +533,24 @@ function Editor({
         return;
       }
       if (
+        mode === "register" &&
+        (opening.priceMinor ?? 0) > 0 &&
+        !(await confirm({
+          title: m.registration_add(),
+          description: m.pricing_confirm({
+            price: sessionPrice(opening.priceMinor!, locale),
+          }),
+          confirmLabel: m.registration_add(),
+        }))
+      )
+        return;
+      if (
         mode === "cancel" &&
         !(await confirm({
           title: m.registration_cancel(),
-          description: row!.name,
+          description: row!.charge
+            ? row!.name + ". " + m.pricing_cancel_review()
+            : row!.name,
           confirmLabel: m.registration_cancel(),
           destructive: true,
         }))
@@ -529,7 +570,12 @@ function Editor({
               version: mode === "cancel" ? row!.version : selected!.version,
               reason: reason.trim(),
               ...(mode === "register"
-                ? { contactVersion: selected!.contactVersion }
+                ? {
+                    contactVersion: selected!.contactVersion,
+                    ...(opening.sessionVersion !== undefined
+                      ? { sessionVersion: opening.sessionVersion }
+                      : {}),
+                  }
                 : {}),
             }),
       };

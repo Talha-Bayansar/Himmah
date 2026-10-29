@@ -114,6 +114,7 @@ export const activities = pgTable(
     organizationId: uuid("organization_id")
       .notNull()
       .references(() => organizations.id),
+    priceMinor: integer("price_minor").notNull().default(0),
     name: text("name").notNull(),
     description: text("description").notNull().default(""),
     location: text("location").notNull().default(""),
@@ -133,6 +134,7 @@ export const activities = pgTable(
       .defaultNow(),
   },
   (t) => [
+    check("hub_activity_price", sql`${t.priceMinor} between 0 and 100000000`),
     unique("hub_activity_scope").on(t.organizationId, t.id),
     unique("hub_activity_creation").on(t.organizationId, t.creationKey),
     index("hub_activity_page").on(
@@ -162,6 +164,7 @@ export const activitySessions = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     organizationId: uuid("organization_id").notNull(),
     activityId: uuid("activity_id").notNull(),
+    priceMinor: integer("price_minor").notNull().default(0),
     name: text("name").notNull(),
     description: text("description").notNull(),
     location: text("location").notNull(),
@@ -182,6 +185,7 @@ export const activitySessions = pgTable(
       .defaultNow(),
   },
   (t) => [
+    check("hub_session_price", sql`${t.priceMinor} between 0 and 100000000`),
     foreignKey({
       columns: [t.organizationId, t.activityId],
       foreignColumns: [activities.organizationId, activities.id],
@@ -552,6 +556,7 @@ export const registrations = pgTable(
       .defaultNow(),
   },
   (t) => [
+    unique("hub_registration_scope").on(t.organizationId, t.id),
     foreignKey({
       columns: [t.organizationId, t.activityId, t.sessionId],
       foreignColumns: [
@@ -686,5 +691,29 @@ export const registrationRequests = pgTable(
         activitySessions.id,
       ],
     }),
+  ],
+);
+
+export const registrationCharges = pgTable(
+  "hub_registration_charges",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    registrationId: uuid("registration_id").notNull(),
+    amountMinor: integer("amount_minor").notNull(),
+    currency: text("currency").notNull().default("EUR"),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.registrationId],
+      foreignColumns: [registrations.organizationId, registrations.id],
+    }),
+    unique("hub_charge_registration").on(t.organizationId, t.registrationId),
+    check("hub_charge_amount", sql`${t.amountMinor} between 1 and 100000000`),
+    check("hub_charge_currency", sql`${t.currency}='EUR'`),
   ],
 );

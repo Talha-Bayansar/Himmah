@@ -47,6 +47,8 @@ Owner-approved registration: session reservations and attendance are independent
 
 Owner card action hierarchy: each entity card has at most one prominent primary action button. Put secondary actions in the shared square ItemActions menu or use compact secondary controls when context requires. Activity/session list cards use View as primary; session detail uses attendance as primary with registrations in the more menu. Informational cards may have no primary action; form Save/Cancel and confirmation choices are workflow exceptions. Do not stack multiple full-width action buttons on a card.
 
+Owner-approved pricing increment: follow docs/PRICING.md. Free by default; per-contact EUR session fees use bounded integer cents, activity defaults snapshot into new sessions, first registration locks session pricing. A paid reservation and immutable principal charge commit together; current access precedes receipt replay. Cancellation retains charges for explicit review; no inferred cash, waiver/refund or attendance. Monetary per-contact reads remain administrator-only until separate cash capabilities are implemented.
+
 ## Workflow and validation
 
 Use rg for discovery. Carry authorized work through relevant checks without repeated routine permission questions. Do not send external messages/invitations, synthetic real-device pushes, provision services or deploy without applicable authorization. No delegation requested.

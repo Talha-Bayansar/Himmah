@@ -1,0 +1,17 @@
+# Paid sessions and registration charges
+
+Implemented increment: activities are free by default; owners/admins can enable Paid participation and set a per-contact, per-session EUR price on the activity form. New sessions inherit that value as a snapshot. The session form permits a free/paid override until the first registration exists; an existing registration, including a cancelled/free registration, locks the session's price. Activity price edits affect only newly scheduled sessions. Existing sessions and registrations remain free during installation; no historical debt is inferred.
+
+EUR is the initial currency for this increment. Amounts use integer cents, capped at EUR 1,000,000 per contact/session. Input accepts a decimal dot or comma, up to two decimal places; no float parsing or rounding of excess decimals. Additional currencies need an explicit extension; there is no conversion.
+
+Paid registration shows the price and asks staff to confirm the charge. The submitted session version must match the current locked session, so a stale free-session form cannot unexpectedly create a paid charge. The server validates current tenant/contact access before request-receipt replay, then reserves the place and creates one immutable principal charge in the same transaction. A charge is unique per registration; cancellation/re-registration never creates a second principal. Activity/session price changes cannot rewrite its amount. Free reservations create no charge. Attendance creates no charge, reservation or payment.
+
+Owners/admins see per-contact unpaid charges on registration rows, and a summary count when charges need cancellation review. Cancelling a registration, cancelling a session or archiving the activity retains the charge and exposes a review flag; no automatic waiver/refund or money movement is fabricated. Re-registering a contact clears its registration-cancellation review condition when the parent/session remains active. Price and reservation summary are operational information available to authorized attendance staff, but per-contact financial amounts and review totals are administrator-only. Family relationships grant no access.
+
+This increment does **not** collect cash, allocate sibling payments, waive charges, reduce balances or issue refunds. All created charges remain unpaid. Cash receipt/allocation and explicit reasoned adjustment/refund workflows are the next increment. There is no online payment provider, subscription/program fee or permanent contact account.
+
+## Persistence and upgrade
+
+`0002_session_pricing.sql` adds bounded activity/session price columns, a composite registration scope key and immutable tenant-scoped `hub_registration_charges`. `pricing.sql` guards session price changes and charge immutability. The versioned registration command creates charges and records their snapshot in immutable registration events. Read projections enforce current tenant/capability scope; no RLS claim is made.
+
+`scripts/pricing-plan.mjs` produces the reviewed SQL-only transaction plan and SHA-256 receipt, with explicit database/role/baseline checks. Existing registration triggers are retained while functions are replaced. Development/onboarding must be independently verified; main/provider schemas are excluded. Fresh installation uses the same migration/functions. The migration is additive and leaves existing values zero; it never adds charges to retained registrations.

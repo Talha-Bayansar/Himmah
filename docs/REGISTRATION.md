@@ -20,7 +20,7 @@ Owner/admin can manage registration within the tenant. Volunteers with a current
 
 Short forms use the shared shadcn/Vaul bottom sheet with no autofocus, visible focus, safe areas, visual-viewport sizing and guarded dismissal. Uncertain writes freeze their exact payload/key for retry. Business conflicts retain the draft for review. Setting edits retain the version opened by the user. If check-in opens while a registration sheet is already open, a rejected late write reveals the reason field and can be corrected without losing the selection.
 
-This slice adds free reservations and registration-based expected rosters. Recurring schedule generation, manual expected rosters for open sessions, capacity/eligibility overrides, waitlists, prices/charges/cash and insights remain future slices. No payment provider, permanent contact account or removed feature is introduced.
+The initial slice added free reservations and registration-based expected rosters. [Paid session pricing and registration charges](PRICING.md) are now implemented as the next increment. Recurring schedule generation, manual expected rosters for open sessions, capacity/eligibility overrides, waitlists, cash collection and insights remain future slices. No payment provider, permanent contact account or removed feature is introduced.
 
 ## Schema, commands and release
 

@@ -25,7 +25,7 @@ import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
 import { ErrorNotice } from "./Activities";
 import type { Activity, Session } from "./contracts";
-import { localTime } from "./contracts";
+import { localTime, priceFromText } from "./contracts";
 export function EntityEditor({
   kind,
   activity,
@@ -66,7 +66,18 @@ export function EntityEditor({
         }))
       )
         return false;
-      await onSave(value, key.current);
+      let priceMinor = 0;
+      if (kind !== "cancel" && value.paid) {
+        try {
+          priceMinor = priceFromText(String(value.price));
+        } catch {
+          throw new DirectoryError("pricing_amount");
+        }
+      }
+      await onSave(
+        kind === "cancel" ? value : { ...value, priceMinor },
+        key.current,
+      );
       approved.current = true;
       return true;
     },
@@ -76,6 +87,10 @@ export function EntityEditor({
   });
   const form = useForm({
     defaultValues: {
+      paid: (session?.priceMinor ?? activity?.priceMinor ?? 0) > 0,
+      price: ((session?.priceMinor ?? activity?.priceMinor ?? 0) / 100).toFixed(
+        2,
+      ),
       name: activity?.name ?? "",
       description: activity?.description ?? "",
       location: session?.location ?? activity?.location ?? "",
@@ -213,6 +228,55 @@ export function EntityEditor({
             )}
           </form.Field>
         ))}
+        {kind !== "cancel" && (
+          <div className="pricing-fields">
+            <form.Field name="paid">
+              {(field) => (
+                <>
+                  <Label className="directory-check" htmlFor="activity-paid">
+                    <Checkbox
+                      id="activity-paid"
+                      checked={field.state.value}
+                      disabled={submit.isPending || session?.pricingLocked}
+                      onCheckedChange={(checked) =>
+                        field.handleChange(checked === true)
+                      }
+                    />
+                    {m.pricing_paid()}
+                  </Label>
+                  {field.state.value && (
+                    <form.Field name="price">
+                      {(price) => (
+                        <div>
+                          <Label htmlFor="activity-price">
+                            {m.pricing_amount()}
+                          </Label>
+                          <Input
+                            id="activity-price"
+                            inputMode="decimal"
+                            value={price.state.value}
+                            required
+                            disabled={
+                              submit.isPending || session?.pricingLocked
+                            }
+                            onChange={(e) => price.handleChange(e.target.value)}
+                          />
+                        </div>
+                      )}
+                    </form.Field>
+                  )}
+                </>
+              )}
+            </form.Field>
+            <p className="activity-note">
+              {session?.pricingLocked
+                ? m.pricing_locked()
+                : kind === "activity"
+                  ? m.pricing_activity_help()
+                  : m.pricing_session_help()}
+            </p>
+          </div>
+        )}
         {kind === "activity" && (
           <form.Field name="audienceMode">
             {(mode) => (

@@ -1,3 +1,4 @@
+import { sessionPrice } from "./contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -211,6 +212,13 @@ export default function Sessions({
           )}
         </div>
         <Schedule {...item} />
+        {(item.priceMinor ?? 0) > 0 && (
+          <p className="activity-status">
+            {m.pricing_per_session({
+              price: sessionPrice(item.priceMinor!, locale),
+            })}
+          </p>
+        )}
         {canOperate && item.registration && (
           <div className="session-registration-summary">
             <p className="activity-status">

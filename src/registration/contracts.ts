@@ -8,6 +8,10 @@ export const registrationViews = [
 ] as const;
 export type RegistrationView = (typeof registrationViews)[number];
 export type RegistrationSummary = {
+  priceMinor?: number;
+  sessionVersion?: number;
+  chargeCount?: number | null;
+  chargeReviewCount?: number | null;
   mode: "open" | "required";
   capacity: number | null;
   version: number;
@@ -23,6 +27,11 @@ export type RegistrationSummary = {
   cancelled: boolean;
 };
 export type RegistrationRow = {
+  charge?: {
+    amountMinor: number;
+    currency: string;
+    reviewRequired: boolean;
+  } | null;
   id: string;
   personId: string;
   name: string;
@@ -91,7 +100,16 @@ export function registrationInput(body: Record<string, unknown>) {
       version,
       reason: reason.trim(),
       ...(action === "register"
-        ? { contactVersion: versionInput({ version: body.contactVersion }) }
+        ? {
+            contactVersion: versionInput({ version: body.contactVersion }),
+            ...(body.sessionVersion !== undefined
+              ? {
+                  sessionVersion: versionInput({
+                    version: body.sessionVersion,
+                  }),
+                }
+              : {}),
+          }
         : {}),
     },
   };

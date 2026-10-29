@@ -362,3 +362,27 @@ it("activity creation returns to its filtered source after retry without a disca
   expect(writes[0]).toEqual(writes[1]);
   expect(screen.queryByRole("alertdialog")).toBeNull();
 });
+it("paid activity settings validate decimal amounts and save integer cents", async () => {
+  let submitted: Record<string, unknown> | undefined;
+  backend("owner", (u, init) => {
+    if (u.pathname.endsWith("/activities") && init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return Response.json({ item: { id } });
+    }
+  });
+  mount("activity");
+  const user = userEvent.setup();
+  await user.type(
+    await screen.findByLabelText("Activity name"),
+    "Paid gathering",
+  );
+  await user.click(
+    screen.getByRole("checkbox", { name: "Paid participation" }),
+  );
+  const amount = screen.getByLabelText("Price per contact per session (EUR)");
+  await user.clear(amount);
+  await user.type(amount, "10,25");
+  await user.click(screen.getByRole("button", { name: "Save" }));
+  await screen.findByText("Returned to list");
+  expect(submitted?.priceMinor).toBe(1025);
+});

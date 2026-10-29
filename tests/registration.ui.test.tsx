@@ -443,3 +443,47 @@ it.each([null, 25])(
     expect(screen.queryByRole("dialog")).toBeNull();
   },
 );
+it("paid registrations disclose the charge, confirm explicitly and submit the opened session version", async () => {
+  let submitted: Record<string, unknown> | undefined;
+  backend((u, init) => {
+    if (init?.method === "POST") {
+      submitted = JSON.parse(String(init.body));
+      return Response.json({ id: person });
+    }
+    if (u.pathname.endsWith("/registrations"))
+      return Response.json({
+        items: [
+          {
+            ...row,
+            charge: {
+              amountMinor: 1250,
+              currency: "EUR",
+              reviewRequired: true,
+            },
+          },
+        ],
+        nextCursor: null,
+        summary: {
+          ...summary,
+          priceMinor: 1250,
+          sessionVersion: 7,
+          chargeReviewCount: 1,
+        },
+      });
+  });
+  mount();
+  const user = userEvent.setup();
+  await screen.findByText(/Charge:.*12.50/);
+  await user.click(screen.getByRole("button", { name: "Register contact" }));
+  const sheet = await screen.findByRole("dialog");
+  await user.click(await within(sheet).findByRole("button", { name: "Bob" }));
+  await user.click(within(sheet).getByRole("button", { name: "Save" }));
+  const confirmation = await screen.findByRole("alertdialog");
+  expect(within(confirmation).getByText(/creates a charge/)).toBeTruthy();
+  expect(submitted).toBeUndefined();
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Register contact" }),
+  );
+  await waitFor(() => expect(submitted?.sessionVersion).toBe(7));
+  expect(submitted).not.toHaveProperty("amountMinor");
+});

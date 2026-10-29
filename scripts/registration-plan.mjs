@@ -4,7 +4,9 @@ import { pathToFileURL } from "node:url";
 export async function registrationPlan() {
   const files = [
     "db/migrations/generated/0001_session_registration.sql",
+    "db/migrations/generated/0002_session_pricing.sql",
     "db/migrations/functions/registration.sql",
+    "db/migrations/functions/pricing.sql",
   ];
   const sources = await Promise.all(
     files.map(async (file) => ({ file, source: await readFile(file, "utf8") })),

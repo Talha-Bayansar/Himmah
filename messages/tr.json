@@ -618,5 +618,17 @@
   "registration_schedule_locked": "Kayıtlı oturum için yoklama açıldığından program kilitli.",
   "registration_reason_label": "Neden",
   "registration_about": "Kayıt hakkında",
-  "sessions_details": "Oturum bilgileri"
+  "sessions_details": "Oturum bilgileri",
+  "pricing_paid": "Ücretli katılım",
+  "pricing_amount": "Oturum başına kişi ücreti (EUR)",
+  "pricing_activity_help": "Varsayılan olarak ücretsizdir. Bu ücret yalnızca yeni planlanan oturumlara uygulanır.",
+  "pricing_session_help": "Bu oturum etkinlik ücretini devralır. İlk kayda kadar değiştirebilirsiniz.",
+  "pricing_locked": "Kayıtlar bulunduğu için oturum ücreti kilitlidir.",
+  "pricing_per_session": "Kişi başına {price} · oturum başına",
+  "pricing_charge": "Borç: {price} · ödenmedi",
+  "pricing_review": "Borç incelenmeli",
+  "pricing_review_count": "İptal sonrası incelenecek borçlar: {count}",
+  "pricing_confirm": "Kayıt bir yer ayırır ve {price} borç oluşturur. Ödeme veya yoklama kaydetmez.",
+  "pricing_cancel_review": "Borç incelenmek üzere korunur. Otomatik muafiyet veya iade kaydedilmez.",
+  "directory_pricing_amount": "En fazla iki ondalık basamakla 0,01 ile 1.000.000 EUR arasında bir ücret girin."
 }

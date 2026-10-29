@@ -5374,3 +5374,25 @@ button[data-slot="button"].people-section-add {
 .session-actions.session-actions-primary {
   grid-template-columns: minmax(0, 1fr);
 }
+
+.pricing-fields {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.pricing-fields .directory-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.pricing-fields p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #52665b;
+}
+.pricing-fields label + input {
+  margin-top: 8px;
+}
