@@ -696,7 +696,14 @@
   "quick_cash_receipt_details": "Makbuz bilgileri (isteğe bağlı)",
   "quick_cash_people": "Kişiler",
   "attendance_add": "Katılımcı ekle",
-  "attendance_add_help": "Bir kişi seçip katılımını kaydedin. Ardından kişinin satırından ödeme kaydedebilirsiniz.",
+  "attendance_add_help": "Mevcut olarak eklemek için bir kişi seçin.",
   "attendance_roster_participants": "Oturum katılımcıları",
-  "attendance_added": "Zaten bu listede"
+  "attendance_added": "Zaten bu listede",
+  "attendance_remove": "Çıkar",
+  "attendance_remove_for": "{name} kişisini katılım listesinden çıkar",
+  "attendance_remove_help": "{name} mevcut kişiler listesinden çıkarılsın mı? Ödemeleri korunacaktır.",
+  "attendance_added_success": "Katılımcı eklendi.",
+  "attendance_removed_success": "Katılımcı çıkarıldı.",
+  "attendance_present_count": "{count} kişi mevcut",
+  "attendance_present_empty": "Henüz kimse mevcut değil. Bir katılımcı ekleyin."
 }

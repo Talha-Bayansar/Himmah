@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Search, Plus } from "lucide-react";
 import { directoryRequest } from "../community/client";
@@ -19,11 +19,15 @@ export function AttendancePicker({
   queryKey,
   onClose,
   onSelect,
+  pending,
+  notice,
 }: {
   path: string;
   queryKey: string[];
   onClose: () => void;
   onSelect: (person: AttendancePerson) => void;
+  pending: boolean;
+  notice: ReactNode;
 }) {
   const [search, setSearch] = useState("");
   const people = useInfiniteQuery({
@@ -35,20 +39,23 @@ export function AttendancePicker({
         nextCursor: string | null;
       }>(
         path +
-          "?roster=all&status=all&q=" +
+          "?roster=available&q=" +
           encodeURIComponent(search) +
           (pageParam ? "&cursor=" + encodeURIComponent(pageParam) : ""),
         { signal },
       ),
     getNextPageParam: (page) => page.nextCursor ?? undefined,
   });
-  const rows = people.data?.pages.flatMap((page) => page.items) ?? [];
+  const rows = (people.data?.pages.flatMap((page) => page.items) ?? []).filter(
+    (person) => person.status !== "present",
+  );
   return (
     <FormSurface
       title={m.attendance_add()}
       description={m.attendance_add_help()}
       onClose={onClose}
     >
+      {notice}
       <label className="activity-group-search">
         <Search size={17} aria-hidden="true" />
         <span className="sr-only">{m.directory_search()}</span>
@@ -72,21 +79,16 @@ export function AttendancePicker({
         <>
           <div className="attendance-picker-list">
             {rows.map((person) => {
-              const added =
-                person.version > 0 || person.registered || person.expected;
               return (
                 <div className="attendance-picker-row" key={person.id}>
                   <div>
                     <strong>{person.name}</strong>
-                    {added && (
-                      <p className="activity-note">{m.attendance_added()}</p>
-                    )}
                   </div>
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    disabled={!person.eligible || person.archived}
+                    disabled={pending || !person.eligible || person.archived}
                     aria-label={m.attendance_select({ name: person.name })}
                     onClick={() => onSelect(person)}
                   >
@@ -102,8 +104,13 @@ export function AttendancePicker({
           <InfiniteFooter {...people} />
         </>
       )}
-      <Button type="button" variant="outline" onClick={onClose}>
-        {m.cancel()}
+      <Button
+        type="button"
+        variant="outline"
+        disabled={pending}
+        onClick={onClose}
+      >
+        {m.done()}
       </Button>
     </FormSurface>
   );

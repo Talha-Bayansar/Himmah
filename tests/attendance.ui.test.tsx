@@ -74,8 +74,6 @@ function mount(role = "owner") {
     path: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
     validateSearch: (s: Record<string, unknown>) => ({
       q: s.q ?? "",
-      status: s.status ?? "all",
-      roster: s.roster ?? "participants",
     }),
     component: () => (
       <Attendance
@@ -109,7 +107,248 @@ beforeEach(() => {
   void setLocale("en", { reload: false });
   vi.stubGlobal("IntersectionObserver", undefined);
 });
-it("attendance roster appends cursor pages, preserves loaded members on failure and retries", async () => {
+const present = { ...first, status: "present", version: 1 };
+const unpaid = {
+  id: first.id,
+  personId: first.id,
+  name: first.name,
+  contactVersion: 1,
+  sessionVersion: 1,
+  amountMinor: 1000,
+  paidMinor: 0,
+  outstandingMinor: 1000,
+  version: 0,
+  status: "not_charged",
+  reviewRequired: false,
+  canCharge: true,
+  createdAt: first.createdAt,
+};
+async function openPicker(user: ReturnType<typeof userEvent.setup>) {
+  const button = await screen.findByRole("button", { name: "Add participant" });
+  await waitFor(() =>
+    expect((button as HTMLButtonElement).disabled).toBe(false),
+  );
+  await user.click(button);
+  return screen.findByRole("dialog");
+}
+it("only present contacts render and there are no status filters, badges or selection checkboxes", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "https://test");
+      if (url.pathname.endsWith("/attendance")) {
+        expect(url.searchParams.get("roster")).toBe("participants");
+        return Response.json({
+          items: [present, { ...second, registered: true, expected: true }],
+          nextCursor: null,
+          summary: { ...summary, present: 1 },
+        });
+      }
+      return Response.json({ item: session });
+    }),
+  );
+  mount();
+  await screen.findByRole("heading", { name: first.name });
+  expect(screen.queryByRole("heading", { name: second.name })).toBeNull();
+  expect(screen.queryByRole("combobox")).toBeNull();
+  expect(screen.queryByRole("checkbox")).toBeNull();
+  expect(screen.queryByText("Present")).toBeNull();
+  expect(screen.getByText("1 present")).toBeTruthy();
+});
+it("picker excludes present people and one selection adds attendance without a status form", async () => {
+  let added = false;
+  const writes: unknown[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://test");
+      if (init?.method === "POST") {
+        writes.push(JSON.parse(String(init.body)));
+        added = true;
+        return Response.json({
+          items: [{ personId: second.id, outcome: "saved" }],
+        });
+      }
+      if (url.pathname.endsWith("/attendance"))
+        return Response.json({
+          items:
+            url.searchParams.get("roster") === "available"
+              ? [
+                  present,
+                  added ? { ...second, status: "present", version: 1 } : second,
+                ]
+              : added
+                ? [present, { ...second, status: "present", version: 1 }]
+                : [present],
+          nextCursor: null,
+          summary,
+        });
+      return Response.json({ item: session });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  const sheet = await openPicker(user);
+  await within(sheet).findByText(second.name);
+  expect(within(sheet).queryByText(first.name)).toBeNull();
+  await user.click(
+    within(sheet).getByRole("button", { name: "Select Member Two" }),
+  );
+  await within(sheet).findByText("Participant added.");
+  await waitFor(() =>
+    expect(
+      within(sheet).queryByRole("button", { name: "Select Member Two" }),
+    ).toBeNull(),
+  );
+  expect(writes).toHaveLength(1);
+  expect(writes[0]).toMatchObject({
+    action: "add",
+    personId: second.id,
+    version: 0,
+  });
+  expect(within(sheet).queryByRole("combobox")).toBeNull();
+  await user.click(within(sheet).getByRole("button", { name: "Done" }));
+  await screen.findByRole("heading", { name: second.name });
+});
+it("removal confirms, hides the person, preserves cash and makes re-adding possible", async () => {
+  let removed = false;
+  const writes: Record<string, unknown>[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://test");
+      if (init?.method === "POST") {
+        const body = JSON.parse(String(init.body));
+        writes.push(body);
+        removed = body.action === "remove";
+        return Response.json({
+          items: [{ personId: first.id, outcome: "saved" }],
+        });
+      }
+      if (url.pathname.endsWith("/attendance"))
+        return Response.json({
+          items:
+            url.searchParams.get("roster") === "available"
+              ? removed
+                ? [{ ...first, version: 2 }]
+                : []
+              : removed
+                ? []
+                : [
+                    {
+                      ...present,
+                      billing: {
+                        ...unpaid,
+                        status: "paid",
+                        paidMinor: 1000,
+                        outstandingMinor: 0,
+                      },
+                    },
+                  ],
+          nextCursor: null,
+          summary,
+        });
+      return Response.json({ item: session });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", {
+      name: "Remove Member One from attendance",
+    }),
+  );
+  let confirmation = await screen.findByRole("alertdialog");
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Cancel" }),
+  );
+  expect(writes).toHaveLength(0);
+  await user.click(
+    screen.getByRole("button", { name: "Remove Member One from attendance" }),
+  );
+  confirmation = await screen.findByRole("alertdialog");
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Remove" }),
+  );
+  await waitFor(() =>
+    expect(screen.queryByRole("heading", { name: first.name })).toBeNull(),
+  );
+  expect(writes[0]).toMatchObject({
+    action: "remove",
+    personId: first.id,
+    version: 1,
+  });
+  const sheet = await openPicker(user);
+  await user.click(
+    await within(sheet).findByRole("button", { name: "Select Member One" }),
+  );
+  await within(sheet).findByText("Participant added.");
+  expect(writes[1]).toMatchObject({
+    action: "add",
+    personId: first.id,
+    version: 2,
+  });
+  expect(writes.every((body) => !Object.hasOwn(body, "amountMinor"))).toBe(
+    true,
+  );
+  await user.click(within(sheet).getByRole("button", { name: "Done" }));
+  await screen.findByText("Paid");
+});
+it("a lost add response freezes the picker and retries the exact command", async () => {
+  const writes: unknown[] = [];
+  let added = false;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://test");
+      if (init?.method === "POST") {
+        writes.push(JSON.parse(String(init.body)));
+        added = true;
+        if (writes.length === 1) throw Error("Lost response");
+        return Response.json({
+          items: [{ personId: first.id, outcome: "saved" }],
+        });
+      }
+      if (url.pathname.endsWith("/attendance"))
+        return Response.json({
+          items:
+            url.searchParams.get("roster") === "available"
+              ? added
+                ? []
+                : [first]
+              : added
+                ? [present]
+                : [],
+          summary,
+          nextCursor: null,
+        });
+      return Response.json({ item: session });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  const sheet = await openPicker(user);
+  await user.click(
+    await within(sheet).findByRole("button", { name: "Select Member One" }),
+  );
+  await within(sheet).findByRole("alert");
+  expect(
+    (within(sheet).getByRole("button", { name: "Done" }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+  expect(
+    (
+      within(sheet).getByRole("button", {
+        name: "Select Member One",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  await user.click(within(sheet).getByRole("button", { name: "Try again" }));
+  await within(sheet).findByText("Participant added.");
+  expect(writes).toHaveLength(2);
+  expect(writes[0]).toEqual(writes[1]);
+});
+it("roster pagination retains loaded present people after a page failure", async () => {
   let attempts = 0;
   vi.stubGlobal(
     "fetch",
@@ -120,8 +359,12 @@ it("attendance roster appends cursor pages, preserves loaded members on failure 
       if (url.searchParams.has("cursor"))
         return ++attempts === 1
           ? Response.json({ code: "service" }, { status: 503 })
-          : Response.json({ items: [second], nextCursor: null, summary });
-      return Response.json({ items: [first], nextCursor: "next", summary });
+          : Response.json({
+              items: [{ ...second, status: "present", version: 1 }],
+              summary,
+              nextCursor: null,
+            });
+      return Response.json({ items: [present], summary, nextCursor: "next" });
     }),
   );
   mount();
@@ -133,245 +376,19 @@ it("attendance roster appends cursor pages, preserves loaded members on failure 
   await user.click(screen.getByRole("button", { name: "Try again" }));
   await screen.findByRole("heading", { name: second.name });
 });
-it("bulk check-in uses loaded versions and reports saved and failed members separately", async () => {
-  let body: Record<string, unknown> | undefined;
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === "POST") {
-        body = JSON.parse(String(init.body));
-        return Response.json({
-          items: [
-            {
-              personId: first.id,
-              outcome: "saved",
-              status: "present",
-              version: 1,
-            },
-            { personId: second.id, outcome: "conflict" },
-          ],
-        });
-      }
-      if (String(input).includes("/attendance"))
-        return Response.json({
-          items: [
-            body ? { ...first, status: "present", version: 1 } : first,
-            second,
-          ],
-          nextCursor: null,
-          summary,
-        });
-      return Response.json({ item: session });
-    }),
-  );
-  mount();
-  const user = userEvent.setup();
-  await user.click(
-    await screen.findByRole("checkbox", { name: "Select " + first.name }),
-  );
-  await user.click(
-    screen.getByRole("checkbox", { name: "Select " + second.name }),
-  );
-  await user.click(screen.getByRole("button", { name: "Record selected" }));
-  const dialog = await screen.findByRole("dialog");
-  expect(
-    (within(dialog).getByLabelText("Attendance status") as HTMLSelectElement)
-      .value,
-  ).toBe("present");
-  await user.click(
-    within(dialog).getByRole("button", { name: "Save attendance" }),
-  );
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  expect(body?.items).toEqual([
-    { personId: first.id, version: 0 },
-    { personId: second.id, version: 0 },
-  ]);
-  expect(screen.getByText("1 saved or already recorded.")).toBeTruthy();
-  expect(
-    screen.getByText(/Member Two: Changed since it was loaded/),
-  ).toBeTruthy();
-});
-it("changing saved attendance confirms before writing and the reason appears in history", async () => {
-  let writes = 0;
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === "POST") {
-        writes++;
-        const value = JSON.parse(String(init.body));
-        expect(value.status).toBe("unmarked");
-        expect(value.reason).toBe("Incorrect entry");
-        expect(value.items).toEqual([{ personId: first.id, version: 1 }]);
-        return Response.json({
-          items: [
-            {
-              personId: first.id,
-              outcome: "saved",
-              status: "unmarked",
-              version: 2,
-            },
-          ],
-        });
-      }
-      if (String(input).includes("/history"))
-        return Response.json({
-          items: [
-            {
-              id: "66666666-6666-4666-8666-666666666666",
-              createdAt: "2026-10-18T10:00:00Z",
-              beforeStatus: "present",
-              afterStatus: "unmarked",
-              reason: "Incorrect entry",
-              actorName: "Test Organizer",
-              version: 2,
-            },
-          ],
-          nextCursor: null,
-        });
-      if (String(input).includes("/attendance"))
-        return Response.json({
-          items: [
-            {
-              ...first,
-              status: writes ? "unmarked" : "present",
-              version: writes ? 2 : 1,
-            },
-          ],
-          nextCursor: null,
-          summary,
-        });
-      return Response.json({ item: session });
-    }),
-  );
-  mount();
-  const user = userEvent.setup();
-  await user.click(
-    await screen.findByRole("button", { name: "Update attendance" }),
-  );
-  const dialog = await screen.findByRole("dialog");
-  await user.selectOptions(
-    within(dialog).getByLabelText("Attendance status"),
-    "unmarked",
-  );
-  await user.type(
-    within(dialog).getByLabelText("Correction reason"),
-    "Incorrect entry",
-  );
-  await user.click(
-    within(dialog).getByRole("button", { name: "Save attendance" }),
-  );
-  let confirm = await screen.findByRole("alertdialog");
-  await user.click(within(confirm).getByRole("button", { name: "Cancel" }));
-  expect(writes).toBe(0);
-  await user.click(
-    within(dialog).getByRole("button", { name: "Save attendance" }),
-  );
-  confirm = await screen.findByRole("alertdialog");
-  await user.click(
-    within(confirm).getByRole("button", { name: "Confirm correction" }),
-  );
-  await waitFor(() => expect(writes).toBe(1));
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  await user.click(
-    screen.getByRole("button", { name: "Actions for " + first.name }),
-  );
-  await user.click(
-    await screen.findByRole("menuitem", { name: "Attendance history" }),
-  );
-  const history = await screen.findByRole("dialog");
-  await within(history).findByText("Incorrect entry");
-  expect(within(history).getByText("Present → Unmarked")).toBeTruthy();
-});
-it("unconfirmed writes keep the same request key and payload on retry without optimistic confirmation", async () => {
-  const payloads: unknown[] = [];
-  let effects = 0;
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === "POST") {
-        payloads.push(JSON.parse(String(init.body)));
-        if (payloads.length === 1) {
-          effects++;
-          throw new Error("Response lost");
-        }
-        return Response.json({
-          items: [
-            {
-              personId: first.id,
-              outcome: "saved",
-              status: "present",
-              version: 1,
-            },
-          ],
-        });
-      }
-      if (String(input).includes("/attendance"))
-        return Response.json({
-          items: [
-            effects ? { ...first, status: "present", version: 1 } : first,
-          ],
-          nextCursor: null,
-          summary,
-        });
-      return Response.json({ item: session });
-    }),
-  );
-  mount();
-  const user = userEvent.setup();
-  await user.click(
-    await screen.findByRole("button", { name: "Record attendance" }),
-  );
-  const dialog = await screen.findByRole("dialog");
-  await user.click(
-    within(dialog).getByRole("button", { name: "Save attendance" }),
-  );
-  await within(dialog).findByText(
-    "The save is not confirmed. Retry this same request to check its result.",
-  );
-  expect(
-    (within(dialog).getByLabelText("Attendance status") as HTMLSelectElement)
-      .disabled,
-  ).toBe(true);
-  expect(screen.queryByText("1 saved or already recorded.")).toBeNull();
-  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
-  const confirm = await screen.findByRole("alertdialog");
-  expect(
-    within(confirm).getByRole("heading", { name: "Leave check-in" }),
-  ).toBeTruthy();
-  await user.click(within(confirm).getByRole("button", { name: "Cancel" }));
-  await user.click(within(dialog).getByRole("button", { name: "Try again" }));
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  expect(payloads).toHaveLength(2);
-  expect(payloads[0]).toEqual(payloads[1]);
-  expect((payloads[0] as { status: string }).status).toBe("present");
-  expect(effects).toBe(1);
-  expect(screen.getByText("1 saved or already recorded.")).toBeTruthy();
-});
-it("volunteers without assignments cannot load private attendance records", async () => {
-  const fetcher = vi.fn(async () =>
-    Response.json({ item: { canAttend: false } }),
-  );
-  vi.stubGlobal("fetch", fetcher);
-  mount("volunteer");
-  await screen.findByRole("alert");
-  expect(
-    screen.getByText(
-      "You do not have permission to manage this session’s attendance.",
-    ),
-  ).toBeTruthy();
-  expect(fetcher.mock.calls).toHaveLength(1);
-});
-it("future or cancelled sessions show a read-only roster with disabled write controls", async () => {
+it("read-only sessions disable adding and removing", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) =>
-      String(input).includes("/attendance")
-        ? Response.json({
-            items: [first],
-            nextCursor: null,
-            summary: { ...summary, canEdit: false, cancelled: true },
-          })
-        : Response.json({ item: { ...session, cancelled: true } }),
+      Response.json(
+        String(input).includes("/attendance")
+          ? {
+              items: [present],
+              summary: { ...summary, canEdit: false, cancelled: true },
+              nextCursor: null,
+            }
+          : { item: session },
+      ),
     ),
   );
   mount();
@@ -381,205 +398,111 @@ it("future or cancelled sessions show a read-only roster with disabled write con
   expect(
     (
       screen.getByRole("button", {
-        name: "Record attendance",
+        name: "Add participant",
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(true);
   expect(
     (
-      screen.getByRole("checkbox", {
-        name: "Select " + first.name,
+      screen.getByRole("button", {
+        name: "Remove Member One from attendance",
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(true);
 });
-it("attendance can add a paid drop-in charge without creating a reservation", async () => {
-  let charged = false;
-  const writes: { path: string; body: Record<string, unknown> }[] = [];
+it("a denied write clears the private picker and list", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const path = new URL(String(input), "https://test").pathname;
-      if (init?.method === "POST") {
-        writes.push({ path, body: JSON.parse(String(init.body)) });
-        charged = true;
-        return Response.json({ id: second.id });
-      }
-      if (path.endsWith("/attendance"))
-        return Response.json({
-          items: [
-            {
-              ...first,
-              status: "present",
-              version: 1,
-              billing: {
-                id: charged ? second.id : first.id,
-                personId: first.id,
-                name: first.name,
-                contactVersion: 1,
-                sessionVersion: 1,
-                amountMinor: 1000,
-                paidMinor: 0,
-                outstandingMinor: 1000,
-                version: charged ? 1 : 0,
-                status: charged ? "unpaid" : "not_charged",
-                canCharge: !charged,
-                reviewRequired: false,
-                createdAt: first.createdAt,
-              },
-            },
-          ],
-          summary,
-          nextCursor: null,
-        });
-      return Response.json({
-        item: { ...session, priceMinor: 1000, canCollect: true },
-      });
+      if (init?.method === "POST")
+        return Response.json({ code: "forbidden" }, { status: 403 });
+      return Response.json(
+        String(input).includes("/attendance")
+          ? { items: [second], summary, nextCursor: null }
+          : { item: session },
+      );
     }),
   );
   mount();
   const user = userEvent.setup();
-  await screen.findByText(/Unpaid/);
+  const sheet = await openPicker(user);
   await user.click(
-    screen.getByRole("button", { name: "Actions for Member One" }),
+    await within(sheet).findByRole("button", { name: "Select Member Two" }),
   );
-  await user.click(
-    await screen.findByRole("menuitem", { name: "Add session charge" }),
-  );
-  const confirm = await screen.findByRole("alertdialog");
-  expect(
-    within(confirm).getByText(/does not create a reservation/),
-  ).toBeTruthy();
-  await user.click(
-    within(confirm).getByRole("button", { name: "Add session charge" }),
-  );
-  await screen.findByText(/Unpaid/);
-  expect(writes).toHaveLength(1);
-  expect(writes[0]!.path).toContain("/cash");
-  expect(writes[0]!.body).toMatchObject({
-    action: "charge",
-    personId: first.id,
-    contactVersion: 1,
-    sessionVersion: 1,
-  });
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(screen.queryByText(second.name)).toBeNull();
+  await screen.findByRole("alert");
 });
-it("attendance-only rows have no payment controls or financial amounts", async () => {
+it("attendance-only staff have no financial controls", async () => {
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL) =>
       Response.json(
         String(input).includes("/attendance")
-          ? { items: [{ ...first, billing: null }], summary, nextCursor: null }
+          ? {
+              items: [{ ...present, billing: null }],
+              summary,
+              nextCursor: null,
+            }
           : { item: session },
       ),
     ),
   );
   mount();
-  const user = userEvent.setup();
-  await screen.findByText(first.name);
-  await user.click(
-    screen.getByRole("button", { name: "Actions for Member One" }),
-  );
-  expect(screen.queryByRole("menuitem", { name: "Record cash" })).toBeNull();
+  await screen.findByRole("heading", { name: first.name });
   expect(
-    screen.queryByRole("menuitem", { name: "Add session charge" }),
+    screen.queryByRole("button", { name: "Record payment for Member One" }),
   ).toBeNull();
-  expect(screen.queryByText(/Not charged yet/)).toBeNull();
+  expect(screen.queryByText("Unpaid")).toBeNull();
 });
-
-it("adds a participant and records payment directly from the attendance list", async () => {
-  let attended = false,
-    paid = false;
-  const writes: { path: string; body: Record<string, unknown> }[] = [];
+it("payment stays directly accessible on the present list", async () => {
+  let paid = false;
+  let payload: Record<string, unknown> | undefined;
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = new URL(String(input), "https://test");
       if (init?.method === "POST") {
-        const body = JSON.parse(String(init.body));
-        writes.push({ path: url.pathname, body });
-        if (url.pathname.endsWith("/attendance")) {
-          attended = true;
-          return Response.json({
-            items: [
-              {
-                personId: first.id,
-                outcome: "saved",
-                status: "present",
-                version: 1,
-              },
-            ],
-          });
-        }
+        payload = JSON.parse(String(init.body));
         paid = true;
         return Response.json({ id: second.id });
       }
-      if (url.pathname.endsWith("/attendance")) {
-        const person = {
-          ...first,
-          status: attended ? "present" : "unmarked",
-          version: attended ? 1 : 0,
-          billing: {
-            id: paid ? second.id : first.id,
-            personId: first.id,
-            name: first.name,
-            contactVersion: 1,
-            sessionVersion: 1,
-            amountMinor: 1000,
-            paidMinor: paid ? 1000 : 0,
-            outstandingMinor: paid ? 0 : 1000,
-            version: paid ? 1 : 0,
-            status: paid ? "paid" : "not_charged",
-            reviewRequired: false,
-            canCharge: !paid,
-            createdAt: first.createdAt,
-          },
-        };
-        return Response.json({
-          items:
-            attended || url.searchParams.get("roster") === "all"
-              ? [person]
-              : [],
-          nextCursor: null,
-          summary,
-        });
-      }
-      return Response.json({ item: { ...session, priceMinor: 1000 } });
+      return Response.json(
+        String(input).includes("/attendance")
+          ? {
+              items: [
+                {
+                  ...present,
+                  billing: paid
+                    ? {
+                        ...unpaid,
+                        status: "paid",
+                        paidMinor: 1000,
+                        outstandingMinor: 0,
+                      }
+                    : unpaid,
+                },
+              ],
+              summary,
+              nextCursor: null,
+            }
+          : { item: session },
+      );
     }),
   );
   mount();
   const user = userEvent.setup();
   await user.click(
-    await screen.findByRole("button", { name: "Add participant" }),
+    await screen.findByRole("button", {
+      name: "Record payment for Member One",
+    }),
   );
-  let sheet = await screen.findByRole("dialog");
-  await user.click(
-    await within(sheet).findByRole("button", { name: "Select Member One" }),
-  );
-  sheet = await screen.findByRole("dialog");
-  await user.click(
-    within(sheet).getByRole("button", { name: "Save attendance" }),
-  );
-  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
-  await screen.findByRole("heading", { name: first.name });
-  expect(writes).toHaveLength(1);
-  expect(writes[0]!.path).toMatch(/attendance$/);
-  await user.click(
-    screen.getByRole("button", { name: "Record payment for Member One" }),
-  );
-  sheet = await screen.findByRole("dialog");
+  const sheet = await screen.findByRole("dialog");
   await user.click(
     within(sheet).getByRole("button", { name: /Record.*10.*cash/ }),
   );
   await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
   await screen.findByText("Paid");
-  expect(writes).toHaveLength(2);
-  expect(writes[1]!.path).toMatch(/cash$/);
-  expect(writes[1]!.body).toMatchObject({
-    action: "record",
-    amountMinor: 1000,
-    allocations: [{ personId: first.id, amountMinor: 1000 }],
-  });
+  expect(payload).toMatchObject({ action: "record", amountMinor: 1000 });
   expect(
     screen.queryByRole("button", { name: "Record payment for Member One" }),
   ).toBeNull();

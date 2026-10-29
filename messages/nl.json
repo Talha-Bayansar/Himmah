@@ -696,7 +696,14 @@
   "quick_cash_receipt_details": "Bongegevens (optioneel)",
   "quick_cash_people": "Personen",
   "attendance_add": "Deelnemer toevoegen",
-  "attendance_add_help": "Kies een contact en registreer de aanwezigheid. Betalingen registreer je daarna bij de deelnemer.",
+  "attendance_add_help": "Kies een contact om als aanwezig toe te voegen.",
   "attendance_roster_participants": "Deelnemers van deze sessie",
-  "attendance_added": "Staat al op deze lijst"
+  "attendance_added": "Staat al op deze lijst",
+  "attendance_remove": "Verwijderen",
+  "attendance_remove_for": "{name} uit de aanwezigheidslijst verwijderen",
+  "attendance_remove_help": "{name} uit de aanwezigheidslijst verwijderen? Betalingen blijven bewaard.",
+  "attendance_added_success": "Deelnemer toegevoegd.",
+  "attendance_removed_success": "Deelnemer verwijderd.",
+  "attendance_present_count": "{count} aanwezig",
+  "attendance_present_empty": "Er is nog niemand aanwezig. Voeg een deelnemer toe."
 }

@@ -295,8 +295,8 @@ test("Retained scheduling, attendance, staff access and notifications operate on
         );
         assert.equal(
           (await attendance.summary("owner", org, activity, session))[0]!
-            .absent,
-          1,
+            .present,
+          0,
         );
       },
     );

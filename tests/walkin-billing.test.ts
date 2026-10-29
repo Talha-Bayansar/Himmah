@@ -1,4 +1,5 @@
 import test from "node:test";
+import { attendanceApi } from "../src/server/attendance-api.ts";
 import assert from "node:assert/strict";
 import { PGlite } from "@electric-sql/pglite";
 import { PgDialect } from "drizzle-orm/pg-core";
@@ -214,6 +215,142 @@ test("paid drop-in participants can be charged and pay without any reservation",
               .result as any
           ).expected,
           null,
+        );
+      },
+    );
+    await t.test(
+      "present-only API removes and re-adds with exact retry, without changing payments",
+      async () => {
+        const path = `https://himmah.test/api/organizations/${org}/activities/${activity}/sessions/${session}/attendance`;
+        const call = async (
+          body?: Record<string, unknown>,
+          suffix = "",
+          actor = "owner",
+        ) => {
+          const response = await attendanceApi(
+            new Request(
+              path + suffix,
+              body
+                ? {
+                    method: "POST",
+                    body: JSON.stringify(body),
+                  }
+                : {},
+            ),
+            { id: actor, emailVerified: true },
+            { get: async () => ({ role: "owner" }) } as any,
+            activities,
+            attendance,
+          );
+          return {
+            status: response!.status,
+            body: (await response!.json()) as any,
+          };
+        };
+        assert.deepEqual(
+          new Set((await call()).body.items.map((row: any) => row.id)),
+          new Set([a, b]),
+        );
+        assert.deepEqual(
+          (await call(undefined, "?roster=available")).body.items.map(
+            (row: any) => row.id,
+          ),
+          [c],
+        );
+        const before = (
+          await cash.person("owner", org, activity, session, a)
+        )[0]!.item;
+        const payload = {
+          key: key(),
+          action: "remove",
+          personId: a,
+          version: 1,
+        };
+        const removed = await call(payload);
+        assert.equal(removed.status, 200);
+        assert.equal(removed.body.items[0].outcome, "saved");
+        assert.deepEqual(await call(payload), removed);
+        assert.equal((await call()).body.summary.present, 1);
+        assert.equal(
+          (await call()).body.items.some((row: any) => row.id === a),
+          false,
+        );
+        const available = (await call(undefined, "?roster=available")).body
+          .items;
+        assert.equal(available.find((row: any) => row.id === a).version, 2);
+        const firstPage = await call(undefined, "?roster=available&limit=1");
+        assert.equal(firstPage.body.items.length, 1);
+        assert.ok(firstPage.body.nextCursor);
+        const secondPage = await call(
+          undefined,
+          "?roster=available&limit=1&cursor=" +
+            encodeURIComponent(firstPage.body.nextCursor),
+        );
+        assert.equal(secondPage.body.items.length, 1);
+        assert.notEqual(
+          firstPage.body.items[0].id,
+          secondPage.body.items[0].id,
+        );
+        assert.equal(
+          (
+            await call(
+              undefined,
+              "?roster=participants&limit=1&cursor=" +
+                encodeURIComponent(firstPage.body.nextCursor),
+            )
+          ).status,
+          400,
+        );
+
+        assert.equal(
+          available.some((row: any) => row.id === b),
+          false,
+        );
+        assert.deepEqual(
+          (await cash.person("owner", org, activity, session, a))[0]!.item,
+          before,
+        );
+        assert.equal(
+          (await call({ key: key(), action: "add", personId: a, version: 1 }))
+            .body.items[0].outcome,
+          "conflict",
+        );
+        const readded = await call({
+          key: key(),
+          action: "add",
+          personId: a,
+          version: 2,
+        });
+        assert.equal(readded.body.items[0].outcome, "saved");
+        assert.equal((await call()).body.summary.present, 2);
+        assert.deepEqual(
+          (await cash.person("owner", org, activity, session, a))[0]!.item,
+          before,
+        );
+        assert.equal(await count("hub_cash_receipts"), 1);
+        assert.equal(await count("hub_registration_charges"), 2);
+        assert.equal(
+          (
+            await call({
+              key: key(),
+              status: "absent",
+              reason: "",
+              items: [{ personId: a, version: 3 }],
+            })
+          ).status,
+          400,
+        );
+        assert.equal((await call(payload, "", "cash")).status, 403);
+        // A duplicate add cannot create another participant or attendance event.
+        assert.equal(
+          (await call({ key: key(), action: "add", personId: a, version: 3 }))
+            .body.items[0].outcome,
+          "unchanged",
+        );
+        assert.equal(
+          (await attendance.history("owner", org, activity, session, a, p))
+            .length,
+          3,
         );
       },
     );

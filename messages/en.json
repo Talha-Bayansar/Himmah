@@ -696,7 +696,14 @@
   "quick_cash_receipt_details": "Receipt details (optional)",
   "quick_cash_people": "People",
   "attendance_add": "Add participant",
-  "attendance_add_help": "Choose a contact and record their attendance. Payment can be recorded from their row.",
+  "attendance_add_help": "Choose a contact to mark them present.",
   "attendance_roster_participants": "Session participants",
-  "attendance_added": "Already on this list"
+  "attendance_added": "Already on this list",
+  "attendance_remove": "Remove",
+  "attendance_remove_for": "Remove {name} from attendance",
+  "attendance_remove_help": "Remove {name} from the present list? Their payments will be kept.",
+  "attendance_added_success": "Participant added.",
+  "attendance_removed_success": "Participant removed.",
+  "attendance_present_count": "{count} present",
+  "attendance_present_empty": "No one is present yet. Add a participant to get started."
 }

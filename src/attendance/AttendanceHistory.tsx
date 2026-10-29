@@ -89,7 +89,15 @@ export function AttendanceHistory({
                         name: change.actorName ?? m.attendance_staff(),
                       })}
                     </p>
-                    {change.reason && <p>{change.reason}</p>}
+                    {change.reason && (
+                      <p>
+                        {change.reason === "Added to attendance list"
+                          ? m.attendance_added_success()
+                          : change.reason === "Removed from attendance list"
+                            ? m.attendance_removed_success()
+                            : change.reason}
+                      </p>
+                    )}
                   </article>
                 ))}
             </div>

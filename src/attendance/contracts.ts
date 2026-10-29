@@ -22,9 +22,6 @@ export type AttendancePerson = {
 export type AttendanceSummary = {
   total: number;
   present: number;
-  absent: number;
-  excused: number;
-  unmarked: number;
   canEdit: boolean;
   cancelled: boolean;
   startsAt: string;
@@ -95,4 +92,23 @@ export function attendanceInput(
     reason: body.reason.trim(),
     items,
   };
+}
+
+/** Public attendance commands are binary; legacy states remain only in audit storage. */
+export function attendanceMembershipInput(
+  body: Record<string, unknown>,
+): AttendanceInput {
+  if (body.action !== "add" && body.action !== "remove")
+    throw new CommunityError("invalid_input");
+  if ("status" in body || "reason" in body || "items" in body)
+    throw new CommunityError("invalid_input");
+  return attendanceInput({
+    key: body.key,
+    status: body.action === "add" ? "present" : "unmarked",
+    reason:
+      body.action === "add"
+        ? "Added to attendance list"
+        : "Removed from attendance list",
+    items: [{ personId: body.personId, version: body.version }],
+  });
 }

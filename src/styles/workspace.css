@@ -2241,10 +2241,11 @@ button[data-slot="button"].people-section-add {
   min-width: 0;
 }
 .attendance-row-actions {
-  padding-inline-start: 56px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 }
 .attendance-row-actions > button {
-  flex: 1 1 0;
+  flex: 0 1 auto;
 }
 .cash-page > .cash-totals {
   grid-template-columns: repeat(2, minmax(0, 1fr));
