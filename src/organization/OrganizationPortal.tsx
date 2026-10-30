@@ -1,3 +1,4 @@
+import PlannedSessions from "../dashboard/PlannedSessions";
 import Dashboard from "../dashboard/Dashboard";
 import Insights from "../insights/Insights";
 import {
@@ -278,6 +279,14 @@ export default function OrganizationPortal({
       if (workspaceSection === "dashboard")
         return (
           <Dashboard
+            key={user.id + org.id + org.role}
+            organization={org}
+            userId={user.id}
+          />
+        );
+      if (workspaceSection === "schedule")
+        return (
+          <PlannedSessions
             key={user.id + org.id + org.role}
             organization={org}
             userId={user.id}

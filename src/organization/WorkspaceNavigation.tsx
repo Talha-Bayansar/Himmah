@@ -7,6 +7,7 @@ export const workspaceSections = [
   "dashboard",
   "people",
   "activities",
+  "schedule",
   "insights",
   "manage",
   "organization",
@@ -61,7 +62,11 @@ export function WorkspaceNavigation({
       <Link
         to="/workspace/$organizationId/$section"
         params={{ organizationId, section: "activities" }}
-        aria-current={section === "activities" ? "page" : undefined}
+        aria-current={
+          section === "activities" || section === "schedule"
+            ? "page"
+            : undefined
+        }
       >
         <CalendarDays aria-hidden="true" size={20} />
         <span>{m.activities_title()}</span>

@@ -830,5 +830,9 @@
   "series_refresh": "Refresh and review again",
   "directory_series_limit": "Choose 2–52 sessions within one year, and select at least one weekday.",
   "series_free": "Free participation",
-  "series_price_help": "Each session uses this price. Registration stays optional."
+  "series_price_help": "Each session uses this price. Registration stays optional.",
+  "schedule_title": "Planned sessions",
+  "schedule_description": "All current and upcoming sessions, in date order.",
+  "schedule_search": "Search activities, topics or locations",
+  "schedule_refresh": "Refresh sessions"
 }

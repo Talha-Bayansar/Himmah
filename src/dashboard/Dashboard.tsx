@@ -1,3 +1,4 @@
+import { SessionList } from "./SessionList";
 import { Statistic } from "../insights/Statistic";
 import { perSession } from "../insights/statistics";
 import { CalendarCheck, ChartNoAxesColumn, Wallet } from "lucide-react";
@@ -7,16 +8,11 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays, RefreshCw, Users } from "lucide-react";
 import { directoryRequest, DirectoryError } from "../community/client";
 import { ErrorNotice } from "../activities/Activities";
-import {
-  DirectoryHeader,
-  DirectoryList,
-  DirectoryItem,
-  DirectoryRecord,
-} from "../components/shared/directory-layout";
+import { DirectoryHeader } from "../components/shared/directory-layout";
 import { ListSkeleton } from "../components/shared/infinite-list";
 import { Button } from "../components/ui/button";
 import { useLocale } from "../localization/locale";
-import { sessionPrice, sessionTitle } from "../activities/contracts";
+import { sessionPrice } from "../activities/contracts";
 import type { Organization } from "../organization/contracts";
 import { insightsFilters, type InsightsReport } from "../insights/contracts";
 import type { DashboardReport } from "./contracts";
@@ -75,7 +71,12 @@ export default function Dashboard({
   useEffect(() => {
     if (!deniedError) return;
     setAccessError(deniedError);
-    for (const part of ["dashboard", "insights", "insights-options"]) {
+    for (const part of [
+      "dashboard",
+      "planned-sessions",
+      "insights",
+      "insights-options",
+    ]) {
       const queryKey = ["organization", userId, organization.id, part];
       void cache.cancelQueries({ queryKey });
       cache.removeQueries({ queryKey });
@@ -133,8 +134,9 @@ export default function Dashboard({
         <div className="dashboard-section-heading">
           <h2 id="dashboard-upcoming">{m.dashboard_upcoming()}</h2>
           <Link
-            to="/workspace/$organizationId/$section"
-            params={{ organizationId: organization.id, section: "activities" }}
+            to="/workspace/$organizationId/schedule"
+            params={{ organizationId: organization.id }}
+            search={{ q: "" }}
           >
             {m.dashboard_all_activities()}
             <ArrowRight aria-hidden="true" size={16} />
@@ -155,43 +157,11 @@ export default function Dashboard({
               {upcoming.data.items.length === 0 ? (
                 <p className="directory-empty">{m.dashboard_no_sessions()}</p>
               ) : (
-                <DirectoryList label={m.dashboard_upcoming()}>
-                  {upcoming.data.items.map((item) => (
-                    <DirectoryItem key={item.id} linked>
-                      <Link
-                        className="directory-item-link"
-                        to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
-                        params={{
-                          organizationId: organization.id,
-                          activityId: item.activityId,
-                          sessionId: item.id,
-                        }}
-                      >
-                        <DirectoryRecord
-                          name={sessionTitle(item)}
-                          detail={
-                            <>
-                              {item.topic && <span>{item.name}</span>}
-                              <time dateTime={item.startsAt}>
-                                {new Intl.DateTimeFormat(locale, {
-                                  dateStyle: "medium",
-                                  timeStyle: "short",
-                                  timeZone: item.timezone,
-                                }).formatRange(
-                                  new Date(item.startsAt),
-                                  new Date(item.endsAt),
-                                )}
-                              </time>
-                              {item.location && <span>{item.location}</span>}
-                            </>
-                          }
-                          icon={<CalendarDays aria-hidden="true" size={20} />}
-                        />
-                        <ArrowRight aria-hidden="true" size={18} />
-                      </Link>
-                    </DirectoryItem>
-                  ))}
-                </DirectoryList>
+                <SessionList
+                  items={upcoming.data.items}
+                  organizationId={organization.id}
+                  label={m.dashboard_upcoming()}
+                />
               )}
               <p className="activity-note dashboard-freshness">
                 {m.insights_generated({

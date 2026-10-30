@@ -263,7 +263,9 @@ export function createHandler(
         );
       }
       const store = deps.store(env.HIMMAH_DATABASE_URL);
-      if (/^\/api\/organizations\/[^/]+\/dashboard$/.test(url.pathname)) {
+      if (
+        /^\/api\/organizations\/[^/]+\/(dashboard|sessions)$/.test(url.pathname)
+      ) {
         const allowed = await (
           env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
         ).limit({ key: `dashboard:${user.id}` });

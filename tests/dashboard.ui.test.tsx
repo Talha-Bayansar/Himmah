@@ -106,6 +106,9 @@ it("shows bounded upcoming work, compact monthly totals and real links without a
   expect(link.getAttribute("href")).toBe(
     `/workspace/${org.id}/activities/${session.activityId}/sessions/${session.id}`,
   );
+  expect(
+    screen.getByRole("link", { name: /All activities/ }).getAttribute("href"),
+  ).toBe(`/workspace/${org.id}/schedule?q=`);
   expect(await screen.findByText("18")).toBeTruthy();
   expect(
     screen.getByRole("link", { name: /View insights/ }).getAttribute("href"),
@@ -134,6 +137,9 @@ it("keeps empty upcoming work distinct from a report with zero values", async ()
   mount();
   await screen.findByText("No upcoming sessions to show.");
   expect(screen.getByRole("link", { name: /All activities/ })).toBeTruthy();
+  expect(
+    screen.getByRole("link", { name: /All activities/ }).getAttribute("href"),
+  ).toBe(`/workspace/${org.id}/schedule?q=`);
   expect(await screen.findByText("18")).toBeTruthy();
 });
 it("recovers an upcoming failure without losing the independently available summary", async () => {
@@ -141,6 +147,9 @@ it("recovers an upcoming failure without losing the independently available summ
   backend();
   mount();
   await screen.findByRole("alert");
+  expect(
+    screen.getByRole("link", { name: /All activities/ }).getAttribute("href"),
+  ).toBe(`/workspace/${org.id}/schedule?q=`);
   expect(await screen.findByText("18")).toBeTruthy();
   failure = false;
   await userEvent.click(screen.getByRole("button", { name: /Try again/ }));
@@ -154,6 +163,10 @@ it("clears both dashboard and report caches on access loss and hides stale priva
   cache.setQueryData(["organization", "staff", org.id, "insights", "fixture"], {
     private: true,
   });
+  cache.setQueryData(
+    ["organization", "staff", org.id, "planned-sessions", "fixture"],
+    { private: true },
+  );
   denied = true;
   await userEvent.click(
     screen.getByRole("button", { name: "Refresh dashboard" }),
@@ -168,7 +181,15 @@ it("clears both dashboard and report caches on access loss and hides stale priva
       queryKey: ["organization", "staff", org.id, "insights"],
     }),
   ).toHaveLength(0);
+  expect(
+    cache.getQueriesData({
+      queryKey: ["organization", "staff", org.id, "planned-sessions"],
+    }),
+  ).toHaveLength(0);
   denied = false;
   await userEvent.click(screen.getByRole("button", { name: /Try again/ }));
+  expect(
+    screen.getByRole("link", { name: /All activities/ }).getAttribute("href"),
+  ).toBe(`/workspace/${org.id}/schedule?q=`);
   expect(await screen.findByText("18")).toBeTruthy();
 });

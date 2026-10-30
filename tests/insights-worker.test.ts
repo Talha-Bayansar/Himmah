@@ -92,6 +92,10 @@ test("Dashboard Worker dispatch authenticates and rate limits even read-only sco
         get: async () => ({ id: org, role: "volunteer", timezone: "UTC" }),
       }) as unknown as OrganizationStore,
     dashboard: () => ({
+      sessions: async () => {
+        calls++;
+        return [];
+      },
       get: async () => {
         calls++;
         return [{ items: [], generatedAt: new Date().toISOString() }];
@@ -125,4 +129,16 @@ test("Dashboard Worker dispatch authenticates and rate limits even read-only sco
   verified = false;
   assert.equal((await handler(request(), env)).status, 403);
   assert.equal(calls, 1);
+  verified = true;
+  const sessionsRequest = () =>
+    new Request(`${origin}/api/organizations/${org}/sessions`, {
+      headers: { Origin: origin, Cookie: "session=opaque" },
+    });
+  const planned = await handler(sessionsRequest(), env);
+  assert.equal(planned.status, 200);
+  assert.deepEqual(await planned.json(), { items: [], nextCursor: null });
+  assert.equal(calls, 2);
+  allowed = false;
+  assert.equal((await handler(sessionsRequest(), env)).status, 429);
+  assert.equal(calls, 2);
 });

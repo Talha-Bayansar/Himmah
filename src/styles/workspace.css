@@ -2415,13 +2415,14 @@ button[data-slot="button"].people-section-add {
 /* Dashboard: bounded daily work preview, compact actions and a report summary. */
 .dashboard-page { display: grid; gap: var(--space-8); }
 .dashboard-page > .directory-heading { flex-direction: row; margin-bottom: 0; }
-.dashboard-page > .directory-heading > button { width: 48px; }
+.planned-sessions > .directory-heading { flex-direction: row; }
+:is(.dashboard-page,.planned-sessions) > .directory-heading > button { width: 48px; }
 .dashboard-section { display: grid; gap: var(--space-3); min-width: 0; }
 .dashboard-section-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); }
 .dashboard-section h2 { font-size: 20px; font-weight: 650; }
 .dashboard-section-heading > a { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; font-size: var(--text-supporting); font-weight: 600; }
-.dashboard-section .directory-record { min-width: 0; }
-.dashboard-section .directory-record p { margin: 0; display: grid; gap: var(--space-1); }
+:is(.dashboard-section,.planned-sessions) .directory-record { min-width: 0; }
+:is(.dashboard-section,.planned-sessions) .directory-record p { margin: 0; display: grid; gap: var(--space-1); }
 .dashboard-freshness { font-size: var(--text-supporting); }
 .dashboard-shortcuts { display: grid; gap: var(--space-3); }
 .dashboard-shortcuts > a { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-control); min-height: 48px; }

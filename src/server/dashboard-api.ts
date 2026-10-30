@@ -1,4 +1,9 @@
-import { CommunityError, uuid } from "../community/contracts.ts";
+import {
+  CommunityError,
+  uuid,
+  pageInput,
+  pageResult,
+} from "../community/contracts.ts";
 import type { OrganizationStore } from "./store.ts";
 import type { DashboardStore } from "./dashboard-store.ts";
 export async function dashboardApi(
@@ -7,8 +12,9 @@ export async function dashboardApi(
   organizations: OrganizationStore,
   store: DashboardStore,
 ) {
-  const match = new URL(request.url).pathname.match(
-    /^\/api\/organizations\/([0-9a-f-]{36})\/dashboard$/i,
+  const url = new URL(request.url);
+  const match = url.pathname.match(
+    /^\/api\/organizations\/([0-9a-f-]{36})\/(dashboard|sessions)$/i,
   );
   if (!match) return null;
   const respond = (value: unknown, status = 200) =>
@@ -25,6 +31,19 @@ export async function dashboardApi(
     if (!(await organizations.get(user.id, org)))
       throw new CommunityError("not_found", 404);
     if (request.method !== "GET") throw new CommunityError("not_found", 404);
+    if (match[2] === "sessions") {
+      const input = pageInput(url, user.id + ":" + org + "/planned-sessions");
+      if (input.groupId || input.archived)
+        throw new CommunityError("invalid_input");
+      const rows = await store.sessions(user.id, org, input);
+      return respond(
+        pageResult(
+          rows as { id: string; createdAt: string; startsAt: string }[],
+          input,
+          (row) => row.startsAt,
+        ),
+      );
+    }
     const report = (await store.get(user.id, org))[0];
     if (!report) throw new CommunityError("forbidden", 403);
     return respond(report);

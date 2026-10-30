@@ -154,3 +154,7 @@ Session topics are optional plain text. Where present, the topic leads the sessi
 Recurring planning and multi-session schedule review use the shared dedicated page form. Keep the existing one-session sheet and compact Plan recurring sessions / Change schedule secondary actions. Use bounded divided date rows, visible timezone and creation price/location, and paired old/new times when changing an existing series. The preview scrolls with the document. Follow [recurring session behavior](RECURRENCE.md) for snapshots, safe retries and history protection.
 
 [Recurring date preview](design/recurring-preview-mobile.png) — synthetic Dutch 390px example, with document scrolling for longer series.
+
+Home's coming-up preview and full planned-session agenda share `SessionList`: compact full-row session links, topic with activity context, local date/time range and optional location. The full agenda uses the shared directory heading/search, document scrolling and pagination footer; Home stays bounded to three rows. Keep the activity directory as the separate Activities destination. See [dashboard and planned-session behavior](INSIGHTS.md).
+
+[Planned-session list](design/planned-sessions-mobile.png) — synthetic Dutch 390px example, sharing Home's compact session row.

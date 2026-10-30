@@ -830,5 +830,9 @@
   "series_refresh": "Vernieuwen en opnieuw bekijken",
   "directory_series_limit": "Kies 2–52 sessies binnen één jaar en selecteer minstens één weekdag.",
   "series_free": "Gratis deelname",
-  "series_price_help": "Elke sessie gebruikt deze prijs. Inschrijven blijft optioneel."
+  "series_price_help": "Elke sessie gebruikt deze prijs. Inschrijven blijft optioneel.",
+  "schedule_title": "Geplande sessies",
+  "schedule_description": "Alle lopende en komende sessies, op datum gesorteerd.",
+  "schedule_search": "Zoek activiteiten, onderwerpen of locaties",
+  "schedule_refresh": "Sessies vernieuwen"
 }

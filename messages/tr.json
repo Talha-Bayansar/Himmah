@@ -830,5 +830,9 @@
   "series_refresh": "Yenile ve yeniden gözden geçir",
   "directory_series_limit": "Bir yıl içinde 2–52 oturum ve en az bir gün seçin.",
   "series_free": "Ücretsiz katılım",
-  "series_price_help": "Her oturumda bu fiyat geçerlidir. Kayıt isteğe bağlı kalır."
+  "series_price_help": "Her oturumda bu fiyat geçerlidir. Kayıt isteğe bağlı kalır.",
+  "schedule_title": "Planlanan oturumlar",
+  "schedule_description": "Devam eden ve yaklaşan tüm oturumlar, tarih sırasına göre.",
+  "schedule_search": "Etkinlik, konu veya yer ara",
+  "schedule_refresh": "Oturumları yenile"
 }
