@@ -158,3 +158,7 @@ Recurring planning and multi-session schedule review use the shared dedicated pa
 Home's coming-up preview and full planned-session agenda share `SessionList`: compact full-row session links, topic with activity context, local date/time range and optional location. The full agenda uses the shared directory heading/search, document scrolling and pagination footer; Home stays bounded to three rows. Keep the activity directory as the separate Activities destination. See [dashboard and planned-session behavior](INSIGHTS.md).
 
 [Planned-session list](design/planned-sessions-mobile.png) — synthetic Dutch 390px example, sharing Home's compact session row.
+
+Attendance rows use compact inset padding with vertically centered selection/name/menu controls. Render the payment-action area only when a visible action exists; free/read-only rows must not reserve blank action space. Selected rows use the shared quiet forest surface alongside the checked control. Retain the labelled paid/unpaid action and the shared more-menu hierarchy.
+
+[Compact attendance rows](design/attendance-compact-mobile.png) — synthetic Dutch mobile example for a free session.

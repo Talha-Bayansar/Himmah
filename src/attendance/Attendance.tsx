@@ -375,7 +375,11 @@ export default function Attendance({
         <>
           <div className="attendance-list">
             {rows.map((row) => (
-              <article className="attendance-row" key={row.id}>
+              <article
+                className="attendance-row"
+                key={row.id}
+                data-selected={selected.has(row.id)}
+              >
                 <div className="attendance-row-heading">
                   <Checkbox
                     aria-label={m.attendance_select({ name: row.name })}
@@ -492,11 +496,11 @@ export default function Attendance({
                     ]}
                   />
                 </div>
-                <div className="attendance-row-actions">
-                  {!financialDenied &&
-                    row.billing &&
-                    !row.billing.reviewRequired &&
-                    !row.billing.registrationRequired && (
+                {!financialDenied &&
+                  row.billing &&
+                  !row.billing.reviewRequired &&
+                  !row.billing.registrationRequired && (
+                    <div className="attendance-row-actions">
                       <Button
                         type="button"
                         variant="outline"
@@ -517,8 +521,8 @@ export default function Attendance({
                           ? m.management_mark_unpaid()
                           : m.management_mark_paid()}
                       </Button>
-                    )}
-                </div>
+                    </div>
+                  )}
               </article>
             ))}
           </div>

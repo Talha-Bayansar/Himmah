@@ -1066,18 +1066,18 @@ html {
   gap: var(--space-3);
   border: 0;
   border-radius: 0;
-  padding: 16px 0;
+  padding: 12px 8px;
   background: transparent;
   min-width: 0;
   border-bottom: 1px solid var(--border);
 }
 .attendance-row-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
 }
 .attendance-row-heading > [data-slot="checkbox"] {
-  margin-top: 6px;
+  margin-top: 0;
   width: 24px;
   height: 24px;
   flex-shrink: 0;
@@ -1085,6 +1085,10 @@ html {
 .attendance-row-heading > div {
   flex: 1;
   min-width: 0;
+}
+.attendance-row[data-selected="true"] {
+  background: var(--secondary);
+  border-radius: var(--radius-control);
 }
 .attendance-row h2 {
   margin: 0;
@@ -2244,6 +2248,7 @@ button[data-slot="button"].people-section-add {
 .attendance-row-actions {
   justify-content: flex-start;
   flex-wrap: wrap;
+  padding-inline-start: 36px;
 }
 .attendance-row-actions > button {
   flex: 0 1 auto;
