@@ -38,6 +38,17 @@ export type InsightsReport = {
     registrations: number;
     registeredPresent: number;
     walkIns: number;
+    previous?: {
+      sessions: number;
+      visits: number;
+      unique: number;
+      first: number;
+      returning: number;
+      chargedMinor: number;
+      paidMinor: number;
+      outstandingMinor: number;
+    };
+    comparisonKind?: "month" | "period";
     previousVisits: number;
     previousFrom: string;
     previousTo: string;

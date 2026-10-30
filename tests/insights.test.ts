@@ -216,6 +216,48 @@ test("Insights SQL/API reconciles attendance, historical cohorts, cash timing, c
       },
     );
     await t.test(
+      "calendar comparisons reconcile prior participation and correction-aware balances without current-period leakage",
+      async () => {
+        const r = await report({ from: "2020-03-01", to: "2020-03-31" });
+        assert.equal(r.summary.comparisonKind, "month");
+        assert.equal(r.summary.previousFrom, "2020-02-01");
+        assert.equal(r.summary.previousTo, "2020-02-29");
+        assert.deepEqual(r.summary.previous, {
+          sessions: 1,
+          visits: 1,
+          unique: 1,
+          first: 1,
+          returning: 0,
+          chargedMinor: 200,
+          paidMinor: 50,
+          outstandingMinor: 150,
+        });
+        assert.equal(r.summary.first, 2);
+        assert.equal(r.summary.returning, 1);
+        // A partial month compares February 1–5, not all of February or the intervening days.
+        const partial = await report({ from: "2020-03-01", to: "2020-03-05" });
+        assert.equal(partial.summary.previousTo, "2020-02-05");
+        assert.equal(partial.summary.previous.visits, 0);
+        assert.equal(partial.summary.previous.chargedMinor, 0);
+        assert.equal(partial.summary.visits, 0);
+        assert.equal(partial.summary.chargedMinor, 0);
+        const activityScoped = await report({
+          from: "2020-03-01",
+          to: "2020-03-31",
+          activity,
+        });
+        assert.equal(activityScoped.summary.previous.visits, 0);
+        assert.equal(activityScoped.summary.returning, 1);
+        const groupScoped = await report({
+          from: "2020-03-01",
+          to: "2020-03-31",
+          group,
+        });
+        assert.equal(groupScoped.summary.previous.visits, 1);
+        assert.equal(groupScoped.summary.previous.chargedMinor, 200);
+      },
+    );
+    await t.test(
       "group membership is historical and overlapping groups are not added together",
       async () => {
         const g = await report({ group }),
@@ -255,6 +297,24 @@ test("Insights SQL/API reconciles attendance, historical cohorts, cash timing, c
         assert.equal(r.summary.outstandingMinor, 3100);
         assert.equal(r.summary.cashMinor, 100);
         assert.equal(r.summary.visits, 4);
+      },
+    );
+    await t.test(
+      "prior-period balances also exclude contact-specific corrections",
+      async () => {
+        await db.exec("begin");
+        try {
+          await db.query(
+            `insert into hub_cash_allocation_corrections(organization_id,receipt_id,charge_id,request_key,reason,created_by)values($1,$2,$3,gen_random_uuid(),'unpaid','owner')`,
+            [org, receipts[3], charges[3]],
+          );
+          const r = await report({ from: "2020-03-01", to: "2020-03-31" });
+          assert.equal(r.summary.previous.paidMinor, 0);
+          assert.equal(r.summary.previous.outstandingMinor, 200);
+          assert.equal(r.summary.previous.visits, 1);
+        } finally {
+          await db.exec("rollback");
+        }
       },
     );
     const base = `https://himmah.test/api/organizations/${org}/insights?from=2020-03-30&to=2020-03-31`;

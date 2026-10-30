@@ -44,7 +44,23 @@ function backend() {
     return Response.json(
       url.includes("/dashboard")
         ? { items: empty ? [] : [session], generatedAt: "2026-10-30T10:00:00Z" }
-        : { summary: { visits: 18, unique: 12, outstandingMinor: 500 } },
+        : {
+            summary: {
+              sessions: 3,
+              visits: 18,
+              unique: 12,
+              outstandingMinor: 500,
+              previous: {
+                sessions: 2,
+                visits: 14,
+                unique: 10,
+                outstandingMinor: 1000,
+              },
+              comparisonKind: "month",
+              previousFrom: "2026-09-01",
+              previousTo: "2026-09-30",
+            },
+          },
     );
   });
   vi.stubGlobal("fetch", fetcher);
@@ -100,7 +116,7 @@ it("shows bounded upcoming work, compact monthly totals and real links without a
   expect(document.activeElement).not.toBe(
     screen.getByRole("heading", { name: "Home" }),
   );
-  expect(screen.getAllByRole("definition")).toHaveLength(3);
+  expect(screen.getAllByRole("definition")).toHaveLength(4);
 });
 it("volunteers see scoped sessions without requesting organization insights or administrator shortcuts", async () => {
   const fetcher = backend();

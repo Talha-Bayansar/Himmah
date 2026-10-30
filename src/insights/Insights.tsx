@@ -1,3 +1,15 @@
+import { Statistic } from "./Statistic";
+import { perSession, share } from "./statistics";
+import {
+  Users,
+  UserPlus,
+  Repeat2,
+  CalendarCheck,
+  ChartNoAxesColumn,
+  Wallet,
+  Coins,
+  CirclePercent,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouterState, Link } from "@tanstack/react-router";
@@ -401,25 +413,96 @@ export default function Insights({
               className="insights-metrics"
               aria-label={m.insights_participation()}
             >
-              {[
-                [m.insights_visits(), data.summary.visits],
-                [m.insights_unique(), data.summary.unique],
-                [m.insights_first(), data.summary.first],
-                [m.insights_returning(), data.summary.returning],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
+              <Statistic
+                label={m.insights_visits()}
+                icon={CalendarCheck}
+                value={data.summary.visits.toLocaleString(locale)}
+                current={data.summary.visits}
+                previous={data.summary.previous?.visits}
+              />
+              <Statistic
+                label={m.insights_unique()}
+                icon={Users}
+                value={data.summary.unique.toLocaleString(locale)}
+                current={data.summary.unique}
+                previous={data.summary.previous?.unique}
+              />
+              <Statistic
+                label={m.insights_first()}
+                icon={UserPlus}
+                value={data.summary.first.toLocaleString(locale)}
+                current={data.summary.first}
+                previous={data.summary.previous?.first}
+              />
+              <Statistic
+                label={m.insights_returning()}
+                icon={Repeat2}
+                value={data.summary.returning.toLocaleString(locale)}
+                current={data.summary.returning}
+                previous={data.summary.previous?.returning}
+              />
             </dl>
             <p className="activity-note">
-              {m.insights_previous({
-                count: String(data.summary.previousVisits),
+              {(data.summary.comparisonKind === "month"
+                ? m.statistics_compare_month
+                : m.statistics_compare_period)({
                 from: date(data.summary.previousFrom),
                 to: date(data.summary.previousTo),
               })}
             </p>
+            <section className="insights-section">
+              <h2>{m.statistics_context()}</h2>
+              <dl className="insights-context">
+                <Statistic
+                  label={m.statistics_average()}
+                  icon={ChartNoAxesColumn}
+                  value={
+                    perSession(
+                      data.summary.visits,
+                      data.summary.sessions,
+                    )?.toLocaleString(locale, { maximumFractionDigits: 1 }) ??
+                    m.statistics_no_denominator()
+                  }
+                  current={perSession(
+                    data.summary.visits,
+                    data.summary.sessions,
+                  )}
+                  previous={
+                    data.summary.previous &&
+                    perSession(
+                      data.summary.previous.visits,
+                      data.summary.previous.sessions,
+                    )
+                  }
+                />
+                <Statistic
+                  label={m.statistics_return_share()}
+                  icon={Repeat2}
+                  value={
+                    share(data.summary.returning, data.summary.unique) === null
+                      ? m.statistics_no_denominator()
+                      : m.statistics_percentage({
+                          value: share(
+                            data.summary.returning,
+                            data.summary.unique,
+                          )!.toLocaleString(locale, {
+                            maximumFractionDigits: 1,
+                          }),
+                        })
+                  }
+                  current={share(data.summary.returning, data.summary.unique)}
+                  previous={
+                    data.summary.previous &&
+                    share(
+                      data.summary.previous.returning,
+                      data.summary.previous.unique,
+                    )
+                  }
+                  points
+                  preference="neutral"
+                />
+              </dl>
+            </section>
             {!data.summary.sessions && (
               <p className="directory-empty">{m.insights_empty()}</p>
             )}
@@ -486,16 +569,71 @@ export default function Insights({
               <h2>{m.insights_payments()}</h2>
               <p className="activity-note">{m.insights_balance_help()}</p>
               <dl className="session-money-grid insights-money">
-                {[
-                  [m.insights_charged(), data.summary.chargedMinor],
-                  [m.management_received(), data.summary.paidMinor],
-                  [m.cash_outstanding(), data.summary.outstandingMinor],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <dt>{label}</dt>
-                    <dd>{money(Number(value))}</dd>
-                  </div>
-                ))}
+                <Statistic
+                  label={m.insights_charged()}
+                  icon={Coins}
+                  value={money(data.summary.chargedMinor)}
+                  current={data.summary.chargedMinor}
+                  previous={data.summary.previous?.chargedMinor}
+                  previousValue={
+                    data.summary.previous &&
+                    money(data.summary.previous.chargedMinor)
+                  }
+                  preference="neutral"
+                />
+                <Statistic
+                  label={m.management_received()}
+                  icon={Wallet}
+                  value={money(data.summary.paidMinor)}
+                  current={data.summary.paidMinor}
+                  previous={data.summary.previous?.paidMinor}
+                  previousValue={
+                    data.summary.previous &&
+                    money(data.summary.previous.paidMinor)
+                  }
+                  preference="neutral"
+                />
+                <Statistic
+                  label={m.cash_outstanding()}
+                  icon={Wallet}
+                  value={money(data.summary.outstandingMinor)}
+                  current={data.summary.outstandingMinor}
+                  previous={data.summary.previous?.outstandingMinor}
+                  previousValue={
+                    data.summary.previous &&
+                    money(data.summary.previous.outstandingMinor)
+                  }
+                  preference="lower"
+                />
+                <Statistic
+                  label={m.statistics_collection()}
+                  icon={CirclePercent}
+                  value={
+                    share(data.summary.paidMinor, data.summary.chargedMinor) ===
+                    null
+                      ? m.statistics_no_denominator()
+                      : m.statistics_percentage({
+                          value: share(
+                            data.summary.paidMinor,
+                            data.summary.chargedMinor,
+                          )!.toLocaleString(locale, {
+                            maximumFractionDigits: 1,
+                          }),
+                        })
+                  }
+                  current={share(
+                    data.summary.paidMinor,
+                    data.summary.chargedMinor,
+                  )}
+                  previous={
+                    data.summary.previous &&
+                    share(
+                      data.summary.previous.paidMinor,
+                      data.summary.previous.chargedMinor,
+                    )
+                  }
+                  points
+                />
               </dl>
               {(data.summary.unallocatedMinor ?? 0) > 0 && (
                 <p className="directory-notice">
@@ -553,6 +691,8 @@ export default function Insights({
             <details className="session-help">
               <summary>{m.insights_definitions()}</summary>
               <p>{m.insights_definitions_help()}</p>
+              <p>{m.statistics_context_help()}</p>
+              <p>{m.statistics_comparison_help()}</p>
               <p>{m.insights_group_help()}</p>
               <p>
                 {m.insights_registration_counts({

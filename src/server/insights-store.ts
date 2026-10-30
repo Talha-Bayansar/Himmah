@@ -1,3 +1,4 @@
+import { comparisonRange } from "../insights/statistics.ts";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { sql, type SQL } from "drizzle-orm";
@@ -11,6 +12,7 @@ export function insightsStatement(
   f: InsightsFilters,
   p: PageInput,
 ) {
+  const comparison = comparisonRange(f);
   const member = (person: SQL, session: SQL) =>
     f.group
       ? sql`exists(select 1 from himmah.group_memberships gm where gm.organization_id=${org}::uuid and gm.group_id=${f.group}::uuid and gm.contact_id=${person} and gm.valid_from<=${session}.starts_at and (gm.valid_to is null or gm.valid_to>${session}.starts_at))`
@@ -21,19 +23,23 @@ export function insightsStatement(
  and (${f.group || null}::uuid is null or exists(select 1 from himmah.groups g where g.organization_id=o.id and g.id=${f.group || null}::uuid))
  ), bounds as(select *, ${f.from}::date as first_day,${f.to}::date as last_day,
  ${f.from}::date::timestamp at time zone timezone as start_at,(${f.to}::date+1)::timestamp at time zone timezone as end_at,
- (${f.from}::date-(${f.to}::date-${f.from}::date+1))::timestamp at time zone timezone as previous_at from authorized),
+ ${comparison.from}::date::timestamp at time zone timezone as previous_at, (${comparison.to}::date+1)::timestamp at time zone timezone as previous_end from authorized),
  scoped_sessions as materialized(select s.*,(s.starts_at at time zone b.timezone)::date as local_day from hub_activity_sessions s cross join bounds b
  where s.organization_id=b.id and s.starts_at>=b.previous_at and s.starts_at<b.end_at
  ${f.activity ? sql`and s.activity_id=${f.activity}::uuid` : sql``}
  ${f.group ? sql`and (${f.group}::uuid=any(s.audience_group_ids) or exists(select 1 from hub_attendance x where x.organization_id=s.organization_id and x.session_id=s.id and x.status='present' and ${member(sql`x.person_id`, sql`s`)}) or exists(select 1 from hub_session_registrations r where r.organization_id=s.organization_id and r.session_id=s.id and r.status='confirmed' and ${member(sql`r.person_id`, sql`s`)}))` : sql``}),
  sessions as materialized(select * from scoped_sessions where not cancelled and starts_at<=statement_timestamp()),
- financial_sessions as materialized(select s.* from scoped_sessions s,bounds b where s.starts_at>=b.start_at),
+ financial_sessions as materialized(select * from scoped_sessions),
  current_sessions as materialized(select s.* from sessions s,bounds b where s.starts_at>=b.start_at),
  presence as materialized(select a.person_id,s.id as session_id,s.activity_id,s.starts_at,s.local_day from sessions s join hub_attendance a on a.organization_id=s.organization_id and a.session_id=s.id and a.status='present' where ${member(sql`a.person_id`, sql`s`)}),
  current_presence as materialized(select p.* from presence p,bounds b where p.starts_at>=b.start_at),
- earlier as materialized(select distinct a.person_id from bounds b join hub_attendance a on a.organization_id=b.id and a.status='present' join hub_activity_sessions old on old.organization_id=a.organization_id and old.id=a.session_id join (select distinct person_id from current_presence) target on target.person_id=a.person_id where not old.cancelled and old.starts_at<b.start_at),
- charges as materialized(select ch.* from hub_registration_charges ch join financial_sessions s on s.organization_id=ch.organization_id and s.id=ch.session_id where ${member(sql`ch.person_id`, sql`s`)}),
- paid as materialized(select ca.charge_id,sum(ca.amount_minor)::bigint as amount from charges ch join hub_cash_allocations ca on ca.organization_id=ch.organization_id and ca.charge_id=ch.id
+ previous_sessions as materialized(select s.* from sessions s,bounds b where s.starts_at>=b.previous_at and s.starts_at<b.previous_end),
+ previous_presence as materialized(select p.* from presence p,bounds b where p.starts_at>=b.previous_at and p.starts_at<b.previous_end),
+ first_presence as materialized(select a.person_id,min(old.starts_at) as first_at from bounds b join hub_attendance a on a.organization_id=b.id and a.status='present' join hub_activity_sessions old on old.organization_id=a.organization_id and old.id=a.session_id join (select distinct person_id from presence) target on target.person_id=a.person_id where not old.cancelled and old.starts_at<=statement_timestamp() group by a.person_id),
+ all_charges as materialized(select ch.*,s.starts_at from hub_registration_charges ch join financial_sessions s on s.organization_id=ch.organization_id and s.id=ch.session_id where ${member(sql`ch.person_id`, sql`s`)}),
+ charges as materialized(select ch.* from all_charges ch,bounds b where ch.starts_at>=b.start_at),
+ previous_charges as materialized(select ch.* from all_charges ch,bounds b where ch.starts_at>=b.previous_at and ch.starts_at<b.previous_end),
+ paid as materialized(select ca.charge_id,sum(ca.amount_minor)::bigint as amount from all_charges ch join hub_cash_allocations ca on ca.organization_id=ch.organization_id and ca.charge_id=ch.id
  where not exists(select 1 from hub_cash_reversals rev where rev.organization_id=ca.organization_id and rev.receipt_id=ca.receipt_id) and not exists(select 1 from hub_cash_allocation_corrections x where x.organization_id=ca.organization_id and x.receipt_id=ca.receipt_id and x.charge_id=ca.charge_id) group by ca.charge_id),
  activity_rows as(select a.id,a.name,a.created_at::text as "createdAt",(select count(*)::int from current_sessions s where s.activity_id=a.id) as sessions,
  (select count(*)::int from current_presence cp where cp.activity_id=a.id) as visits,
@@ -49,12 +55,18 @@ export function insightsStatement(
      ? sql`null::jsonb as summary,'[]'::jsonb as trend`
      : sql`
  jsonb_build_object('sessions',(select count(*) from current_sessions),'visits',(select count(*) from current_presence),'unique',(select count(distinct person_id) from current_presence),
- 'first',(select count(distinct cp.person_id) from current_presence cp where not exists(select 1 from earlier e where e.person_id=cp.person_id)),
- 'returning',(select count(distinct cp.person_id) from current_presence cp where exists(select 1 from earlier e where e.person_id=cp.person_id)),
+ 'first',(select count(distinct cp.person_id) from current_presence cp where exists(select 1 from first_presence e where e.person_id=cp.person_id and e.first_at>=b.start_at)),
+ 'returning',(select count(distinct cp.person_id) from current_presence cp where exists(select 1 from first_presence e where e.person_id=cp.person_id and e.first_at<b.start_at)),
  'registrations',(select count(*) from hub_session_registrations r join current_sessions s on s.organization_id=r.organization_id and s.id=r.session_id where r.status='confirmed' and ${member(sql`r.person_id`, sql`s`)}),
  'registeredPresent',(select count(*) from current_presence cp where exists(select 1 from hub_session_registrations r where r.organization_id=b.id and r.session_id=cp.session_id and r.person_id=cp.person_id and r.status='confirmed')),
  'walkIns',(select count(*) from current_presence cp where not exists(select 1 from hub_session_registrations r where r.organization_id=b.id and r.session_id=cp.session_id and r.person_id=cp.person_id and r.status='confirmed')),
- 'previousVisits',(select count(*) from presence p where p.starts_at<b.start_at),'previousFrom',(b.first_day-(b.last_day-b.first_day+1))::text,'previousTo',(b.first_day-1)::text,
+ 'comparisonKind',${comparison.kind}::text,'previousVisits',(select count(*) from previous_presence),'previousFrom',${comparison.from}::text,'previousTo',${comparison.to}::text,
+ 'previous',jsonb_build_object('sessions',(select count(*) from previous_sessions),'visits',(select count(*) from previous_presence),'unique',(select count(distinct person_id) from previous_presence),
+ 'first',(select count(distinct cp.person_id) from previous_presence cp where exists(select 1 from first_presence e where e.person_id=cp.person_id and e.first_at>=b.previous_at)),
+ 'returning',(select count(distinct cp.person_id) from previous_presence cp where exists(select 1 from first_presence e where e.person_id=cp.person_id and e.first_at<b.previous_at)),
+ 'chargedMinor',(select coalesce(sum(amount_minor),0)::float8 from previous_charges),
+ 'paidMinor',(select coalesce(sum(paid.amount),0)::float8 from previous_charges ch left join paid on paid.charge_id=ch.id),
+ 'outstandingMinor',(select coalesce(sum(ch.amount_minor-coalesce(paid.amount,0)),0)::float8 from previous_charges ch left join paid on paid.charge_id=ch.id)),
  'chargedMinor',(select coalesce(sum(amount_minor),0)::float8 from charges),
  'paidMinor',(select coalesce(sum(paid.amount),0)::float8 from charges ch left join paid on paid.charge_id=ch.id),
  'outstandingMinor',(select coalesce(sum(ch.amount_minor-coalesce(paid.amount,0)),0)::float8 from charges ch left join paid on paid.charge_id=ch.id),

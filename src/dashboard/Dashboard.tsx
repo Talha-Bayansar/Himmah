@@ -1,3 +1,6 @@
+import { Statistic } from "../insights/Statistic";
+import { perSession } from "../insights/statistics";
+import { CalendarCheck, ChartNoAxesColumn, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -265,26 +268,62 @@ export default function Dashboard({
             summary && (
               <>
                 <dl className="insights-metrics dashboard-metrics">
-                  {[
-                    [
-                      m.insights_visits(),
-                      summary.visits.toLocaleString(locale),
-                    ],
-                    [
-                      m.insights_unique(),
-                      summary.unique.toLocaleString(locale),
-                    ],
-                    [
-                      m.cash_outstanding(),
-                      sessionPrice(summary.outstandingMinor, locale),
-                    ],
-                  ].map(([label, value]) => (
-                    <div key={label}>
-                      <dt>{label}</dt>
-                      <dd>{value}</dd>
-                    </div>
-                  ))}
+                  <Statistic
+                    label={m.insights_visits()}
+                    icon={CalendarCheck}
+                    value={summary.visits.toLocaleString(locale)}
+                    current={summary.visits}
+                    previous={summary.previous?.visits}
+                  />
+                  <Statistic
+                    label={m.insights_unique()}
+                    icon={Users}
+                    value={summary.unique.toLocaleString(locale)}
+                    current={summary.unique}
+                    previous={summary.previous?.unique}
+                  />
+                  <Statistic
+                    label={m.statistics_average()}
+                    icon={ChartNoAxesColumn}
+                    value={
+                      perSession(
+                        summary.visits,
+                        summary.sessions,
+                      )?.toLocaleString(locale, { maximumFractionDigits: 1 }) ??
+                      m.statistics_no_denominator()
+                    }
+                    current={perSession(summary.visits, summary.sessions)}
+                    previous={
+                      summary.previous &&
+                      perSession(
+                        summary.previous.visits,
+                        summary.previous.sessions,
+                      )
+                    }
+                  />
+                  <Statistic
+                    label={m.cash_outstanding()}
+                    icon={Wallet}
+                    value={sessionPrice(summary.outstandingMinor, locale)}
+                    current={summary.outstandingMinor}
+                    previous={summary.previous?.outstandingMinor}
+                    previousValue={
+                      summary.previous &&
+                      sessionPrice(summary.previous.outstandingMinor, locale)
+                    }
+                    preference="lower"
+                  />
                 </dl>
+                {summary.previousFrom && summary.previousTo && (
+                  <p className="activity-note">
+                    {(summary.comparisonKind === "month"
+                      ? m.statistics_compare_month
+                      : m.statistics_compare_period)({
+                      from: date(summary.previousFrom),
+                      to: date(summary.previousTo),
+                    })}
+                  </p>
+                )}
                 <p className="activity-note">
                   {m.dashboard_balance_note()}
                   {report.data?.generatedAt && (

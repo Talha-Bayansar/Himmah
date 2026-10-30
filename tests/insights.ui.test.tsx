@@ -46,6 +46,16 @@ const data: InsightsReport = {
     registrations: 4,
     registeredPresent: 3,
     walkIns: 5,
+    previous: {
+      sessions: 2,
+      visits: 6,
+      unique: 6,
+      first: 0,
+      returning: 6,
+      chargedMinor: 2000,
+      paidMinor: 500,
+      outstandingMinor: 1500,
+    },
     previousVisits: 6,
     previousFrom: "2020-03-28",
     previousTo: "2020-03-29",
@@ -113,7 +123,7 @@ it("shows distinct metrics, accessible trend and session versus receipt balances
   mount();
   await screen.findByText("Community gathering");
   expect(
-    [...document.querySelectorAll(".insights-metrics dd")].map(
+    [...document.querySelectorAll(".insights-metrics .statistic-number")].map(
       (e) => e.textContent,
     ),
   ).toEqual(["8", "5", "2", "3"]);
@@ -245,7 +255,7 @@ it("activity pages append and retain rows on a failed next page", async () => {
   await user.click(screen.getByRole("button", { name: "Try again" }));
   await screen.findByText("Second activity");
   expect(
-    [...document.querySelectorAll(".insights-metrics dd")].map(
+    [...document.querySelectorAll(".insights-metrics .statistic-number")].map(
       (e) => e.textContent,
     ),
   ).toEqual(["8", "5", "2", "3"]);

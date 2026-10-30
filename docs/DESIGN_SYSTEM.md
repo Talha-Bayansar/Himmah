@@ -137,6 +137,8 @@ Insights mobile reference (synthetic data): [overview](design/insights-mobile.pn
 
 ### Dashboard
 
-Home is the starting workspace destination. Show a bounded three-session chronological preview, compact contextual shortcuts and three monthly report figures. Reuse directory rows and Insights metric tokens; no nested cards, long guidance or independently scrolling lists. The full report opens separately from Home. Hide administrator actions and organization totals for volunteers; each section has independent loading, error/retry and freshness. Preserve the four-destination phone navigation for administrators and two scoped destinations for volunteers.
+Home is the starting workspace destination. Show a bounded three-session chronological preview, compact contextual shortcuts and four monthly report figures. Reuse directory rows and Insights metric tokens; no nested cards, long guidance or independently scrolling lists. The full report opens separately from Home. Hide administrator actions and organization totals for volunteers; each section has independent loading, error/retry and freshness. Preserve the four-destination phone navigation for administrators and two scoped destinations for volunteers.
 
 Dashboard reference (synthetic data): [mobile Home](design/dashboard-mobile.png).
+
+Statistic comparisons share the `Statistic` component, metric icons and semantic positive/warning/neutral tokens. Always pair direction colors with an icon and localized text, show the baseline dates, avoid zero-denominator percentages, and use percentage points for ratios. Keep comparison units, financial polarity and contextual exceptions in docs/INSIGHTS.md. Detailed secondary ratios use divided rows, without extra nested cards.

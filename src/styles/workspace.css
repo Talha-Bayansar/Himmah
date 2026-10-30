@@ -2428,11 +2428,26 @@ button[data-slot="button"].people-section-add {
 .dashboard-shortcuts > a svg { flex-shrink: 0; }
 .dashboard-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .dashboard-metrics dd { overflow-wrap: anywhere; }
-.dashboard-metrics > div:last-child { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
-.dashboard-metrics > div:last-child dd { margin: 0; }
 @media (min-width: 640px) {
   .dashboard-shortcuts { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .dashboard-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); }
-  .dashboard-metrics > div:last-child { grid-column: auto; display: block; }
-  .dashboard-metrics > div:last-child dd { margin-top: var(--space-2); }
+  .dashboard-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
 }
+
+/* A shared statistic presents value, direction and text; color is never the sole signal. */
+.statistic { min-width: 0; }
+.statistic dt { display: flex; align-items: flex-start; gap: var(--space-1); }
+.statistic dt svg { flex-shrink: 0; margin-top: 1px; }
+.statistic-number { display: block; overflow-wrap: anywhere; }
+.statistic-change { display: flex; align-items: flex-start; gap: var(--space-1); margin-top: var(--space-2); font-size: var(--text-supporting); font-weight: 600; line-height: 1.4; color: var(--muted-foreground); }
+.statistic-change svg { flex-shrink: 0; margin-top: 2px; }
+.statistic-change[data-tone="positive"] { color: var(--status-positive); }
+.statistic-change[data-tone="warning"] { color: var(--status-warning); }
+.insights-context { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); margin: 0; }
+.insights-context > div { padding-block: var(--space-3); border-block: 1px solid var(--border); }
+.insights-context dt { font-size: var(--text-supporting); color: var(--muted-foreground); }
+.insights-context dd { margin: var(--space-2) 0 0; font-size: 24px; font-weight: 650; }
+.insights-money { grid-template-columns: repeat(2,minmax(0,1fr)); }
+@media(min-width:768px) { .insights-money { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+.statistic dt > span, .statistic-change > span { min-width: 0; overflow-wrap: anywhere; }
+
+.insights-metrics .statistic dt { min-height: 40px; }
