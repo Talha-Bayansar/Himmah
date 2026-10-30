@@ -220,7 +220,9 @@ function Content({
       </Button>
       <DirectoryHeader
         title={m.registration_title()}
-        description={session.name}
+        description={
+          session.topic ? `${session.topic} · ${session.name}` : session.name
+        }
         action={
           summary.canRegister ? (
             <Button

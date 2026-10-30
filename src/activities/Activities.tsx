@@ -353,7 +353,12 @@ export default function Activities({
       </div>
       {!full &&
         (item.nextSession ? (
-          <Schedule {...item.nextSession} />
+          <>
+            {item.nextSession.topic && (
+              <p className="activity-note">{item.nextSession.topic}</p>
+            )}
+            <Schedule {...item.nextSession} />
+          </>
         ) : (
           <p className="activity-note">{m.sessions_none_scheduled()}</p>
         ))}

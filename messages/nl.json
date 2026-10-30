@@ -801,5 +801,6 @@
   "statistics_percentage": "{value}%",
   "statistics_no_denominator": "Niet beschikbaar",
   "activities_delete": "Definitief verwijderen",
-  "activities_delete_help": "“{name}” definitief verwijderen? Dit verwijdert {sessions} sessies, {attendance} deelnames, {charges} kostenposten en {receipts} betaalregistraties, inclusief hun geschiedenis. Contacten en groepen blijven behouden. Dit kan niet ongedaan worden gemaakt en betaalt geen geld terug. Archiveer om deze geschiedenis te bewaren."
+  "activities_delete_help": "“{name}” definitief verwijderen? Dit verwijdert {sessions} sessies, {attendance} deelnames, {charges} kostenposten en {receipts} betaalregistraties, inclusief hun geschiedenis. Contacten en groepen blijven behouden. Dit kan niet ongedaan worden gemaakt en betaalt geen geld terug. Archiveer om deze geschiedenis te bewaren.",
+  "sessions_topic": "Onderwerp of titel (optioneel)"
 }

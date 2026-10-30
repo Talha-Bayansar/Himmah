@@ -13,6 +13,7 @@ export type Activity = {
   audienceGroupIds: string[];
   groups: AudienceGroup[];
   nextSession: {
+    topic?: string;
     id: string;
     startsAt: string;
     endsAt: string;
@@ -20,6 +21,7 @@ export type Activity = {
   } | null;
 };
 export type Session = {
+  topic?: string;
   priceMinor?: number;
   pricingLocked?: boolean;
   registration?: {
@@ -53,6 +55,7 @@ export type ActivityFields = {
   audienceGroupIds: string[];
 };
 export type SessionFields = {
+  topic?: string;
   location: string;
   startLocal: string;
   endLocal: string;
@@ -133,7 +136,18 @@ export function sessionInput(body: Record<string, unknown>, timezone: string) {
     throw new CommunityError("activity_time");
   if (Date.parse(startsAt) <= Date.now())
     throw new CommunityError("session_future");
-  return { ...pricingInput(body), location, startsAt, endsAt, timezone };
+  const topic =
+    body.topic === undefined ? undefined : boundedText(body, "topic", 160);
+  if (topic !== undefined && /[\u0000-\u001f\u007f]/.test(topic))
+    throw new CommunityError("invalid_input");
+  return {
+    ...pricingInput(body),
+    ...(topic === undefined ? {} : { topic }),
+    location,
+    startsAt,
+    endsAt,
+    timezone,
+  };
 }
 export function cancellationReason(body: Record<string, unknown>) {
   return boundedText(body, "reason", 300);
@@ -167,4 +181,8 @@ export function sessionPrice(minor: number, locale: string) {
     style: "currency",
     currency: "EUR",
   }).format(minor / 100);
+}
+
+export function sessionTitle(session: { name: string; topic?: string }) {
+  return session.topic?.trim() || session.name;
 }

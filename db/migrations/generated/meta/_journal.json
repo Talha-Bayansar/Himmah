@@ -43,6 +43,13 @@
       "when": 1793311968986,
       "tag": "0005_unified_session_management",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793357762624,
+      "tag": "0006_session_topic",
+      "breakpoints": true
     }
   ]
 }

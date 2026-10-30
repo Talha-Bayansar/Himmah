@@ -1,5 +1,5 @@
 import { SessionStatsPreview } from "../attendance/SessionStats";
-import { sessionPrice } from "./contracts";
+import { sessionPrice, sessionTitle } from "./contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -104,13 +104,13 @@ export default function Sessions({
       );
       cache.setQueryData([...key, "detail", result.item.id], result);
       await cache.invalidateQueries({
-        queryKey: activityKey(userId, organization.id),
+        queryKey: ["organization", userId, organization.id],
       });
       setEditor(null);
     },
     onError: () => {
       void cache.invalidateQueries({
-        queryKey: activityKey(userId, organization.id),
+        queryKey: ["organization", userId, organization.id],
       });
     },
   });
@@ -138,11 +138,12 @@ export default function Sessions({
                 data-page-heading
                 ref={heading}
               >
-                {item.name}
+                {sessionTitle(item)}
               </h1>
             ) : (
-              <h3 className="activity-card-title">{label}</h3>
+              <h3 className="activity-card-title">{item.topic || label}</h3>
             )}
+            {item.topic && <p className="activity-note">{item.name}</p>}
             {item.cancelled && (
               <p className="activity-status">{m.sessions_cancelled()}</p>
             )}
@@ -151,7 +152,7 @@ export default function Sessions({
             canCash ||
             (canManage && !item.cancelled && !past)) && (
             <ItemActions
-              name={label}
+              name={item.topic ? `${item.topic} · ${label}` : label}
               actions={[
                 ...(!canOperate && canCash && !full
                   ? [

@@ -317,7 +317,11 @@ function Content(
           )}
           <DirectoryHeader
             title={props.unified ? m.management_title() : m.cash_title()}
-            description={summary.name}
+            description={
+              summary.topic
+                ? `${summary.topic} · ${summary.name}`
+                : summary.name
+            }
             action={
               summary.canRecord ? (
                 <Button

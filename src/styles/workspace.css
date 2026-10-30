@@ -24,6 +24,7 @@
   margin-bottom: var(--space-6);
 }
 .directory-heading p {
+  overflow-wrap: anywhere;
   margin-top: var(--space-2);
   font-size: var(--text-body);
   color: var(--app-muted);

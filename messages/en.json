@@ -801,5 +801,6 @@
   "statistics_percentage": "{value}%",
   "statistics_no_denominator": "Not available",
   "activities_delete": "Permanently delete",
-  "activities_delete_help": "Permanently delete “{name}”? This removes {sessions} sessions, {attendance} attendance entries, {charges} charges and {receipts} payment records, including their history. Contacts and groups are kept. This cannot be undone and does not refund money. Archive instead to keep this history."
+  "activities_delete_help": "Permanently delete “{name}”? This removes {sessions} sessions, {attendance} attendance entries, {charges} charges and {receipts} payment records, including their history. Contacts and groups are kept. This cannot be undone and does not refund money. Archive instead to keep this history.",
+  "sessions_topic": "Topic or title (optional)"
 }

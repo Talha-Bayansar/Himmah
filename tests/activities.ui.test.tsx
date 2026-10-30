@@ -794,3 +794,71 @@ it("requires a new review after a deletion snapshot conflict", async () => {
   await waitFor(() => expect(bodies).toHaveLength(2));
   expect(JSON.parse(bodies[0]!).key).not.toBe(JSON.parse(bodies[1]!).key);
 });
+
+it("schedules an optional topic without autofocus and keeps the activity name unchanged", async () => {
+  let payload: Record<string, unknown> | null = null;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "POST") {
+        payload = JSON.parse(String(init.body));
+        return Response.json({
+          item: { ...session, topic: "Patience in everyday life" },
+        });
+      }
+      if (String(input).includes("/sessions"))
+        return Response.json({ items: [], nextCursor: null });
+      return Response.json({ item });
+    }),
+  );
+  mount("owner", item.id);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Schedule session" }),
+  );
+  const dialog = await screen.findByRole("dialog"),
+    topic = within(dialog).getByLabelText(
+      "Topic or title (optional)",
+    ) as HTMLInputElement;
+  expect(topic.required).toBe(false);
+  expect(topic.maxLength).toBe(160);
+  expect(document.activeElement).not.toBe(topic);
+  await user.type(topic, "Patience in everyday life");
+  fireEvent.change(within(dialog).getByLabelText("Starts"), {
+    target: { value: "2099-11-06T18:00" },
+  });
+  await user.click(within(dialog).getByRole("button", { name: "Save" }));
+  await waitFor(() => expect(payload?.topic).toBe("Patience in everyday life"));
+  await waitFor(() => expect(payload?.name).toBe(item.name));
+});
+it("uses the topic as the session title, with activity context, and supports clearing it", async () => {
+  let payload: Record<string, unknown> | null = null;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "PATCH") {
+        payload = JSON.parse(String(init.body));
+        return Response.json({ item: { ...session, topic: "" } });
+      }
+      return Response.json({
+        item: String(input).includes("/sessions/")
+          ? { ...session, topic: "Patience in everyday life" }
+          : item,
+      });
+    }),
+  );
+  mount("owner", item.id, session.id);
+  const user = userEvent.setup();
+  await screen.findByRole("heading", { name: "Patience in everyday life" });
+  expect(screen.getByText(session.name)).toBeTruthy();
+  await user.click(await screen.findByRole("button", { name: /Actions for/ }));
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Edit session" }),
+  );
+  const dialog = await screen.findByRole("dialog");
+  const topic = within(dialog).getByLabelText("Topic or title (optional)");
+  expect((topic as HTMLInputElement).value).toBe("Patience in everyday life");
+  await user.clear(topic);
+  await user.click(within(dialog).getByRole("button", { name: "Save" }));
+  await waitFor(() => expect(payload?.topic).toBe(""));
+});

@@ -1,0 +1,2 @@
+ALTER TABLE "hub_activity_sessions" ADD COLUMN "topic" text DEFAULT '' NOT NULL;--> statement-breakpoint
+ALTER TABLE "hub_activity_sessions" ADD CONSTRAINT "hub_session_topic" CHECK (length("hub_activity_sessions"."topic") <= 160);

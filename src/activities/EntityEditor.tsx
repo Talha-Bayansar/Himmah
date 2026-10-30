@@ -92,6 +92,7 @@ export function EntityEditor({
         2,
       ),
       name: activity?.name ?? "",
+      topic: session?.topic ?? "",
       description: activity?.description ?? "",
       location: session?.location ?? activity?.location ?? "",
       startLocal: session ? localTime(session.startsAt, timezone) : "",
@@ -140,6 +141,7 @@ export function EntityEditor({
       : kind === "cancel"
         ? ([["reason", m.sessions_reason(), "textarea", 300]] as const)
         : ([
+            ["topic", m.sessions_topic(), "text", 160],
             ["startLocal", m.activities_start(), "datetime-local", undefined],
             ["endLocal", m.activities_end(), "datetime-local", undefined],
             ["location", m.activities_location(), "text", 160],
@@ -196,7 +198,7 @@ export function EntityEditor({
                     id={"activity-" + name}
                     type={type}
                     maxLength={max}
-                    required={name !== "location"}
+                    required={name !== "location" && name !== "topic"}
                     minLength={name === "name" ? 2 : undefined}
                     disabled={submit.isPending}
                     aria-describedby={

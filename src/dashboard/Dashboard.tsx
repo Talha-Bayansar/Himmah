@@ -16,7 +16,7 @@ import {
 import { ListSkeleton } from "../components/shared/infinite-list";
 import { Button } from "../components/ui/button";
 import { useLocale } from "../localization/locale";
-import { sessionPrice } from "../activities/contracts";
+import { sessionPrice, sessionTitle } from "../activities/contracts";
 import type { Organization } from "../organization/contracts";
 import { insightsFilters, type InsightsReport } from "../insights/contracts";
 import type { DashboardReport } from "./contracts";
@@ -168,9 +168,10 @@ export default function Dashboard({
                         }}
                       >
                         <DirectoryRecord
-                          name={item.name}
+                          name={sessionTitle(item)}
                           detail={
                             <>
+                              {item.topic && <span>{item.name}</span>}
                               <time dateTime={item.startsAt}>
                                 {new Intl.DateTimeFormat(locale, {
                                   dateStyle: "medium",

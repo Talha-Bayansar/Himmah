@@ -2,6 +2,7 @@ export type DashboardSession = {
   id: string;
   activityId: string;
   name: string;
+  topic?: string;
   location: string;
   startsAt: string;
   endsAt: string;

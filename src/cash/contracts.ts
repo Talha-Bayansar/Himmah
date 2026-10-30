@@ -43,6 +43,7 @@ export type CashReceipt = {
   allocations: { name: string; amountMinor: number; corrected?: boolean }[];
 };
 export type CashSummary = {
+  topic?: string;
   name: string;
   timezone: string;
   toChargeCount?: number;

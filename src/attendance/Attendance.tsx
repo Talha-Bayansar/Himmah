@@ -1,3 +1,4 @@
+import { sessionTitle } from "../activities/contracts";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAttendanceMembership } from "./use-attendance-membership";
 import { CashScope } from "../cash/CashPage";
@@ -275,7 +276,10 @@ export default function Attendance({
         />
       ) : (
         <div className="attendance-context">
-          <h2>{session.data.item.name}</h2>
+          <h2>{sessionTitle(session.data.item)}</h2>
+          {session.data.item.topic && (
+            <p className="activity-note">{session.data.item.name}</p>
+          )}
           <Schedule {...session.data.item} compact />
         </div>
       )}

@@ -801,5 +801,6 @@
   "statistics_percentage": "%{value}",
   "statistics_no_denominator": "Mevcut değil",
   "activities_delete": "Kalıcı olarak sil",
-  "activities_delete_help": "“{name}” kalıcı olarak silinsin mi? {sessions} oturum, {attendance} katılım, {charges} ücret ve {receipts} ödeme kaydı geçmişleriyle birlikte silinir. Kişiler ve gruplar korunur. Bu işlem geri alınamaz ve para iadesi yapmaz. Geçmişi korumak için arşivleyin."
+  "activities_delete_help": "“{name}” kalıcı olarak silinsin mi? {sessions} oturum, {attendance} katılım, {charges} ücret ve {receipts} ödeme kaydı geçmişleriyle birlikte silinir. Kişiler ve gruplar korunur. Bu işlem geri alınamaz ve para iadesi yapmaz. Geçmişi korumak için arşivleyin.",
+  "sessions_topic": "Konu veya başlık (isteğe bağlı)"
 }

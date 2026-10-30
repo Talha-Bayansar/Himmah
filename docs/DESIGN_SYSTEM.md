@@ -146,3 +146,7 @@ Statistic comparisons share the `Statistic` component, metric icons and semantic
 Permanent activity deletion is a destructive secondary ItemActions command, available for active and archived activities. Use one count-based confirmation, clear irreversible/payment consequences and exact retry; changed data requires renewed review. Archive remains distinct and preserves history. See [deletion behavior](ACTIVITY_DELETION.md).
 
 [Permanent deletion confirmation](design/activity-delete-mobile.png) — synthetic Dutch phone example. Destructive confirmations use the shared semantic destructive button variant.
+
+Session topics are optional plain text. Where present, the topic leads the session identity and the activity name is subordinate context; dates remain visible. Empty topics preserve the existing activity/date hierarchy. Use the existing session sheet and shared directory/card typography, with long-text reflow and no autofocus. See [session topic behavior](SESSION_TOPICS.md).
+
+[Optional session topic sheet](design/session-topic-mobile.png) — synthetic Dutch phone example.

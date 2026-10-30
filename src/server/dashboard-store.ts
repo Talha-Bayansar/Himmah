@@ -9,7 +9,7 @@ export function dashboardStatement(user: string, org: string) {
     select id from hub_organizations o where o.id=${org}::uuid
     and exists(select 1 from hub_memberships m where m.organization_id=o.id and m.user_id=${user})
   ), upcoming as (
-    select s.id,s.activity_id as "activityId",s.name,s.location,s.starts_at as "startsAt",s.ends_at as "endsAt",s.timezone,
+    select s.id,s.activity_id as "activityId",s.name,s.topic,s.location,s.starts_at as "startsAt",s.ends_at as "endsAt",s.timezone,
     hub_can_attend_session(${user},s.organization_id,s.activity_id,s.id) as "canAttend",
     hub_can_collect_session(${user},s.organization_id,s.activity_id,s.id) as "canCollect"
     from hub_activity_sessions s join authorized o on o.id=s.organization_id
