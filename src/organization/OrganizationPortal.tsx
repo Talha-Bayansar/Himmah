@@ -1,3 +1,4 @@
+import Dashboard from "../dashboard/Dashboard";
 import Insights from "../insights/Insights";
 import {
   DirectoryList,
@@ -93,7 +94,7 @@ export default function OrganizationPortal({
   initialMode = "signup",
   inviteToken = null,
   workspaceId = null,
-  workspaceSection = "people",
+  workspaceSection = "dashboard",
   accountSettings = false,
   activityId = null,
   sessionId = null,
@@ -150,16 +151,11 @@ export default function OrganizationPortal({
     enabled: !!user?.emailVerified && !!workspaceId,
     retry: false,
   });
-  const openWorkspace = (id: string, role = "owner") =>
-    role === "volunteer"
-      ? navigate({
-          to: "/workspace/$organizationId/$section",
-          params: { organizationId: id, section: "activities" },
-        })
-      : navigate({
-          to: "/workspace/$organizationId/people/contacts",
-          params: { organizationId: id },
-        });
+  const openWorkspace = (id: string) =>
+    navigate({
+      to: "/workspace/$organizationId/$section",
+      params: { organizationId: id, section: "dashboard" },
+    });
   const logout = useMutation({
     mutationFn: async () => {
       await disablePush();
@@ -197,7 +193,7 @@ export default function OrganizationPortal({
     } else if (organizations.isSuccess) {
       launching.current = true;
       if (items.length === 1 && !organizations.hasNextPage)
-        void openWorkspace(items[0]!.id, items[0]!.role);
+        void openWorkspace(items[0]!.id);
       else void navigate({ to: "/start", replace: true });
     }
   }, [
@@ -279,6 +275,14 @@ export default function OrganizationPortal({
         return <OrganizationDetails organization={org} />;
       if (workspaceSection === "notifications")
         return <Notifications organizationId={org.id} userId={user.id} />;
+      if (workspaceSection === "dashboard")
+        return (
+          <Dashboard
+            key={user.id + org.id + org.role}
+            organization={org}
+            userId={user.id}
+          />
+        );
       if (workspaceSection === "activities")
         return (
           <Activities
@@ -330,7 +334,7 @@ export default function OrganizationPortal({
           onCreated={async (org) => {
             await queryClient.invalidateQueries({ queryKey: orgKey(user.id) });
             queryClient.setQueryData(["organization", user.id, org.id], org);
-            await openWorkspace(org.id, org.role);
+            await openWorkspace(org.id);
             setCreating(false);
           }}
         />
@@ -346,12 +350,8 @@ export default function OrganizationPortal({
             <DirectoryItem key={org.id} linked>
               <Link
                 className="directory-item-link"
-                to={
-                  org.role === "volunteer"
-                    ? "/workspace/$organizationId/$section"
-                    : "/workspace/$organizationId/people/contacts"
-                }
-                params={{ organizationId: org.id, section: "activities" }}
+                to="/workspace/$organizationId/$section"
+                params={{ organizationId: org.id, section: "dashboard" }}
               >
                 <DirectoryRecord
                   name={org.name}
@@ -394,7 +394,7 @@ export default function OrganizationPortal({
                   fetchNextPage: () =>
                     organizations.fetchNextPage({ cancelRefetch: false }),
                 }}
-                onSwitch={(org) => void openWorkspace(org.id, org.role)}
+                onSwitch={(org) => void openWorkspace(org.id)}
                 onManage={() => void navigate({ to: "/start" })}
               />
               {workspaceId &&

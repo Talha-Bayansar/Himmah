@@ -79,3 +79,50 @@ test("Insights Worker route preserves authentication, verification, role checks 
   assert.equal((await handler(request(), env)).status, 403);
   assert.equal(calls, 1);
 });
+
+test("Dashboard Worker dispatch authenticates and rate limits even read-only scoped previews", async () => {
+  const origin = "https://himmah.example",
+    org = "11111111-1111-4111-8111-111111111111";
+  let allowed = true,
+    verified = true,
+    calls = 0;
+  const handler = createHandler({
+    store: () =>
+      ({
+        get: async () => ({ id: org, role: "volunteer", timezone: "UTC" }),
+      }) as unknown as OrganizationStore,
+    dashboard: () => ({
+      get: async () => {
+        calls++;
+        return [{ items: [], generatedAt: new Date().toISOString() }];
+      },
+    }),
+    fetch: async () =>
+      Response.json({ user: { id: "helper", emailVerified: verified } }),
+  });
+  const env: Env = {
+    ASSETS: { fetch: async () => new Response("static") },
+    HIMMAH_DATABASE_URL: "isolated-test",
+    HIMMAH_AUTH_URL: "https://auth.example.invalid/auth",
+    HIMMAH_APP_ORIGIN: origin,
+    ONBOARDING_LIMITER: { limit: async () => ({ success: allowed }) },
+  };
+  const request = (cookie = true) =>
+    new Request(`${origin}/api/organizations/${org}/dashboard`, {
+      headers: {
+        Origin: origin,
+        ...(cookie ? { Cookie: "session=opaque" } : {}),
+      },
+    });
+  assert.equal((await handler(request(false), env)).status, 401);
+  assert.equal(calls, 0);
+  assert.equal((await handler(request(), env)).status, 200);
+  assert.equal(calls, 1);
+  allowed = false;
+  assert.equal((await handler(request(), env)).status, 429);
+  assert.equal(calls, 1);
+  allowed = true;
+  verified = false;
+  assert.equal((await handler(request(), env)).status, 403);
+  assert.equal(calls, 1);
+});

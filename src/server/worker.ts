@@ -1,3 +1,5 @@
+import { dashboardApi } from "./dashboard-api.ts";
+import { createDashboardStore } from "./dashboard-store.ts";
 import { insightsApi } from "./insights-api.ts";
 import { createInsightsStore } from "./insights-store.ts";
 import { cashApi } from "./cash-api.ts";
@@ -66,6 +68,7 @@ type Dependencies = {
   directory?: (url: string) => CommunityStore;
   people?: (url: string) => PeopleStore;
   notifications?: (url: string) => NotificationStore;
+  dashboard?: (url: string) => ReturnType<typeof createDashboardStore>;
   insights?: (url: string) => ReturnType<typeof createInsightsStore>;
 };
 const json = (body: unknown, status = 200) =>
@@ -260,6 +263,20 @@ export function createHandler(
         );
       }
       const store = deps.store(env.HIMMAH_DATABASE_URL);
+      if (/^\/api\/organizations\/[^/]+\/dashboard$/.test(url.pathname)) {
+        const allowed = await (
+          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+        ).limit({ key: `dashboard:${user.id}` });
+        if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        const response = await dashboardApi(
+          request,
+          user,
+          store,
+          (deps.dashboard ?? createDashboardStore)(env.HIMMAH_DATABASE_URL),
+        );
+        if (response) return response;
+      }
+
       if (/^\/api\/organizations\/[^/]+\/insights(\/|$)/.test(url.pathname)) {
         const allowed = await (
           env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER

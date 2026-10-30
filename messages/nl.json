@@ -767,5 +767,17 @@
   "insights_generated": "Bijgewerkt op {time}",
   "directory_insights_range": "Kies geldige datums, maximaal 366 dagen.",
   "directory_insights_filter": "Deze activiteit of groep is niet beschikbaar. Wis het filter of kies een andere.",
-  "insights_filters": "Filters"
+  "insights_filters": "Filters",
+  "dashboard_title": "Start",
+  "dashboard_intro": "Je gemeenschap in één overzicht.",
+  "dashboard_refresh": "Dashboard vernieuwen",
+  "dashboard_upcoming": "Binnenkort",
+  "dashboard_all_activities": "Alle activiteiten",
+  "dashboard_no_sessions": "Er zijn geen aankomende sessies om te tonen.",
+  "dashboard_actions": "Snel aan de slag",
+  "dashboard_contacts": "Contacten beheren",
+  "dashboard_plan": "Activiteit plannen",
+  "dashboard_month": "Deze maand",
+  "dashboard_report": "Inzichten bekijken",
+  "dashboard_balance_note": "Openstaande geregistreerde kosten voor sessies deze maand."
 }

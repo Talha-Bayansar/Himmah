@@ -134,3 +134,9 @@ Each attendance row has one labelled paid/unpaid button and the shared square mo
 Use a focused report overview: four compact participation metrics, a restrained single-series trend with accessible period details, financial totals and divided activity rows. Keep advanced filters and metric definitions in labelled disclosures; applied date/cohort context stays visible. Searchable paginated filter choices use the shared bottom sheet with no autofocus. Preserve the distinction between recorded session balances and receipt-date cashflow, current access and data freshness. See [Insights definitions](INSIGHTS.md).
 
 Insights mobile reference (synthetic data): [overview](design/insights-mobile.png).
+
+### Dashboard
+
+Home is the starting workspace destination. Show a bounded three-session chronological preview, compact contextual shortcuts and three monthly report figures. Reuse directory rows and Insights metric tokens; no nested cards, long guidance or independently scrolling lists. The full report opens separately from Home. Hide administrator actions and organization totals for volunteers; each section has independent loading, error/retry and freshness. Preserve the four-destination phone navigation for administrators and two scoped destinations for volunteers.
+
+Dashboard reference (synthetic data): [mobile Home](design/dashboard-mobile.png).

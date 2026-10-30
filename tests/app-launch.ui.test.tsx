@@ -51,6 +51,12 @@ function backend(role = "owner") {
       return Response.json({ organizations: [o], nextCursor: null });
     if (url.pathname === "/api/organizations/" + id)
       return Response.json({ organization: o });
+    if (url.pathname.endsWith("/dashboard"))
+      return Response.json({ items: [], generatedAt: "2026-10-30T10:00:00Z" });
+    if (url.pathname.endsWith("/insights"))
+      return Response.json({
+        summary: { visits: 8, unique: 5, outstandingMinor: 500 },
+      });
     if (url.pathname.endsWith("/context"))
       return Response.json({ id, name: org.name });
     if (url.pathname.endsWith("/notifications/unread"))
@@ -103,7 +109,7 @@ function mount(path = "/hub") {
       <OrganizationPortal
         workspaceId={id}
         workspaceSection={
-          section.useParams().section as "manage" | "activities"
+          section.useParams().section as "manage" | "activities" | "dashboard"
         }
       />
     ),
@@ -127,21 +133,19 @@ beforeEach(() => {
   setLocale("en", { reload: false });
   vi.stubGlobal("IntersectionObserver", undefined);
 });
-it("launches owners directly into canonical People with shared navigation and a reloadable profile", async () => {
+it("launches owners into Home and preserves People navigation and a reloadable profile", async () => {
   const fetcher = backend();
   const { router } = mount();
-  await screen.findByRole("heading", { name: "Contacts" });
+  await screen.findByRole("heading", { name: "Home" });
   await waitFor(() =>
-    expect(router.state.location.pathname).toBe(
-      `/workspace/${id}/people/contacts`,
-    ),
+    expect(router.state.location.pathname).toBe(`/workspace/${id}/dashboard`),
   );
   const navigation = screen.getByRole("navigation", {
     name: "Main navigation",
   });
   expect(
     within(navigation)
-      .getByRole("link", { name: "People" })
+      .getByRole("link", { name: "Home" })
       .getAttribute("aria-current"),
   ).toBe("page");
   expect(
@@ -151,6 +155,9 @@ it("launches owners directly into canonical People with shared navigation and a 
   expect(
     screen.queryByRole("link", { name: /Rewards|Futsal|Challenges|Points/ }),
   ).toBeNull();
+  await userEvent.click(
+    within(navigation).getByRole("link", { name: "People" }),
+  );
   await screen.findByText("Ali");
   await userEvent.click(
     screen
@@ -171,11 +178,11 @@ it("launches owners directly into canonical People with shared navigation and a 
     ),
   ).toBe(false);
 });
-it("volunteer launch stays in scoped activities and does not expose administrator People controls", async () => {
+it("volunteer launch opens scoped Home and does not expose administrator People controls", async () => {
   backend("volunteer");
   const { router } = mount();
   await waitFor(() =>
-    expect(router.state.location.pathname).toBe(`/workspace/${id}/activities`),
+    expect(router.state.location.pathname).toBe(`/workspace/${id}/dashboard`),
   );
   expect(screen.queryByRole("link", { name: "People" })).toBeNull();
   expect(screen.queryByRole("link", { name: "Manage" })).toBeNull();

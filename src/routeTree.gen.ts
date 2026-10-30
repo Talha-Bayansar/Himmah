@@ -15,6 +15,7 @@ import { Route as HubRouteImport } from './routes/hub'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
+import { Route as WorkspaceOrganizationIdRouteImport } from './routes/workspace.$organizationId'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
 import { Route as WorkspaceOrganizationIdInsightsRouteImport } from './routes/workspace.$organizationId.insights'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
@@ -61,59 +62,64 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkspaceOrganizationIdRoute = WorkspaceOrganizationIdRouteImport.update({
+  id: '/workspace/$organizationId',
+  path: '/workspace/$organizationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkspaceOrganizationIdSectionRoute =
   WorkspaceOrganizationIdSectionRouteImport.update({
-    id: '/workspace/$organizationId/$section',
-    path: '/workspace/$organizationId/$section',
-    getParentRoute: () => rootRouteImport,
+    id: '/$section',
+    path: '/$section',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdInsightsRoute =
   WorkspaceOrganizationIdInsightsRouteImport.update({
-    id: '/workspace/$organizationId/insights',
-    path: '/workspace/$organizationId/insights',
-    getParentRoute: () => rootRouteImport,
+    id: '/insights',
+    path: '/insights',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdRoute =
   WorkspaceOrganizationIdActivitiesActivityIdRouteImport.update({
-    id: '/workspace/$organizationId/activities/$activityId',
-    path: '/workspace/$organizationId/activities/$activityId',
-    getParentRoute: () => rootRouteImport,
+    id: '/activities/$activityId',
+    path: '/activities/$activityId',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdManageRelationshipTypesRoute =
   WorkspaceOrganizationIdManageRelationshipTypesRouteImport.update({
-    id: '/workspace/$organizationId/manage/relationship-types',
-    path: '/workspace/$organizationId/manage/relationship-types',
-    getParentRoute: () => rootRouteImport,
+    id: '/manage/relationship-types',
+    path: '/manage/relationship-types',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdPeopleContactsRoute =
   WorkspaceOrganizationIdPeopleContactsRouteImport.update({
-    id: '/workspace/$organizationId/people/contacts',
-    path: '/workspace/$organizationId/people/contacts',
-    getParentRoute: () => rootRouteImport,
+    id: '/people/contacts',
+    path: '/people/contacts',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdPeopleGroupsRoute =
   WorkspaceOrganizationIdPeopleGroupsRouteImport.update({
-    id: '/workspace/$organizationId/people/groups',
-    path: '/workspace/$organizationId/people/groups',
-    getParentRoute: () => rootRouteImport,
+    id: '/people/groups',
+    path: '/people/groups',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdFormsFormRecordIdRoute =
   WorkspaceOrganizationIdFormsFormRecordIdRouteImport.update({
-    id: '/workspace/$organizationId/forms/$form/$recordId',
-    path: '/workspace/$organizationId/forms/$form/$recordId',
-    getParentRoute: () => rootRouteImport,
+    id: '/forms/$form/$recordId',
+    path: '/forms/$form/$recordId',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdPeopleContactsContactIdRoute =
   WorkspaceOrganizationIdPeopleContactsContactIdRouteImport.update({
-    id: '/workspace/$organizationId/people/contacts_/$contactId',
-    path: '/workspace/$organizationId/people/contacts/$contactId',
-    getParentRoute: () => rootRouteImport,
+    id: '/people/contacts_/$contactId',
+    path: '/people/contacts/$contactId',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdPeopleGroupsGroupIdRoute =
   WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport.update({
-    id: '/workspace/$organizationId/people/groups_/$groupId',
-    path: '/workspace/$organizationId/people/groups/$groupId',
-    getParentRoute: () => rootRouteImport,
+    id: '/people/groups_/$groupId',
+    path: '/people/groups/$groupId',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute =
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport.update(
@@ -125,9 +131,9 @@ const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRoute =
   )
 const WorkspaceOrganizationIdPeopleContactsContactIdViewRoute =
   WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport.update({
-    id: '/workspace/$organizationId/people/contacts_/$contactId_/$view',
-    path: '/workspace/$organizationId/people/contacts/$contactId/$view',
-    getParentRoute: () => rootRouteImport,
+    id: '/people/contacts_/$contactId_/$view',
+    path: '/people/contacts/$contactId/$view',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute =
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport.update(
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
+  '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
+  '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
+  '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -245,6 +254,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/settings'
     | '/start'
+    | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
     | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/activities/$activityId'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/settings'
     | '/start'
+    | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
     | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/activities/$activityId'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/settings'
     | '/start'
+    | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
     | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/activities/$activityId'
@@ -315,16 +327,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
-  WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
-  WorkspaceOrganizationIdInsightsRoute: typeof WorkspaceOrganizationIdInsightsRoute
-  WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
-  WorkspaceOrganizationIdManageRelationshipTypesRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
-  WorkspaceOrganizationIdPeopleContactsRoute: typeof WorkspaceOrganizationIdPeopleContactsRoute
-  WorkspaceOrganizationIdPeopleGroupsRoute: typeof WorkspaceOrganizationIdPeopleGroupsRoute
-  WorkspaceOrganizationIdFormsFormRecordIdRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
-  WorkspaceOrganizationIdPeopleContactsContactIdRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
-  WorkspaceOrganizationIdPeopleGroupsGroupIdRoute: typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
-  WorkspaceOrganizationIdPeopleContactsContactIdViewRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
+  WorkspaceOrganizationIdRoute: typeof WorkspaceOrganizationIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -371,68 +374,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workspace/$organizationId': {
+      id: '/workspace/$organizationId'
+      path: '/workspace/$organizationId'
+      fullPath: '/workspace/$organizationId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId/$section': {
       id: '/workspace/$organizationId/$section'
-      path: '/workspace/$organizationId/$section'
+      path: '/$section'
       fullPath: '/workspace/$organizationId/$section'
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/insights': {
       id: '/workspace/$organizationId/insights'
-      path: '/workspace/$organizationId/insights'
+      path: '/insights'
       fullPath: '/workspace/$organizationId/insights'
       preLoaderRoute: typeof WorkspaceOrganizationIdInsightsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/activities/$activityId': {
       id: '/workspace/$organizationId/activities/$activityId'
-      path: '/workspace/$organizationId/activities/$activityId'
+      path: '/activities/$activityId'
       fullPath: '/workspace/$organizationId/activities/$activityId'
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/manage/relationship-types': {
       id: '/workspace/$organizationId/manage/relationship-types'
-      path: '/workspace/$organizationId/manage/relationship-types'
+      path: '/manage/relationship-types'
       fullPath: '/workspace/$organizationId/manage/relationship-types'
       preLoaderRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/people/contacts': {
       id: '/workspace/$organizationId/people/contacts'
-      path: '/workspace/$organizationId/people/contacts'
+      path: '/people/contacts'
       fullPath: '/workspace/$organizationId/people/contacts'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/people/groups': {
       id: '/workspace/$organizationId/people/groups'
-      path: '/workspace/$organizationId/people/groups'
+      path: '/people/groups'
       fullPath: '/workspace/$organizationId/people/groups'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleGroupsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/forms/$form/$recordId': {
       id: '/workspace/$organizationId/forms/$form/$recordId'
-      path: '/workspace/$organizationId/forms/$form/$recordId'
+      path: '/forms/$form/$recordId'
       fullPath: '/workspace/$organizationId/forms/$form/$recordId'
       preLoaderRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/people/contacts_/$contactId': {
       id: '/workspace/$organizationId/people/contacts_/$contactId'
-      path: '/workspace/$organizationId/people/contacts/$contactId'
+      path: '/people/contacts/$contactId'
       fullPath: '/workspace/$organizationId/people/contacts/$contactId'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/people/groups_/$groupId': {
       id: '/workspace/$organizationId/people/groups_/$groupId'
-      path: '/workspace/$organizationId/people/groups/$groupId'
+      path: '/people/groups/$groupId'
       fullPath: '/workspace/$organizationId/people/groups/$groupId'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': {
       id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
@@ -443,10 +453,10 @@ declare module '@tanstack/react-router' {
     }
     '/workspace/$organizationId/people/contacts_/$contactId_/$view': {
       id: '/workspace/$organizationId/people/contacts_/$contactId_/$view'
-      path: '/workspace/$organizationId/people/contacts/$contactId/$view'
+      path: '/people/contacts/$contactId/$view'
       fullPath: '/workspace/$organizationId/people/contacts/$contactId/$view'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': {
       id: '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
@@ -518,6 +528,46 @@ const WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren =
     WorkspaceOrganizationIdActivitiesActivityIdRouteChildren,
   )
 
+interface WorkspaceOrganizationIdRouteChildren {
+  WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdInsightsRoute: typeof WorkspaceOrganizationIdInsightsRoute
+  WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  WorkspaceOrganizationIdManageRelationshipTypesRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
+  WorkspaceOrganizationIdPeopleContactsRoute: typeof WorkspaceOrganizationIdPeopleContactsRoute
+  WorkspaceOrganizationIdPeopleGroupsRoute: typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  WorkspaceOrganizationIdFormsFormRecordIdRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
+  WorkspaceOrganizationIdPeopleContactsContactIdRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
+  WorkspaceOrganizationIdPeopleGroupsGroupIdRoute: typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
+  WorkspaceOrganizationIdPeopleContactsContactIdViewRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
+}
+
+const WorkspaceOrganizationIdRouteChildren: WorkspaceOrganizationIdRouteChildren =
+  {
+    WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+    WorkspaceOrganizationIdInsightsRoute: WorkspaceOrganizationIdInsightsRoute,
+    WorkspaceOrganizationIdActivitiesActivityIdRoute:
+      WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
+    WorkspaceOrganizationIdManageRelationshipTypesRoute:
+      WorkspaceOrganizationIdManageRelationshipTypesRoute,
+    WorkspaceOrganizationIdPeopleContactsRoute:
+      WorkspaceOrganizationIdPeopleContactsRoute,
+    WorkspaceOrganizationIdPeopleGroupsRoute:
+      WorkspaceOrganizationIdPeopleGroupsRoute,
+    WorkspaceOrganizationIdFormsFormRecordIdRoute:
+      WorkspaceOrganizationIdFormsFormRecordIdRoute,
+    WorkspaceOrganizationIdPeopleContactsContactIdRoute:
+      WorkspaceOrganizationIdPeopleContactsContactIdRoute,
+    WorkspaceOrganizationIdPeopleGroupsGroupIdRoute:
+      WorkspaceOrganizationIdPeopleGroupsGroupIdRoute,
+    WorkspaceOrganizationIdPeopleContactsContactIdViewRoute:
+      WorkspaceOrganizationIdPeopleContactsContactIdViewRoute,
+  }
+
+const WorkspaceOrganizationIdRouteWithChildren =
+  WorkspaceOrganizationIdRoute._addFileChildren(
+    WorkspaceOrganizationIdRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRoute,
@@ -525,24 +575,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
-  WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
-  WorkspaceOrganizationIdInsightsRoute: WorkspaceOrganizationIdInsightsRoute,
-  WorkspaceOrganizationIdActivitiesActivityIdRoute:
-    WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
-  WorkspaceOrganizationIdManageRelationshipTypesRoute:
-    WorkspaceOrganizationIdManageRelationshipTypesRoute,
-  WorkspaceOrganizationIdPeopleContactsRoute:
-    WorkspaceOrganizationIdPeopleContactsRoute,
-  WorkspaceOrganizationIdPeopleGroupsRoute:
-    WorkspaceOrganizationIdPeopleGroupsRoute,
-  WorkspaceOrganizationIdFormsFormRecordIdRoute:
-    WorkspaceOrganizationIdFormsFormRecordIdRoute,
-  WorkspaceOrganizationIdPeopleContactsContactIdRoute:
-    WorkspaceOrganizationIdPeopleContactsContactIdRoute,
-  WorkspaceOrganizationIdPeopleGroupsGroupIdRoute:
-    WorkspaceOrganizationIdPeopleGroupsGroupIdRoute,
-  WorkspaceOrganizationIdPeopleContactsContactIdViewRoute:
-    WorkspaceOrganizationIdPeopleContactsContactIdViewRoute,
+  WorkspaceOrganizationIdRoute: WorkspaceOrganizationIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

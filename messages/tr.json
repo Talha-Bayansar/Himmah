@@ -767,5 +767,17 @@
   "insights_generated": "Güncellendi: {time}",
   "directory_insights_range": "En fazla 366 günlük geçerli bir tarih aralığı seçin.",
   "directory_insights_filter": "Bu etkinlik veya grup kullanılamıyor. Filtreyi temizleyin veya başka birini seçin.",
-  "insights_filters": "Filtreler"
+  "insights_filters": "Filtreler",
+  "dashboard_title": "Ana sayfa",
+  "dashboard_intro": "Topluluğuna genel bir bakış.",
+  "dashboard_refresh": "Ana sayfayı yenile",
+  "dashboard_upcoming": "Yaklaşan oturumlar",
+  "dashboard_all_activities": "Tüm etkinlikler",
+  "dashboard_no_sessions": "Gösterilecek yaklaşan oturum yok.",
+  "dashboard_actions": "Hızlı işlemler",
+  "dashboard_contacts": "Kişileri yönet",
+  "dashboard_plan": "Etkinlik planla",
+  "dashboard_month": "Bu ay",
+  "dashboard_report": "İstatistikleri gör",
+  "dashboard_balance_note": "Bu ayki oturumların kayıtlı ücretlerinden kalan tutar."
 }

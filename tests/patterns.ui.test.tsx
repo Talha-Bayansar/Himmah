@@ -423,7 +423,7 @@ it("organization choices use compact full-row links with the name and role", asy
   const list = await screen.findByRole("list", { name: "My organizations" });
   const choice = within(list).getByRole("link", { name: /Noor Youth/ });
   expect(choice.getAttribute("href")).toBe(
-    `/workspace/${organization.id}/people/contacts`,
+    `/workspace/${organization.id}/dashboard`,
   );
   expect(within(choice).getByText("Owner")).toBeTruthy();
   expect(

@@ -767,5 +767,17 @@
   "insights_generated": "Updated {time}",
   "directory_insights_range": "Choose valid dates, up to 366 days apart.",
   "directory_insights_filter": "This activity or group is unavailable. Clear the filter or choose another.",
-  "insights_filters": "Filters"
+  "insights_filters": "Filters",
+  "dashboard_title": "Home",
+  "dashboard_intro": "Your community at a glance.",
+  "dashboard_refresh": "Refresh dashboard",
+  "dashboard_upcoming": "Coming up",
+  "dashboard_all_activities": "All activities",
+  "dashboard_no_sessions": "No upcoming sessions to show.",
+  "dashboard_actions": "Quick actions",
+  "dashboard_contacts": "Manage contacts",
+  "dashboard_plan": "Plan an activity",
+  "dashboard_month": "This month",
+  "dashboard_report": "View insights",
+  "dashboard_balance_note": "Outstanding on recorded charges for sessions this month."
 }
