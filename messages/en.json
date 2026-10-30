@@ -799,5 +799,7 @@
   "statistics_context_help": "Averages use started sessions. Returning share describes attendees with an earlier recorded visit; it is not a retention rate.",
   "statistics_comparison_help": "Complete months compare with the complete previous month. Month-to-date compares the same days of the previous month, capped at its last day. Custom ranges compare the preceding equal-length period. Colors show direction, not service quality. Earlier session balances have had more time to be paid. pp means percentage points.",
   "statistics_percentage": "{value}%",
-  "statistics_no_denominator": "Not available"
+  "statistics_no_denominator": "Not available",
+  "activities_delete": "Permanently delete",
+  "activities_delete_help": "Permanently delete “{name}”? This removes {sessions} sessions, {attendance} attendance entries, {charges} charges and {receipts} payment records, including their history. Contacts and groups are kept. This cannot be undone and does not refund money. Archive instead to keep this history."
 }

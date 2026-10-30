@@ -44,6 +44,22 @@ export function createActivityStore(
       ? execute(statement)
       : ((await db.execute(statement)).rows as Record<string, unknown>[]);
   return {
+    deletionPreview(user: string, org: string, id: string) {
+      return rows(
+        sql`select hub_activity_deletion_preview(${user},${org}::uuid,${id}::uuid) as result`,
+      );
+    },
+    deleteActivity(
+      user: string,
+      org: string,
+      id: string,
+      key: string,
+      snapshot: string,
+    ) {
+      return rows(
+        sql`select hub_delete_activity(${user},${org}::uuid,${id}::uuid,${key}::uuid,${snapshot}) as result`,
+      );
+    },
     list(user: string, org: string, p: PageInput) {
       return rows(
         sql`with ${actor(user, org)} select ${activityFrom(user, org)} from hub_activities parent_row where organization_id=${org}::uuid and exists(select 1 from actor) and hub_can_view_activity(${user},${org}::uuid,id) and cancelled=${p.archived} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,

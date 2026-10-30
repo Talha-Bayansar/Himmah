@@ -799,5 +799,7 @@
   "statistics_context_help": "Gemiddelden gebruiken gestarte sessies. Het terugkerende aandeel beschrijft deelnemers met een eerder geregistreerd bezoek; het is geen retentiepercentage.",
   "statistics_comparison_help": "Volledige maanden vergelijken de volledige vorige maand. De lopende maand wordt vergeleken met dezelfde dagen van de vorige maand, tot uiterlijk de laatste dag. Eigen periodes vergelijken de voorafgaande even lange periode. Kleuren geven richting aan, geen kwaliteitsoordeel. Oudere sessiekosten hebben meer tijd gehad om betaald te worden. pp betekent procentpunten.",
   "statistics_percentage": "{value}%",
-  "statistics_no_denominator": "Niet beschikbaar"
+  "statistics_no_denominator": "Niet beschikbaar",
+  "activities_delete": "Definitief verwijderen",
+  "activities_delete_help": "“{name}” definitief verwijderen? Dit verwijdert {sessions} sessies, {attendance} deelnames, {charges} kostenposten en {receipts} betaalregistraties, inclusief hun geschiedenis. Contacten en groepen blijven behouden. Dit kan niet ongedaan worden gemaakt en betaalt geen geld terug. Archiveer om deze geschiedenis te bewaren."
 }

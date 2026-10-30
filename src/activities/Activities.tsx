@@ -1,7 +1,7 @@
 import { sessionPrice } from "./contracts";
 import { useFormNavigation } from "../components/shared/form-navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Archive,
   ArrowLeft,
@@ -12,6 +12,7 @@ import {
   Plus,
   Search,
   Users,
+  Trash2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Attendance from "../attendance/Attendance";
@@ -186,6 +187,86 @@ export default function Activities({
       directoryRequest<{ item: Activity }>(base + "/" + activityId, { signal }),
   });
   const refresh = () => cache.invalidateQueries({ queryKey: key });
+  const navigate = useNavigate();
+  const deletionRequests = useRef(
+    new Map<string, { key: string; snapshot: string }>(),
+  );
+  const permanentDelete = useMutation({
+    mutationFn: async (item: Activity) => {
+      let request = deletionRequests.current.get(item.id);
+      if (!request) {
+        const preview = await directoryRequest<{
+          name: string;
+          snapshot: string;
+          sessions: number;
+          attendance: number;
+          charges: number;
+          receipts: number;
+        }>(base + "/" + item.id + "?deletionPreview=true");
+        if (
+          !(await confirm({
+            title: m.activities_delete(),
+            description: m.activities_delete_help({
+              name: preview.name,
+              sessions: preview.sessions.toLocaleString(locale),
+              attendance: preview.attendance.toLocaleString(locale),
+              charges: preview.charges.toLocaleString(locale),
+              receipts: preview.receipts.toLocaleString(locale),
+            }),
+            confirmLabel: m.activities_delete(),
+            destructive: true,
+          }))
+        )
+          return false;
+        request = { key: crypto.randomUUID(), snapshot: preview.snapshot };
+        deletionRequests.current.set(item.id, request);
+      }
+      await directoryRequest(base + "/" + item.id, {
+        method: "DELETE",
+        body: JSON.stringify(request),
+      });
+      return true;
+    },
+    onSuccess: async (deleted, item) => {
+      if (!deleted) return;
+      deletionRequests.current.delete(item.id);
+      if (activityId)
+        await navigate({
+          to: "/workspace/$organizationId/$section",
+          params: { organizationId: organization.id, section: "activities" },
+        });
+      const root = ["organization", userId, organization.id];
+      await cache.cancelQueries({ queryKey: root });
+      cache.removeQueries({
+        predicate: (q) =>
+          q.queryKey[0] === root[0] &&
+          q.queryKey[1] === root[1] &&
+          q.queryKey[2] === root[2] &&
+          q.queryKey.length > 3 &&
+          !(q.queryKey[3] === "activities" && q.queryKey[4] === "list"),
+      });
+      await cache.invalidateQueries({ queryKey: root });
+    },
+    onError: (error, item) => {
+      if (
+        error instanceof DirectoryError &&
+        [
+          "conflict",
+          "forbidden",
+          "not_found",
+          "invalid_input",
+          "verify_required",
+          "sign_in",
+        ].includes(error.code)
+      ) {
+        deletionRequests.current.delete(item.id);
+        void cache.invalidateQueries({
+          queryKey: ["organization", userId, organization.id],
+        });
+      }
+    },
+  });
+
   const archive = useMutation({
     mutationFn: (item: Activity) =>
       directoryRequest(base + "/" + item.id, {
@@ -224,33 +305,47 @@ export default function Activities({
             <p className="activity-status">{m.activities_cancelled()}</p>
           )}
         </div>
-        {canManage && !item.cancelled && (
+        {canManage && (
           <ItemActions
             name={item.name}
-            pending={archive.isPending && archive.variables.id === item.id}
+            pending={
+              (archive.isPending && archive.variables.id === item.id) ||
+              (permanentDelete.isPending &&
+                permanentDelete.variables.id === item.id)
+            }
             actions={[
-              {
-                label: m.activities_edit(),
-                icon: Pencil,
-                onSelect: () => openForm("activity", item.id),
-              },
-              {
-                label: m.activities_cancel(),
-                icon: Archive,
-                destructive: true,
-                onSelect: async () => {
-                  if (
-                    await confirm({
-                      title: m.activities_cancel(),
-                      description: m.activities_cancel_help({
-                        name: item.name,
-                      }),
-                      confirmLabel: m.activities_cancel(),
+              ...(!item.cancelled
+                ? [
+                    {
+                      label: m.activities_edit(),
+                      icon: Pencil,
+                      onSelect: () => openForm("activity", item.id),
+                    },
+                    {
+                      label: m.activities_cancel(),
+                      icon: Archive,
                       destructive: true,
-                    })
-                  )
-                    archive.mutate(item);
-                },
+                      onSelect: async () => {
+                        if (
+                          await confirm({
+                            title: m.activities_cancel(),
+                            description: m.activities_cancel_help({
+                              name: item.name,
+                            }),
+                            confirmLabel: m.activities_cancel(),
+                            destructive: true,
+                          })
+                        )
+                          archive.mutate(item);
+                      },
+                    },
+                  ]
+                : []),
+              {
+                label: m.activities_delete(),
+                icon: Trash2,
+                destructive: true,
+                onSelect: () => permanentDelete.mutate(item),
               },
             ]}
           />
@@ -427,6 +522,16 @@ export default function Activities({
         </>
       )}
       {archive.isError && <ErrorNotice error={archive.error} />}
+      {permanentDelete.isError && (
+        <ErrorNotice
+          error={permanentDelete.error}
+          pending={permanentDelete.isPending}
+          retry={() =>
+            permanentDelete.variables &&
+            permanentDelete.mutate(permanentDelete.variables)
+          }
+        />
+      )}
     </section>
   );
 }

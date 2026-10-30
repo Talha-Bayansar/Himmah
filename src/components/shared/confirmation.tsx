@@ -73,11 +73,7 @@ export function ConfirmationProvider({ children }: { children: ReactNode }) {
               {m.cancel()}
             </AlertDialogCancel>
             <AlertDialogAction
-              className={
-                options?.destructive
-                  ? "bg-destructive text-white hover:bg-destructive/90"
-                  : ""
-              }
+              variant={options?.destructive ? "destructive" : "default"}
               onClick={() => settle(true)}
             >
               {options?.confirmLabel ?? m.continue_action()}

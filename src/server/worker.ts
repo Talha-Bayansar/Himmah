@@ -333,7 +333,10 @@ export function createHandler(
         if (response) return response;
       }
       if (/^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)) {
-        if (request.method !== "GET") {
+        if (
+          request.method !== "GET" ||
+          url.searchParams.get("deletionPreview") === "true"
+        ) {
           const allowed = await (
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
           ).limit({ key: `activities:${user.id}` });

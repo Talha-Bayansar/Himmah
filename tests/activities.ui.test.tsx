@@ -603,3 +603,194 @@ it("session detail shows a compact attendance and payment summary", async () => 
     screen.getByRole("link", { name: "Manage attendance & payments" }),
   ).toBeTruthy();
 });
+
+it("permanently deletes active or archived activities only after reviewing the complete impact", async () => {
+  let deleted = false,
+    writes = 0;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "DELETE") {
+        writes++;
+        deleted = true;
+        return Response.json({ deleted: true });
+      }
+      if (String(input).includes("deletionPreview=true"))
+        return Response.json({
+          name: item.name,
+          snapshot: "a".repeat(32),
+          sessions: 2,
+          attendance: 8,
+          charges: 5,
+          receipts: 6,
+        });
+      return Response.json({
+        items: deleted ? [] : [{ ...item, cancelled: true }],
+        nextCursor: null,
+      });
+    }),
+  );
+  const cache = mount();
+  cache.setQueryData(
+    ["organization", "owner-a", org.id, "insights", "fixture"],
+    { old: true },
+  );
+  cache.setQueryData(
+    ["organization", "owner-a", org.id, "dashboard", "fixture"],
+    { old: true },
+  );
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Actions for " + item.name }),
+  );
+  expect(
+    screen.queryByRole("menuitem", { name: "Archive activity" }),
+  ).toBeNull();
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Permanently delete" }),
+  );
+  const dialog = await screen.findByRole("alertdialog");
+  expect(
+    within(dialog).getByText(
+      /2 sessions, 8 attendance entries, 5 charges and 6 payment records/,
+    ),
+  ).toBeTruthy();
+  expect(writes).toBe(0);
+  await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+  expect(writes).toBe(0);
+  await user.click(
+    screen.getByRole("button", { name: "Actions for " + item.name }),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Permanently delete" }),
+  );
+  await user.click(
+    within(await screen.findByRole("alertdialog")).getByRole("button", {
+      name: "Permanently delete",
+    }),
+  );
+  await waitFor(() => expect(writes).toBe(1));
+  await waitFor(() =>
+    expect(
+      cache.getQueryData([
+        "organization",
+        "owner-a",
+        org.id,
+        "insights",
+        "fixture",
+      ]),
+    ).toBeUndefined(),
+  );
+  expect(
+    cache.getQueryData([
+      "organization",
+      "owner-a",
+      org.id,
+      "dashboard",
+      "fixture",
+    ]),
+  ).toBeUndefined();
+  await waitFor(() =>
+    expect(
+      screen.queryByRole("button", { name: "Actions for " + item.name }),
+    ).toBeNull(),
+  );
+});
+it("retries a lost deletion response with the same reviewed request identity", async () => {
+  const bodies: string[] = [];
+  let previews = 0;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "DELETE") {
+        bodies.push(String(init.body));
+        if (bodies.length === 1) throw Error("Lost response");
+        return Response.json({ deleted: true });
+      }
+      if (String(input).includes("deletionPreview=true")) {
+        previews++;
+        return Response.json({
+          name: item.name,
+          snapshot: "a".repeat(32),
+          sessions: 2,
+          attendance: 8,
+          charges: 5,
+          receipts: 6,
+        });
+      }
+      return Response.json({
+        items: bodies.length > 1 ? [] : [item],
+        nextCursor: null,
+      });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Actions for " + item.name }),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Permanently delete" }),
+  );
+  await user.click(
+    within(await screen.findByRole("alertdialog")).getByRole("button", {
+      name: "Permanently delete",
+    }),
+  );
+  await user.click(await screen.findByRole("button", { name: "Try again" }));
+  await waitFor(() => expect(bodies).toHaveLength(2));
+  expect(bodies[0]).toBe(bodies[1]);
+  expect(previews).toBe(1);
+});
+it("requires a new review after a deletion snapshot conflict", async () => {
+  const bodies: string[] = [];
+  let previews = 0;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      if (init?.method === "DELETE") {
+        bodies.push(String(init.body));
+        return bodies.length === 1
+          ? Response.json({ code: "conflict" }, { status: 409 })
+          : Response.json({ deleted: true });
+      }
+      if (String(input).includes("deletionPreview=true")) {
+        previews++;
+        return Response.json({
+          name: item.name,
+          snapshot: (previews === 1 ? "a" : "b").repeat(32),
+          sessions: previews,
+          attendance: 8,
+          charges: 5,
+          receipts: 6,
+        });
+      }
+      return Response.json({
+        items: bodies.length > 1 ? [] : [item],
+        nextCursor: null,
+      });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "Actions for " + item.name }),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Permanently delete" }),
+  );
+  await user.click(
+    within(await screen.findByRole("alertdialog")).getByRole("button", {
+      name: "Permanently delete",
+    }),
+  );
+  await user.click(await screen.findByRole("button", { name: "Try again" }));
+  const second = await screen.findByRole("alertdialog");
+  expect(within(second).getByText(/2 sessions/)).toBeTruthy();
+  expect(bodies).toHaveLength(1);
+  await user.click(
+    within(second).getByRole("button", { name: "Permanently delete" }),
+  );
+  await waitFor(() => expect(bodies).toHaveLength(2));
+  expect(JSON.parse(bodies[0]!).key).not.toBe(JSON.parse(bodies[1]!).key);
+});

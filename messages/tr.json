@@ -799,5 +799,7 @@
   "statistics_context_help": "Ortalamalar başlamış oturumları kullanır. Tekrar katılanların oranı, daha önce kayıtlı katılımı olan kişileri gösterir; bir devamlılık oranı değildir.",
   "statistics_comparison_help": "Tam aylar önceki tam ayla karşılaştırılır. Ay başından bugüne kadar olan dönem, önceki ayın aynı günleriyle ve en fazla son gününe kadar karşılaştırılır. Özel aralıklar, önceki eşit uzunluktaki dönemle karşılaştırılır. Renkler hizmet kalitesini değil, değişimin yönünü gösterir. Eski oturumların ücretlerinin ödenmesi için daha fazla zaman geçmiştir.",
   "statistics_percentage": "%{value}",
-  "statistics_no_denominator": "Mevcut değil"
+  "statistics_no_denominator": "Mevcut değil",
+  "activities_delete": "Kalıcı olarak sil",
+  "activities_delete_help": "“{name}” kalıcı olarak silinsin mi? {sessions} oturum, {attendance} katılım, {charges} ücret ve {receipts} ödeme kaydı geçmişleriyle birlikte silinir. Kişiler ve gruplar korunur. Bu işlem geri alınamaz ve para iadesi yapmaz. Geçmişi korumak için arşivleyin."
 }

@@ -142,3 +142,7 @@ Home is the starting workspace destination. Show a bounded three-session chronol
 Dashboard reference (synthetic data): [mobile Home](design/dashboard-mobile.png).
 
 Statistic comparisons share the `Statistic` component, metric icons and semantic positive/warning/neutral tokens. Always pair direction colors with an icon and localized text, show the baseline dates, avoid zero-denominator percentages, and use percentage points for ratios. Keep comparison units, financial polarity and contextual exceptions in docs/INSIGHTS.md. Detailed secondary ratios use divided rows, without extra nested cards.
+
+Permanent activity deletion is a destructive secondary ItemActions command, available for active and archived activities. Use one count-based confirmation, clear irreversible/payment consequences and exact retry; changed data requires renewed review. Archive remains distinct and preserves history. See [deletion behavior](ACTIVITY_DELETION.md).
+
+[Permanent deletion confirmation](design/activity-delete-mobile.png) — synthetic Dutch phone example. Destructive confirmations use the shared semantic destructive button variant.

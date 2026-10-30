@@ -120,6 +120,48 @@ export async function activityApi(
       if (!result[0]) throw new CommunityError("conflict", 409);
       return respond({ item: result[0] }, sessionId ? 200 : 201);
     }
+    if (
+      id &&
+      !sessions &&
+      (request.method === "DELETE" ||
+        (request.method === "GET" &&
+          url.searchParams.get("deletionPreview") === "true"))
+    ) {
+      if (!["owner", "admin"].includes(org.role))
+        throw new CommunityError("forbidden", 403);
+      let row;
+      if (request.method === "GET")
+        row = (await activities.deletionPreview(user.id, orgId, id))[0];
+      else {
+        const body = await readBody(request);
+        if (
+          typeof body.snapshot !== "string" ||
+          !/^[a-f0-9]{32}$/.test(body.snapshot)
+        )
+          throw new CommunityError("invalid_input");
+        row = (
+          await activities.deleteActivity(
+            user.id,
+            orgId,
+            id,
+            uuid(body.key),
+            body.snapshot,
+          )
+        )[0];
+      }
+      const result = row?.result as { code?: string } | undefined;
+      if (!result) throw new CommunityError("conflict", 409);
+      if (result.code)
+        throw new CommunityError(
+          result.code,
+          result.code === "forbidden"
+            ? 403
+            : result.code === "not_found"
+              ? 404
+              : 409,
+        );
+      return respond(result);
+    }
     if (request.method === "GET") {
       if (id) {
         const item = (await activities.get(user.id, orgId, id))[0];
