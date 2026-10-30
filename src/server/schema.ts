@@ -167,6 +167,8 @@ export const activitySessions = pgTable(
     priceMinor: integer("price_minor").notNull().default(0),
     name: text("name").notNull(),
     topic: text("topic").notNull().default(""),
+    seriesId: uuid("series_id"),
+    seriesPosition: integer("series_position"),
     description: text("description").notNull(),
     location: text("location").notNull(),
     timezone: text("timezone").notNull(),
@@ -210,6 +212,16 @@ export const activitySessions = pgTable(
     check(
       "hub_session_audience_bound",
       sql`cardinality(${t.audienceGroupIds}) <= 20`,
+    ),
+    unique("hub_session_series_position").on(
+      t.organizationId,
+      t.activityId,
+      t.seriesId,
+      t.seriesPosition,
+    ),
+    check(
+      "hub_session_series_pair",
+      sql`(${t.seriesId} is null and ${t.seriesPosition} is null) or (${t.seriesId} is not null and ${t.seriesPosition} is not null and ${t.seriesPosition} between 0 and 51)`,
     ),
     check("hub_session_topic", sql`length(${t.topic}) <= 160`),
     check("hub_session_reason", sql`length(${t.cancellationReason}) <= 300`),

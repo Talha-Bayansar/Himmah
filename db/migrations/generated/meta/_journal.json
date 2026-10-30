@@ -50,6 +50,13 @@
       "when": 1793357762624,
       "tag": "0006_session_topic",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793366461909,
+      "tag": "0007_session_series",
+      "breakpoints": true
     }
   ]
 }

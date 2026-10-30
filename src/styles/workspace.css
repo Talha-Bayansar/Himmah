@@ -2452,3 +2452,16 @@ button[data-slot="button"].people-section-add {
 .statistic dt > span, .statistic-change > span { min-width: 0; overflow-wrap: anywhere; }
 
 .insights-metrics .statistic dt { min-height: 40px; }
+
+/* Bounded recurrence previews use document scrolling and the shared directory rhythm. */
+.schedule-weekdays { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-2,8px); }
+.schedule-weekdays legend { margin-bottom: 8px; font-weight: 600; }
+.schedule-weekdays label { min-height: 44px; }
+.schedule-preview { list-style: none; padding: 0; margin: 0; }
+.schedule-preview li { display: flex; align-items: flex-start; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.schedule-preview li > svg { flex-shrink: 0; margin-top: 2px; color: var(--muted-foreground); }
+.schedule-preview p { margin: 0; }
+.schedule-preview li > div { min-width: 0; }
+.schedule-context { margin-block: 16px 24px; }
+.schedule-context p { margin: 0; }
+.schedule-context p + p { margin-top: 4px; }

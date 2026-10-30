@@ -1,3 +1,4 @@
+import { weeklyOccurrences } from "../activities/recurrence.ts";
 import {
   activityInput,
   cancellationReason,
@@ -43,6 +44,121 @@ export async function activityApi(
       if (!id) throw new CommunityError("not_found", 404);
       const parent = (await activities.get(user.id, orgId, id))[0];
       if (!parent) throw new CommunityError("not_found", 404);
+      if (url.searchParams.has("schedule") || url.searchParams.has("plan")) {
+        if (!["owner", "admin"].includes(org.role))
+          throw new CommunityError("forbidden", 403);
+        if (
+          request.method === "GET" &&
+          !sessionId &&
+          url.searchParams.has("schedule")
+        )
+          return respond({
+            items: await activities.schedule(
+              user.id,
+              orgId,
+              id,
+              uuid(url.searchParams.get("schedule")),
+            ),
+          });
+        if (request.method !== "POST" || sessionId)
+          throw new CommunityError("not_found", 404);
+        const body = await readBody(request);
+        const key = uuid(body.key);
+        let input = body.occurrences;
+        let rule: Record<string, unknown> | undefined;
+        if (body.mode === "create") {
+          if (
+            !body.rule ||
+            typeof body.rule !== "object" ||
+            Array.isArray(body.rule)
+          )
+            throw new CommunityError("invalid_input");
+          rule = body.rule as Record<string, unknown>;
+          if (
+            typeof rule.startLocal !== "string" ||
+            typeof rule.endLocal !== "string" ||
+            !Array.isArray(rule.weekdays) ||
+            !rule.stop ||
+            typeof rule.stop !== "object"
+          )
+            throw new CommunityError("invalid_input");
+          const stop = rule.stop as { count?: number; until?: string };
+          input = weeklyOccurrences(
+            rule.startLocal,
+            rule.endLocal,
+            rule.weekdays,
+            stop,
+          );
+          rule = {
+            startLocal: rule.startLocal,
+            endLocal: rule.endLocal,
+            weekdays: [...rule.weekdays].sort(),
+            stop,
+          };
+        }
+        if (!Array.isArray(input) || input.length < 1 || input.length > 52)
+          throw new CommunityError("series_limit");
+        const occurrences = input.map((v) => {
+          if (!v || typeof v !== "object" || Array.isArray(v))
+            throw new CommunityError("invalid_input");
+          const row = v as Record<string, unknown>;
+          const times = sessionInput(
+            { ...row, location: "" },
+            String(parent.timezone),
+            true,
+          );
+          return {
+            startsAt: times.startsAt,
+            endsAt: times.endsAt,
+            ...(body.mode === "edit"
+              ? { id: uuid(row.id), version: versionInput(row) }
+              : {}),
+          };
+        });
+        let payload: Record<string, unknown>;
+        if (body.mode === "create") {
+          if (body.priceMinor === undefined)
+            throw new CommunityError("invalid_input");
+          const fields = sessionInput(
+            { ...body, ...(input[0] as object) },
+            String(parent.timezone),
+            true,
+          );
+          payload = {
+            mode: "create",
+            version: versionInput(body),
+            timezone: String(parent.timezone),
+            location: fields.location,
+            priceMinor: fields.priceMinor ?? Number(parent.priceMinor ?? 0),
+            rule,
+            occurrences,
+          };
+        } else if (
+          body.mode === "edit" &&
+          ["one", "future"].includes(String(body.scope))
+        )
+          payload = {
+            mode: "edit",
+            anchor: uuid(body.anchor),
+            scope: body.scope,
+            occurrences,
+          };
+        else throw new CommunityError("invalid_input");
+        const result = (
+          await activities.planSessions(user.id, orgId, id, key, payload)
+        )[0]?.result as { code?: string } | undefined;
+        if (!result) throw new CommunityError("conflict", 409);
+        if (result.code)
+          throw new CommunityError(
+            result.code,
+            result.code === "forbidden"
+              ? 403
+              : result.code === "not_found"
+                ? 404
+                : 409,
+          );
+        return respond(result);
+      }
       if (request.method === "GET") {
         if (sessionId) {
           const item = (
@@ -223,7 +339,7 @@ export async function activityApi(
 
 async function readBody(request: Request): Promise<Record<string, unknown>> {
   const text = await request.text();
-  if (text.length > 16000) throw new CommunityError("invalid_input");
+  if (text.length > 24000) throw new CommunityError("invalid_input");
   try {
     const value = JSON.parse(text);
     if (!value || typeof value !== "object" || Array.isArray(value))

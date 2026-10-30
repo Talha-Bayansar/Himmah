@@ -150,3 +150,7 @@ Permanent activity deletion is a destructive secondary ItemActions command, avai
 Session topics are optional plain text. Where present, the topic leads the session identity and the activity name is subordinate context; dates remain visible. Empty topics preserve the existing activity/date hierarchy. Use the existing session sheet and shared directory/card typography, with long-text reflow and no autofocus. See [session topic behavior](SESSION_TOPICS.md).
 
 [Optional session topic sheet](design/session-topic-mobile.png) — synthetic Dutch phone example.
+
+Recurring planning and multi-session schedule review use the shared dedicated page form. Keep the existing one-session sheet and compact Plan recurring sessions / Change schedule secondary actions. Use bounded divided date rows, visible timezone and creation price/location, and paired old/new times when changing an existing series. The preview scrolls with the document. Follow [recurring session behavior](RECURRENCE.md) for snapshots, safe retries and history protection.
+
+[Recurring date preview](design/recurring-preview-mobile.png) — synthetic Dutch 390px example, with document scrolling for longer series.

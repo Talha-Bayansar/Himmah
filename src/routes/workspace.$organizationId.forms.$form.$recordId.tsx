@@ -5,8 +5,17 @@ import WorkflowPage from "../organization/WorkflowPage";
 export const Route = createFileRoute(
   "/workspace/$organizationId/forms/$form/$recordId",
 )({
-  validateSearch: (search: Record<string, unknown>): { returnTo?: string } =>
-    typeof search.returnTo === "string" ? { returnTo: search.returnTo } : {},
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { returnTo?: string; session?: string } => ({
+    ...(typeof search.returnTo === "string"
+      ? { returnTo: search.returnTo }
+      : {}),
+    ...(typeof search.session === "string" &&
+    /^[0-9a-f-]{36}$/i.test(search.session)
+      ? { session: search.session }
+      : {}),
+  }),
   beforeLoad: ({ params }) => {
     if (!pageForms.includes(params.form as PageForm)) throw notFound();
     if (

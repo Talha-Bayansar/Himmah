@@ -36,3 +36,5 @@ No database schema or API contract change is required. Browser viewport/gesture 
 Session cash collection uses the independently reloadable record-cash route because receipt details, occurrence time and multi-contact allocations form one complex workflow. Reasoned correction of an incorrect receipt uses the shared short bottom sheet and confirmation alert. Both preserve uncertain request identity and unsaved drafts.
 
 Single-person cash recording is a simple sheet; its amount-labeled save is the explicit financial review. It offers More people or receipt details for the complex page. Preserve pending/uncertain request identity, conflict refresh, scope denial and no autofocus.
+
+Recurring session planning and schedule changes use dedicated `session-series` / `session-schedule` page forms because weekday/ending choices and a bounded multi-session preview are a complex workflow. The existing short single-session create/edit/cancel sheet remains available. See [recurring planning](RECURRENCE.md).

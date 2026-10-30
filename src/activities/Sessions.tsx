@@ -11,6 +11,7 @@ import {
   MapPin,
   Pencil,
   Plus,
+  Repeat2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -30,6 +31,7 @@ import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
 import { activityKey, Audience, ErrorNotice, Schedule } from "./Activities";
 import type { Activity, Session } from "./contracts";
+import { useFormNavigation } from "../components/shared/form-navigation";
 import { EntityEditor } from "./EntityEditor";
 export default function Sessions({
   organization,
@@ -43,6 +45,7 @@ export default function Sessions({
   sessionId: string | null;
 }) {
   const navigate = useNavigate();
+  const openForm = useFormNavigation(organization.id);
   const locale = useLocale()?.locale ?? "en",
     cache = useQueryClient(),
     [view, setView] = useState("upcoming"),
@@ -143,6 +146,9 @@ export default function Sessions({
             ) : (
               <h3 className="activity-card-title">{item.topic || label}</h3>
             )}
+            {item.seriesId && (
+              <p className="activity-note">{m.series_member()}</p>
+            )}
             {item.topic && <p className="activity-note">{item.name}</p>}
             {item.cancelled && (
               <p className="activity-status">{m.sessions_cancelled()}</p>
@@ -207,10 +213,20 @@ export default function Sessions({
                         : []),
                     ]
                   : []),
-                ...(canManage && !item.cancelled && !past
+                ...(canManage && !activity.cancelled && !item.cancelled && !past
                   ? [
                       ...(!item.registrationLocked
                         ? [
+                            {
+                              label: m.series_change_schedule(),
+                              icon: Repeat2,
+                              onSelect: () =>
+                                openForm(
+                                  "session-schedule",
+                                  activity.id,
+                                  item.id,
+                                ),
+                            },
                             {
                               label: m.sessions_edit(),
                               icon: Pencil,
@@ -408,6 +424,15 @@ export default function Sessions({
               </Button>
             )}
           </div>
+          {canManage && !activity.cancelled && (
+            <Button
+              variant="link"
+              onClick={() => openForm("session-series", activity.id)}
+            >
+              <Repeat2 aria-hidden="true" size={16} />
+              {m.series_plan()}
+            </Button>
+          )}
           <Tabs value={view} onValueChange={setView}>
             <TabsList aria-label={m.sessions_title()}>
               <TabsTrigger value="upcoming">

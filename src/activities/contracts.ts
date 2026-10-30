@@ -21,6 +21,8 @@ export type Activity = {
   } | null;
 };
 export type Session = {
+  seriesId?: string | null;
+  seriesPosition?: number | null;
   topic?: string;
   priceMinor?: number;
   pricingLocked?: boolean;
@@ -125,7 +127,11 @@ export function activityInput(body: Record<string, unknown>, timezone: string) {
     audienceGroupIds,
   };
 }
-export function sessionInput(body: Record<string, unknown>, timezone: string) {
+export function sessionInput(
+  body: Record<string, unknown>,
+  timezone: string,
+  allowPast = false,
+) {
   const location = boundedText(body, "location", 160),
     startsAt = zonedInstant(body.startLocal, timezone),
     endsAt = zonedInstant(body.endLocal, timezone);
@@ -134,7 +140,7 @@ export function sessionInput(body: Record<string, unknown>, timezone: string) {
     Date.parse(endsAt) - Date.parse(startsAt) > 7 * 86400000
   )
     throw new CommunityError("activity_time");
-  if (Date.parse(startsAt) <= Date.now())
+  if (!allowPast && Date.parse(startsAt) <= Date.now())
     throw new CommunityError("session_future");
   const topic =
     body.topic === undefined ? undefined : boundedText(body, "topic", 160);

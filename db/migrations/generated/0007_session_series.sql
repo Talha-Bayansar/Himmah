@@ -1,0 +1,4 @@
+ALTER TABLE "hub_activity_sessions" ADD COLUMN "series_id" uuid;--> statement-breakpoint
+ALTER TABLE "hub_activity_sessions" ADD COLUMN "series_position" integer;--> statement-breakpoint
+ALTER TABLE "hub_activity_sessions" ADD CONSTRAINT "hub_session_series_position" UNIQUE("organization_id","activity_id","series_id","series_position");--> statement-breakpoint
+ALTER TABLE "hub_activity_sessions" ADD CONSTRAINT "hub_session_series_pair" CHECK (("hub_activity_sessions"."series_id" is null and "hub_activity_sessions"."series_position" is null) or ("hub_activity_sessions"."series_id" is not null and "hub_activity_sessions"."series_position" is not null and "hub_activity_sessions"."series_position" between 0 and 51));

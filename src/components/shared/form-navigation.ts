@@ -1,6 +1,8 @@
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 export const pageForms = [
   "activity",
+  "session-series",
+  "session-schedule",
   "access",
   "relationship-type",
   "relationship",
@@ -11,11 +13,11 @@ export type PageForm = (typeof pageForms)[number];
 export function useFormNavigation(organizationId: string) {
   const navigate = useNavigate();
   const returnTo = useRouterState({ select: (state) => state.location.href });
-  return (form: PageForm, recordId: string) =>
+  return (form: PageForm, recordId: string, session?: string) =>
     void navigate({
       to: "/workspace/$organizationId/forms/$form/$recordId",
       params: { organizationId, form, recordId },
-      search: { returnTo },
+      search: { returnTo, ...(session ? { session } : {}) },
     });
 }
 

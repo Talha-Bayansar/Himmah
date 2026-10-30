@@ -1,3 +1,4 @@
+import { SchedulePage } from "../activities/SchedulePage";
 import { PeopleScope } from "../modules/people/PeopleShell";
 import { ErrorNotice as PeopleError } from "../modules/people/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -40,7 +41,9 @@ export default function WorkflowPage({
       initialMode="signin"
       workspaceId={organizationId}
       workspaceSection={
-        form === "activity"
+        form === "activity" ||
+        form === "session-series" ||
+        form === "session-schedule"
           ? "activities"
           : form === "access" || form === "relationship-type"
             ? "manage"
@@ -49,7 +52,9 @@ export default function WorkflowPage({
     >
       {(user, organization) =>
         ["owner", "admin"].includes(organization.role) ? (
-          form === "activity" || form === "access" ? (
+          ["activity", "access", "session-series", "session-schedule"].includes(
+            form,
+          ) ? (
             <Workflow
               key={user + organizationId + form + recordId}
               user={user}
@@ -81,7 +86,17 @@ export default function WorkflowPage({
     </OrganizationPortal>
   );
 }
-export function Workflow({
+export function Workflow(props: {
+  user: string;
+  organization: Organization;
+  form: PageForm;
+  recordId: string;
+}) {
+  if (props.form === "session-series" || props.form === "session-schedule")
+    return <SchedulePage {...props} />;
+  return <RecordWorkflow {...props} />;
+}
+function RecordWorkflow({
   user,
   organization,
   form,
