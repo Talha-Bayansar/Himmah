@@ -1018,5 +1018,19 @@
   "learn_wizard_details_error": "2–160 karakterlik bir başlık girin ve açıklamayı kontrol edin.",
   "learn_wizard_question_error": "Soru {number} tamamlanmalı: soruyu ve tüm seçenekleri girip doğru yanıtı seçin.",
   "learn_wizard_access_error": "Uygunluk tarihlerini kontrol edin. Son tarih açılıştan sonra olmalıdır; belirsiz yerel saatler kabul edilmez.",
-  "learn_wizard_edit": "Düzenle"
+  "learn_wizard_edit": "Düzenle",
+  "learn_feedback": "Soru geri bildirimi",
+  "learn_answer_correct": "Doğru",
+  "learn_answer_incorrect": "Yanlış",
+  "learn_feedback_unavailable": "Geri bildirim mevcut değil",
+  "learn_your_answer": "Yanıtınız",
+  "learn_feedback_explanation": "Açıklama",
+  "learn_deadline": "Son katılım tarihi",
+  "learn_opens_at": "Başlangıç tarihi",
+  "learn_display_name_help": "Görünen adınız bir kişi kaydıyla ilişkilendirilmez.",
+  "learn_how_it_works": "Nasıl çalışır",
+  "learn_edit_answer": "{number}. sorunun yanıtını düzenle",
+  "learn_answered_count": "{total} sorudan {count} tanesi yanıtlandı",
+  "learn_save_unconfirmed": "Kayıt doğrulanamadı",
+  "learn_answer_saved": "Yanıt kaydedildi"
 }

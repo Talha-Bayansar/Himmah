@@ -1018,5 +1018,19 @@
   "learn_wizard_details_error": "Voer een titel van 2–160 tekens in en controleer de beschrijving.",
   "learn_wizard_question_error": "Vul vraag {number} aan: voer de vraag en alle opties in en kies het juiste antwoord.",
   "learn_wizard_access_error": "Controleer de beschikbaarheidsdatums. De deadline moet na de opening liggen; dubbelzinnige lokale tijden worden niet geaccepteerd.",
-  "learn_wizard_edit": "Bewerken"
+  "learn_wizard_edit": "Bewerken",
+  "learn_feedback": "Feedback per vraag",
+  "learn_answer_correct": "Juist",
+  "learn_answer_incorrect": "Onjuist",
+  "learn_feedback_unavailable": "Feedback niet beschikbaar",
+  "learn_your_answer": "Jouw antwoord",
+  "learn_feedback_explanation": "Toelichting",
+  "learn_deadline": "Beschikbaar tot",
+  "learn_opens_at": "Beschikbaar vanaf",
+  "learn_display_name_help": "Je weergavenaam wordt niet gekoppeld aan een contact.",
+  "learn_how_it_works": "Hoe het werkt",
+  "learn_edit_answer": "Antwoord op vraag {number} wijzigen",
+  "learn_answered_count": "{count} van {total} beantwoord",
+  "learn_save_unconfirmed": "Opslaan niet bevestigd",
+  "learn_answer_saved": "Antwoord opgeslagen"
 }

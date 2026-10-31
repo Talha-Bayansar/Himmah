@@ -1018,5 +1018,19 @@
   "learn_wizard_details_error": "Enter a title of 2–160 characters and check the description.",
   "learn_wizard_question_error": "Complete question {number}: enter the question, fill every option and choose the correct answer.",
   "learn_wizard_access_error": "Check the availability dates. The deadline must follow the opening time; ambiguous local times are not accepted.",
-  "learn_wizard_edit": "Edit"
+  "learn_wizard_edit": "Edit",
+  "learn_feedback": "Question feedback",
+  "learn_answer_correct": "Correct",
+  "learn_answer_incorrect": "Incorrect",
+  "learn_feedback_unavailable": "Feedback unavailable",
+  "learn_your_answer": "Your answer",
+  "learn_feedback_explanation": "Explanation",
+  "learn_deadline": "Available until",
+  "learn_opens_at": "Available from",
+  "learn_display_name_help": "Your display name is not linked to a contact record.",
+  "learn_how_it_works": "How it works",
+  "learn_edit_answer": "Edit answer to question {number}",
+  "learn_answered_count": "{count} of {total} answered",
+  "learn_save_unconfirmed": "Save not confirmed",
+  "learn_answer_saved": "Answer saved"
 }

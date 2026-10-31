@@ -46,3 +46,9 @@ Synthetic Dutch phone references: [question editor](design/learning-editor-mobil
 Creator review reference: [four-step draft overview](design/learning-wizard-review-mobile.png). The question-editor reference above now shows the single-question wizard step.
 
 Spacing references: [Details with shared peer actions](design/learning-wizard-details-mobile.png) and [Access with aligned wrapped date labels](design/learning-wizard-access-mobile.png). Explicit field groups keep label/control spacing consistent; all learning action rows reuse the shared directory-action layout.
+
+## Participant presentation
+
+The standalone participant shell shares a 680px reading column, responsive page gutters and safe-area-aware header. Introductory availability/counts lead, guest identity guidance stays with the name field, and detailed participation rules use a disclosure. Question choices have full-row radio targets, saved-state feedback and explicit answered progress. Review rows show the question, answer/unanswered state and edit affordance. User-driven question/view changes scroll into view without autofocusing a field.
+
+Released results show a neutral score and compact, numbered question feedback with correct/incorrect/unanswered text and icons. Correct responses do not repeat the same answer as an expected answer; incorrect/unanswered responses retain the answer key and any explanation. No pass/fail threshold is inferred. The held-result state still withholds feedback until server release. Credentials, revisions, retries, grading and additional-attempt rules are unchanged. Synthetic mobile references: [introduction](design/learning-participant-intro-mobile.png), [question](design/learning-participant-question-mobile.png), [review](design/learning-participant-review-mobile.png), [results](design/learning-result-mobile.png).

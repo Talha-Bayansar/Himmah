@@ -635,3 +635,67 @@ it("a wizard save with a lost response locks every step and replays the reviewed
   await waitFor(() => expect(b.posts.length).toBe(2));
   expect(b.posts[0]).toEqual(b.posts[1]);
 });
+
+it("shows distinct released feedback without repeating correct answers, and hides unreleased feedback", async () => {
+  const { ParticipantFeedback } =
+    await import("../src/learning/ParticipantFeedback");
+  const data: import("../src/learning/contracts").PublicLearning = {
+    questionCount: 3,
+    title: "Practice",
+    description: "",
+    mode: "open",
+    opensAt: "",
+    closesAt: "",
+    release: "manual",
+    number: 1,
+    available: true,
+    name: null,
+    allowance: 1,
+    questions: [
+      {
+        text: "Correct question",
+        choices: ["Correct choice", "Other"],
+        correct: 0,
+        explanation: "Why this works",
+      },
+      {
+        text: "Incorrect question",
+        choices: ["Chosen", "Expected"],
+        correct: 1,
+      },
+      {
+        text: "Skipped question",
+        choices: ["Expected skipped", "Other"],
+        correct: 0,
+      },
+    ],
+    attempt: {
+      id: attemptId,
+      sequence: 1,
+      answers: { 0: 0, 1: 0 },
+      revision: 1,
+      submittedAt: "2026-10-31T12:00:00Z",
+      score: 1,
+      total: 3,
+      released: true,
+    },
+  };
+  const { rerender } = render(<ParticipantFeedback data={data} />);
+  const rows = screen.getAllByRole("listitem");
+  expect(within(rows[0]!).getByText("Correct", { exact: true })).toBeTruthy();
+  expect(within(rows[0]!).getAllByText("Correct choice")).toHaveLength(1);
+  expect(within(rows[0]!).getByText("Why this works")).toBeTruthy();
+  expect(
+    within(rows[1]!).getByText("Incorrect", { exact: true }),
+  ).toBeTruthy();
+  expect(within(rows[1]!).getByText("Chosen")).toBeTruthy();
+  expect(within(rows[1]!).getByText("Expected")).toBeTruthy();
+  expect(within(rows[2]!).getByText("Expected skipped")).toBeTruthy();
+  rerender(
+    <ParticipantFeedback
+      data={{ ...data, attempt: { ...data.attempt!, released: false } }}
+    />,
+  );
+  expect(screen.queryByRole("list")).toBeNull();
+  expect(screen.queryByText("Expected")).toBeNull();
+});

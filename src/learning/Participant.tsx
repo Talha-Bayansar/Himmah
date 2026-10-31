@@ -1,6 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ArrowRight, Check, BookOpen } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  BookOpen,
+  CheckCircle2,
+  ListChecks,
+  CalendarClock,
+  Pencil,
+  RotateCcw,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ActionButton } from "../components/shared/action-button";
 import { Input } from "../components/ui/input";
@@ -15,6 +25,7 @@ import {
 import { LanguageSelector, useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 import { secretToken, type PublicLearning } from "./contracts";
+import { ParticipantFeedback } from "./ParticipantFeedback";
 export default function Participant({ item }: { item: string }) {
   const cache = useQueryClient(),
     locale = useLocale()?.locale ?? "en",
@@ -152,6 +163,22 @@ export default function Participant({ item }: { item: string }) {
     a = data?.attempt,
     q = data?.questions[index],
     submitted = !!a?.submittedAt;
+  const view = submitted
+    ? "result"
+    : !started
+      ? "intro"
+      : review
+        ? "review"
+        : "question";
+  const main = useRef<HTMLElement>(null),
+    firstView = useRef(true);
+  useEffect(() => {
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    main.current?.scrollIntoView?.({ block: "start", behavior: "auto" });
+  }, [view, index]);
   useEffect(() => {
     if (
       selectedAnswer &&
@@ -162,15 +189,17 @@ export default function Participant({ item }: { item: string }) {
   return (
     <div className="learning-public">
       <header className="learning-public-header">
-        <span>
-          <BookOpen aria-hidden="true" />
-          Himmah
-        </span>
-        <LanguageSelector />
+        <div className="learning-public-header-inner">
+          <span>
+            <BookOpen size={22} aria-hidden="true" />
+            Himmah
+          </span>
+          <LanguageSelector />
+        </div>
       </header>
-      <main className="learning-public-main">
+      <main ref={main} className="learning-public-main">
         {accessError || denied ? (
-          <div role="alert">
+          <div role="alert" className="participant-message">
             <h1>{m.learn_access_error()}</h1>
             <p>{directoryMessage(accessError ?? denied)}</p>
             <p>{m.learn_access_help()}</p>
@@ -183,7 +212,7 @@ export default function Participant({ item }: { item: string }) {
         ) : !ready || query.isPending ? (
           <ListSkeleton />
         ) : query.isError ? (
-          <div role="alert">
+          <div role="alert" className="participant-message">
             <p>{directoryMessage(query.error)}</p>
             <Button variant="outline" onClick={() => void query.refetch()}>
               {m.try_again()}
@@ -194,11 +223,11 @@ export default function Participant({ item }: { item: string }) {
             <>
               <DirectoryHeader
                 title={data.title}
-                description={!started || submitted ? data.description : ""}
+                description={!started && !submitted ? data.description : ""}
                 autoFocus={false}
               />
               {command.isError && (
-                <div role="alert">
+                <div role="alert" className="participant-message">
                   <p>{directoryMessage(command.error)}</p>
                   {uncertain ? (
                     <>
@@ -227,82 +256,93 @@ export default function Participant({ item }: { item: string }) {
                 </div>
               )}
               {submitted ? (
-                <section className="learning-fields">
-                  <h2>{m.learn_submission_saved()}</h2>
-                  <p>{date(a!.submittedAt!)}</p>
-                  {a!.released ? (
-                    <>
+                <section className="participant-section participant-results">
+                  <div className="participant-result-summary">
+                    <div className="participant-section-heading">
+                      <h2>
+                        <CheckCircle2 size={22} aria-hidden="true" />
+                        {m.learn_submission_saved()}
+                      </h2>
+                      <time dateTime={a!.submittedAt!}>
+                        {date(a!.submittedAt!)}
+                      </time>
+                    </div>
+                    {a!.released ? (
                       <strong className="learning-score">
                         {m.learn_score({
                           score: String(a!.score),
                           total: String(a!.total),
                         })}
                       </strong>
-                      <ol className="learning-question-preview">
-                        {data.questions.map((question, i) => (
-                          <li key={i}>
-                            <strong>{question.text}</strong>
-                            <p>
-                              {a!.answers[i] === undefined
-                                ? m.learn_unanswered()
-                                : question.choices[a!.answers[i]!]}
-                            </p>
-                            <p>
-                              {m.learn_correct()}:{" "}
-                              {question.choices[question.correct!]}
-                            </p>
-                            {question.explanation && (
-                              <p>{question.explanation}</p>
-                            )}
-                          </li>
-                        ))}
-                      </ol>
-                    </>
-                  ) : (
-                    <>
-                      <p>{m.learn_results_held()}</p>
-                      <Button
-                        variant="outline"
-                        onClick={() => void query.refetch()}
-                      >
-                        {m.learn_refresh_results()}
-                      </Button>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <p>{m.learn_results_held()}</p>
+                        <ActionButton
+                          variant="outline"
+                          pending={query.isFetching}
+                          onClick={() => void query.refetch()}
+                        >
+                          {m.learn_refresh_results()}
+                        </ActionButton>
+                      </>
+                    )}
+                  </div>
+                  {a!.released && <ParticipantFeedback data={data} />}
                   {data.available && a!.sequence < data.allowance && (
-                    <ActionButton
-                      pending={command.isPending}
-                      disabled={locked}
-                      onClick={() => void start()}
-                    >
-                      {m.learn_try_again()}
-                    </ActionButton>
+                    <div className="directory-actions participant-actions">
+                      <ActionButton
+                        pending={command.isPending}
+                        disabled={locked}
+                        onClick={() => void start()}
+                      >
+                        <RotateCcw aria-hidden="true" />
+                        {m.learn_try_again()}
+                      </ActionButton>
+                    </div>
                   )}
                 </section>
               ) : !started ? (
-                <section className="learning-fields">
-                  <p>
-                    {m.learn_question_count({
-                      count: String(
-                        data.questionCount ?? data.questions.length,
-                      ),
-                    })}
-                  </p>
-                  <p>{m.learn_one_attempt()}</p>
-                  {data.closesAt && (
+                <section className="participant-section participant-intro">
+                  <div className="participant-facts">
                     <p>
-                      {m.learn_closes()}: {date(data.closesAt)}
+                      <ListChecks size={18} aria-hidden="true" />
+                      {m.learn_question_count({
+                        count: String(
+                          data.questionCount ?? data.questions.length,
+                        ),
+                      })}
                     </p>
-                  )}
-                  {data.opensAt && !data.available && (
-                    <p>
-                      {m.learn_opens()}: {date(data.opensAt)}
+                    {data.closesAt && (
+                      <p>
+                        <CalendarClock size={18} aria-hidden="true" />
+                        <span>
+                          {m.learn_deadline()}: {date(data.closesAt)}
+                        </span>
+                      </p>
+                    )}
+                    {data.opensAt && !data.available && (
+                      <p>
+                        <CalendarClock size={18} aria-hidden="true" />
+                        <span>
+                          {m.learn_opens_at()}: {date(data.opensAt)}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                  {(data.closesAt || data.opensAt) && (
+                    <p className="activity-note">
+                      {m.activities_timezone({
+                        timezone: new Intl.DateTimeFormat().resolvedOptions()
+                          .timeZone,
+                      })}
                     </p>
                   )}
                   {data.name ? (
-                    <p>{m.learn_for_name({ name: data.name })}</p>
+                    <p className="participant-assignment">
+                      {m.learn_for_name({ name: data.name })}
+                    </p>
                   ) : data.mode === "open" ? (
-                    <>
+                    <div className="learning-field">
                       <Label htmlFor="participant-name">
                         {m.learn_display_name()}
                       </Label>
@@ -312,62 +352,87 @@ export default function Participant({ item }: { item: string }) {
                         maxLength={80}
                         value={name}
                         onChange={(e) => setName(e.target.value)}
+                        aria-describedby="participant-name-help"
                       />
-                      <p className="activity-note">{m.learn_guest_warning()}</p>
-                    </>
+                      <p className="activity-note" id="participant-name-help">
+                        {m.learn_display_name_help()}
+                      </p>
+                    </div>
                   ) : null}
+                  <details className="session-help participant-help">
+                    <summary>{m.learn_how_it_works()}</summary>
+                    <p>{m.learn_one_attempt()}</p>
+                    {data.mode === "open" && <p>{m.learn_guest_warning()}</p>}
+                  </details>
                   {!data.available && (
-                    <p role="status">{m.learn_not_available()}</p>
+                    <p role="status" className="participant-notice">
+                      {m.learn_not_available()}
+                    </p>
                   )}
-                  <ActionButton
-                    pending={command.isPending}
-                    disabled={
-                      locked ||
-                      !data.available ||
-                      (!data.name && data.mode === "open" && !name.trim())
-                    }
-                    onClick={() => void start()}
-                  >
-                    {a ? m.learn_continue() : m.learn_start()}
-                  </ActionButton>
+                  <div className="directory-actions participant-actions">
+                    <ActionButton
+                      pending={command.isPending}
+                      disabled={
+                        locked ||
+                        !data.available ||
+                        (!data.name && data.mode === "open" && !name.trim())
+                      }
+                      onClick={() => void start()}
+                    >
+                      {a ? m.learn_continue() : m.learn_start()}
+                      <ArrowRight aria-hidden="true" />
+                    </ActionButton>
+                  </div>
                 </section>
               ) : !data.available ? (
                 <p role="alert">{m.learn_not_available()}</p>
               ) : review ? (
-                <section className="learning-fields">
-                  <h2>{m.learn_review()}</h2>
-                  <p>
-                    {m.learn_unanswered_count({
-                      count: String(
-                        data.questions.length -
-                          Object.keys(a?.answers ?? {}).length,
-                      ),
-                    })}
-                  </p>
-                  <ol className="learning-review">
+                <section className="participant-section">
+                  <div className="participant-section-heading">
+                    <h2>{m.learn_review()}</h2>
+                    <p>
+                      {m.learn_unanswered_count({
+                        count: String(
+                          data.questions.length -
+                            Object.keys(a?.answers ?? {}).length,
+                        ),
+                      })}
+                    </p>
+                  </div>
+                  <ol className="learning-review" role="list">
                     {data.questions.map((question, i) => (
                       <li key={i}>
                         <Button
                           variant="ghost"
+                          aria-label={m.learn_edit_answer({
+                            number: String(i + 1),
+                          })}
                           onClick={() => {
                             setIndex(i);
                             setReview(false);
                           }}
                         >
-                          <span>
-                            {i + 1}. {question.text}
+                          <span
+                            className="participant-question-number"
+                            aria-hidden="true"
+                          >
+                            {i + 1}
                           </span>
-                          <span>
-                            {a?.answers[i] === undefined
-                              ? m.learn_unanswered()
-                              : question.choices[a.answers[i]!]}
+                          <span className="participant-review-copy">
+                            <strong>{question.text}</strong>
+                            <span data-unanswered={a?.answers[i] === undefined}>
+                              {a?.answers[i] === undefined
+                                ? m.learn_unanswered()
+                                : question.choices[a.answers[i]!]}
+                            </span>
                           </span>
+                          <Pencil size={18} aria-hidden="true" />
                         </Button>
                       </li>
                     ))}
                   </ol>
                   <p>{m.learn_submit_warning()}</p>
-                  <div className="directory-actions">
+                  <div className="directory-actions participant-actions">
                     <Button
                       variant="outline"
                       disabled={locked}
@@ -392,53 +457,80 @@ export default function Participant({ item }: { item: string }) {
                 </section>
               ) : (
                 q && (
-                  <section className="learning-fields">
+                  <section className="participant-section">
                     <div className="learning-progress">
-                      <span>
-                        {m.learn_progress({
-                          current: String(index + 1),
-                          total: String(data.questions.length),
-                        })}
-                      </span>
+                      <div className="participant-progress-labels">
+                        <span>
+                          {m.learn_progress({
+                            current: String(index + 1),
+                            total: String(data.questions.length),
+                          })}
+                        </span>
+                        <span>
+                          {m.learn_answered_count({
+                            count: String(Object.keys(a?.answers ?? {}).length),
+                            total: String(data.questions.length),
+                          })}
+                        </span>
+                      </div>
                       <progress
                         max={data.questions.length}
                         value={Object.keys(a?.answers ?? {}).length}
                         aria-label={m.learn_progress_label()}
                       />
                     </div>
-                    <fieldset className="learning-answer">
+                    <fieldset
+                      className="learning-answer"
+                      aria-busy={command.isPending}
+                    >
                       <legend>{q.text}</legend>
-                      {q.choices.map((choice, n) => (
-                        <label key={n}>
-                          <input
-                            type="radio"
-                            name={`answer-${index}`}
-                            value={n}
-                            checked={
-                              selectedAnswer?.question === index
-                                ? selectedAnswer.choice === n
-                                : a?.answers[index] === n
-                            }
-                            disabled={locked}
-                            onChange={() => {
-                              setSelectedAnswer({ question: index, choice: n });
-                              void run({
-                                action: "answer",
-                                attempt: a?.id,
-                                revision: a?.revision,
-                                question: index,
-                                choice: n,
-                              });
-                            }}
-                          />
-                          <span>{choice}</span>
-                        </label>
-                      ))}
+                      <div className="learning-answer-options">
+                        {q.choices.map((choice, n) => (
+                          <label key={n}>
+                            <input
+                              type="radio"
+                              name={`answer-${index}`}
+                              value={n}
+                              checked={
+                                selectedAnswer?.question === index
+                                  ? selectedAnswer.choice === n
+                                  : a?.answers[index] === n
+                              }
+                              disabled={locked}
+                              onChange={() => {
+                                setSelectedAnswer({
+                                  question: index,
+                                  choice: n,
+                                });
+                                void run({
+                                  action: "answer",
+                                  attempt: a?.id,
+                                  revision: a?.revision,
+                                  question: index,
+                                  choice: n,
+                                });
+                              }}
+                            />
+                            <span>{choice}</span>
+                          </label>
+                        ))}
+                      </div>
                     </fieldset>
-                    <p className="activity-note" role="status">
-                      {command.isPending ? m.learn_saving() : m.learn_saved()}
+                    <p className="participant-save-status" role="status">
+                      {!command.isPending &&
+                        !command.isError &&
+                        a?.answers[index] !== undefined && (
+                          <Check size={16} aria-hidden="true" />
+                        )}
+                      {command.isPending
+                        ? m.learn_saving()
+                        : command.isError
+                          ? m.learn_save_unconfirmed()
+                          : a?.answers[index] !== undefined
+                            ? m.learn_answer_saved()
+                            : m.learn_saved()}
                     </p>
-                    <div className="directory-actions">
+                    <div className="directory-actions participant-actions">
                       <Button
                         variant="outline"
                         disabled={locked || index === 0}
