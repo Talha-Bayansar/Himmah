@@ -180,3 +180,5 @@ Trend graphs offer hover/tap tooltips, a measure selector and a period selector 
 Synthetic Dutch references: [interactive trend](design/interactive-trend-mobile.png) and [statistic comparison sheet](design/statistic-comparison-mobile.png).
 
 Contextual secondary actions below headings (such as recurring planning and participation follow-up) use compact outline buttons aligned to the leading gutter. Group them with their heading using the shared `section-action-group` rhythm; do not stretch text-link buttons across page grid tracks or leave them floating between sections.
+
+Learning reuses compact directory/participant rows, quiet divided counts and Questions / Participants / Results tabs with connected panels. Keep one primary publication/assignment/share action; draft edits, access controls and result release are secondary commands. Multiple-choice questions use a dedicated page editor and at least 44px correct-answer targets. Participants get one question at a time, labelled progress, visible saved-answer state and explicit review/submission. Use on-device QR generation, never an external token-rendering service. See [learning](LEARNING.md).

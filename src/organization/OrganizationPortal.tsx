@@ -1,3 +1,4 @@
+import Learning from "../learning/Learning";
 import PlannedSessions from "../dashboard/PlannedSessions";
 import FollowUp from "../insights/FollowUp";
 import Dashboard from "../dashboard/Dashboard";
@@ -98,6 +99,8 @@ export default function OrganizationPortal({
   workspaceId = null,
   workspaceSection = "dashboard",
   accountSettings = false,
+  learningId,
+  learningMode,
   activityId = null,
   sessionId = null,
   attendance = false,
@@ -109,6 +112,8 @@ export default function OrganizationPortal({
   workspaceId?: string | null;
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
+  learningId?: string;
+  learningMode?: "view" | "edit" | "assign";
   activityId?: string | null;
   sessionId?: string | null;
   attendance?: boolean;
@@ -153,6 +158,25 @@ export default function OrganizationPortal({
     enabled: !!user?.emailVerified && !!workspaceId,
     retry: false,
   });
+  useEffect(() => {
+    if (!user || !workspaceId) return;
+    if (
+      !user.emailVerified ||
+      selected.isError ||
+      (selected.data && !["owner", "admin"].includes(selected.data.role))
+    ) {
+      const queryKey = ["organization", user.id, workspaceId, "learning"];
+      void queryClient.cancelQueries({ queryKey });
+      queryClient.removeQueries({ queryKey });
+    }
+  }, [
+    user?.id,
+    user?.emailVerified,
+    workspaceId,
+    selected.isError,
+    selected.data?.role,
+    queryClient,
+  ]);
   const openWorkspace = (id: string) =>
     navigate({
       to: "/workspace/$organizationId/$section",
@@ -305,6 +329,16 @@ export default function OrganizationPortal({
         );
       if (!["owner", "admin"].includes(org.role))
         return <p role="alert">{m.people_denied()}</p>;
+      if (workspaceSection === "learning")
+        return (
+          <Learning
+            key={user.id + org.id + org.role}
+            organization={org}
+            userId={user.id}
+            id={learningId}
+            mode={learningMode}
+          />
+        );
       if (workspaceSection === "follow-up")
         return (
           <FollowUp

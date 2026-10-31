@@ -25,6 +25,7 @@ export async function installDatabase(db: PGlite, { hosted = true } = {}) {
     "activity-deletion",
     "recurrence",
     "session-cancellation",
+    "learning",
   ])
     await db.exec(
       await readFile("db/migrations/functions/" + name + ".sql", "utf8"),

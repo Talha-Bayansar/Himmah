@@ -1,6 +1,6 @@
 # Himmah
 
-Himmah manages community contacts, relationships, groups, activities, registration, attendance and operational payment tracking. Staff accounts and organization access are retained; contacts do not need accounts. Organization Insights reports participation and payments; learning is the next extension.
+Himmah manages community contacts, relationships, groups, activities, registration, attendance and operational payment tracking. Staff accounts and organization access are retained; contacts do not need accounts. Organization Insights reports participation and payments; self-paced learning supports independent quizzes with optional activity/session context.
 
 Home is the organization starting page, with upcoming sessions, quick actions and monthly insights. The shared organization switcher, Profile and Home / People / Activities / Manage navigation remain available; detailed Insights opens from Home. Volunteers see scoped Home / Activities without organization-wide reports. English, Dutch and Turkish are supported.
 
@@ -11,6 +11,7 @@ Futsal, games, points, engagement periods, rewards/coupons, challenges and parti
 - [People and communication](docs/redesign/COMMUNICATION_STATUS.md)
 - [Insights and metric definitions](docs/INSIGHTS.md)
 - [Participation follow-up](docs/FOLLOW_UP.md)
+- [Self-paced learning](docs/LEARNING.md)
 - [Archive and permanent activity deletion](docs/ACTIVITY_DELETION.md)
 - [Optional session topics](docs/SESSION_TOPICS.md)
 - [Unified attendance and payments](docs/CASH.md)

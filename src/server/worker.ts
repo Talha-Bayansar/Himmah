@@ -1,3 +1,9 @@
+import {
+  learningApi,
+  learningPublicApi,
+  learningRateKey,
+} from "./learning-api.ts";
+import { createLearningStore } from "./learning-store.ts";
 import { followUpApi } from "./follow-up-api.ts";
 import { createFollowUpStore } from "./follow-up-store.ts";
 import { dashboardApi } from "./dashboard-api.ts";
@@ -65,6 +71,7 @@ interface Identity {
   emailVerified: boolean;
 }
 type Dependencies = {
+  learning?: (url: string) => ReturnType<typeof createLearningStore>;
   fetch: typeof fetch;
   store: (url: string) => OrganizationStore;
   directory?: (url: string) => CommunityStore;
@@ -233,6 +240,22 @@ export function createHandler(
           headers: responseHeaders,
         });
       }
+      if (url.pathname.startsWith("/api/learning/public/")) {
+        if (env.HIMMAH_PEOPLE_ENABLED !== "true" || !env.HIMMAH_DATABASE_URL)
+          return json({ code: "people_unavailable" }, 503);
+        const allowed = await (
+          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+        ).limit({
+          key: `learning-public:${request.method}:${await learningRateKey(request)}`,
+        });
+        if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        return (
+          (await learningPublicApi(
+            request,
+            (deps.learning ?? createLearningStore)(env.HIMMAH_DATABASE_URL),
+          )) ?? json({ code: "not_found" }, 404)
+        );
+      }
       const user = await identify(request, env, deps.fetch);
       if (!user) return json({ error: "Sign in to continue." }, 401);
       if (url.pathname === "/api/account" && request.method === "GET")
@@ -246,6 +269,21 @@ export function createHandler(
         });
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
+      if (/^\/api\/organizations\/[^/]+\/learning(\/|$)/.test(url.pathname)) {
+        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+          return json({ code: "people_unavailable" }, 503);
+        const allowed = await (
+          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+        ).limit({ key: `learning-staff:${user.id}` });
+        if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        const response = await learningApi(
+          request,
+          user,
+          deps.store(env.HIMMAH_DATABASE_URL),
+          (deps.learning ?? createLearningStore)(env.HIMMAH_DATABASE_URL),
+        );
+        return response ?? json({ code: "not_found" }, 404);
+      }
       if (
         /^\/api\/organizations\/[^/]+\/people\/(context|contacts|groups|relationship-types)(\/|$)/.test(
           url.pathname,

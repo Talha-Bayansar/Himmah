@@ -39,3 +39,5 @@ Session cash collection uses the independently reloadable record-cash route beca
 Single-person cash recording is a simple sheet; its amount-labeled save is the explicit financial review. It offers More people or receipt details for the complex page. Preserve pending/uncertain request identity, conflict refresh, scope denial and no autofocus.
 
 Recurring session planning and schedule changes use dedicated `session-series` / `session-schedule` page forms because weekday/ending choices and a bounded multi-session preview are a complex workflow. The existing short single-session create/edit/cancel sheet remains available. See [recurring planning](RECURRENCE.md).
+
+Learning question editing and multi-contact assignment use independently reloadable pages. Small context pickers, share access and participant-result details use the shared bottom sheet without autofocus. Published versions/submitted attempts are read-only; draft and exact-retry guards are documented in [learning](LEARNING.md).

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Archive,
+  BookOpen,
   ArrowLeft,
   ArrowRight,
   CalendarDays,
@@ -314,6 +315,16 @@ export default function Activities({
                 permanentDelete.variables.id === item.id)
             }
             actions={[
+              {
+                label: m.learn_title(),
+                icon: BookOpen,
+                onSelect: () =>
+                  navigate({
+                    to: "/workspace/$organizationId/learning",
+                    params: { organizationId: organization.id },
+                    search: { q: "", activity: item.id, session: "" },
+                  }),
+              },
               ...(!item.cancelled
                 ? [
                     {

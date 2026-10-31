@@ -216,7 +216,12 @@ export default function Insights({
     setAccessError(report.error);
     setPicker(null);
     setNames({ activity: "", group: "" });
-    for (const key of ["insights", "insights-options", "follow-up"]) {
+    for (const key of [
+      "insights",
+      "insights-options",
+      "follow-up",
+      "learning",
+    ]) {
       const queryKey = ["organization", userId, organization.id, key];
       void cache.cancelQueries({ queryKey });
       cache.removeQueries({ queryKey });

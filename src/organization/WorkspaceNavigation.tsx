@@ -10,6 +10,7 @@ export const workspaceSections = [
   "schedule",
   "insights",
   "follow-up",
+  "learning",
   "manage",
   "organization",
   "staff",
@@ -46,7 +47,8 @@ export function WorkspaceNavigation({
         aria-current={
           section === "dashboard" ||
           section === "insights" ||
-          section === "follow-up"
+          section === "follow-up" ||
+          section === "learning"
             ? "page"
             : undefined
         }

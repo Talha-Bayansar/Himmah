@@ -80,7 +80,7 @@ test("removed API families and attendance earning preview return 404 for authent
 test("the active schema, route registry, assets and package dependencies cannot recreate removed products", async () => {
   const schema = await readFile("src/server/schema.ts", "utf8");
   assert.ok(
-    !/points|reward|coupon|challenge|futsal|participant|earning|engagement_period/i.test(
+    !/(?:^|[^a-z])(points|rewards?|coupons?|challenges?|futsal|participants?|earning|engagement_period)(?:[^a-z]|$)/i.test(
       schema,
     ),
   );

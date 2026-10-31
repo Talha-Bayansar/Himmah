@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   Building2,
+  BookOpen,
   ChevronRight,
   ShieldCheck,
   UserRoundPlus,
@@ -46,6 +47,12 @@ export function Management({ organization }: { organization: Organization }) {
     {
       title: m.manage_organization(),
       items: [
+        {
+          section: "learning",
+          title: m.learn_title(),
+          description: m.learn_intro(),
+          Icon: BookOpen,
+        },
         {
           section: "organization",
           title: m.organization_details(),

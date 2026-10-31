@@ -75,3 +75,5 @@ Initial indexes start with organization scope: contact/group `(org,archived,crea
 Validate filters/cursors, use stable timestamp+ID ordering, project minimum columns and aggregate reports in SQL. Scope cursor/query keys to user, org and filters. Assess representative explain plans during implementation; these proposed indexes do not establish scale performance. Do not poll historical lists. Live subscription state is distinct from paged catalogs/history.
 
 29 October clarification: paid participation is independent of required registration. Optional paid sessions support explicit session/contact charges and cash without a reservation; attendance never creates debt. See [cash flow](../CASH.md).
+
+31 October learning refinement: learning items belong to the organization, with optional activity/session context. Published snapshots, contact assignments, unverified guest principals and immutable submitted attempts implement the [first learning increment](../LEARNING.md); attendance/payment remain independent.

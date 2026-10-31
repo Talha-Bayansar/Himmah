@@ -6,6 +6,7 @@ import {
   ChartNoAxesColumn,
   Wallet,
   UserRoundSearch,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -63,6 +64,7 @@ export default function Dashboard({
       ["organization", userId, organization.id, "insights"],
       ["organization", userId, organization.id, "insights-options"],
       ["organization", userId, organization.id, "follow-up"],
+      ["organization", userId, organization.id, "learning"],
     ];
     for (const queryKey of keys) {
       void cache.cancelQueries({ queryKey });
@@ -81,6 +83,7 @@ export default function Dashboard({
       "dashboard",
       "planned-sessions",
       "follow-up",
+      "learning",
       "insights",
       "insights-options",
     ]) {
@@ -218,6 +221,15 @@ export default function Dashboard({
             >
               <UserRoundSearch aria-hidden="true" size={20} />
               <span>{m.follow_up_title()}</span>
+              <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <Link
+              to="/workspace/$organizationId/learning"
+              params={{ organizationId: organization.id }}
+              search={{ q: "", activity: "", session: "" }}
+            >
+              <BookOpen aria-hidden="true" size={20} />
+              <span>{m.learn_title()}</span>
               <ArrowRight aria-hidden="true" size={18} />
             </Link>
           </div>

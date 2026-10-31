@@ -963,3 +963,190 @@ export const sessionOperations = pgTable(
     }),
   ],
 );
+
+// Learning is organization-owned; activity and session links provide optional context.
+export const learningItems = pgTable(
+  "hub_learning_items",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    title: text().notNull(),
+    description: text().notNull().default(""),
+    activityId: uuid("activity_id"),
+    sessionId: uuid("session_id"),
+    draft: jsonb().notNull(),
+    state: text().notNull().default("draft"),
+    version: integer().notNull().default(1),
+    currentPublication: uuid("current_publication"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    createdBy: text("created_by").notNull(),
+  },
+  (t) => [
+    unique("hub_learning_item_scope").on(t.organizationId, t.id),
+    index("hub_learning_directory").on(t.organizationId, t.createdAt, t.id),
+    check(
+      "hub_learning_title",
+      sql`length(trim(${t.title})) between 2 and 160`,
+    ),
+    check(
+      "hub_learning_state",
+      sql`${t.state} in ('draft','published','closed')`,
+    ),
+    check("hub_learning_revision", sql`${t.version}>0`),
+    check(
+      "hub_learning_session_context",
+      sql`${t.sessionId} is null or ${t.activityId} is not null`,
+    ),
+    foreignKey({
+      name: "hub_learning_activity",
+      columns: [t.organizationId, t.activityId],
+      foreignColumns: [activities.organizationId, activities.id],
+    }).onDelete("set null"),
+    foreignKey({
+      name: "hub_learning_session",
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }).onDelete("set null"),
+  ],
+);
+export const learningVersions = pgTable(
+  "hub_learning_versions",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    itemId: uuid("item_id").notNull(),
+    number: integer().notNull(),
+    content: jsonb().notNull(),
+    openHash: text("open_hash"),
+    released: boolean().notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_learning_version_scope").on(t.organizationId, t.id),
+    unique("hub_learning_version_number").on(
+      t.organizationId,
+      t.itemId,
+      t.number,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.itemId],
+      foreignColumns: [learningItems.organizationId, learningItems.id],
+    }),
+    uniqueIndex("hub_learning_open_hash").on(t.openHash),
+  ],
+);
+export const learningRecipients = pgTable(
+  "hub_learning_recipients",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    publicationId: uuid("publication_id").notNull(),
+    contactId: uuid("contact_id"),
+    name: text().notNull(),
+    linkHash: text("link_hash"),
+    guestHash: text("guest_hash"),
+    revoked: boolean().notNull().default(false),
+    allowance: integer().notNull().default(1),
+    revision: integer().notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_learning_recipient_scope").on(t.organizationId, t.id),
+    unique("hub_learning_assignment").on(
+      t.organizationId,
+      t.publicationId,
+      t.contactId,
+    ),
+    uniqueIndex("hub_learning_link_hash").on(t.linkHash),
+    uniqueIndex("hub_learning_guest_hash").on(t.guestHash),
+    index("hub_learning_recipient_directory").on(
+      t.organizationId,
+      t.publicationId,
+      t.createdAt,
+      t.id,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.publicationId],
+      foreignColumns: [learningVersions.organizationId, learningVersions.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.contactId],
+      foreignColumns: [people.organizationId, people.id],
+    }),
+    check("hub_learning_allowance", sql`${t.allowance} between 1 and 5`),
+    check(
+      "hub_learning_identity",
+      sql`(${t.contactId} is not null and ${t.guestHash} is null) or (${t.contactId} is null and ${t.guestHash} is not null)`,
+    ),
+  ],
+);
+export const learningAttempts = pgTable(
+  "hub_learning_attempts",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    recipientId: uuid("recipient_id").notNull(),
+    sequence: integer().notNull(),
+    answers: jsonb().notNull().default({}),
+    revision: integer().notNull().default(1),
+    score: integer(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_learning_attempt_scope").on(t.organizationId, t.id),
+    unique("hub_learning_attempt_sequence").on(
+      t.organizationId,
+      t.recipientId,
+      t.sequence,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.recipientId],
+      foreignColumns: [
+        learningRecipients.organizationId,
+        learningRecipients.id,
+      ],
+    }),
+    check(
+      "hub_learning_attempt_state",
+      sql`(${t.submittedAt} is null and ${t.score} is null) or (${t.submittedAt} is not null and ${t.score}>=0)`,
+    ),
+  ],
+);
+export const learningOperations = pgTable(
+  "hub_learning_operations",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    actorId: text("actor_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    payload: jsonb().notNull(),
+    response: jsonb().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_learning_operation_key").on(
+      t.organizationId,
+      t.actorId,
+      t.requestKey,
+    ),
+  ],
+);

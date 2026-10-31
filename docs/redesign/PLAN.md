@@ -36,7 +36,7 @@ The 29 October [Insights implementation](../INSIGHTS.md) covers attendance, hist
 
 ## Phase 4 — self-paced learning
 
-Deliver activity-local quiz/test creation, manual question editing, publication versions, recipient credentials, availability/attempt controls, automatic/manual grading and release/results. Add reusable questions/AI drafts only after the core workflow; no AI dependency.
+Deliver organization-owned quiz/test creation with optional activity/session links, manual question editing, publication versions, recipient credentials, availability/attempt controls, automatic/manual grading and release/results. Add reusable questions/AI drafts only after the core workflow; no AI dependency.
 
 Acceptance: editing draft cannot rewrite a published version/attempt; answer keys never appear in participant payloads; concurrent attempt creation respects limits; expiry/attendance eligibility/revocation are server-enforced. Free-text answers remain pending until reviewed. Regrades preserve history. Unverified identities stay outside verified contact metrics. Scores work with no points/reward tables. Religious AI drafts cannot publish without organizer review.
 
@@ -71,3 +71,5 @@ Run the repository documentation link checker and `git diff --check`. No applica
 Executed 28 October 2026: `npm run docs:check` passed (all local Markdown links); `git diff --check` passed. Reviewed Git status: documentation and agent-context changes only. Application source, schema, migrations and deployment configuration are unchanged. Runtime/build/database tests were not run for this documentation-only change.
 
 29 October clarification: paid participation is independent of required registration. Optional paid sessions support explicit session/contact charges and cash without a reservation; attendance never creates debt. See [cash flow](../CASH.md).
+
+31 October owner clarification: [self-paced learning](../LEARNING.md) is independent of activities; activity/session context is optional. The first increment covers multiple-choice automatic grading. Written answers/manual grading and live hosted quizzes remain later increments.

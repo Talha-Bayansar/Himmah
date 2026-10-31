@@ -12,6 +12,7 @@ import {
   Pencil,
   Plus,
   Repeat2,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -167,6 +168,24 @@ export default function Sessions({
             <ItemActions
               name={item.topic ? `${item.topic} · ${label}` : label}
               actions={[
+                ...(canManage
+                  ? [
+                      {
+                        label: m.learn_title(),
+                        icon: BookOpen,
+                        onSelect: () =>
+                          navigate({
+                            to: "/workspace/$organizationId/learning",
+                            params: { organizationId: organization.id },
+                            search: {
+                              q: "",
+                              activity: activity.id,
+                              session: item.id,
+                            },
+                          }),
+                      },
+                    ]
+                  : []),
                 ...(!canOperate && canCash && !full
                   ? [
                       {
