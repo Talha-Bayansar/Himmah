@@ -15,16 +15,23 @@ import { Route as HubRouteImport } from './routes/hub'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
+import { Route as LearnLearningIdRouteImport } from './routes/learn.$learningId'
 import { Route as WorkspaceOrganizationIdRouteImport } from './routes/workspace.$organizationId'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
 import { Route as WorkspaceOrganizationIdFollowUpRouteImport } from './routes/workspace.$organizationId.follow-up'
 import { Route as WorkspaceOrganizationIdInsightsRouteImport } from './routes/workspace.$organizationId.insights'
+import { Route as WorkspaceOrganizationIdLearningRouteImport } from './routes/workspace.$organizationId.learning'
 import { Route as WorkspaceOrganizationIdScheduleRouteImport } from './routes/workspace.$organizationId.schedule'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
+import { Route as WorkspaceOrganizationIdLearningIndexRouteImport } from './routes/workspace.$organizationId.learning.index'
+import { Route as WorkspaceOrganizationIdLearningLearningIdRouteImport } from './routes/workspace.$organizationId.learning.$learningId'
 import { Route as WorkspaceOrganizationIdManageRelationshipTypesRouteImport } from './routes/workspace.$organizationId.manage.relationship-types'
 import { Route as WorkspaceOrganizationIdPeopleContactsRouteImport } from './routes/workspace.$organizationId.people.contacts'
 import { Route as WorkspaceOrganizationIdPeopleGroupsRouteImport } from './routes/workspace.$organizationId.people.groups'
 import { Route as WorkspaceOrganizationIdFormsFormRecordIdRouteImport } from './routes/workspace.$organizationId.forms.$form.$recordId'
+import { Route as WorkspaceOrganizationIdLearningLearningIdIndexRouteImport } from './routes/workspace.$organizationId.learning.$learningId.index'
+import { Route as WorkspaceOrganizationIdLearningLearningIdAssignRouteImport } from './routes/workspace.$organizationId.learning.$learningId.assign'
+import { Route as WorkspaceOrganizationIdLearningLearningIdEditRouteImport } from './routes/workspace.$organizationId.learning.$learningId.edit'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId'
 import { Route as WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.people.groups_.$groupId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
@@ -64,6 +71,11 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnLearningIdRoute = LearnLearningIdRouteImport.update({
+  id: '/learn/$learningId',
+  path: '/learn/$learningId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorkspaceOrganizationIdRoute = WorkspaceOrganizationIdRouteImport.update({
   id: '/workspace/$organizationId',
   path: '/workspace/$organizationId',
@@ -87,6 +99,12 @@ const WorkspaceOrganizationIdInsightsRoute =
     path: '/insights',
     getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
+const WorkspaceOrganizationIdLearningRoute =
+  WorkspaceOrganizationIdLearningRouteImport.update({
+    id: '/learning',
+    path: '/learning',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
+  } as any)
 const WorkspaceOrganizationIdScheduleRoute =
   WorkspaceOrganizationIdScheduleRouteImport.update({
     id: '/schedule',
@@ -98,6 +116,18 @@ const WorkspaceOrganizationIdActivitiesActivityIdRoute =
     id: '/activities/$activityId',
     path: '/activities/$activityId',
     getParentRoute: () => WorkspaceOrganizationIdRoute,
+  } as any)
+const WorkspaceOrganizationIdLearningIndexRoute =
+  WorkspaceOrganizationIdLearningIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => WorkspaceOrganizationIdLearningRoute,
+  } as any)
+const WorkspaceOrganizationIdLearningLearningIdRoute =
+  WorkspaceOrganizationIdLearningLearningIdRouteImport.update({
+    id: '/$learningId',
+    path: '/$learningId',
+    getParentRoute: () => WorkspaceOrganizationIdLearningRoute,
   } as any)
 const WorkspaceOrganizationIdManageRelationshipTypesRoute =
   WorkspaceOrganizationIdManageRelationshipTypesRouteImport.update({
@@ -122,6 +152,24 @@ const WorkspaceOrganizationIdFormsFormRecordIdRoute =
     id: '/forms/$form/$recordId',
     path: '/forms/$form/$recordId',
     getParentRoute: () => WorkspaceOrganizationIdRoute,
+  } as any)
+const WorkspaceOrganizationIdLearningLearningIdIndexRoute =
+  WorkspaceOrganizationIdLearningLearningIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => WorkspaceOrganizationIdLearningLearningIdRoute,
+  } as any)
+const WorkspaceOrganizationIdLearningLearningIdAssignRoute =
+  WorkspaceOrganizationIdLearningLearningIdAssignRouteImport.update({
+    id: '/assign',
+    path: '/assign',
+    getParentRoute: () => WorkspaceOrganizationIdLearningLearningIdRoute,
+  } as any)
+const WorkspaceOrganizationIdLearningLearningIdEditRoute =
+  WorkspaceOrganizationIdLearningLearningIdEditRouteImport.update({
+    id: '/edit',
+    path: '/edit',
+    getParentRoute: () => WorkspaceOrganizationIdLearningLearningIdRoute,
   } as any)
 const WorkspaceOrganizationIdPeopleContactsContactIdRoute =
   WorkspaceOrganizationIdPeopleContactsContactIdRouteImport.update({
@@ -193,18 +241,25 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
+  '/learn/$learningId': typeof LearnLearningIdRoute
   '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
   '/workspace/$organizationId/follow-up': typeof WorkspaceOrganizationIdFollowUpRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
+  '/workspace/$organizationId/learning': typeof WorkspaceOrganizationIdLearningRouteWithChildren
   '/workspace/$organizationId/schedule': typeof WorkspaceOrganizationIdScheduleRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  '/workspace/$organizationId/learning/$learningId': typeof WorkspaceOrganizationIdLearningLearningIdRouteWithChildren
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  '/workspace/$organizationId/learning/': typeof WorkspaceOrganizationIdLearningIndexRoute
   '/workspace/$organizationId/forms/$form/$recordId': typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
+  '/workspace/$organizationId/learning/$learningId/assign': typeof WorkspaceOrganizationIdLearningLearningIdAssignRoute
+  '/workspace/$organizationId/learning/$learningId/edit': typeof WorkspaceOrganizationIdLearningLearningIdEditRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
+  '/workspace/$organizationId/learning/$learningId/': typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
@@ -219,6 +274,7 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
+  '/learn/$learningId': typeof LearnLearningIdRoute
   '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
   '/workspace/$organizationId/follow-up': typeof WorkspaceOrganizationIdFollowUpRoute
@@ -228,9 +284,13 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  '/workspace/$organizationId/learning': typeof WorkspaceOrganizationIdLearningIndexRoute
   '/workspace/$organizationId/forms/$form/$recordId': typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
+  '/workspace/$organizationId/learning/$learningId/assign': typeof WorkspaceOrganizationIdLearningLearningIdAssignRoute
+  '/workspace/$organizationId/learning/$learningId/edit': typeof WorkspaceOrganizationIdLearningLearningIdEditRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
+  '/workspace/$organizationId/learning/$learningId': typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
@@ -246,18 +306,25 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/settings': typeof SettingsRoute
   '/start': typeof StartRoute
+  '/learn/$learningId': typeof LearnLearningIdRoute
   '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
   '/workspace/$organizationId/follow-up': typeof WorkspaceOrganizationIdFollowUpRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
+  '/workspace/$organizationId/learning': typeof WorkspaceOrganizationIdLearningRouteWithChildren
   '/workspace/$organizationId/schedule': typeof WorkspaceOrganizationIdScheduleRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
+  '/workspace/$organizationId/learning/$learningId': typeof WorkspaceOrganizationIdLearningLearningIdRouteWithChildren
   '/workspace/$organizationId/manage/relationship-types': typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
   '/workspace/$organizationId/people/contacts': typeof WorkspaceOrganizationIdPeopleContactsRoute
   '/workspace/$organizationId/people/groups': typeof WorkspaceOrganizationIdPeopleGroupsRoute
+  '/workspace/$organizationId/learning/': typeof WorkspaceOrganizationIdLearningIndexRoute
   '/workspace/$organizationId/forms/$form/$recordId': typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
+  '/workspace/$organizationId/learning/$learningId/assign': typeof WorkspaceOrganizationIdLearningLearningIdAssignRoute
+  '/workspace/$organizationId/learning/$learningId/edit': typeof WorkspaceOrganizationIdLearningLearningIdEditRoute
   '/workspace/$organizationId/people/contacts_/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/groups_/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
+  '/workspace/$organizationId/learning/$learningId/': typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts_/$contactId_/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
@@ -274,18 +341,25 @@ export interface FileRouteTypes {
     | '/join'
     | '/settings'
     | '/start'
+    | '/learn/$learningId'
     | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
     | '/workspace/$organizationId/follow-up'
     | '/workspace/$organizationId/insights'
+    | '/workspace/$organizationId/learning'
     | '/workspace/$organizationId/schedule'
     | '/workspace/$organizationId/activities/$activityId'
+    | '/workspace/$organizationId/learning/$learningId'
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
+    | '/workspace/$organizationId/learning/'
     | '/workspace/$organizationId/forms/$form/$recordId'
+    | '/workspace/$organizationId/learning/$learningId/assign'
+    | '/workspace/$organizationId/learning/$learningId/edit'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/groups/$groupId'
+    | '/workspace/$organizationId/learning/$learningId/'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
@@ -300,6 +374,7 @@ export interface FileRouteTypes {
     | '/join'
     | '/settings'
     | '/start'
+    | '/learn/$learningId'
     | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
     | '/workspace/$organizationId/follow-up'
@@ -309,9 +384,13 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
+    | '/workspace/$organizationId/learning'
     | '/workspace/$organizationId/forms/$form/$recordId'
+    | '/workspace/$organizationId/learning/$learningId/assign'
+    | '/workspace/$organizationId/learning/$learningId/edit'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/groups/$groupId'
+    | '/workspace/$organizationId/learning/$learningId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
@@ -326,18 +405,25 @@ export interface FileRouteTypes {
     | '/join'
     | '/settings'
     | '/start'
+    | '/learn/$learningId'
     | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
     | '/workspace/$organizationId/follow-up'
     | '/workspace/$organizationId/insights'
+    | '/workspace/$organizationId/learning'
     | '/workspace/$organizationId/schedule'
     | '/workspace/$organizationId/activities/$activityId'
+    | '/workspace/$organizationId/learning/$learningId'
     | '/workspace/$organizationId/manage/relationship-types'
     | '/workspace/$organizationId/people/contacts'
     | '/workspace/$organizationId/people/groups'
+    | '/workspace/$organizationId/learning/'
     | '/workspace/$organizationId/forms/$form/$recordId'
+    | '/workspace/$organizationId/learning/$learningId/assign'
+    | '/workspace/$organizationId/learning/$learningId/edit'
     | '/workspace/$organizationId/people/contacts_/$contactId'
     | '/workspace/$organizationId/people/groups_/$groupId'
+    | '/workspace/$organizationId/learning/$learningId/'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts_/$contactId_/$view'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
@@ -353,6 +439,7 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   SettingsRoute: typeof SettingsRoute
   StartRoute: typeof StartRoute
+  LearnLearningIdRoute: typeof LearnLearningIdRoute
   WorkspaceOrganizationIdRoute: typeof WorkspaceOrganizationIdRouteWithChildren
 }
 
@@ -400,6 +487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/$learningId': {
+      id: '/learn/$learningId'
+      path: '/learn/$learningId'
+      fullPath: '/learn/$learningId'
+      preLoaderRoute: typeof LearnLearningIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/workspace/$organizationId': {
       id: '/workspace/$organizationId'
       path: '/workspace/$organizationId'
@@ -428,6 +522,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdInsightsRouteImport
       parentRoute: typeof WorkspaceOrganizationIdRoute
     }
+    '/workspace/$organizationId/learning': {
+      id: '/workspace/$organizationId/learning'
+      path: '/learning'
+      fullPath: '/workspace/$organizationId/learning'
+      preLoaderRoute: typeof WorkspaceOrganizationIdLearningRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
+    }
     '/workspace/$organizationId/schedule': {
       id: '/workspace/$organizationId/schedule'
       path: '/schedule'
@@ -441,6 +542,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/workspace/$organizationId/activities/$activityId'
       preLoaderRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteImport
       parentRoute: typeof WorkspaceOrganizationIdRoute
+    }
+    '/workspace/$organizationId/learning/': {
+      id: '/workspace/$organizationId/learning/'
+      path: '/'
+      fullPath: '/workspace/$organizationId/learning/'
+      preLoaderRoute: typeof WorkspaceOrganizationIdLearningIndexRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdLearningRoute
+    }
+    '/workspace/$organizationId/learning/$learningId': {
+      id: '/workspace/$organizationId/learning/$learningId'
+      path: '/$learningId'
+      fullPath: '/workspace/$organizationId/learning/$learningId'
+      preLoaderRoute: typeof WorkspaceOrganizationIdLearningLearningIdRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdLearningRoute
     }
     '/workspace/$organizationId/manage/relationship-types': {
       id: '/workspace/$organizationId/manage/relationship-types'
@@ -469,6 +584,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/workspace/$organizationId/forms/$form/$recordId'
       preLoaderRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRouteImport
       parentRoute: typeof WorkspaceOrganizationIdRoute
+    }
+    '/workspace/$organizationId/learning/$learningId/': {
+      id: '/workspace/$organizationId/learning/$learningId/'
+      path: '/'
+      fullPath: '/workspace/$organizationId/learning/$learningId/'
+      preLoaderRoute: typeof WorkspaceOrganizationIdLearningLearningIdIndexRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdLearningLearningIdRoute
+    }
+    '/workspace/$organizationId/learning/$learningId/assign': {
+      id: '/workspace/$organizationId/learning/$learningId/assign'
+      path: '/assign'
+      fullPath: '/workspace/$organizationId/learning/$learningId/assign'
+      preLoaderRoute: typeof WorkspaceOrganizationIdLearningLearningIdAssignRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdLearningLearningIdRoute
+    }
+    '/workspace/$organizationId/learning/$learningId/edit': {
+      id: '/workspace/$organizationId/learning/$learningId/edit'
+      path: '/edit'
+      fullPath: '/workspace/$organizationId/learning/$learningId/edit'
+      preLoaderRoute: typeof WorkspaceOrganizationIdLearningLearningIdEditRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdLearningLearningIdRoute
     }
     '/workspace/$organizationId/people/contacts_/$contactId': {
       id: '/workspace/$organizationId/people/contacts_/$contactId'
@@ -529,6 +665,45 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface WorkspaceOrganizationIdLearningLearningIdRouteChildren {
+  WorkspaceOrganizationIdLearningLearningIdAssignRoute: typeof WorkspaceOrganizationIdLearningLearningIdAssignRoute
+  WorkspaceOrganizationIdLearningLearningIdEditRoute: typeof WorkspaceOrganizationIdLearningLearningIdEditRoute
+  WorkspaceOrganizationIdLearningLearningIdIndexRoute: typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
+}
+
+const WorkspaceOrganizationIdLearningLearningIdRouteChildren: WorkspaceOrganizationIdLearningLearningIdRouteChildren =
+  {
+    WorkspaceOrganizationIdLearningLearningIdAssignRoute:
+      WorkspaceOrganizationIdLearningLearningIdAssignRoute,
+    WorkspaceOrganizationIdLearningLearningIdEditRoute:
+      WorkspaceOrganizationIdLearningLearningIdEditRoute,
+    WorkspaceOrganizationIdLearningLearningIdIndexRoute:
+      WorkspaceOrganizationIdLearningLearningIdIndexRoute,
+  }
+
+const WorkspaceOrganizationIdLearningLearningIdRouteWithChildren =
+  WorkspaceOrganizationIdLearningLearningIdRoute._addFileChildren(
+    WorkspaceOrganizationIdLearningLearningIdRouteChildren,
+  )
+
+interface WorkspaceOrganizationIdLearningRouteChildren {
+  WorkspaceOrganizationIdLearningLearningIdRoute: typeof WorkspaceOrganizationIdLearningLearningIdRouteWithChildren
+  WorkspaceOrganizationIdLearningIndexRoute: typeof WorkspaceOrganizationIdLearningIndexRoute
+}
+
+const WorkspaceOrganizationIdLearningRouteChildren: WorkspaceOrganizationIdLearningRouteChildren =
+  {
+    WorkspaceOrganizationIdLearningLearningIdRoute:
+      WorkspaceOrganizationIdLearningLearningIdRouteWithChildren,
+    WorkspaceOrganizationIdLearningIndexRoute:
+      WorkspaceOrganizationIdLearningIndexRoute,
+  }
+
+const WorkspaceOrganizationIdLearningRouteWithChildren =
+  WorkspaceOrganizationIdLearningRoute._addFileChildren(
+    WorkspaceOrganizationIdLearningRouteChildren,
+  )
+
 interface WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteChildren {
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
   WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
@@ -572,6 +747,7 @@ interface WorkspaceOrganizationIdRouteChildren {
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
   WorkspaceOrganizationIdFollowUpRoute: typeof WorkspaceOrganizationIdFollowUpRoute
   WorkspaceOrganizationIdInsightsRoute: typeof WorkspaceOrganizationIdInsightsRoute
+  WorkspaceOrganizationIdLearningRoute: typeof WorkspaceOrganizationIdLearningRouteWithChildren
   WorkspaceOrganizationIdScheduleRoute: typeof WorkspaceOrganizationIdScheduleRoute
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
   WorkspaceOrganizationIdManageRelationshipTypesRoute: typeof WorkspaceOrganizationIdManageRelationshipTypesRoute
@@ -588,6 +764,8 @@ const WorkspaceOrganizationIdRouteChildren: WorkspaceOrganizationIdRouteChildren
     WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
     WorkspaceOrganizationIdFollowUpRoute: WorkspaceOrganizationIdFollowUpRoute,
     WorkspaceOrganizationIdInsightsRoute: WorkspaceOrganizationIdInsightsRoute,
+    WorkspaceOrganizationIdLearningRoute:
+      WorkspaceOrganizationIdLearningRouteWithChildren,
     WorkspaceOrganizationIdScheduleRoute: WorkspaceOrganizationIdScheduleRoute,
     WorkspaceOrganizationIdActivitiesActivityIdRoute:
       WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren,
@@ -619,6 +797,7 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   SettingsRoute: SettingsRoute,
   StartRoute: StartRoute,
+  LearnLearningIdRoute: LearnLearningIdRoute,
   WorkspaceOrganizationIdRoute: WorkspaceOrganizationIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
