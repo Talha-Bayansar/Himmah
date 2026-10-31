@@ -345,7 +345,7 @@ export default function LearningEditor({
           {step === 0 && (
             <>
               <h2>{m.learn_wizard_details()}</h2>{" "}
-              <div>
+              <div className="learning-field">
                 <Label htmlFor="learning-title">{m.learn_title_field()}</Label>
                 <Input
                   id="learning-title"
@@ -364,7 +364,7 @@ export default function LearningEditor({
                   }
                 />
               </div>
-              <div>
+              <div className="learning-field">
                 <Label htmlFor="learning-description">
                   {m.activities_description()}
                 </Label>
@@ -380,7 +380,7 @@ export default function LearningEditor({
               <details className="session-help">
                 <summary>{m.learn_optional_context()}</summary>
                 <div className="learning-fields">
-                  <div>
+                  <div className="learning-field">
                     <Label>{m.insights_activity()}</Label>
                     <Button
                       variant="outline"
@@ -393,7 +393,7 @@ export default function LearningEditor({
                           : m.learn_standalone())}
                     </Button>
                   </div>
-                  <div>
+                  <div className="learning-field">
                     <Label>{m.sessions_title()}</Label>
                     <Button
                       variant="outline"
@@ -427,7 +427,7 @@ export default function LearningEditor({
           {step === 2 && (
             <>
               <h2>{m.learn_wizard_access()}</h2>{" "}
-              <div>
+              <div className="learning-field">
                 <Label htmlFor="learning-mode">{m.learn_participation()}</Label>
                 <NativeSelect
                   id="learning-mode"
@@ -447,7 +447,7 @@ export default function LearningEditor({
                   </NativeSelectOption>
                 </NativeSelect>
               </div>
-              <div>
+              <div className="learning-field">
                 <Label htmlFor="learning-release">
                   {m.learn_release_when()}
                 </Label>
@@ -472,7 +472,7 @@ export default function LearningEditor({
               <p className="activity-note">{m.learn_one_attempt()}</p>
               <div className="learning-field-pair">
                 {(["opensAt", "closesAt"] as const).map((field) => (
-                  <div key={field}>
+                  <div className="learning-field" key={field}>
                     <Label htmlFor={"learning-" + field}>
                       {field === "opensAt" ? m.learn_opens() : m.learn_closes()}
                     </Label>
@@ -495,7 +495,7 @@ export default function LearningEditor({
           {step === 1 && (
             <>
               <div className="learning-question-selector">
-                <div>
+                <div className="learning-field">
                   <Label htmlFor="learning-question-select">
                     {m.learn_wizard_select()}
                   </Label>
@@ -612,22 +612,24 @@ export default function LearningEditor({
                         ]}
                       />
                     </div>
-                    <Label htmlFor={`question-${i}`}>
-                      {m.learn_question()}
-                    </Label>
-                    <Textarea
-                      id={`question-${i}`}
-                      aria-invalid={invalid && !q.text.trim()}
-                      aria-describedby={
-                        invalid ? "learning-wizard-error" : undefined
-                      }
-                      required
-                      maxLength={500}
-                      value={q.text}
-                      onChange={(e) =>
-                        setQuestion(i, { ...q, text: e.target.value })
-                      }
-                    />
+                    <div className="learning-field">
+                      <Label htmlFor={`question-${i}`}>
+                        {m.learn_question()}
+                      </Label>
+                      <Textarea
+                        id={`question-${i}`}
+                        aria-invalid={invalid && !q.text.trim()}
+                        aria-describedby={
+                          invalid ? "learning-wizard-error" : undefined
+                        }
+                        required
+                        maxLength={500}
+                        value={q.text}
+                        onChange={(e) =>
+                          setQuestion(i, { ...q, text: e.target.value })
+                        }
+                      />
+                    </div>
                     <p className="activity-note">{m.learn_correct_help()}</p>
                     {q.choices.map((choice, n) => (
                       <div className="learning-choice-editor" key={n}>
@@ -702,17 +704,19 @@ export default function LearningEditor({
                     >
                       {m.learn_add_option()}
                     </Button>
-                    <Label htmlFor={`explanation-${i}`}>
-                      {m.learn_explanation()}
-                    </Label>
-                    <Textarea
-                      id={`explanation-${i}`}
-                      maxLength={1000}
-                      value={q.explanation}
-                      onChange={(e) =>
-                        setQuestion(i, { ...q, explanation: e.target.value })
-                      }
-                    />
+                    <div className="learning-field">
+                      <Label htmlFor={`explanation-${i}`}>
+                        {m.learn_explanation()}
+                      </Label>
+                      <Textarea
+                        id={`explanation-${i}`}
+                        maxLength={1000}
+                        value={q.explanation}
+                        onChange={(e) =>
+                          setQuestion(i, { ...q, explanation: e.target.value })
+                        }
+                      />
+                    </div>
                   </fieldset>
                 );
               })}
@@ -887,7 +891,7 @@ export default function LearningEditor({
           )}
         </fieldset>
         <CommandError command={command} />
-        <div className="form-actions learning-wizard-actions">
+        <div className="directory-actions learning-wizard-actions">
           <Button
             variant="outline"
             type="button"

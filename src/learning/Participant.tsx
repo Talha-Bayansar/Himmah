@@ -367,7 +367,7 @@ export default function Participant({ item }: { item: string }) {
                     ))}
                   </ol>
                   <p>{m.learn_submit_warning()}</p>
-                  <div className="form-actions">
+                  <div className="directory-actions">
                     <Button
                       variant="outline"
                       disabled={locked}
@@ -438,7 +438,7 @@ export default function Participant({ item }: { item: string }) {
                     <p className="activity-note" role="status">
                       {command.isPending ? m.learn_saving() : m.learn_saved()}
                     </p>
-                    <div className="form-actions">
+                    <div className="directory-actions">
                       <Button
                         variant="outline"
                         disabled={locked || index === 0}

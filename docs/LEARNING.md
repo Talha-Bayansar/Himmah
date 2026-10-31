@@ -44,3 +44,5 @@ Executed release evidence belongs in [infrastructure history](INFRASTRUCTURE.md)
 Synthetic Dutch phone references: [question editor](design/learning-editor-mobile.png), [learning management](design/learning-detail-mobile.png), [released participant result](design/learning-result-mobile.png). These contain local disposable fixtures, not hosted records or access credentials.
 
 Creator review reference: [four-step draft overview](design/learning-wizard-review-mobile.png). The question-editor reference above now shows the single-question wizard step.
+
+Spacing references: [Details with shared peer actions](design/learning-wizard-details-mobile.png) and [Access with aligned wrapped date labels](design/learning-wizard-access-mobile.png). Explicit field groups keep label/control spacing consistent; all learning action rows reuse the shared directory-action layout.

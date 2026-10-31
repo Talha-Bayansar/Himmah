@@ -164,7 +164,7 @@ export default function LearningAssign({ detail }: { detail: LearningDetail }) {
               <InfiniteFooter {...query} />
             </>
           )}
-          <div className="form-actions">
+          <div className="directory-actions">
             <ActionButton
               pending={command.isPending}
               disabled={
