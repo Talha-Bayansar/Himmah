@@ -834,5 +834,20 @@
   "schedule_title": "Planlanan oturumlar",
   "schedule_description": "Devam eden ve yaklaşan tüm oturumlar, tarih sırasına göre.",
   "schedule_search": "Etkinlik, konu veya yer ara",
-  "schedule_refresh": "Oturumları yenile"
+  "schedule_refresh": "Oturumları yenile",
+  "cancellation_title": "Oturumları iptal et",
+  "cancellation_help": "Oturumları ve kaydedilen tahsilatı gözden geçirin. Geçmiş korunur.",
+  "cancellation_skipped": "Başlamış ve iptal edilmiş oturumlar hariçtir.",
+  "cancellation_money_review": "Borçları ve tahsilatı gözden geçirin. Otomatik iade veya borç silme yapılmaz.",
+  "cancellation_confirm": "{count} oturum iptal edilsin mi?",
+  "cancellation_confirm_help": "Seçili oturumlar: {count}. Onaylı kayıtlar: {registrations}. Kaydedilen tahsilat: {money}. Tüm kayıtlar korunur; iade veya borç silme kaydedilmez.",
+  "cancellation_cancel_count": "{count} oturumu iptal et",
+  "cancellation_keep": "Oturumları koru",
+  "cancellation_uncertain": "Gözden geçirilen iptal aynı şekilde yeniden denenmek üzere saklanır. Başka bir iptal başlatmadan önce yeniden deneyin.",
+  "cancellation_review_needed": "Ödemeler gözden geçirilmeli",
+  "cancellation_retry": "İptali yeniden dene",
+  "cancellation_reason": "İptal nedeni",
+  "cancellation_confirm_one": "Bu oturum iptal edilsin mi?",
+  "cancellation_single": "1 oturum",
+  "cancellation_charges": "İncelenecek borçlar"
 }

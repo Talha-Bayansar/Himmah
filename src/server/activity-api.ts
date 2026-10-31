@@ -44,6 +44,73 @@ export async function activityApi(
       if (!id) throw new CommunityError("not_found", 404);
       const parent = (await activities.get(user.id, orgId, id))[0];
       if (!parent) throw new CommunityError("not_found", 404);
+      if (
+        url.searchParams.has("cancellationPreview") ||
+        url.searchParams.has("cancelPlan")
+      ) {
+        if (!["owner", "admin"].includes(org.role))
+          throw new CommunityError("forbidden", 403);
+        let row;
+        if (
+          request.method === "GET" &&
+          !sessionId &&
+          url.searchParams.has("cancellationPreview")
+        ) {
+          const scope = url.searchParams.get("scope") ?? "one";
+          if (!["one", "future"].includes(scope))
+            throw new CommunityError("invalid_input");
+          row = (
+            await activities.cancellationPreview(
+              user.id,
+              orgId,
+              id,
+              uuid(url.searchParams.get("cancellationPreview")),
+              scope,
+            )
+          )[0];
+        } else if (
+          request.method === "POST" &&
+          !sessionId &&
+          url.searchParams.has("cancelPlan")
+        ) {
+          const body = await readBody(request),
+            reason = cancellationReason(body);
+          if (
+            !reason ||
+            typeof body.snapshot !== "string" ||
+            !/^[a-f0-9]{32}$/.test(body.snapshot) ||
+            !["one", "future"].includes(String(body.scope))
+          )
+            throw new CommunityError("invalid_input");
+          row = (
+            await activities.cancelSessions(
+              user.id,
+              orgId,
+              id,
+              uuid(body.key),
+              {
+                mode: "cancel",
+                anchor: uuid(body.anchor),
+                scope: body.scope,
+                snapshot: body.snapshot,
+                reason,
+              },
+            )
+          )[0];
+        } else throw new CommunityError("not_found", 404);
+        const result = row?.result as { code?: string } | undefined;
+        if (!result) throw new CommunityError("conflict", 409);
+        if (result.code)
+          throw new CommunityError(
+            result.code,
+            result.code === "forbidden"
+              ? 403
+              : result.code === "not_found"
+                ? 404
+                : 409,
+          );
+        return respond(result);
+      }
       if (url.searchParams.has("schedule") || url.searchParams.has("plan")) {
         if (!["owner", "admin"].includes(org.role))
           throw new CommunityError("forbidden", 403);

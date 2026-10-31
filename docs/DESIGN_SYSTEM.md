@@ -162,3 +162,7 @@ Home's coming-up preview and full planned-session agenda share `SessionList`: co
 Attendance rows use compact inset padding with vertically centered selection/name/menu controls. Render the payment-action area only when a visible action exists; free/read-only rows must not reserve blank action space. Selected rows use the shared quiet forest surface alongside the checked control. Retain the labelled paid/unpaid action and the shared more-menu hierarchy.
 
 [Compact attendance rows](design/attendance-compact-mobile.png) — synthetic Dutch mobile example for a free session.
+
+Cancellation with one/future scope uses a dedicated shared page: compact date/topic rows, short registration/charge/cash impact and a reason, followed by one destructive confirmation. Sessions without charges or effective cash do not show a payment warning; actual charges/effective cash stay visibly flagged for administrator review. Preserve failed drafts and exact retry, with no autofocus or repeated confirmations. See [reviewed cancellation](SESSION_CANCELLATION.md).
+
+[Session cancellation confirmation](design/session-cancellation-mobile.png) — synthetic Dutch phone example with the reviewed counts and recorded cash.

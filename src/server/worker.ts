@@ -337,7 +337,8 @@ export function createHandler(
       if (/^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)) {
         if (
           request.method !== "GET" ||
-          url.searchParams.get("deletionPreview") === "true"
+          url.searchParams.get("deletionPreview") === "true" ||
+          url.searchParams.has("cancellationPreview")
         ) {
           const allowed = await (
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER

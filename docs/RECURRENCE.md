@@ -31,3 +31,7 @@ A lost response keeps the reviewed body and request key locked for exact retry. 
 ## Verification
 
 Meaningful domain/API/SQL tests cover local weekdays, inclusive bounds, DST gap/duplicate rejection and stable local time, exact retries including after start, tenant/role denial, per-session/future versions, atomic stale/incomplete/frozen changes, skipped cancellation, preserved attendance/money/settings/topics, normal permanent deletion and an old-schema additive upgrade. UI cases cover page presentation, no autofocus, review before writes, successful return, failed-save identity, one/future scope, conflict review, drafts, inclusive dates and current role denial. Current executed results and rollout receipts are recorded in [infrastructure history](INFRASTRUCTURE.md).
+
+## Cancellation — 31 October 2026
+
+[Reviewed session/series cancellation](SESSION_CANCELLATION.md) is implemented separately from schedule changes. The session more menu opens a dedicated one/future date-and-payment-impact review. Started/already-cancelled sessions are excluded; all participation/financial history stays intact. No refund, waiver or attendance change is inferred.

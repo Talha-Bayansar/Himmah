@@ -19,7 +19,8 @@ The owner requested two form categories on 28 October 2026. The owner subsequent
 | Contact-to-group assignment | Bottom sheet | One group selection |
 | Session registration, registration settings and reasoned cancellation | Bottom sheet | One contact choice or short policy/reason edit |
 | Staff invitation creation | Bottom sheet | Email and role |
-| Session creation/editing/cancellation | Bottom sheet | Short scheduling edit or cancellation reason |
+| Session creation/editing | Bottom sheet | Short scheduling edit |
+| Session/series cancellation | Dedicated page | One/future scope, date/payment-impact preview, reason and destructive confirmation |
 | Attendance participant adding | Bottom sheet | Search and select up to 50 eligible contacts; present contacts are visible but disabled; Add selected saves and Done dismisses |
 | Communication preferences | Bottom sheet | Two explicit policy toggles |
 | End membership/relationship/responsibility | Bottom sheet | Reason and optional note |

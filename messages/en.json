@@ -834,5 +834,20 @@
   "schedule_title": "Planned sessions",
   "schedule_description": "All current and upcoming sessions, in date order.",
   "schedule_search": "Search activities, topics or locations",
-  "schedule_refresh": "Refresh sessions"
+  "schedule_refresh": "Refresh sessions",
+  "cancellation_title": "Cancel sessions",
+  "cancellation_help": "Review the sessions and recorded cash. Their history stays intact.",
+  "cancellation_skipped": "Started and cancelled sessions are excluded.",
+  "cancellation_money_review": "Review charges and received cash. Nothing is refunded or waived automatically.",
+  "cancellation_confirm": "Cancel {count} sessions?",
+  "cancellation_confirm_help": "Selected sessions: {count}. Confirmed registrations: {registrations}. Recorded cash: {money}. All records are retained; no refund or waiver is recorded.",
+  "cancellation_cancel_count": "Cancel {count} sessions",
+  "cancellation_keep": "Keep sessions",
+  "cancellation_uncertain": "The reviewed cancellation is kept for an exact retry. Retry before starting another cancellation.",
+  "cancellation_review_needed": "Payments need review",
+  "cancellation_retry": "Retry cancellation",
+  "cancellation_reason": "Cancellation reason",
+  "cancellation_confirm_one": "Cancel this session?",
+  "cancellation_single": "1 session",
+  "cancellation_charges": "Charges to review"
 }

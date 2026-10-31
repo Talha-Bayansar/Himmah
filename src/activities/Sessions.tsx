@@ -153,6 +153,13 @@ export default function Sessions({
             {item.cancelled && (
               <p className="activity-status">{m.sessions_cancelled()}</p>
             )}
+            {item.requiresCancellationReview && (
+              <p className="activity-note">
+                {full
+                  ? m.cancellation_money_review()
+                  : m.cancellation_review_needed()}
+              </p>
+            )}
           </div>
           {(canOperate ||
             canCash ||
@@ -244,7 +251,7 @@ export default function Sessions({
                         icon: Ban,
                         destructive: true,
                         onSelect: () =>
-                          setEditor({ kind: "cancel", item, parent: activity }),
+                          openForm("session-cancel", activity.id, item.id),
                       },
                     ]
                   : []),

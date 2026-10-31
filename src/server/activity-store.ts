@@ -30,7 +30,7 @@ const registrationOverview = (
  left join hub_session_registration_settings rs on rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id
  ) else null end as "registration"`;
 const sessionProjection = (user: string, org: string) =>
-  sql`series_id as "seriesId",series_position as "seriesPosition",topic,${base(user, org, sql`parent_row.activity_id`)},${registrationOverview(user, org)},(exists(select 1 from hub_session_registrations pr where pr.organization_id=parent_row.organization_id and pr.session_id=parent_row.id) or exists(select 1 from hub_registration_charges ch where ch.organization_id=parent_row.organization_id and ch.session_id=parent_row.id)) as "pricingLocked",exists(select 1 from hub_session_registration_settings rs where rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id and rs.mode='required' and parent_row.starts_at<=clock_timestamp()+interval '30 minutes') as "registrationLocked",hub_can_attend_session(${user},${org}::uuid,activity_id,id) as "canAttend",hub_can_collect_session(${user},${org}::uuid,activity_id,id) as "canCollect",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(user, org, sql`parent_row.activity_id`)}`;
+  sql`(hub_is_admin(${user},${org}::uuid) and cancelled and (exists(select 1 from hub_registration_charges cr where cr.organization_id=parent_row.organization_id and cr.session_id=parent_row.id) or exists(select 1 from hub_cash_receipts cr where cr.organization_id=parent_row.organization_id and cr.session_id=parent_row.id and cr.amount_minor>hub_cash_receipt_corrected(cr.organization_id,cr.id) and not exists(select 1 from hub_cash_reversals rev where rev.organization_id=cr.organization_id and rev.receipt_id=cr.id)))) as "requiresCancellationReview",series_id as "seriesId",series_position as "seriesPosition",topic,${base(user, org, sql`parent_row.activity_id`)},${registrationOverview(user, org)},(exists(select 1 from hub_session_registrations pr where pr.organization_id=parent_row.organization_id and pr.session_id=parent_row.id) or exists(select 1 from hub_registration_charges ch where ch.organization_id=parent_row.organization_id and ch.session_id=parent_row.id)) as "pricingLocked",exists(select 1 from hub_session_registration_settings rs where rs.organization_id=parent_row.organization_id and rs.session_id=parent_row.id and rs.mode='required' and parent_row.starts_at<=clock_timestamp()+interval '30 minutes') as "registrationLocked",hub_can_attend_session(${user},${org}::uuid,activity_id,id) as "canAttend",hub_can_collect_session(${user},${org}::uuid,activity_id,id) as "canCollect",activity_id as "activityId",starts_at::text as "startsAt",ends_at::text as "endsAt",cancellation_reason as "cancellationReason",${groupProjection(user, org, sql`parent_row.activity_id`)}`;
 const logged = (user: string, org: string, action: string) =>
   sql`logged as (insert into hub_directory_audit(organization_id,actor_id,action,entity_id) select ${org}::uuid,${user},${action},id::text from changed parent_row returning id)`;
 export type ActivityStore = ReturnType<typeof createActivityStore>;
@@ -44,6 +44,28 @@ export function createActivityStore(
       ? execute(statement)
       : ((await db.execute(statement)).rows as Record<string, unknown>[]);
   return {
+    cancellationPreview(
+      user: string,
+      org: string,
+      activity: string,
+      anchor: string,
+      scope: string,
+    ) {
+      return rows(
+        sql`select hub_session_cancellation_preview(${user},${org}::uuid,${activity}::uuid,${anchor}::uuid,${scope}) as result`,
+      );
+    },
+    cancelSessions(
+      user: string,
+      org: string,
+      activity: string,
+      key: string,
+      payload: Record<string, unknown>,
+    ) {
+      return rows(
+        sql`select hub_cancel_sessions(${user},${org}::uuid,${activity}::uuid,${key}::uuid,${JSON.stringify(payload)}::jsonb) as result`,
+      );
+    },
     schedule(user: string, org: string, activity: string, anchor: string) {
       return rows(
         sql`select s.series_id as "seriesId",s.id,s.version,s.topic,s.name,s.timezone,s.starts_at::text as "startsAt",s.ends_at::text as "endsAt" from hub_activity_sessions s join hub_activity_sessions a on a.organization_id=s.organization_id and a.activity_id=s.activity_id and a.id=${anchor}::uuid where s.organization_id=${org}::uuid and s.activity_id=${activity}::uuid and hub_is_admin(${user},${org}::uuid) and (s.id=a.id or (a.series_id is not null and s.series_id=a.series_id and s.series_position>=a.series_position)) and not s.cancelled and s.starts_at>now() order by s.series_position nulls first,s.id limit 52`,

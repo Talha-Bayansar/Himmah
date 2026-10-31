@@ -19,3 +19,5 @@ Futsal, games, points, engagement periods, rewards/coupons, challenges and parti
 Use Node 24 and `npm ci`. Run `npm run check`, `npm run build` and `npm run test:contrast`. Local preview uses port 3101. Only verified Himmah-specific database/auth bindings are accepted; generic inherited database credentials are never used.
 
 [Recurring session planning](docs/RECURRENCE.md) supports reviewed weekly series and one/future schedule changes while retaining per-session history.
+
+[Reviewed session/series cancellation](docs/SESSION_CANCELLATION.md) previews affected dates and recorded money, preserving attendance/payment history.

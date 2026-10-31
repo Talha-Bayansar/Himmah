@@ -3,6 +3,7 @@ export const pageForms = [
   "activity",
   "session-series",
   "session-schedule",
+  "session-cancel",
   "access",
   "relationship-type",
   "relationship",

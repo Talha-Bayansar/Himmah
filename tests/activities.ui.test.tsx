@@ -362,26 +362,30 @@ it("session tabs load their own paginated view and future session form sends par
   expect(payload?.startLocal).toBe("2099-11-06T18:00");
   expect(payload?.endLocal).toBe("2099-11-06T19:30");
 });
-it("session cancellation preserves its reason and confirmation cancellation does not write", async () => {
+it("session cancellation opens the reviewed page and declining confirmation does not write", async () => {
   let writes = 0;
   vi.stubGlobal(
     "fetch",
     vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      if (init?.method === "PATCH") {
+      if (init?.method === "POST") {
         writes++;
-        expect(JSON.parse(String(init.body))).toEqual({
-          cancelled: true,
-          version: 1,
-          reason: "Room unavailable",
-        });
-        return Response.json({
-          item: {
-            ...session,
-            cancelled: true,
-            cancellationReason: "Room unavailable",
-          },
-        });
+        return Response.json({});
       }
+      if (String(input).includes("cancellationPreview"))
+        return Response.json({
+          snapshot: "a".repeat(32),
+          seriesId: null,
+          items: [
+            {
+              ...session,
+              topic: "",
+              registrations: 0,
+              attendance: 0,
+              charges: 0,
+              collectedMinor: 0,
+            },
+          ],
+        });
       return Response.json({
         item: String(input).includes("/sessions/") ? session : item,
       });
@@ -393,26 +397,23 @@ it("session cancellation preserves its reason and confirmation cancellation does
   await user.click(
     await screen.findByRole("menuitem", { name: "Cancel session" }),
   );
-  const dialog = await screen.findByRole("dialog");
+  const page = await screen.findByRole("region", { name: "Cancel sessions" });
   await user.type(
-    within(dialog).getByLabelText("Cancellation reason (optional)"),
+    within(page).getByLabelText("Cancellation reason"),
     "Room unavailable",
   );
   await user.click(
-    within(dialog).getByRole("button", { name: "Cancel session" }),
+    within(page).getByRole("button", { name: "Cancel session" }),
   );
-  let confirm = await screen.findByRole("alertdialog");
-  await user.click(within(confirm).getByRole("button", { name: "Cancel" }));
+  const confirmation = await screen.findByRole("alertdialog");
+  await user.click(
+    within(confirmation).getByRole("button", { name: "Cancel" }),
+  );
   expect(writes).toBe(0);
-  expect(screen.getByRole("dialog")).toBeTruthy();
-  await user.click(
-    within(dialog).getByRole("button", { name: "Cancel session" }),
-  );
-  confirm = await screen.findByRole("alertdialog");
-  await user.click(
-    within(confirm).getByRole("button", { name: "Cancel session" }),
-  );
-  await waitFor(() => expect(writes).toBe(1));
+  expect(
+    (within(page).getByLabelText("Cancellation reason") as HTMLTextAreaElement)
+      .value,
+  ).toBe("Room unavailable");
 });
 
 it("started session details remain read-only for an owner", async () => {

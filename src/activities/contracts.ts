@@ -21,6 +21,7 @@ export type Activity = {
   } | null;
 };
 export type Session = {
+  requiresCancellationReview?: boolean;
   seriesId?: string | null;
   seriesPosition?: number | null;
   topic?: string;

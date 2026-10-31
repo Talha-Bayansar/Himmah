@@ -834,5 +834,20 @@
   "schedule_title": "Geplande sessies",
   "schedule_description": "Alle lopende en komende sessies, op datum gesorteerd.",
   "schedule_search": "Zoek activiteiten, onderwerpen of locaties",
-  "schedule_refresh": "Sessies vernieuwen"
+  "schedule_refresh": "Sessies vernieuwen",
+  "cancellation_title": "Sessies annuleren",
+  "cancellation_help": "Bekijk de sessies en het ontvangen geld. De geschiedenis blijft bewaard.",
+  "cancellation_skipped": "Gestarte en geannuleerde sessies worden overgeslagen.",
+  "cancellation_money_review": "Controleer bestaande bedragen en betalingen. Er wordt niets automatisch terugbetaald of kwijtgescholden.",
+  "cancellation_confirm": "{count} sessies annuleren?",
+  "cancellation_confirm_help": "Geselecteerde sessies: {count}. Bevestigde inschrijvingen: {registrations}. Ontvangen geld: {money}. Alle gegevens blijven bewaard; er wordt geen terugbetaling of kwijtschelding vastgelegd.",
+  "cancellation_cancel_count": "{count} sessies annuleren",
+  "cancellation_keep": "Sessies behouden",
+  "cancellation_uncertain": "De gecontroleerde annulering blijft bewaard om exact opnieuw te proberen. Probeer opnieuw voordat je een nieuwe annulering start.",
+  "cancellation_review_needed": "Betalingen controleren",
+  "cancellation_retry": "Annulering opnieuw proberen",
+  "cancellation_reason": "Reden voor annulering",
+  "cancellation_confirm_one": "Deze sessie annuleren?",
+  "cancellation_single": "1 sessie",
+  "cancellation_charges": "Bedragen controleren"
 }

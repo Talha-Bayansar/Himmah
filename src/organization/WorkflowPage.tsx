@@ -1,3 +1,4 @@
+import { CancelSessionsPage } from "../activities/CancelSessionsPage";
 import { SchedulePage } from "../activities/SchedulePage";
 import { PeopleScope } from "../modules/people/PeopleShell";
 import { ErrorNotice as PeopleError } from "../modules/people/shared";
@@ -43,7 +44,8 @@ export default function WorkflowPage({
       workspaceSection={
         form === "activity" ||
         form === "session-series" ||
-        form === "session-schedule"
+        form === "session-schedule" ||
+        form === "session-cancel"
           ? "activities"
           : form === "access" || form === "relationship-type"
             ? "manage"
@@ -52,9 +54,13 @@ export default function WorkflowPage({
     >
       {(user, organization) =>
         ["owner", "admin"].includes(organization.role) ? (
-          ["activity", "access", "session-series", "session-schedule"].includes(
-            form,
-          ) ? (
+          [
+            "activity",
+            "access",
+            "session-series",
+            "session-schedule",
+            "session-cancel",
+          ].includes(form) ? (
             <Workflow
               key={user + organizationId + form + recordId}
               user={user}
@@ -92,6 +98,7 @@ export function Workflow(props: {
   form: PageForm;
   recordId: string;
 }) {
+  if (props.form === "session-cancel") return <CancelSessionsPage {...props} />;
   if (props.form === "session-series" || props.form === "session-schedule")
     return <SchedulePage {...props} />;
   return <RecordWorkflow {...props} />;
