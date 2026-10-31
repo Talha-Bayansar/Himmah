@@ -128,12 +128,12 @@ it("shows distinct metrics, accessible trend and session versus receipt balances
     ),
   ).toEqual(["8", "5", "2", "3"]);
   expect(
-    screen.getByRole("img", { name: "Participation over time" }),
+    await screen.findByRole("region", { name: /Participation over time/ }),
   ).toBeTruthy();
   expect(screen.getByText(/Unallocated cash/)).toBeTruthy();
   expect(screen.getByText(/Current recorded charges/)).toBeTruthy();
   await userEvent.setup().click(screen.getByText("View period details"));
-  expect(screen.getByText("8 attendances · 5 people")).toBeTruthy();
+  expect(screen.getAllByText("8 attendances · 5 people").length).toBeGreaterThan(0);
 });
 it("applies URL filters and rejects invalid ranges without another report request", async () => {
   const requests: string[] = [];

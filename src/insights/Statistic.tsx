@@ -1,3 +1,12 @@
+import { createContext, useContext, useState, lazy, Suspense } from "react";
+import { ChevronRight } from "lucide-react";
+import { FormSurface } from "../components/shared/form-surface";
+import { Button } from "../components/ui/button";
+const ComparisonChart = lazy(() => import("./ComparisonChart"));
+export const StatisticPeriods = createContext<{
+  current: string;
+  previous: string;
+} | null>(null);
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -26,6 +35,8 @@ export function Statistic({
   points?: boolean;
   previousValue?: string | undefined;
 }) {
+  const [open, setOpen] = useState(false);
+  const periods = useContext(StatisticPeriods);
   const locale = useLocale()?.locale ?? "en";
   const change = metricChange(current, previous, preference, points);
   const number = (n: number) =>
@@ -62,6 +73,11 @@ export function Statistic({
             : number(change.previous)),
       })
     : "";
+  const prior =
+    previousValue ??
+    (points
+      ? m.statistics_percentage({ value: number(previous ?? 0) })
+      : number(previous ?? 0));
   return (
     <div className="statistic">
       <dt>
@@ -69,17 +85,68 @@ export function Statistic({
         <span>{label}</span>
       </dt>
       <dd>
-        <span className="statistic-number">{value}</span>
-        <span
-          className="statistic-change"
-          data-tone={change?.tone ?? "neutral"}
-          title={reference}
+        <button
+          type="button"
+          className="statistic-trigger"
+          aria-label={m.chart_open({ label })}
+          aria-description={`${value}. ${text}. ${reference}`}
+          aria-haspopup="dialog"
+          onClick={() => setOpen(true)}
         >
-          <Direction aria-hidden="true" size={16} />
-          <span>{text}</span>
-          {reference && <span className="sr-only">{reference}</span>}
-        </span>
+          <span className="statistic-number">{value}</span>
+          <span
+            className="statistic-change"
+            data-tone={change?.tone ?? "neutral"}
+          >
+            <Direction aria-hidden="true" size={16} />
+            <span>{text}</span>
+            {reference && <span className="sr-only">{reference}</span>}
+          </span>
+          <ChevronRight
+            size={16}
+            className="statistic-chevron"
+            aria-hidden="true"
+          />
+        </button>
       </dd>
+      {open && (
+        <FormSurface
+          title={label}
+          description={m.chart_comparison()}
+          onClose={() => setOpen(false)}
+        >
+          <dl className="comparison-values">
+            <div>
+              <dt>{m.chart_current()}</dt>
+              <dd>{value}</dd>
+              {periods && <p>{periods.current}</p>}
+            </div>
+            <div>
+              <dt>{m.chart_previous()}</dt>
+              <dd>{previous == null ? m.statistics_unavailable() : prior}</dd>
+              {periods && <p>{periods.previous}</p>}
+            </div>
+          </dl>
+          <p className="statistic-change" data-tone={change?.tone ?? "neutral"}>
+            <Direction size={16} aria-hidden="true" />
+            {text}
+          </p>
+          {current != null && previous != null && (
+            <Suspense fallback={<p>{m.directory_loading()}</p>}>
+              <ComparisonChart
+                current={current}
+                previous={previous}
+                currentValue={value}
+                previousValue={prior}
+              />
+            </Suspense>
+          )}
+          <p className="activity-note">{m.chart_comparison_help()}</p>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            {m.chart_close()}
+          </Button>
+        </FormSurface>
+      )}
     </div>
   );
 }

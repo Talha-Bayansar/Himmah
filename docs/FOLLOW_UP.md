@@ -26,3 +26,5 @@ Verified owner/admin access is enforced independently in API and SQL. Volunteers
 SQL/API tests exercise local-day/DST boundaries, fractional timestamps, archived activity history, excluded archived contacts, cancelled/future sessions, removed attendance, newly added contacts, deterministic cursor pagination, searches, cross-filter/tenant/role denial and read-only behavior. UI tests cover definitions, profile links, categories, filters, retry/pagination, duplicate rows and private cache clearing. Release evidence is recorded in the infrastructure history.
 
 Synthetic Dutch phone reference: [follow-up directory](redesign/previews/follow-up-phone.png).
+
+Design review refinement: reuse contact initials rather than repeating a search glyph on every contact row, show refresh progress, and connect the category tabs to a real tab panel. Keep the same filters, counts, pagination and privacy behavior.

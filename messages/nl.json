@@ -864,5 +864,15 @@
   "follow_up_added": "Toegevoegd op {date}",
   "follow_up_empty": "Er zijn geen contacten voor deze weergave.",
   "follow_up_about": "Over deze lijst",
-  "follow_up_definition": "Alleen actieve contacten worden getoond. Bezoeken zijn gebaseerd op de huidige aanwezigheidsregistratie bij gestarte, niet-geannuleerde sessies, ook van gearchiveerde activiteiten. Ontbrekende registraties bewijzen geen afwezigheid of verminderde betrokkenheid. Open een contact voor de gegevens en Wie te contacteren. Er worden niet automatisch berichten verstuurd."
+  "follow_up_definition": "Alleen actieve contacten worden getoond. Bezoeken zijn gebaseerd op de huidige aanwezigheidsregistratie bij gestarte, niet-geannuleerde sessies, ook van gearchiveerde activiteiten. Ontbrekende registraties bewijzen geen afwezigheid of verminderde betrokkenheid. Open een contact voor de gegevens en Wie te contacteren. Er worden niet automatisch berichten verstuurd.",
+  "chart_measure": "Meting",
+  "chart_interaction": "Wijs een balk aan of tik erop voor details. Kies een periode voor de geregistreerde totalen.",
+  "chart_current": "Huidige periode",
+  "chart_previous": "Vorige periode",
+  "chart_value": "Waarde",
+  "chart_comparison": "Periodes vergelijken",
+  "chart_open": "Vergelijking bekijken: {label}",
+  "chart_comparison_help": "Totalen volgen de huidige registraties. Veranderingen zijn geen maatstaf voor de kwaliteit.",
+  "chart_close": "Vergelijking sluiten",
+  "chart_period": "Periode"
 }

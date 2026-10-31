@@ -864,5 +864,15 @@
   "follow_up_added": "Eklenme: {date}",
   "follow_up_empty": "Bu görünümle eşleşen kişi yok.",
   "follow_up_about": "Bu liste hakkında",
-  "follow_up_definition": "Yalnızca aktif kişiler gösterilir. Ziyaretler, arşivlenmiş etkinlikler dahil, başlamış ve iptal edilmemiş oturumlardaki mevcut katılım kayıtlarına dayanır. Eksik kayıtlar, yokluğu veya ilgi kaybını kanıtlamaz. Ayrıntılar ve iletişim kurulacak kişiler için kişi profilini açın. Otomatik mesaj gönderilmez."
+  "follow_up_definition": "Yalnızca aktif kişiler gösterilir. Ziyaretler, arşivlenmiş etkinlikler dahil, başlamış ve iptal edilmemiş oturumlardaki mevcut katılım kayıtlarına dayanır. Eksik kayıtlar, yokluğu veya ilgi kaybını kanıtlamaz. Ayrıntılar ve iletişim kurulacak kişiler için kişi profilini açın. Otomatik mesaj gönderilmez.",
+  "chart_measure": "Ölçüm",
+  "chart_interaction": "Ayrıntılar için çubuğun üzerine gelin veya dokunun. Kayıtlı toplamları görmek için bir dönem seçin.",
+  "chart_current": "Geçerli dönem",
+  "chart_previous": "Önceki dönem",
+  "chart_value": "Değer",
+  "chart_comparison": "Dönem karşılaştırması",
+  "chart_open": "{label} karşılaştırmasını görüntüle",
+  "chart_comparison_help": "Toplamlar güncel kayıtları yansıtır. Değişimler hizmet kalitesi puanı değildir.",
+  "chart_close": "Karşılaştırmayı kapat",
+  "chart_period": "Dönem"
 }

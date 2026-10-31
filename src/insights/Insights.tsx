@@ -1,4 +1,4 @@
-import { Statistic } from "./Statistic";
+import { Statistic, StatisticPeriods } from "./Statistic";
 import { perSession, share } from "./statistics";
 import {
   Users,
@@ -10,7 +10,8 @@ import {
   Coins,
   CirclePercent,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
+const TrendChart = lazy(() => import("./TrendChart"));
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouterState, Link } from "@tanstack/react-router";
 import { ArrowRight, RefreshCw, SlidersHorizontal, X } from "lucide-react";
@@ -402,7 +403,12 @@ export default function Insights({
         />
       ) : (
         data && (
-          <>
+          <StatisticPeriods
+            value={{
+              current: `${date(data.filters.from)} – ${date(data.filters.to)}`,
+              previous: `${date(data.summary.previousFrom)} – ${date(data.summary.previousTo)}`,
+            }}
+          >
             <p className="activity-note">
               {date(data.filters.from)} – {date(data.filters.to)} ·{" "}
               {data.timezone}
@@ -518,46 +524,15 @@ export default function Insights({
             )}
             <section className="insights-section">
               <h2>{m.insights_trend()}</h2>
-              <figure className="insights-chart">
-                <svg
-                  viewBox={`0 0 ${Math.max(data.trend.length, 1) * 20} 120`}
-                  role="img"
-                  aria-label={m.insights_trend()}
-                  preserveAspectRatio="none"
-                >
-                  {data.trend.map((point, i) => {
-                    const height = point.visits
-                      ? Math.max(
-                          2,
-                          (point.visits /
-                            Math.max(1, ...data.trend.map((p) => p.visits))) *
-                            110,
-                        )
-                      : 0;
-                    return (
-                      <rect
-                        key={point.date}
-                        x={i * 20 + 3}
-                        y={120 - height}
-                        width={14}
-                        height={height}
-                        rx={2}
-                      >
-                        <title>
-                          {date(point.date)}: {m.insights_visits()}{" "}
-                          {point.visits}, {m.insights_unique()} {point.unique}
-                        </title>
-                      </rect>
-                    );
-                  })}
-                </svg>
-                <figcaption>
-                  {data.trend[0] && date(data.trend[0].date)}
-                  <span>
-                    {data.trend.at(-1) && date(data.trend.at(-1)!.date)}
-                  </span>
-                </figcaption>
-              </figure>
+              <Suspense
+                fallback={
+                  <div className="report-chart" role="status">
+                    {m.directory_loading()}
+                  </div>
+                }
+              >
+                <TrendChart data={data.trend} />
+              </Suspense>
               <details className="session-help">
                 <summary>{m.insights_trend_details()}</summary>
                 <dl className="insights-trend-list">
@@ -724,7 +699,7 @@ export default function Insights({
                 }).format(new Date(data.generatedAt)),
               })}
             </p>
-          </>
+          </StatisticPeriods>
         )
       )}
       {picker && !denied && (

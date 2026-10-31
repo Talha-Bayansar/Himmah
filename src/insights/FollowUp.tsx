@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  ArrowRight,
-  RefreshCw,
-  UserRoundSearch,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
 import {
   DirectoryHeader,
   DirectoryToolbar,
@@ -24,7 +19,12 @@ import {
   NativeSelectOption,
 } from "../components/ui/native-select";
 import { Label } from "../components/ui/label";
-import { Tabs, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "../components/ui/tabs";
 import { directoryRequest, DirectoryError } from "../community/client";
 import { ErrorNotice } from "../activities/Activities";
 import type { Organization } from "../organization/contracts";
@@ -140,7 +140,11 @@ export default function FollowUp({
             disabled={query.isFetching}
             onClick={() => void query.refetch()}
           >
-            <RefreshCw size={18} aria-hidden="true" />
+            <RefreshCw
+              size={18}
+              aria-hidden="true"
+              className={query.isFetching ? "animate-spin" : ""}
+            />
           </Button>
         }
       />
@@ -181,88 +185,91 @@ export default function FollowUp({
             {data ? ` (${data.summary.never})` : ""}
           </TabsTrigger>
         </TabsList>
+        <TabsContent value={view}>
+          {data && (
+            <p className="activity-note follow-up-context">
+              {view === "recent"
+                ? m.follow_up_since({
+                    date: new Intl.DateTimeFormat(locale, {
+                      dateStyle: "medium",
+                      timeZone: "UTC",
+                    }).format(new Date(data.since + "T12:00:00Z")),
+                  })
+                : m.follow_up_never_help()}
+            </p>
+          )}
+          {query.isError && !query.isFetchNextPageError && (
+            <ErrorNotice
+              error={query.error}
+              retry={() => void query.refetch()}
+              pending={query.isFetching}
+            />
+          )}
+          {query.isPending ? (
+            <ListSkeleton />
+          ) : items.length ? (
+            <>
+              <DirectoryList
+                label={
+                  view === "recent" ? m.follow_up_recent() : m.follow_up_never()
+                }
+              >
+                {items.map((item) => (
+                  <DirectoryItem linked key={item.id}>
+                    <Link
+                      className="directory-item-link"
+                      to="/workspace/$organizationId/people/contacts/$contactId"
+                      params={{
+                        organizationId: organization.id,
+                        contactId: item.id,
+                      }}
+                    >
+                      <DirectoryRecord
+                        name={item.name}
+                        detail={
+                          <>
+                            {item.lastVisit ? (
+                              <>
+                                <span>
+                                  {m.follow_up_last({
+                                    date: date(item.lastVisit),
+                                  })}
+                                </span>
+                                <span>
+                                  {item.lastTopic
+                                    ? `${item.lastActivity} · ${item.lastTopic}`
+                                    : item.lastActivity}
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <span>{m.follow_up_no_record()}</span>
+                                <span>
+                                  {m.follow_up_added({
+                                    date: date(item.createdAt),
+                                  })}
+                                </span>
+                              </>
+                            )}
+                          </>
+                        }
+                      />
+                      <ArrowRight size={18} aria-hidden="true" />
+                    </Link>
+                  </DirectoryItem>
+                ))}
+              </DirectoryList>
+              <InfiniteFooter {...query} />
+            </>
+          ) : (
+            !query.isError && (
+              <p className="directory-empty">
+                {q.trim() ? m.directory_no_matches() : m.follow_up_empty()}
+              </p>
+            )
+          )}
+        </TabsContent>
       </Tabs>
-      {data && (
-        <p className="activity-note follow-up-context">
-          {view === "recent"
-            ? m.follow_up_since({
-                date: new Intl.DateTimeFormat(locale, {
-                  dateStyle: "medium",
-                  timeZone: "UTC",
-                }).format(new Date(data.since + "T12:00:00Z")),
-              })
-            : m.follow_up_never_help()}
-        </p>
-      )}
-      {query.isError && !query.isFetchNextPageError && (
-        <ErrorNotice
-          error={query.error}
-          retry={() => void query.refetch()}
-          pending={query.isFetching}
-        />
-      )}
-      {query.isPending ? (
-        <ListSkeleton />
-      ) : items.length ? (
-        <>
-          <DirectoryList
-            label={
-              view === "recent" ? m.follow_up_recent() : m.follow_up_never()
-            }
-          >
-            {items.map((item) => (
-              <DirectoryItem linked key={item.id}>
-                <Link
-                  className="directory-item-link"
-                  to="/workspace/$organizationId/people/contacts/$contactId"
-                  params={{
-                    organizationId: organization.id,
-                    contactId: item.id,
-                  }}
-                >
-                  <DirectoryRecord
-                    name={item.name}
-                    icon={<UserRoundSearch size={20} aria-hidden="true" />}
-                    detail={
-                      <>
-                        {item.lastVisit ? (
-                          <>
-                            <span>
-                              {m.follow_up_last({ date: date(item.lastVisit) })}
-                            </span>
-                            <span>
-                              {item.lastTopic
-                                ? `${item.lastActivity} · ${item.lastTopic}`
-                                : item.lastActivity}
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span>{m.follow_up_no_record()}</span>
-                            <span>
-                              {m.follow_up_added({
-                                date: date(item.createdAt),
-                              })}
-                            </span>
-                          </>
-                        )}
-                      </>
-                    }
-                  />
-                  <ArrowRight size={18} aria-hidden="true" />
-                </Link>
-              </DirectoryItem>
-            ))}
-          </DirectoryList>
-          <InfiniteFooter {...query} />
-        </>
-      ) : (
-        !query.isError && (
-          <p className="directory-empty">
-            {q.trim() ? m.directory_no_matches() : m.follow_up_empty()}
-          </p>
-        )
-      )}
       <details className="session-help">
         <summary>{m.follow_up_about()}</summary>
         <p>{m.follow_up_definition()}</p>

@@ -2395,14 +2395,11 @@ button[data-slot="button"].people-section-add {
 .insights-filters button { min-width: 0; overflow-wrap: anywhere; }
 .insights-filters .insights-filter-actions { display: flex; align-items: end; flex-wrap: wrap; }
 .insights-metrics { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); margin: 0; }
-.insights-metrics > div { padding: var(--space-4); background: var(--muted); border-radius: var(--radius-control); }
+.insights-metrics > div { padding-block: var(--space-4); border-top: 1px solid var(--border); }
 .insights-metrics dt { font-size: var(--text-supporting); color: var(--muted-foreground); }
 .insights-metrics dd { margin: var(--space-2) 0 0; font-size: 30px; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; }
 .insights-money { padding-top: 0; border-top: 0; }
-.insights-chart { margin: 0; }
-.insights-chart svg { display: block; width: 100%; height: 120px; border-bottom: 1px solid var(--border); }
-.insights-chart rect { fill: var(--primary); }
-.insights-chart figcaption { display: flex; justify-content: space-between; gap: var(--space-3); margin-top: var(--space-2); color: var(--muted-foreground); font-size: var(--text-supporting); }
+
 .insights-trend-list { margin: 0; }
 .insights-trend-list > div { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: space-between; padding-block: var(--space-2); border-bottom: 1px solid var(--border); }
 .insights-trend-list dd { margin: 0; }
@@ -2457,7 +2454,7 @@ button[data-slot="button"].people-section-add {
 @media(min-width:768px) { .insights-money { grid-template-columns: repeat(4,minmax(0,1fr)); } }
 .statistic dt > span, .statistic-change > span { min-width: 0; overflow-wrap: anywhere; }
 
-.insights-metrics .statistic dt { min-height: 40px; }
+
 
 /* Bounded recurrence previews use document scrolling and the shared directory rhythm. */
 .schedule-weekdays { border: 0; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-2,8px); }
@@ -2476,3 +2473,22 @@ button[data-slot="button"].people-section-add {
 .follow-up-tabs > button { flex: 1 1 140px; min-height: 44px; white-space: normal; }
 .follow-up-context { margin-block: 12px 16px; }
 .follow-up-page .directory-record-copy > p { display: grid; gap: var(--space-1); }
+
+/* Interactive reporting reuses shadcn/Recharts and the shared sheet. */
+.statistic dd { position: relative; }
+.statistic-trigger { display: block; position: relative; width: 100%; min-height: 72px; padding: 0 20px 0 0; text-align: start; color: inherit; background: transparent; border: 0; border-radius: var(--radius-control); cursor: pointer; }
+.statistic-trigger:hover { background: var(--muted); }
+.statistic-trigger:focus-visible { outline: 2px solid var(--ring); outline-offset: 4px; }
+.statistic-chevron { position: absolute; right: 0; top: 8px; color: var(--muted-foreground); }
+.report-chart { height: 240px; width: 100%; min-width: 0; aspect-ratio: auto; }
+.report-chart:focus-within { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: var(--radius-control); }
+.report-chart-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-3); margin-bottom: var(--space-4); }
+.report-chart-controls label { display: block; margin-bottom: var(--space-2); }
+.report-chart-selection { display: grid; gap: var(--space-1); margin-block: var(--space-4) var(--space-2); font-size: var(--text-supporting); }
+.report-chart-selection span { color: var(--muted-foreground); }
+.comparison-values { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); margin: 0; }
+.comparison-values dt { color: var(--muted-foreground); font-size: var(--text-supporting); }
+.comparison-values dd { font-size: 28px; font-weight: 650; margin: var(--space-2) 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.comparison-values p { font-size: var(--text-supporting); color: var(--muted-foreground); }
+.comparison-chart { margin-block: var(--space-4); height: 180px; }
+@media (prefers-reduced-motion: reduce) { .follow-up-page .animate-spin { animation: none; } }

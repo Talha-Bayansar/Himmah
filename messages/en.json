@@ -864,5 +864,15 @@
   "follow_up_added": "Added {date}",
   "follow_up_empty": "No contacts match this view.",
   "follow_up_about": "About this list",
-  "follow_up_definition": "Only active contacts are shown. Visits use current recorded attendance at sessions that have started and were not cancelled, including archived activities. Missing records do not prove absence or disengagement. Open a contact for their details and Who to contact. No messages are sent automatically."
+  "follow_up_definition": "Only active contacts are shown. Visits use current recorded attendance at sessions that have started and were not cancelled, including archived activities. Missing records do not prove absence or disengagement. Open a contact for their details and Who to contact. No messages are sent automatically.",
+  "chart_measure": "Measure",
+  "chart_interaction": "Hover or tap a bar to inspect it. Choose a period for its recorded totals.",
+  "chart_current": "Current period",
+  "chart_previous": "Previous period",
+  "chart_value": "Value",
+  "chart_comparison": "Period comparison",
+  "chart_open": "View {label} comparison",
+  "chart_comparison_help": "Totals reflect current records. Changes are not a service-quality score.",
+  "chart_close": "Close comparison",
+  "chart_period": "Period"
 }

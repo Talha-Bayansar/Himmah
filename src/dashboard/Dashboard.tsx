@@ -1,5 +1,5 @@
 import { SessionList } from "./SessionList";
-import { Statistic } from "../insights/Statistic";
+import { Statistic, StatisticPeriods } from "../insights/Statistic";
 import { perSession } from "../insights/statistics";
 import {
   CalendarCheck,
@@ -253,7 +253,15 @@ export default function Dashboard({
             <ListSkeleton />
           ) : (
             summary && (
-              <>
+              <StatisticPeriods
+                value={{
+                  current: `${date(filters.from)} – ${date(filters.to)}`,
+                  previous:
+                    summary.previousFrom && summary.previousTo
+                      ? `${date(summary.previousFrom)} – ${date(summary.previousTo)}`
+                      : m.statistics_unavailable(),
+                }}
+              >
                 <dl className="insights-metrics dashboard-metrics">
                   <Statistic
                     label={m.insights_visits()}
@@ -321,7 +329,7 @@ export default function Dashboard({
                     </>
                   )}
                 </p>
-              </>
+              </StatisticPeriods>
             )
           )}
         </section>

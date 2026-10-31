@@ -131,7 +131,7 @@ Each attendance row has one labelled paid/unpaid button and the shared square mo
 
 ### Insights
 
-Use a focused report overview: four compact participation metrics, a restrained single-series trend with accessible period details, financial totals and divided activity rows. Keep advanced filters and metric definitions in labelled disclosures; applied date/cohort context stays visible. Searchable paginated filter choices use the shared bottom sheet with no autofocus. Preserve the distinction between recorded session balances and receipt-date cashflow, current access and data freshness. See [Insights definitions](INSIGHTS.md).
+Use a focused report overview: four compact participation metrics, an interactive single-measure Recharts bar chart with accessible period details, financial totals and divided activity rows. Keep advanced filters and metric definitions in labelled disclosures; applied date/cohort context stays visible. Searchable paginated filter choices use the shared bottom sheet with no autofocus. Preserve the distinction between recorded session balances and receipt-date cashflow, current access and data freshness. See [Insights definitions](INSIGHTS.md).
 
 Insights mobile reference (synthetic data): [overview](design/insights-mobile.png).
 
@@ -168,3 +168,13 @@ Cancellation with one/future scope uses a dedicated shared page: compact date/to
 [Session cancellation confirmation](design/session-cancellation-mobile.png) — synthetic Dutch phone example with the reviewed counts and recorded cash.
 
 Participation follow-up reuses compact directory rows and responsive category tabs, with one contact-profile destination per row. Keep period/search context visible and explanatory methodology in a disclosure; no repeated cards or engagement-score decoration. See [follow-up](FOLLOW_UP.md).
+
+### Interactive reporting
+
+Use the existing shadcn `ChartContainer`/tooltip wrappers and Recharts for report graphs; do not hand-draw static SVG charts. Load graph code on demand. Statistics use quiet divided surfaces, a visible comparison affordance, semantic direction text/icons and the shared no-autofocus bottom sheet with exact current/prior values and date ranges. Keep missing comparisons explicit; never invent a zero baseline. Financial units and percentage points remain intact.
+
+Trend graphs offer hover/tap tooltips, a measure selector and a period selector with a persistent textual readout; keyboard/touch access must not depend on hovering or color. Keep the complete period disclosure. Use semantic theme tokens, responsive sizing and visible keyboard focus; disable chart animation for reliable reduced-motion behavior. Preserve all report permissions, filter scope and financial meanings.
+
+31 October review of the recent additions: follow-up already retained the shared gutter, compact directory rows, one profile link per row, URL filters, pagination and a methodology disclosure. Fixed repeated search avatars, missing refresh progress and the absent tab-panel relationship. Home/Insights statistics used heavy quiet-surface tiles and hover-only baseline text; replaced those with divided summaries and explicit comparison sheets. The bespoke static trend SVG is replaced by the shared chart library and accessible period controls. Recurrence/agenda/cancellation keep their documented compact rows, one-primary-action hierarchy and page/sheet classifications.
+
+Synthetic Dutch references: [interactive trend](design/interactive-trend-mobile.png) and [statistic comparison sheet](design/statistic-comparison-mobile.png).

@@ -55,3 +55,7 @@ The full planned-session list has its own private query cache, separate from the
 ## Participation follow-up
 
 Home and Insights link to the separate [participation follow-up view](FOLLOW_UP.md). It separates previously recorded visitors with no recent visit from contacts with no recorded visits. The view uses local calendar-day windows and current valid presence, with profile links and no inferred absence or automatic messages.
+
+## Interactive presentation refinement
+
+Participation trends use shadcn/Recharts bar charts, switchable between recorded attendances and unique attendees. Hover/tap inspects a bar; tapping selects its period. An explicit period selector exposes both totals without hover, and the complete period disclosure remains available. Statistics on Home and Insights open a shared comparison sheet showing exact values/date ranges and two comparison bars. Missing comparison/denominator data remains unavailable rather than zero; money/percentage-point semantics are preserved. Charts load on demand and do not animate. These are presentation-only changes with no reporting query or schema change.
