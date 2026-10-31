@@ -2387,8 +2387,8 @@ button[data-slot="button"].people-section-add {
 /* Organization Insights reuses the directory shell, financial rows and form controls. */
 .insights-page, .insights-section { display: grid; gap: var(--space-4); }
 .insights-page { gap: var(--space-6); }
-.insights-page > .directory-heading { flex-direction: row; }
-.insights-page > .directory-heading > button { width: 48px; }
+.insights-page > .section-action-group > .directory-heading { flex-direction: row; }
+.insights-page > .section-action-group > .directory-heading > button { width: 48px; }
 .insights-section h2 { margin: 0; font-size: 20px; font-weight: 650; }
 .insights-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-3); }
 .insights-filters > div { display: grid; gap: var(--space-2); min-width: 0; }
@@ -2492,3 +2492,8 @@ button[data-slot="button"].people-section-add {
 .comparison-values p { font-size: var(--text-supporting); color: var(--muted-foreground); }
 .comparison-chart { margin-block: var(--space-4); height: 180px; }
 @media (prefers-reduced-motion: reduce) { .follow-up-page .animate-spin { animation: none; } }
+
+/* Contextual secondary actions stay with their heading, rather than stretching across grid tracks. */
+.section-action-group { display: grid; gap: var(--space-3); min-width: 0; }
+.section-action-group > .directory-heading { margin-bottom: 0; }
+.contextual-secondary-action { justify-self: start; max-width: 100%; text-align: start; }

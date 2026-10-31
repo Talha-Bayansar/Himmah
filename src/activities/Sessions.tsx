@@ -418,28 +418,32 @@ export default function Sessions({
         </>
       ) : (
         <>
-          <div className="session-heading">
-            <h2>{m.sessions_title()}</h2>
+          <div className="section-action-group">
+            <div className="session-heading">
+              <h2>{m.sessions_title()}</h2>
+              {canManage && !activity.cancelled && (
+                <Button
+                  onClick={() =>
+                    setEditor({ kind: "session", item: null, parent: activity })
+                  }
+                >
+                  <Plus size={16} aria-hidden="true" />
+                  {m.sessions_add()}
+                </Button>
+              )}
+            </div>
             {canManage && !activity.cancelled && (
               <Button
-                onClick={() =>
-                  setEditor({ kind: "session", item: null, parent: activity })
-                }
+                variant="outline"
+                size="sm"
+                className="contextual-secondary-action"
+                onClick={() => openForm("session-series", activity.id)}
               >
-                <Plus size={16} aria-hidden="true" />
-                {m.sessions_add()}
+                <Repeat2 aria-hidden="true" size={16} />
+                {m.series_plan()}
               </Button>
             )}
           </div>
-          {canManage && !activity.cancelled && (
-            <Button
-              variant="link"
-              onClick={() => openForm("session-series", activity.id)}
-            >
-              <Repeat2 aria-hidden="true" size={16} />
-              {m.series_plan()}
-            </Button>
-          )}
           <Tabs value={view} onValueChange={setView}>
             <TabsList aria-label={m.sessions_title()}>
               <TabsTrigger value="upcoming">

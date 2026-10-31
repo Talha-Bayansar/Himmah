@@ -257,35 +257,42 @@ export default function Insights({
     );
   return (
     <section className="directory insights-page">
-      <DirectoryHeader
-        title={m.insights_title()}
-        description={m.insights_intro()}
-        autoFocus={false}
-        action={
-          <Button
-            variant="outline"
-            size="icon"
-            disabled={report.isFetching}
-            aria-label={m.insights_refresh()}
-            onClick={() => void report.refetch()}
-          >
-            <RefreshCw
-              aria-hidden="true"
-              className={report.isFetching ? "animate-spin" : ""}
-            />
-          </Button>
-        }
-      />
-      <Button asChild variant="link">
-        <Link
-          to="/workspace/$organizationId/follow-up"
-          params={{ organizationId: organization.id }}
-          search={{ days: 30, view: "recent", q: "" }}
+      <div className="section-action-group">
+        <DirectoryHeader
+          title={m.insights_title()}
+          description={m.insights_intro()}
+          autoFocus={false}
+          action={
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={report.isFetching}
+              aria-label={m.insights_refresh()}
+              onClick={() => void report.refetch()}
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={report.isFetching ? "animate-spin" : ""}
+              />
+            </Button>
+          }
+        />
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="contextual-secondary-action"
         >
-          {m.follow_up_title()}
-          <ArrowRight size={16} aria-hidden="true" />
-        </Link>
-      </Button>
+          <Link
+            to="/workspace/$organizationId/follow-up"
+            params={{ organizationId: organization.id }}
+            search={{ days: 30, view: "recent", q: "" }}
+          >
+            {m.follow_up_title()}
+            <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </Button>
+      </div>
       <details
         className="session-help insights-filter-panel"
         open={filtersOpen || invalid}
