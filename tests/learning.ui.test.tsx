@@ -96,7 +96,7 @@ function mountStaff(path = "detail", role: "owner" | "volunteer" = "owner") {
     routeTree: root.addChildren([list, detail, edit, assign]),
     history: createMemoryHistory({
       initialEntries: [
-        `/workspace/${org.id}/learning${path === "list" ? "" : path === "new" ? "/new" : path === "assign" ? "/" + id + "/assign" : "/" + id}`,
+        `/workspace/${org.id}/learning${path === "list" ? "" : path === "new" ? "/new" : path === "assign" ? "/" + id + "/assign" : path === "edit" ? "/" + id + "/edit" : "/" + id}`,
       ],
     }),
   });
@@ -111,7 +111,7 @@ function mountStaff(path = "detail", role: "owner" | "volunteer" = "owner") {
   );
   return { client, router };
 }
-function backend(changed = false) {
+function backend(changed = false, draftOverride?: typeof content) {
   let revision = 3;
   const posts: Record<string, any>[] = [];
   const recipient = {
@@ -135,7 +135,9 @@ function backend(changed = false) {
     sessionId: null,
     activityName: null,
     sessionTopic: null,
-    draft: changed ? { ...content, title: "Updated draft" } : content,
+    draft:
+      draftOverride ??
+      (changed ? { ...content, title: "Updated draft" } : content),
     state: "published",
     version: revision,
     currentPublication: pub,
@@ -262,13 +264,16 @@ it("new item editor supports standalone questions without autofocus and saves be
   const title = await screen.findByLabelText("Title");
   expect(document.activeElement).not.toBe(title);
   await user.type(title, "Independent quiz");
+  await user.click(screen.getByRole("button", { name: "Next" }));
   await user.type(screen.getByLabelText("Question"), "Choose one");
   await user.type(screen.getByLabelText("Option 1"), "First");
   await user.type(screen.getByLabelText("Option 2"), "Second");
   await user.click(
     screen.getByRole("radio", { name: "Correct answer: option 2" }),
   );
-  await user.click(screen.getByRole("button", { name: "Save" }));
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  await user.click(screen.getByRole("button", { name: "Save draft" }));
   await waitFor(() => expect(b.posts.length).toBe(1));
   expect(b.posts[0]!.content.questions[0].correct).toBe(1);
   expect(b.posts[0]!.activity).toBeNull();
@@ -455,4 +460,178 @@ it("revoked public access hides cached participant results without a request loo
       .getAll()
       .some((q) => q.state.data),
   ).toBe(false);
+});
+
+it("wizard validates the current step and keeps all questions and access settings across overview navigation", async () => {
+  const b = backend();
+  mountStaff("new");
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: "Next" }));
+  expect(screen.getByRole("alert").textContent).toMatch(/title/);
+  expect(b.posts.length).toBe(0);
+  await user.type(screen.getByLabelText("Title"), "Wizard quiz");
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  await user.click(screen.getByRole("button", { name: "Add question" }));
+  expect(
+    (screen.getByLabelText("Select a question") as HTMLSelectElement).value,
+  ).toBe("1");
+  await user.type(screen.getByLabelText("Question"), "Second question");
+  await user.type(screen.getByLabelText("Option 1"), "Yes");
+  await user.type(screen.getByLabelText("Option 2"), "No");
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  expect(screen.getByRole("alert").textContent).toMatch(/question 1/);
+  expect(
+    (screen.getByLabelText("Select a question") as HTMLSelectElement).value,
+  ).toBe("0");
+  await user.type(screen.getByLabelText("Question"), "First question");
+  await user.type(screen.getByLabelText("Option 1"), "One");
+  await user.type(screen.getByLabelText("Option 2"), "Two");
+  await user.selectOptions(screen.getByLabelText("Select a question"), "1");
+  expect((screen.getByLabelText("Question") as HTMLTextAreaElement).value).toBe(
+    "Second question",
+  );
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  await user.selectOptions(screen.getByLabelText("Participation"), "open");
+  await user.selectOptions(screen.getByLabelText("Release results"), "manual");
+  await user.type(
+    screen.getByLabelText("Opens (optional)"),
+    "2026-11-03T12:00",
+  );
+  await user.type(
+    screen.getByLabelText("Deadline (optional)"),
+    "2026-11-02T12:00",
+  );
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  expect(screen.getByRole("alert").textContent).toMatch(/availability dates/);
+  await user.clear(screen.getByLabelText("Deadline (optional)"));
+  await user.type(
+    screen.getByLabelText("Deadline (optional)"),
+    "2026-11-04T12:00",
+  );
+  await user.click(screen.getByRole("button", { name: "Next" }));
+  expect(screen.getByRole("heading", { name: "Review" })).toBeTruthy();
+  expect(b.posts.length).toBe(0);
+  await user.click(screen.getByRole("button", { name: "Edit question 2" }));
+  expect((screen.getByLabelText("Question") as HTMLTextAreaElement).value).toBe(
+    "Second question",
+  );
+  await user.click(
+    within(
+      screen.getByRole("navigation", { name: "Learning creation steps" }),
+    ).getByRole("button", { name: "Review" }),
+  );
+  await user.click(screen.getByRole("button", { name: "Save draft" }));
+  await waitFor(() => expect(b.posts.length).toBe(1));
+  expect(b.posts[0]!.content.questions.map((q: any) => q.text)).toEqual([
+    "First question",
+    "Second question",
+  ]);
+  expect(b.posts[0]!.content.mode).toBe("open");
+  expect(b.posts[0]!.content.release).toBe("manual");
+  expect(b.posts[0]!.content.opensAt).toBe("2026-11-03T11:00:00.000Z");
+});
+it("question controls duplicate, reorder and remove the selected question without losing its options", async () => {
+  backend();
+  mountStaff("edit");
+  const user = userEvent.setup();
+  await screen.findByLabelText("Title");
+  await user.click(
+    within(
+      screen.getByRole("navigation", { name: "Learning creation steps" }),
+    ).getByRole("button", { name: "Questions" }),
+  );
+  const menu = async () =>
+    user.click(screen.getByRole("button", { name: /Actions for Question/ }));
+  await menu();
+  await user.click(
+    screen.getByRole("menuitem", { name: "Duplicate question" }),
+  );
+  await waitFor(() =>
+    expect(
+      (screen.getByLabelText("Select a question") as HTMLSelectElement).value,
+    ).toBe("1"),
+  );
+  expect((screen.getByLabelText("Option 2") as HTMLInputElement).value).toBe(
+    "Second",
+  );
+  await menu();
+  await user.click(
+    screen.getByRole("menuitem", { name: "Move question down" }),
+  );
+  await waitFor(() =>
+    expect(
+      (screen.getByLabelText("Select a question") as HTMLSelectElement).value,
+    ).toBe("2"),
+  );
+  expect((screen.getByLabelText("Question") as HTMLTextAreaElement).value).toBe(
+    "Choose one",
+  );
+  await menu();
+  await user.click(screen.getByRole("menuitem", { name: "Remove question" }));
+  await user.click(
+    within(await screen.findByRole("alertdialog")).getByRole("button", {
+      name: "Remove question",
+    }),
+  );
+  expect(
+    (screen.getByLabelText("Select a question") as HTMLSelectElement).options
+      .length,
+  ).toBe(2);
+  expect((screen.getByLabelText("Question") as HTMLTextAreaElement).value).toBe(
+    "Another",
+  );
+});
+it("fifty-question drafts render one editable question and keep creation controls bounded", async () => {
+  backend(false, {
+    ...content,
+    questions: Array.from({ length: 50 }, (_, i) => ({
+      ...content.questions[0]!,
+      text: "Question " + (i + 1),
+    })),
+  });
+  mountStaff("edit");
+  const user = userEvent.setup();
+  await screen.findByLabelText("Title");
+  await user.click(
+    within(
+      screen.getByRole("navigation", { name: "Learning creation steps" }),
+    ).getByRole("button", { name: "Questions" }),
+  );
+  expect(
+    (screen.getByLabelText("Select a question") as HTMLSelectElement).options
+      .length,
+  ).toBe(50);
+  expect(document.querySelectorAll(".learning-question textarea").length).toBe(
+    2,
+  );
+  expect(
+    screen
+      .getByRole("button", { name: "Add question" })
+      .hasAttribute("disabled"),
+  ).toBe(true);
+  await user.selectOptions(screen.getByLabelText("Select a question"), "49");
+  expect((screen.getByLabelText("Question") as HTMLTextAreaElement).value).toBe(
+    "Question 50",
+  );
+});
+it("a wizard save with a lost response locks every step and replays the reviewed draft exactly", async () => {
+  const b = backend();
+  b.fail();
+  mountStaff("edit");
+  const user = userEvent.setup();
+  await screen.findByLabelText("Title");
+  const nav = screen.getByRole("navigation", {
+    name: "Learning creation steps",
+  });
+  await user.click(within(nav).getByRole("button", { name: "Review" }));
+  await user.click(screen.getByRole("button", { name: "Save draft" }));
+  await screen.findByText(/response was not received/);
+  expect(
+    within(nav)
+      .getAllByRole("button")
+      .every((b) => b.hasAttribute("disabled")),
+  ).toBe(true);
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  await waitFor(() => expect(b.posts.length).toBe(2));
+  expect(b.posts[0]).toEqual(b.posts[1]);
 });

@@ -2552,3 +2552,43 @@ button[data-slot="button"].people-section-add {
 .learning-correct-target { display: grid; place-items: center; width: 44px; height: 44px; cursor: pointer; }
 .learning-correct-target input[type="radio"] { margin: 0; }
 .learning-correct-target:focus-within { outline: 2px solid var(--ring); border-radius: var(--radius-control); }
+
+/* Learning creator: one focused step and one question editor at a time. */
+.learning-stepper { margin-bottom: var(--space-6); scroll-margin-block: calc(64px + var(--space-6) + env(safe-area-inset-top)); }
+.learning-stepper ol { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: var(--space-2); padding: 0; margin: 0; list-style: none; }
+.learning-stepper button { width: 100%; min-height: 72px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2) 4px; background: transparent; border: 0; border-bottom: 2px solid var(--border); color: var(--muted-foreground); font-size: var(--text-supporting); font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
+.learning-stepper button[aria-current="step"] { border-color: var(--primary); color: var(--primary); }
+.learning-step-number { display: grid; place-items: center; min-width: 28px; height: 28px; border-radius: 50%; background: var(--muted); }
+.learning-stepper button[aria-current="step"] .learning-step-number { background: var(--primary); color: var(--primary-foreground); }
+.learning-stepper button:focus-visible, .learning-question-overview button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: var(--radius-control); }
+.learning-stepper button:disabled { opacity: .5; cursor: default; }
+.learning-step-status { margin-block: 0 var(--space-4); }
+.learning-question-selector { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
+.learning-question-selector > div { flex: 1 1 240px; min-width: 0; }
+.learning-question-selector [data-slot="native-select-wrapper"] { width: 100%; }
+.learning-question-selector > button { flex-shrink: 0; }
+.learning-question-overview { margin: 0; }
+.learning-question-overview ol { list-style: none; padding: 0; margin: var(--space-3) 0; }
+.learning-question-overview li + li { border-top: 1px solid var(--border); }
+.learning-question-overview button { display: grid; gap: var(--space-1); width: 100%; min-height: 48px; padding: var(--space-3); text-align: start; background: transparent; color: var(--foreground); border: 0; border-radius: var(--radius-control); cursor: pointer; overflow-wrap: anywhere; }
+.learning-question-overview button[aria-current="true"] { background: var(--secondary); }
+.learning-question-overview small { color: var(--muted-foreground); }
+.learning-question-heading h2 { font-size: 22px; margin: 0; }
+.learning-question-pagination { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: var(--space-2); }
+.learning-question-pagination > span { font-variant-numeric: tabular-nums; font-size: var(--text-supporting); color: var(--muted-foreground); }
+.learning-wizard-review { display: grid; gap: var(--space-6); }
+.learning-wizard-review > h2, .learning-wizard-review h3, .learning-wizard-review h4 { margin: 0; }
+.learning-wizard-review > section { border-top: 1px solid var(--border); padding-top: var(--space-4); min-width: 0; }
+.learning-wizard-review h4 { margin-top: var(--space-3); font-size: 20px; overflow-wrap: anywhere; }
+.learning-review-questions { list-style: none; padding: 0; margin: var(--space-3) 0 0; }
+.learning-review-questions > li { padding-block: var(--space-3); border-bottom: 1px solid var(--border); }
+.learning-review-questions .session-heading { flex-wrap: nowrap; align-items: start; }
+.learning-review-questions .session-heading > strong { min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.learning-review-questions .session-heading > button { flex-shrink: 0; }
+.learning-review-settings { display: grid; gap: var(--space-3); margin: var(--space-3) 0 0; }
+.learning-review-settings dt { color: var(--muted-foreground); font-size: var(--text-supporting); }
+.learning-review-settings dd { margin: var(--space-1) 0 0; overflow-wrap: anywhere; }
+.learning-wizard-actions { margin-top: var(--space-6); }
+.learning-question-pagination > button { min-width: 0; }
+
+@media(min-width:768px) { .learning-stepper { scroll-margin-block: calc(124px + var(--space-6) + env(safe-area-inset-top)); } }

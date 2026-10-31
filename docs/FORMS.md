@@ -41,3 +41,5 @@ Single-person cash recording is a simple sheet; its amount-labeled save is the e
 Recurring session planning and schedule changes use dedicated `session-series` / `session-schedule` page forms because weekday/ending choices and a bounded multi-session preview are a complex workflow. The existing short single-session create/edit/cancel sheet remains available. See [recurring planning](RECURRENCE.md).
 
 Learning question editing and multi-contact assignment use independently reloadable pages. Small context pickers, share access and participant-result details use the shared bottom sheet without autofocus. Published versions/submitted attempts are read-only; draft and exact-retry guards are documented in [learning](LEARNING.md).
+
+The learning editor now uses a four-step creator (Details, Questions, Access, Review), with question selection/overview and a single final Save draft action. The route/page classification remains unchanged. See [learning](LEARNING.md) for validation, retained values, pending/retry locks and no-autofocus behavior.
