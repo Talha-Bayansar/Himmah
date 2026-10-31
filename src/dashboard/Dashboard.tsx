@@ -1,7 +1,12 @@
 import { SessionList } from "./SessionList";
 import { Statistic } from "../insights/Statistic";
 import { perSession } from "../insights/statistics";
-import { CalendarCheck, ChartNoAxesColumn, Wallet } from "lucide-react";
+import {
+  CalendarCheck,
+  ChartNoAxesColumn,
+  Wallet,
+  UserRoundSearch,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -57,6 +62,7 @@ export default function Dashboard({
       ["organization", userId, organization.id, "dashboard", "summary"],
       ["organization", userId, organization.id, "insights"],
       ["organization", userId, organization.id, "insights-options"],
+      ["organization", userId, organization.id, "follow-up"],
     ];
     for (const queryKey of keys) {
       void cache.cancelQueries({ queryKey });
@@ -74,6 +80,7 @@ export default function Dashboard({
     for (const part of [
       "dashboard",
       "planned-sessions",
+      "follow-up",
       "insights",
       "insights-options",
     ]) {
@@ -202,6 +209,15 @@ export default function Dashboard({
             >
               <CalendarDays aria-hidden="true" size={20} />
               <span>{m.dashboard_plan()}</span>
+              <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <Link
+              to="/workspace/$organizationId/follow-up"
+              params={{ organizationId: organization.id }}
+              search={{ days: 30, view: "recent", q: "" }}
+            >
+              <UserRoundSearch aria-hidden="true" size={20} />
+              <span>{m.follow_up_title()}</span>
               <ArrowRight aria-hidden="true" size={18} />
             </Link>
           </div>

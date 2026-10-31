@@ -51,3 +51,7 @@ The full report adds attendance per started session, returning-attendee share (r
 Archive preserves recorded history and reporting. [Permanent activity deletion](ACTIVITY_DELETION.md) removes its source records and therefore recomputes participation, first/returning classification and financial figures; Home/report caches are cleared after success.
 
 The full planned-session list has its own private query cache, separate from the bounded dashboard preview. Pagination is a live view: refresh after rescheduling to obtain the current complete order; repeated session IDs across a changed page boundary are shown once using their first visible snapshot. Ended/cancelled sessions and archived activities are excluded on every page, including scope-filtered volunteer reads. Access loss hides stale rows and clears cached results. These reads create no participation or money and require no schema change.
+
+## Participation follow-up
+
+Home and Insights link to the separate [participation follow-up view](FOLLOW_UP.md). It separates previously recorded visitors with no recent visit from contacts with no recorded visits. The view uses local calendar-day windows and current valid presence, with profile links and no inferred absence or automatic messages.

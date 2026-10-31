@@ -849,5 +849,20 @@
   "cancellation_reason": "İptal nedeni",
   "cancellation_confirm_one": "Bu oturum iptal edilsin mi?",
   "cancellation_single": "1 oturum",
-  "cancellation_charges": "İncelenecek borçlar"
+  "cancellation_charges": "İncelenecek borçlar",
+  "follow_up_title": "Katılım takibi",
+  "follow_up_intro": "Kaydedilen ziyaretlere göre takip edilecek kişileri bulun.",
+  "follow_up_refresh": "Katılımı yenile",
+  "follow_up_period": "Dönem",
+  "follow_up_days": "{days} gün",
+  "follow_up_recent": "Yakın zamanda ziyaret yok",
+  "follow_up_never": "Kayıtlı ziyaret yok",
+  "follow_up_since": "{date} tarihinden beri kayıtlı ziyaret yok. Son ziyareti en eski olanlar önce gösterilir.",
+  "follow_up_never_help": "Bu kişilerin kayıtlı ziyareti yok. Yeni eklenen kişiler de dahildir.",
+  "follow_up_last": "Son kayıtlı ziyaret: {date}",
+  "follow_up_no_record": "Kayıtlı katılım yok",
+  "follow_up_added": "Eklenme: {date}",
+  "follow_up_empty": "Bu görünümle eşleşen kişi yok.",
+  "follow_up_about": "Bu liste hakkında",
+  "follow_up_definition": "Yalnızca aktif kişiler gösterilir. Ziyaretler, arşivlenmiş etkinlikler dahil, başlamış ve iptal edilmemiş oturumlardaki mevcut katılım kayıtlarına dayanır. Eksik kayıtlar, yokluğu veya ilgi kaybını kanıtlamaz. Ayrıntılar ve iletişim kurulacak kişiler için kişi profilini açın. Otomatik mesaj gönderilmez."
 }

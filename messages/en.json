@@ -849,5 +849,20 @@
   "cancellation_reason": "Cancellation reason",
   "cancellation_confirm_one": "Cancel this session?",
   "cancellation_single": "1 session",
-  "cancellation_charges": "Charges to review"
+  "cancellation_charges": "Charges to review",
+  "follow_up_title": "Participation follow-up",
+  "follow_up_intro": "Find contacts to follow up with, using recorded visits.",
+  "follow_up_refresh": "Refresh participation",
+  "follow_up_period": "Look back",
+  "follow_up_days": "{days} days",
+  "follow_up_recent": "No recent visits",
+  "follow_up_never": "No recorded visits",
+  "follow_up_since": "No recorded visit since {date}. Oldest last visits first.",
+  "follow_up_never_help": "These contacts have no recorded visits. Newly added contacts are included.",
+  "follow_up_last": "Last recorded visit: {date}",
+  "follow_up_no_record": "No recorded attendance",
+  "follow_up_added": "Added {date}",
+  "follow_up_empty": "No contacts match this view.",
+  "follow_up_about": "About this list",
+  "follow_up_definition": "Only active contacts are shown. Visits use current recorded attendance at sessions that have started and were not cancelled, including archived activities. Missing records do not prove absence or disengagement. Open a contact for their details and Who to contact. No messages are sent automatically."
 }

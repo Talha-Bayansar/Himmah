@@ -1,3 +1,5 @@
+import { followUpApi } from "./follow-up-api.ts";
+import { createFollowUpStore } from "./follow-up-store.ts";
 import { dashboardApi } from "./dashboard-api.ts";
 import { createDashboardStore } from "./dashboard-store.ts";
 import { insightsApi } from "./insights-api.ts";
@@ -69,6 +71,7 @@ type Dependencies = {
   people?: (url: string) => PeopleStore;
   notifications?: (url: string) => NotificationStore;
   dashboard?: (url: string) => ReturnType<typeof createDashboardStore>;
+  followUp?: (url: string) => ReturnType<typeof createFollowUpStore>;
   insights?: (url: string) => ReturnType<typeof createInsightsStore>;
 };
 const json = (body: unknown, status = 200) =>
@@ -284,6 +287,15 @@ export function createHandler(
           env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
         ).limit({ key: `insights:${user.id}` });
         if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        if (url.pathname.endsWith("/insights/follow-up")) {
+          const followUpResponse = await followUpApi(
+            request,
+            user,
+            store,
+            (deps.followUp ?? createFollowUpStore)(env.HIMMAH_DATABASE_URL),
+          );
+          if (followUpResponse) return followUpResponse;
+        }
         const response = await insightsApi(
           request,
           user,

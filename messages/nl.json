@@ -849,5 +849,20 @@
   "cancellation_reason": "Reden voor annulering",
   "cancellation_confirm_one": "Deze sessie annuleren?",
   "cancellation_single": "1 sessie",
-  "cancellation_charges": "Bedragen controleren"
+  "cancellation_charges": "Bedragen controleren",
+  "follow_up_title": "Deelname opvolgen",
+  "follow_up_intro": "Vind contacten om op te volgen op basis van geregistreerde bezoeken.",
+  "follow_up_refresh": "Deelname vernieuwen",
+  "follow_up_period": "Periode",
+  "follow_up_days": "{days} dagen",
+  "follow_up_recent": "Geen recente bezoeken",
+  "follow_up_never": "Geen bezoeken geregistreerd",
+  "follow_up_since": "Geen bezoek geregistreerd sinds {date}. Oudste laatste bezoeken eerst.",
+  "follow_up_never_help": "Deze contacten hebben geen geregistreerde bezoeken. Nieuw toegevoegde contacten staan hier ook.",
+  "follow_up_last": "Laatste geregistreerde bezoek: {date}",
+  "follow_up_no_record": "Geen aanwezigheid geregistreerd",
+  "follow_up_added": "Toegevoegd op {date}",
+  "follow_up_empty": "Er zijn geen contacten voor deze weergave.",
+  "follow_up_about": "Over deze lijst",
+  "follow_up_definition": "Alleen actieve contacten worden getoond. Bezoeken zijn gebaseerd op de huidige aanwezigheidsregistratie bij gestarte, niet-geannuleerde sessies, ook van gearchiveerde activiteiten. Ontbrekende registraties bewijzen geen afwezigheid of verminderde betrokkenheid. Open een contact voor de gegevens en Wie te contacteren. Er worden niet automatisch berichten verstuurd."
 }

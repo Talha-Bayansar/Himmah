@@ -215,7 +215,7 @@ export default function Insights({
     setAccessError(report.error);
     setPicker(null);
     setNames({ activity: "", group: "" });
-    for (const key of ["insights", "insights-options"]) {
+    for (const key of ["insights", "insights-options", "follow-up"]) {
       const queryKey = ["organization", userId, organization.id, key];
       void cache.cancelQueries({ queryKey });
       cache.removeQueries({ queryKey });
@@ -275,6 +275,16 @@ export default function Insights({
           </Button>
         }
       />
+      <Button asChild variant="link">
+        <Link
+          to="/workspace/$organizationId/follow-up"
+          params={{ organizationId: organization.id }}
+          search={{ days: 30, view: "recent", q: "" }}
+        >
+          {m.follow_up_title()}
+          <ArrowRight size={16} aria-hidden="true" />
+        </Link>
+      </Button>
       <details
         className="session-help insights-filter-panel"
         open={filtersOpen || invalid}

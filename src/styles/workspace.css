@@ -2420,8 +2420,8 @@ button[data-slot="button"].people-section-add {
 /* Dashboard: bounded daily work preview, compact actions and a report summary. */
 .dashboard-page { display: grid; gap: var(--space-8); }
 .dashboard-page > .directory-heading { flex-direction: row; margin-bottom: 0; }
-.planned-sessions > .directory-heading { flex-direction: row; }
-:is(.dashboard-page,.planned-sessions) > .directory-heading > button { width: 48px; }
+.planned-sessions > .directory-heading, .follow-up-page > .directory-heading { flex-direction: row; }
+:is(.dashboard-page,.planned-sessions,.follow-up-page) > .directory-heading > button { width: 48px; }
 .dashboard-section { display: grid; gap: var(--space-3); min-width: 0; }
 .dashboard-section-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2) var(--space-4); }
 .dashboard-section h2 { font-size: 20px; font-weight: 650; }
@@ -2471,3 +2471,8 @@ button[data-slot="button"].people-section-add {
 .schedule-context { margin-block: 16px 24px; }
 .schedule-context p { margin: 0; }
 .schedule-context p + p { margin-top: 4px; }
+
+.follow-up-tabs { display: flex; width: 100%; height: auto; flex-wrap: wrap; }
+.follow-up-tabs > button { flex: 1 1 140px; min-height: 44px; white-space: normal; }
+.follow-up-context { margin-block: 12px 16px; }
+.follow-up-page .directory-record-copy > p { display: grid; gap: var(--space-1); }

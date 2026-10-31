@@ -17,6 +17,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as WorkspaceOrganizationIdRouteImport } from './routes/workspace.$organizationId'
 import { Route as WorkspaceOrganizationIdSectionRouteImport } from './routes/workspace.$organizationId.$section'
+import { Route as WorkspaceOrganizationIdFollowUpRouteImport } from './routes/workspace.$organizationId.follow-up'
 import { Route as WorkspaceOrganizationIdInsightsRouteImport } from './routes/workspace.$organizationId.insights'
 import { Route as WorkspaceOrganizationIdScheduleRouteImport } from './routes/workspace.$organizationId.schedule'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId'
@@ -72,6 +73,12 @@ const WorkspaceOrganizationIdSectionRoute =
   WorkspaceOrganizationIdSectionRouteImport.update({
     id: '/$section',
     path: '/$section',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
+  } as any)
+const WorkspaceOrganizationIdFollowUpRoute =
+  WorkspaceOrganizationIdFollowUpRouteImport.update({
+    id: '/follow-up',
+    path: '/follow-up',
     getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdInsightsRoute =
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/follow-up': typeof WorkspaceOrganizationIdFollowUpRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/schedule': typeof WorkspaceOrganizationIdScheduleRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -213,6 +221,7 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/follow-up': typeof WorkspaceOrganizationIdFollowUpRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/schedule': typeof WorkspaceOrganizationIdScheduleRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -239,6 +248,7 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/workspace/$organizationId': typeof WorkspaceOrganizationIdRouteWithChildren
   '/workspace/$organizationId/$section': typeof WorkspaceOrganizationIdSectionRoute
+  '/workspace/$organizationId/follow-up': typeof WorkspaceOrganizationIdFollowUpRoute
   '/workspace/$organizationId/insights': typeof WorkspaceOrganizationIdInsightsRoute
   '/workspace/$organizationId/schedule': typeof WorkspaceOrganizationIdScheduleRoute
   '/workspace/$organizationId/activities/$activityId': typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/follow-up'
     | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/schedule'
     | '/workspace/$organizationId/activities/$activityId'
@@ -291,6 +302,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/follow-up'
     | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/schedule'
     | '/workspace/$organizationId/activities/$activityId'
@@ -316,6 +328,7 @@ export interface FileRouteTypes {
     | '/start'
     | '/workspace/$organizationId'
     | '/workspace/$organizationId/$section'
+    | '/workspace/$organizationId/follow-up'
     | '/workspace/$organizationId/insights'
     | '/workspace/$organizationId/schedule'
     | '/workspace/$organizationId/activities/$activityId'
@@ -399,6 +412,13 @@ declare module '@tanstack/react-router' {
       path: '/$section'
       fullPath: '/workspace/$organizationId/$section'
       preLoaderRoute: typeof WorkspaceOrganizationIdSectionRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
+    }
+    '/workspace/$organizationId/follow-up': {
+      id: '/workspace/$organizationId/follow-up'
+      path: '/follow-up'
+      fullPath: '/workspace/$organizationId/follow-up'
+      preLoaderRoute: typeof WorkspaceOrganizationIdFollowUpRouteImport
       parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/insights': {
@@ -550,6 +570,7 @@ const WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren =
 
 interface WorkspaceOrganizationIdRouteChildren {
   WorkspaceOrganizationIdSectionRoute: typeof WorkspaceOrganizationIdSectionRoute
+  WorkspaceOrganizationIdFollowUpRoute: typeof WorkspaceOrganizationIdFollowUpRoute
   WorkspaceOrganizationIdInsightsRoute: typeof WorkspaceOrganizationIdInsightsRoute
   WorkspaceOrganizationIdScheduleRoute: typeof WorkspaceOrganizationIdScheduleRoute
   WorkspaceOrganizationIdActivitiesActivityIdRoute: typeof WorkspaceOrganizationIdActivitiesActivityIdRouteWithChildren
@@ -565,6 +586,7 @@ interface WorkspaceOrganizationIdRouteChildren {
 const WorkspaceOrganizationIdRouteChildren: WorkspaceOrganizationIdRouteChildren =
   {
     WorkspaceOrganizationIdSectionRoute: WorkspaceOrganizationIdSectionRoute,
+    WorkspaceOrganizationIdFollowUpRoute: WorkspaceOrganizationIdFollowUpRoute,
     WorkspaceOrganizationIdInsightsRoute: WorkspaceOrganizationIdInsightsRoute,
     WorkspaceOrganizationIdScheduleRoute: WorkspaceOrganizationIdScheduleRoute,
     WorkspaceOrganizationIdActivitiesActivityIdRoute:

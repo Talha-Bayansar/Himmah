@@ -9,6 +9,7 @@ export const workspaceSections = [
   "activities",
   "schedule",
   "insights",
+  "follow-up",
   "manage",
   "organization",
   "staff",
@@ -43,7 +44,11 @@ export function WorkspaceNavigation({
         to="/workspace/$organizationId/$section"
         params={{ organizationId, section: "dashboard" }}
         aria-current={
-          section === "dashboard" || section === "insights" ? "page" : undefined
+          section === "dashboard" ||
+          section === "insights" ||
+          section === "follow-up"
+            ? "page"
+            : undefined
         }
       >
         <House aria-hidden="true" size={20} />

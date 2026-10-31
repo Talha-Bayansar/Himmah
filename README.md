@@ -10,6 +10,7 @@ Futsal, games, points, engagement periods, rewards/coupons, challenges and parti
 - [Product and implementation context](docs/redesign/README.md)
 - [People and communication](docs/redesign/COMMUNICATION_STATUS.md)
 - [Insights and metric definitions](docs/INSIGHTS.md)
+- [Participation follow-up](docs/FOLLOW_UP.md)
 - [Archive and permanent activity deletion](docs/ACTIVITY_DELETION.md)
 - [Optional session topics](docs/SESSION_TOPICS.md)
 - [Unified attendance and payments](docs/CASH.md)

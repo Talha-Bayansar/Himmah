@@ -166,3 +166,5 @@ Attendance rows use compact inset padding with vertically centered selection/nam
 Cancellation with one/future scope uses a dedicated shared page: compact date/topic rows, short registration/charge/cash impact and a reason, followed by one destructive confirmation. Sessions without charges or effective cash do not show a payment warning; actual charges/effective cash stay visibly flagged for administrator review. Preserve failed drafts and exact retry, with no autofocus or repeated confirmations. See [reviewed cancellation](SESSION_CANCELLATION.md).
 
 [Session cancellation confirmation](design/session-cancellation-mobile.png) — synthetic Dutch phone example with the reviewed counts and recorded cash.
+
+Participation follow-up reuses compact directory rows and responsive category tabs, with one contact-profile destination per row. Keep period/search context visible and explanatory methodology in a disclosure; no repeated cards or engagement-score decoration. See [follow-up](FOLLOW_UP.md).

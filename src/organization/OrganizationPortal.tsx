@@ -1,4 +1,5 @@
 import PlannedSessions from "../dashboard/PlannedSessions";
+import FollowUp from "../insights/FollowUp";
 import Dashboard from "../dashboard/Dashboard";
 import Insights from "../insights/Insights";
 import {
@@ -304,6 +305,14 @@ export default function OrganizationPortal({
         );
       if (!["owner", "admin"].includes(org.role))
         return <p role="alert">{m.people_denied()}</p>;
+      if (workspaceSection === "follow-up")
+        return (
+          <FollowUp
+            key={user.id + org.id + org.role}
+            organization={org}
+            userId={user.id}
+          />
+        );
       if (workspaceSection === "insights")
         return <Insights organization={org} userId={user.id} />;
       if (workspaceSection === "manage")
