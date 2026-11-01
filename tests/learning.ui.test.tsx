@@ -13,6 +13,7 @@ import {
 import { ConfirmationProvider } from "../src/components/shared/confirmation";
 import { LocaleProvider } from "../src/localization/locale";
 import { setLocale } from "../src/paraglide/runtime.js";
+import { CopyLink } from "../src/learning/shared";
 import Learning from "../src/learning/Learning";
 import Participant from "../src/learning/Participant";
 import { freshContent } from "../src/learning/contracts";
@@ -771,4 +772,28 @@ it("opens a bookmarked contact-history result for its selected publication and r
   expect(
     new URLSearchParams(router.state.location.searchStr).get("publication"),
   ).toBe(pub);
+});
+
+it("provides manual copying without focusing the field when compact clipboard copying fails", async () => {
+  const user = userEvent.setup();
+  vi.spyOn(navigator.clipboard, "writeText").mockRejectedValueOnce(
+    new Error("Unavailable"),
+  );
+  render(<CopyLink compact value="https://example.test/play/ABCDE12345" />);
+  expect(
+    screen.queryByRole("textbox", { name: "Participant link" }),
+  ).toBeNull();
+  await user.click(screen.getByRole("button", { name: "Copy link" }));
+  const input = await screen.findByRole("textbox", {
+    name: "Participant link",
+  });
+  expect((input as HTMLInputElement).value).toBe(
+    "https://example.test/play/ABCDE12345",
+  );
+  expect(document.activeElement).not.toBe(input);
+  expect(screen.getByRole("status").textContent).toBe(
+    "Select and copy the link manually.",
+  );
+  await user.click(screen.getByRole("button", { name: "Copy link" }));
+  expect(await screen.findByRole("button", { name: "Copied" })).toBeTruthy();
 });

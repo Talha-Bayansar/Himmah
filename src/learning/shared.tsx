@@ -166,16 +166,24 @@ export function CommandError({
     </div>
   );
 }
-export function CopyLink({ value }: { value: string }) {
+export function CopyLink({
+  value,
+  compact = false,
+}: {
+  value: string;
+  compact?: boolean;
+}) {
   const [state, setState] = useState<"ready" | "copied" | "error">("ready");
   return (
-    <div className="learning-share-link">
-      <input
-        aria-label={m.learn_link()}
-        readOnly
-        value={value}
-        onFocus={(e) => e.target.select()}
-      />
+    <div className="learning-share-link" data-compact={compact}>
+      {(!compact || state === "error") && (
+        <input
+          aria-label={m.learn_link()}
+          readOnly
+          value={value}
+          onFocus={(e) => e.target.select()}
+        />
+      )}
       <Button
         variant="outline"
         onClick={async () => {

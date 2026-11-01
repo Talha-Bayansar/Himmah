@@ -18,6 +18,7 @@ import {
   DirectoryToolbar,
   DirectoryList,
   DirectoryItem,
+  DirectoryRecord,
 } from "../components/shared/directory-layout";
 import {
   InfiniteFooter,
@@ -75,7 +76,7 @@ function RoomDirectory({ detail }: { detail: LearningDetail }) {
     detail.item.state === "published" &&
     detail.publication?.id === detail.item.currentPublication;
   return (
-    <section className="directory learning-detail">
+    <section className="directory learning-detail live-directory">
       <Button variant="link" asChild className="settings-back">
         <Link
           to="/workspace/$organizationId/learning/$learningId"
@@ -96,24 +97,24 @@ function RoomDirectory({ detail }: { detail: LearningDetail }) {
         title={m.live_host()}
         description={m.live_host_intro()}
         autoFocus={false}
-        action={
-          <ActionButton
-            pending={command.isPending}
-            disabled={!canCreate || command.isError}
-            onClick={() =>
-              command.mutate({
-                key: crypto.randomUUID(),
-                id: crypto.randomUUID(),
-                action: "create",
-                publication: detail.publication?.id,
-              })
-            }
-          >
-            <Radio aria-hidden="true" />
-            {m.live_create()}
-          </ActionButton>
-        }
       />
+      <div className="section-action-group">
+        <ActionButton
+          pending={command.isPending}
+          disabled={!canCreate || command.isError}
+          onClick={() =>
+            command.mutate({
+              key: crypto.randomUUID(),
+              id: crypto.randomUUID(),
+              action: "create",
+              publication: detail.publication?.id,
+            })
+          }
+        >
+          <Radio aria-hidden="true" />
+          {m.live_create()}
+        </ActionButton>
+      </div>
       {!canCreate && <p>{m.live_publish_first()}</p>}
       <LiveCommandNotice
         command={command}
@@ -147,23 +148,26 @@ function RoomDirectory({ detail }: { detail: LearningDetail }) {
                     room: r.id,
                   }}
                 >
-                  <span className="directory-record-copy">
-                    <strong>
-                      {r.code.slice(0, 5)} {r.code.slice(5)}
-                    </strong>
-                    <span>
-                      {new Date(r.expiresAt).getTime() <= Date.now()
-                        ? m.live_expired()
-                        : phaseLabel(r.state)}
-                    </span>
-                    <span>
-                      {new Intl.DateTimeFormat(locale, {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                        timeZone: org.timezone,
-                      }).format(new Date(r.createdAt))}
-                    </span>
-                  </span>
+                  <DirectoryRecord
+                    icon={<Radio />}
+                    name={`${r.code.slice(0, 5)} ${r.code.slice(5)}`}
+                    detail={
+                      <span className="live-room-meta">
+                        <span>
+                          {new Date(r.expiresAt).getTime() <= Date.now()
+                            ? m.live_expired()
+                            : phaseLabel(r.state)}
+                        </span>
+                        <span>
+                          {new Intl.DateTimeFormat(locale, {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                            timeZone: org.timezone,
+                          }).format(new Date(r.createdAt))}
+                        </span>
+                      </span>
+                    }
+                  />
                   <ChevronRight aria-hidden="true" />
                 </Link>
               </DirectoryItem>
@@ -298,22 +302,54 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
   );
   return (
     <section className="directory learning-detail live-host">
-      <Button variant="link" asChild className="settings-back">
-        <Link
-          to="/workspace/$organizationId/learning/$learningId/live"
-          params={{ organizationId: org.id, learningId: detail.item.id }}
-          search={{
-            q: "",
-            tab: "participants",
-            publication: "",
-            activity: "",
-            session: "",
-          }}
-        >
-          <ArrowLeft aria-hidden="true" />
-          {m.live_rooms()}
-        </Link>
-      </Button>
+      <div className="live-page-toolbar">
+        <Button variant="link" asChild className="settings-back">
+          <Link
+            to="/workspace/$organizationId/learning/$learningId/live"
+            params={{ organizationId: org.id, learningId: detail.item.id }}
+            search={{
+              q: "",
+              tab: "participants",
+              publication: "",
+              activity: "",
+              session: "",
+            }}
+          >
+            <ArrowLeft aria-hidden="true" />
+            {m.live_rooms()}
+          </Link>
+        </Button>
+        {data && (
+          <div className="live-toolbar-actions">
+            <ActionButton
+              variant="outline"
+              size="icon"
+              aria-label={m.live_refresh()}
+              pending={query.isFetching}
+              onClick={() => {
+                void query.refetch();
+                if (rosterOpen) void roster.refetch();
+              }}
+            >
+              <RefreshCw aria-hidden="true" />
+            </ActionButton>
+            {active && (
+              <ItemActions
+                name={data.title}
+                disabled={locked}
+                actions={[
+                  {
+                    label: m.live_end(),
+                    icon: Flag,
+                    destructive: true,
+                    onSelect: () => void finishEarly(),
+                  },
+                ]}
+              />
+            )}
+          </div>
+        )}
+      </div>
       {query.isPending ? (
         <ListSkeleton />
       ) : query.isError && !data ? (
@@ -327,36 +363,6 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
                 data.expired ? m.live_expired() : phaseLabel(data.state)
               }
               autoFocus={false}
-              action={
-                <div className="directory-actions">
-                  <ActionButton
-                    variant="outline"
-                    size="icon"
-                    aria-label={m.live_refresh()}
-                    pending={query.isFetching}
-                    onClick={() => {
-                      void query.refetch();
-                      if (rosterOpen) void roster.refetch();
-                    }}
-                  >
-                    <RefreshCw aria-hidden="true" />
-                  </ActionButton>
-                  {active && (
-                    <ItemActions
-                      name={data.title}
-                      disabled={locked}
-                      actions={[
-                        {
-                          label: m.live_end(),
-                          icon: Flag,
-                          destructive: true,
-                          onSelect: () => void finishEarly(),
-                        },
-                      ]}
-                    />
-                  )}
-                </div>
-              }
             />
             {query.isError && (
               <ErrorNotice
@@ -371,45 +377,64 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
                 void query.refetch();
               }}
             />
-            <dl className="live-counts">
+            <dl
+              className="live-counts"
+              data-single={
+                data.questionIndex < 0 ||
+                data.state === "finished" ||
+                data.expired
+              }
+            >
               <div>
                 <dt>{m.live_participants()}</dt>
                 <dd>{data.participants}</dd>
               </div>
-              {data.questionIndex >= 0 && (
-                <div>
-                  <dt>{m.live_answer_count()}</dt>
-                  <dd>
-                    {data.answered ?? 0} / {data.participants}
-                  </dd>
-                </div>
-              )}
+              {data.questionIndex >= 0 &&
+                data.state !== "finished" &&
+                !data.expired && (
+                  <div>
+                    <dt>{m.live_answer_count()}</dt>
+                    <dd>
+                      {data.answered ?? 0} / {data.participants}
+                    </dd>
+                  </div>
+                )}
             </dl>
             {data.state === "lobby" && primaryAction}
             {data.state === "lobby" && !data.expired && (
               <section className="live-room-share">
                 <h2>{m.live_invite()}</h2>
-                <p>
-                  {m.live_join_at({
-                    url:
-                      typeof location !== "undefined"
-                        ? location.origin + "/play"
-                        : "/play",
-                  })}
-                </p>
-                <strong className="live-room-code">
-                  {data.code.slice(0, 5)} {data.code.slice(5)}
-                </strong>
-                {qr && (
-                  <img className="learning-qr" src={qr} alt={m.live_qr_alt()} />
-                )}
-                <CopyLink
-                  value={
-                    typeof location !== "undefined"
-                      ? `${location.origin}/play/${data.code}`
-                      : ""
-                  }
-                />
+                <div className="live-share-content">
+                  <div className="live-share-instructions">
+                    <p>
+                      {m.live_join_at({
+                        url:
+                          typeof location !== "undefined"
+                            ? location.origin + "/play"
+                            : "/play",
+                      })}
+                    </p>
+                    <strong className="live-room-code">
+                      <span>{data.code.slice(0, 5)}</span>
+                      <span>{data.code.slice(5)}</span>
+                    </strong>
+                    <CopyLink
+                      compact
+                      value={
+                        typeof location !== "undefined"
+                          ? `${location.origin}/play/${data.code}`
+                          : ""
+                      }
+                    />
+                  </div>
+                  {qr && (
+                    <img
+                      className="learning-qr"
+                      src={qr}
+                      alt={m.live_qr_alt()}
+                    />
+                  )}
+                </div>
                 <details className="session-help">
                   <summary>{m.live_room_details()}</summary>
                   <p className="activity-note">{m.live_room_rules()}</p>
@@ -427,8 +452,8 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
               </section>
             )}
 
-            {data.question && (
-              <section className="participant-section">
+            {data.question && data.state !== "finished" && !data.expired && (
+              <section className="participant-section live-host-section">
                 <p className="activity-note">
                   {m.learn_progress({
                     current: String(data.questionIndex + 1),
@@ -465,7 +490,7 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
             )}
             {data.state !== "lobby" && primaryAction}
             {(data.state === "finished" || data.expired) && (
-              <section className="participant-section">
+              <section className="participant-section live-host-section">
                 <h2>{m.live_group_summary()}</h2>
                 {!data.played ? (
                   <p>{m.live_no_questions()}</p>
@@ -521,12 +546,12 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
                     <DirectoryList label={m.live_participants()}>
                       {players.map((player) => (
                         <DirectoryItem key={player.id}>
-                          <span className="directory-record-copy">
-                            <strong>
-                              {playerName(player.nickname, player.number)}
-                            </strong>
-                            {player.revoked && <span>{m.live_removed()}</span>}
-                          </span>
+                          <DirectoryRecord
+                            name={playerName(player.nickname, player.number)}
+                            detail={
+                              player.revoked ? m.live_removed() : undefined
+                            }
+                          />
                           {active && !player.revoked && (
                             <ItemActions
                               name={playerName(player.nickname, player.number)}

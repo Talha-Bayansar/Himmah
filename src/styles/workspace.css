@@ -2691,15 +2691,15 @@ button[data-slot="button"].people-section-add {
 @media(min-width:768px) { .learning-stepper { scroll-margin-block: calc(124px + var(--space-6) + env(safe-area-inset-top)); } }
 
 /* Live hosting keeps operational controls; invitees share the playful quiz shell. */
-.live-room-share { display: grid; gap: var(--space-3); padding: var(--space-6); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--card); overflow-wrap: anywhere; }
+.live-room-share { display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--card); overflow-wrap: anywhere; }
 .live-room-share h2, .live-room-share p { margin: 0; }
-.live-room-code { font-size: clamp(28px,6vw,40px); letter-spacing: .06em; font-variant-numeric: tabular-nums; text-align: center; color: var(--primary); }
+.live-room-code { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); font-size: clamp(28px,6vw,40px); letter-spacing: .06em; font-variant-numeric: tabular-nums; text-align: center; color: var(--primary); }
 .live-counts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); margin: 0; }
 .live-counts > div { min-width: 0; border-top: 1px solid var(--border); padding-top: var(--space-3); }
 .live-counts dt { color: var(--muted-foreground); font-size: var(--text-supporting); }
 .live-counts dd { font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; margin: var(--space-1) 0 0; }
 .live-host .live-primary { justify-self: stretch; min-height: 48px; white-space: normal; }
-.live-phase, .live-answer-feedback { display: flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+.live-phase, .live-answer-feedback { display: flex; align-items: start; gap: var(--space-2); font-weight: 600; }
 .live-phase svg, .live-answer-feedback svg { flex-shrink: 0; }
 .live-waiting { display: grid; justify-items: center; text-align: center; gap: var(--space-4); }
 .live-waiting h2, .live-waiting p { margin: 0; }
@@ -2715,7 +2715,21 @@ button[data-slot="button"].people-section-add {
 .live-progress::-webkit-progress-value { background: var(--primary); }
 .live-progress::-moz-progress-bar { background: var(--primary); }
 .live-player-stage { scroll-margin-top: calc(96px + env(safe-area-inset-top)); }
-.live-host .directory-heading > .directory-actions { flex-wrap: nowrap; flex-shrink: 0; }
-.live-host .directory-heading > .directory-actions > [data-slot="button"] { flex: none; width: 48px; min-width: 48px; }
+/* Keep utility actions out of the title's reading column. */
+.live-page-toolbar { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: var(--space-3); }
+.live-page-toolbar .settings-back, .live-directory > .settings-back { margin: 0; padding-inline: 0; justify-self: start; justify-content: start; min-width: 0; max-width: 100%; white-space: normal; text-align: start; }
+.live-toolbar-actions { display: flex; gap: var(--space-2); }
+.live-toolbar-actions > [data-slot="button"] { flex: none; width: 48px; min-width: 48px; height: 48px; }
+.live-room-meta { display: grid; gap: var(--space-1); }
+.live-share-content, .live-share-instructions { display: grid; gap: var(--space-4); min-width: 0; align-content: center; }
+.live-room-share .learning-qr { width: 180px; max-width: 100%; height: auto; justify-self: center; margin: 0; }
+.learning-share-link[data-compact="true"] { justify-content: center; }
+.live-counts[data-single="true"] { grid-template-columns: minmax(0,1fr); }
+.live-host .live-host-section { gap: var(--space-4); }
+.live-host > .session-help > .directory-toolbar { margin-top: var(--space-4); }
+.live-player-stage > [data-slot="button"] { justify-self: start; max-width: 100%; white-space: normal; text-align: start; }
+@media(min-width:600px) {
+  .live-share-content { grid-template-columns: minmax(0,1fr) 180px; align-items: center; }
+}
 .live-room-share .session-help { margin: 0; }
 .live-room-share .session-help p { margin-top: var(--space-3); }
