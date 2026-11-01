@@ -914,3 +914,5 @@ Deployment verified: implementation `41b34c8` pushed to `rebuild/people-foundati
 ## 1 November 2026 — consistent learning Back controls
 
 Added the shared Lucide ArrowLeft icon to the quiz wizard's page Back control and Previous-step button. Fixed the same missing icon on learning assignment and participant review Back controls. Existing link/outline variants, spacing, accessible labels, navigation, draft guards and disabled states remain unchanged. Validation: strict typecheck, all 17 focused learning/app-launch UI cases, production build, documentation links and diff check passed. No schema or API change; no new browser/device coverage claimed for this icon-only refinement.
+
+Deployment verified: implementation `c1e1796` pushed to `rebuild/people-foundation`; himmah-hub version `bf5718f4-8584-4a2e-a19a-e30cc3ba1e75` at 100%. Dedicated bindings, People enabled, maintenance false and minute cron retained.
