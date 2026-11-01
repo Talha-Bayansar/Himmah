@@ -79,6 +79,23 @@ export type PublicLearning = {
     released: boolean;
   };
 };
+/** One explicit contact assignment to an immutable publication. */
+export type ContactLearningEntry = {
+  id: string;
+  learningId: string;
+  publicationId: string;
+  publicationNumber: number;
+  title: string;
+  createdAt: string;
+  status: "invited" | "started" | "submitted";
+  revoked: boolean;
+  released: boolean;
+  attempts: number;
+  score: number | null;
+  questionCount: number;
+  submittedSequence: number | null;
+  submittedAt: string | null;
+};
 export const freshContent = (): Content => ({
   title: "",
   description: "",

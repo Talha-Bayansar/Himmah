@@ -49,6 +49,9 @@ export function LearningScope({
         };
         void cache.cancelQueries(filter);
         cache.removeQueries(filter);
+        const history = { queryKey: ["people", user, org.id, "learning"] };
+        void cache.cancelQueries(history);
+        cache.removeQueries(history);
       }
       throw e;
     }
@@ -93,7 +96,7 @@ export function useLearningPages<T extends { id: string }>(path: string) {
   };
 }
 export function useLearningCommand(id: string) {
-  const { base, api, prefix } = useLearning(),
+  const { base, api, prefix, org, user } = useLearning(),
     cache = useQueryClient();
   const mutation = useMutation({
     mutationFn: (body: Record<string, unknown>) =>
@@ -101,7 +104,14 @@ export function useLearningCommand(id: string) {
         `${base}/${id}`,
         { method: "POST", body: JSON.stringify(body) },
       ),
-    onSuccess: () => cache.invalidateQueries({ queryKey: prefix }),
+    onSuccess: async () => {
+      await Promise.all([
+        cache.invalidateQueries({ queryKey: prefix }),
+        cache.invalidateQueries({
+          queryKey: ["people", user, org.id, "learning"],
+        }),
+      ]);
+    },
   });
   const uncertain =
     mutation.isError &&

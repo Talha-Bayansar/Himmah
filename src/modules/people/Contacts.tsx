@@ -1,3 +1,4 @@
+import { ContactLearning } from "../../learning/ContactLearning";
 import { FormSurface } from "../../components/shared/form-surface";
 import {
   DirectoryHeader,
@@ -531,6 +532,16 @@ function ContactDetail({
           user={user}
           contact={contact}
           full={view === "relationships"}
+          filters={filters}
+          onFiltersChange={onFiltersChange}
+        />
+      )}
+      {(!view || view === "learning") && (
+        <ContactLearning
+          org={org}
+          user={user}
+          contact={contact}
+          full={view === "learning"}
           filters={filters}
           onFiltersChange={onFiltersChange}
         />

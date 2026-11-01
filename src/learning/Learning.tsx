@@ -660,14 +660,43 @@ function Participants({
     confirm = useConfirmation();
   const raw = useRouterState({
       select: (s) =>
-        s.location.search as { publication?: string; tab?: string; q?: string },
+        s.location.search as {
+          publication?: string;
+          tab?: string;
+          q?: string;
+          recipient?: string;
+          activity?: string;
+          session?: string;
+        },
     }),
     q = raw.q ?? "",
     pub = detail.publication!;
   const query = useLearningPages<Recipient>(
     `${base}/${detail.item.id}/${results ? "results" : "participants"}?publication=${pub.id}&q=${encodeURIComponent(q)}`,
   );
-  const [recipient, setRecipient] = useState<string | null>(null);
+  const [recipient, setRecipient] = useState<string | null>(
+    raw.recipient ?? null,
+  );
+  useEffect(() => {
+    setRecipient(raw.recipient ?? null);
+  }, [raw.recipient]);
+  const closeResult = () => {
+    setRecipient(null);
+    if (raw.recipient)
+      void navigate({
+        to: "/workspace/$organizationId/learning/$learningId",
+        params: { organizationId: org.id, learningId: detail.item.id },
+        search: {
+          q,
+          publication: pub.id,
+          tab: results ? "results" : "participants",
+          activity: raw.activity ?? "",
+          session: raw.session ?? "",
+        },
+        replace: true,
+        resetScroll: false,
+      });
+  };
   const action = async (r: Recipient, kind: "allow" | "revoke") => {
     if (
       !(await confirm({
@@ -802,7 +831,7 @@ function Participants({
         <ParticipantResult
           item={detail.item.id}
           recipient={recipient}
-          onClose={() => setRecipient(null)}
+          onClose={closeResult}
         />
       )}
     </>

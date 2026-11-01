@@ -51,17 +51,30 @@ export async function learningApi(
   store: LearningStore,
 ) {
   const url = new URL(request.url),
+    history = url.pathname.match(
+      /^\/api\/organizations\/([0-9a-f-]{36})\/learning\/contacts\/([0-9a-f-]{36})$/i,
+    ),
     m = url.pathname.match(
       /^\/api\/organizations\/([0-9a-f-]{36})\/learning(?:\/([0-9a-f-]{36}|options))?(?:\/(participants|results)(?:\/([0-9a-f-]{36}))?)?$/i,
     );
-  if (!m) return null;
+  if (!m && !history) return null;
   try {
-    const org = uuid(m[1]);
+    const org = uuid((history ?? m)![1]);
     if (!user.emailVerified) throw new CommunityError("verify_required", 403);
     const membership = await organizations.get(user.id, org);
     if (!membership) throw new CommunityError("not_found", 404);
     if (!["owner", "admin"].includes(membership.role))
       throw new CommunityError("forbidden", 403);
+    if (history) {
+      if (request.method !== "GET") throw new CommunityError("not_found", 404);
+      const contact = uuid(history[2]),
+        p = pageInput(url, `${user.id}:${org}/learning/contacts/${contact}`);
+      if (p.archived || p.groupId) throw new CommunityError("invalid_input");
+      const data = await store.contactHistory(user.id, org, contact, p);
+      if (!data) throw new CommunityError("not_found", 404);
+      return response({ ...pageResult(data.items, p), total: data.total });
+    }
+    if (!m) return null;
     const id = m[2] && m[2] !== "options" ? uuid(m[2]) : null;
     if (request.method === "GET") {
       const scope =

@@ -744,3 +744,31 @@ it("celebrates submission for every score and never displays a held score", asyn
   expect(screen.queryByRole("button", { name: "Refresh results" })).toBeNull();
   expect(screen.queryByText(/passed|failed/i)).toBeNull();
 });
+
+it("opens a bookmarked contact-history result for its selected publication and removes the recipient parameter when closed", async () => {
+  backend();
+  const { router } = mountStaff();
+  await screen.findByRole("heading", { name: "Patience", level: 1 });
+  await router.navigate({
+    to: "/workspace/$organizationId/learning/$learningId",
+    params: { organizationId: org.id, learningId: id },
+    search: {
+      publication: pub,
+      recipient: "55555555-5555-4555-8555-555555555555",
+      tab: "results",
+      q: "",
+      activity: "",
+      session: "",
+    },
+  });
+  const sheet = await screen.findByRole("dialog");
+  expect(await within(sheet).findByText("Attempt 1 · 2/2")).toBeTruthy();
+  await userEvent.click(within(sheet).getByRole("button", { name: "Close" }));
+  await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  expect(
+    new URLSearchParams(router.state.location.searchStr).get("recipient"),
+  ).toBeNull();
+  expect(
+    new URLSearchParams(router.state.location.searchStr).get("publication"),
+  ).toBe(pub);
+});

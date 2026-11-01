@@ -68,6 +68,8 @@ function backend(
   const fetcher = vi.fn(
     async (input: RequestInfo | URL, init?: RequestInit) => {
       const u = new URL(String(input), "https://himmah.test");
+      if (u.pathname.includes("/learning/contacts/"))
+        return Response.json({ items: [], total: 0, nextCursor: null });
       const custom = handler?.(u, init);
       if (custom) return custom;
       if (init?.method && init.method !== "GET") return Response.json({ id });

@@ -2534,6 +2534,15 @@ button[data-slot="button"].people-section-add {
 .learning-question-preview { padding-left: 24px; margin-block: var(--space-4); }
 .learning-question-preview > li { padding-block: var(--space-3); border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
 .learning-question-preview p, .learning-question-preview ul { color: var(--muted-foreground); margin-top: var(--space-2); }
+/* Contact learning history shares the compact linked directory row. */
+.contact-learning .directory-item-link { align-items: start; }
+.contact-learning-icon { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: var(--radius-control); background: var(--secondary); color: var(--primary); }
+.contact-learning-copy { display: grid; gap: var(--space-1); min-width: 0; flex: 1; overflow-wrap: anywhere; }
+.contact-learning-copy > strong { font-size: 16px; font-weight: 650; }
+.contact-learning-copy > span { font-size: var(--text-supporting); color: var(--muted-foreground); }
+.contact-learning-status { display: flex; align-items: center; gap: var(--space-1); }
+.contact-learning-status svg { flex-shrink: 0; }
+.contact-learning .directory-item-link > svg { flex-shrink: 0; margin-top: var(--space-3); }
 /* Participant quiz: playful learning within the shared reading column and tokens. */
 .learning-public { min-height: 100dvh; background: radial-gradient(ellipse at 50% 0,var(--secondary),transparent 480px),var(--background); color: var(--foreground); }
 .learning-public-header { position: sticky; top: 0; z-index: 20; background: var(--background); border-bottom: 1px solid var(--border); padding-top: env(safe-area-inset-top); }

@@ -98,6 +98,38 @@ export function createLearningStore(
       rows(
         sql`select r.id,r.name,r.contact_id as "contactId",v.content->'questions' as questions,coalesce((select jsonb_agg(jsonb_build_object('id',a.id,'sequence',a.sequence,'answers',a.answers,'score',a.score,'submittedAt',a.submitted_at) order by a.sequence desc) from hub_learning_attempts a where a.organization_id=r.organization_id and a.recipient_id=r.id),'[]') as attempts from hub_learning_recipients r join hub_learning_versions v on v.organization_id=r.organization_id and v.id=r.publication_id where r.organization_id=${org}::uuid and r.id=${recipient}::uuid and v.item_id=${id}::uuid and hub_learning_admin(${actor},${org}::uuid)`,
       ),
+    contactHistory: async (
+      actor: string,
+      org: string,
+      contact: string,
+      p: PageInput,
+    ) => {
+      const allowed = await rows(
+        sql`select c.id from himmah.contacts c where c.organization_id=${org}::uuid and c.id=${contact}::uuid and hub_learning_admin(${actor},${org}::uuid)`,
+      );
+      if (!allowed[0]) return null;
+      // Filter contact and immutable title before bounded attempt lookups. No guest matching.
+      const page = await rows(sql`with entries as materialized (
+        select r.id,r.publication_id as "publicationId",r.revoked,r.created_at as "createdAt",
+          v.item_id as "learningId",v.number as "publicationNumber",v.content->>'title' as title,
+          v.released,jsonb_array_length(v.content->'questions') as "questionCount"
+        from hub_learning_recipients r join hub_learning_versions v on v.organization_id=r.organization_id and v.id=r.publication_id
+        where r.organization_id=${org}::uuid and r.contact_id=${contact}::uuid and hub_learning_admin(${actor},${org}::uuid)
+          and v.content->>'title' ilike ${pattern(p.query)}
+      ), page as (
+        select e.*,coalesce(a.sequence,0) as attempts,
+          case when a.id is null then 'invited' when a.submitted_at is null then 'started' else 'submitted' end as status,
+          last.score,last.sequence as "submittedSequence",last.submitted_at as "submittedAt"
+        from entries e
+        left join lateral(select id,sequence,submitted_at from hub_learning_attempts where organization_id=${org}::uuid and recipient_id=e.id order by sequence desc limit 1)a on true
+        left join lateral(select score,sequence,submitted_at from hub_learning_attempts where organization_id=${org}::uuid and recipient_id=e.id and submitted_at is not null order by sequence desc limit 1)last on true
+        where true ${after(p, sql`e."createdAt"`, sql`e.id`)} order by e."createdAt" desc,e.id desc limit ${p.limit + 1}
+      ) select (select count(*)::int from entries) as total,coalesce(jsonb_agg(to_jsonb(page) order by "createdAt" desc,id desc),'[]'::jsonb) as items from page`);
+      return page[0] as {
+        total: number;
+        items: { id: string; createdAt: string }[];
+      };
+    },
     options: (actor: string, org: string, p: PageInput, kind: string) => {
       if (kind === "contacts")
         return rows(

@@ -3,6 +3,9 @@ export const Route = createFileRoute(
   "/workspace/$organizationId/learning/$learningId",
 )({
   validateSearch: (s: Record<string, unknown>) => ({
+    ...(typeof s.recipient === "string" && /^[0-9a-f-]{36}$/i.test(s.recipient)
+      ? { recipient: s.recipient }
+      : {}),
     q: typeof s.q === "string" ? s.q.slice(0, 80) : "",
     tab: ["questions", "results"].includes(String(s.tab))
       ? String(s.tab)

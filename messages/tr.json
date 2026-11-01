@@ -1036,5 +1036,16 @@
   "learn_quiz_label": "Bilgi yarışmanız",
   "learn_quiz_invitation": "Merakınızı yanınıza alın. Yeni bir şey keşfedelim.",
   "learn_quiz_complete": "Quiz tamamlandı!",
-  "learn_quiz_finish_note": "Her soru, öğrenmek için yeni bir fırsat."
+  "learn_quiz_finish_note": "Her soru, öğrenmek için yeni bir fırsat.",
+  "learn_contact_history": "Öğrenme geçmişi",
+  "learn_contact_view_all": "Tüm öğrenme geçmişini gör",
+  "learn_contact_search": "Atanan quizlerde ara",
+  "learn_contact_empty": "Bu kişiye henüz bir quiz atanmadı.",
+  "learn_contact_no_matches": "Aramanızla eşleşen atanmış quiz bulunamadı.",
+  "learn_contact_last_result": "Son sonuç: {score}/{total} · Deneme {attempt}",
+  "learn_contact_assigned": "Atanma tarihi: {date}",
+  "learn_contact_revoked": "Bağlantı iptal edildi",
+  "learn_contact_held": "Sonuç henüz paylaşılmadı",
+  "learn_contact_identity_note": "Burada yalnızca kişiye açıkça atanan quizler görünür. Misafir adları kişi kayıtlarıyla eşleştirilmez.",
+  "learn_contact_about": "Bu geçmiş hakkında"
 }

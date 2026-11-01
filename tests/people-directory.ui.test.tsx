@@ -159,6 +159,8 @@ function backend(
   const fetcher = vi.fn(
     async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = new URL(String(input), "https://himmah.test");
+      if (url.pathname.includes("/learning/contacts/"))
+        return Response.json({ items: [], total: 0, nextCursor: null });
       const custom = await handler?.(url, init);
       if (custom) return custom;
       if (url.pathname === "/api/organizations")

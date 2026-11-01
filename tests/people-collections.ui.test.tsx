@@ -125,6 +125,8 @@ function backend(handler?: (url: URL) => Response | undefined) {
       return Response.json({ items: [], total: 0, nextCursor: null });
     if (url.pathname.endsWith("/context"))
       return Response.json({ id: org, name: "Community" });
+    if (url.pathname.includes("/learning/contacts/"))
+      return Response.json({ items: [], total: 0, nextCursor: null });
     if (url.pathname.endsWith("/contacts/" + id)) return Response.json(contact);
     const kind = url.pathname.split("/").at(-1),
       q = url.searchParams.get("q") ?? "",
@@ -367,4 +369,121 @@ it("keeps spaces while typing a bookmarked search and reports the filtered count
   await screen.findByText("Total: 10");
   expect((input as HTMLInputElement).value).toBe("Group 0");
   expect(screen.queryByRole("link", { name: "Group 10" })).toBeNull();
+});
+
+const learningEntries = Array.from({ length: 52 }, (_, n) => ({
+  id: uuid(n + 500),
+  learningId: uuid(n + 600),
+  publicationId: uuid(n + 700),
+  publicationNumber: 1,
+  title: `Quiz ${String(n).padStart(2, "0")}`,
+  createdAt,
+  status: n === 0 ? "started" : n === 1 ? "submitted" : "invited",
+  attempts: n === 0 ? 2 : n === 1 ? 1 : 0,
+  score: n < 2 ? 0 : null,
+  questionCount: 3,
+  submittedAt: n < 2 ? createdAt : null,
+  submittedSequence: n < 2 ? 1 : null,
+  revoked: n === 1,
+  released: false,
+}));
+function learningBackend() {
+  let failNext = false,
+    denied = false;
+  const fetcher = backend((url) => {
+    if (!url.pathname.includes("/learning/contacts/")) return;
+    if (denied) return Response.json({ code: "forbidden" }, { status: 403 });
+    if (failNext && url.searchParams.has("cursor")) {
+      failNext = false;
+      return Response.json({ code: "service" }, { status: 503 });
+    }
+    const q = url.searchParams.get("q") ?? "",
+      rows = learningEntries.filter((r) =>
+        r.title.toLowerCase().includes(q.toLowerCase()),
+      ),
+      offset = Number(url.searchParams.get("cursor") ?? 0),
+      limit = Number(url.searchParams.get("limit") ?? 25);
+    return Response.json({
+      items: rows.slice(offset, offset + limit),
+      total: rows.length,
+      nextCursor: offset + limit < rows.length ? String(offset + limit) : null,
+    });
+  });
+  return {
+    fetcher,
+    fail: () => {
+      failNext = true;
+    },
+    deny: () => {
+      denied = true;
+    },
+  };
+}
+it("bounds contact learning preview, opens its own full history and retains the prior submitted score during another attempt", async () => {
+  learningBackend();
+  const { router } = mount();
+  const user = userEvent.setup();
+  const section = await screen.findByRole("region", {
+    name: "Learning history",
+  });
+  await within(section).findByText("Quiz 02");
+  expect(within(section).getAllByRole("link").length).toBe(4);
+  expect(within(section).queryByText("Quiz 03")).toBeNull();
+  expect(within(section).getByLabelText("Total: 52")).toBeTruthy();
+  const first = within(section).getByRole("link", { name: /Quiz 00/ });
+  expect(first.getAttribute("href")).toContain("recipient=");
+  expect(first.getAttribute("href")).toContain("publication=");
+  expect(within(first).getByText("Started")).toBeTruthy();
+  expect(within(first).getByText(/Last result: 0\/3 · Attempt 1/)).toBeTruthy();
+  await user.click(
+    within(section).getByRole("link", { name: "View all learning" }),
+  );
+  await screen.findByRole("heading", { name: "Learning history", level: 1 });
+  await screen.findByText("Quiz 24");
+  expect(screen.queryByText("Quiz 25")).toBeNull();
+  await user.click(screen.getByRole("button", { name: "Load more" }));
+  await screen.findByText("Quiz 49");
+  await user.click(screen.getByRole("link", { name: "Ali" }));
+  await screen.findByRole("heading", { name: "Ali", level: 1 });
+  await screen.findByText("Quiz 02");
+  expect(screen.queryByText("Quiz 03")).toBeNull();
+  expect(router.state.location.pathname).toBe(
+    `/workspace/${org}/people/contacts/${id}`,
+  );
+});
+it("reloads a bookmarked learning search, retries failed pages, and clears history on permission loss", async () => {
+  const b = learningBackend();
+  const { router, client } = mount("/learning?q=Quiz");
+  const user = userEvent.setup();
+  await screen.findByRole("heading", { name: "Learning history", level: 1 });
+  await screen.findByText("Quiz 24");
+  b.fail();
+  await user.click(screen.getByRole("button", { name: "Load more" }));
+  await screen.findByRole("alert");
+  expect(screen.getByText("Quiz 00")).toBeTruthy();
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  await screen.findByText("Quiz 49");
+  const input = screen.getByRole("searchbox", {
+    name: "Search assigned quizzes",
+  });
+  await user.clear(input);
+  await user.type(input, "Quiz 51");
+  await waitFor(() => expect(router.state.location.search.q).toBe("Quiz 51"));
+  await screen.findByText("Total: 1");
+  await screen.findByText("Quiz 51");
+  expect(screen.queryByText("Quiz 00")).toBeNull();
+  b.deny();
+  await client.invalidateQueries({
+    queryKey: ["people", "owner", org, "learning"],
+  });
+  await screen.findByRole("alert");
+  await waitFor(() => expect(screen.queryByText("Quiz 51")).toBeNull());
+  await waitFor(() =>
+    expect(
+      client
+        .getQueryCache()
+        .findAll({ queryKey: ["people", "owner", org, "learning"] })
+        .every((query) => query.state.data === undefined),
+    ).toBe(true),
+  );
 });

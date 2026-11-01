@@ -90,3 +90,70 @@ test("real Worker exchanges fragment credentials for scoped HttpOnly cookies wit
     await mf.dispose();
   }
 });
+
+test("real Worker protects contact learning history with staff auth, verification, membership and feature gates", async () => {
+  const origin = "https://himmah.example",
+    org = "11111111-1111-4111-8111-111111111111",
+    contact = "22222222-2222-4222-8222-222222222222";
+  const output = await build({
+    stdin: {
+      contents: `import {createHandler} from './src/server/worker.ts';
+    const handler=createHandler({fetch:async(url,init)=>{const id=init.headers.get('cookie').split('=')[1];return Response.json({user:{id,emailVerified:id!=='unverified'}})},store:()=>({get:async(actor,tenant)=>tenant==='${org}'&&actor!=='foreign'?{role:actor==='volunteer'?'volunteer':'owner'}:null}),learning:()=>({contactHistory:async(actor,tenant,person,p)=>person==='${contact}'?{items:[],total:0}:null})});
+    export default {fetch(request){const u=new URL(request.url);return handler(request,{HIMMAH_APP_ORIGIN:'${origin}',HIMMAH_AUTH_URL:'https://auth.invalid/auth',HIMMAH_DATABASE_URL:'isolated-test',HIMMAH_PEOPLE_ENABLED:u.searchParams.get('disabled')?'false':'true',ONBOARDING_LIMITER:{limit:async()=>({success:true})},ASSETS:{fetch:async()=>new Response('',{status:404})}})}};`,
+      resolveDir: process.cwd(),
+    },
+    bundle: true,
+    write: false,
+    format: "esm",
+    platform: "browser",
+    target: "es2023",
+    external: ["node:*"],
+  });
+  const mf = new Miniflare(
+    await convertV4MiniflareOptions({
+      workers: [
+        {
+          name: "learning-history-fixture",
+          modules: true,
+          script: output.outputFiles[0].text,
+          compatibilityDate: "2026-10-18",
+          compatibilityFlags: ["nodejs_compat"],
+        },
+      ],
+    }),
+  );
+  try {
+    const url = `${origin}/api/organizations/${org}/learning/contacts/${contact}`;
+    assert.equal((await mf.dispatchFetch(url)).status, 401);
+    for (const [actor, status] of [
+      ["owner", 200],
+      ["volunteer", 403],
+      ["foreign", 404],
+      ["unverified", 403],
+    ]) {
+      const response = await mf.dispatchFetch(url, {
+        headers: { Cookie: `session=${actor}` },
+      });
+      assert.equal(response.status, status);
+      assert.equal(response.headers.get("cache-control"), "no-store");
+    }
+    assert.equal(
+      (
+        await mf.dispatchFetch(url + "?disabled=1", {
+          headers: { Cookie: "session=owner" },
+        })
+      ).status,
+      503,
+    );
+    assert.equal(
+      (
+        await mf.dispatchFetch(url + "?limit=51", {
+          headers: { Cookie: "session=owner" },
+        })
+      ).status,
+      400,
+    );
+  } finally {
+    await mf.dispose();
+  }
+});

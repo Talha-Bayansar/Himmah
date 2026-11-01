@@ -9,6 +9,7 @@ export const contactViews = [
   "relationships",
   "history",
   "communication",
+  "learning",
 ] as const;
 export type ContactView = (typeof contactViews)[number];
 export type ContactFilters = { q: string; history: boolean };
@@ -19,6 +20,7 @@ export const collectionTitle = (view: ContactView) =>
     relationships: m.people_relationships,
     history: m.people_history,
     communication: m.people_communication,
+    learning: m.learn_contact_history,
   })[view]();
 export function CollectionCount({
   total,
@@ -56,6 +58,7 @@ export function ViewAll({
     relationships: m.people_view_all_relationships,
     history: m.people_view_all_history,
     communication: m.people_view_all_communication,
+    learning: m.learn_contact_view_all,
   }[view]();
   return (
     <Button variant="link" className="px-0" asChild>

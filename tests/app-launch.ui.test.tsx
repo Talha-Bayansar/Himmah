@@ -38,6 +38,8 @@ function backend(role = "owner") {
   const fetcher = vi.fn(async (input: RequestInfo | URL) => {
     const url = new URL(String(input), "https://himmah.test"),
       o = { ...org, role };
+    if (url.pathname.includes("/learning/contacts/"))
+      return Response.json({ items: [], total: 0, nextCursor: null });
     if (url.pathname === "/api/account")
       return Response.json({
         user: {

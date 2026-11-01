@@ -1036,5 +1036,16 @@
   "learn_quiz_label": "Jouw quiz",
   "learn_quiz_invitation": "Neem je nieuwsgierigheid mee. Ontdek iets nieuws.",
   "learn_quiz_complete": "Quiz voltooid!",
-  "learn_quiz_finish_note": "Elke vraag is een kans om te leren."
+  "learn_quiz_finish_note": "Elke vraag is een kans om te leren.",
+  "learn_contact_history": "Leergeschiedenis",
+  "learn_contact_view_all": "Alle leeractiviteiten bekijken",
+  "learn_contact_search": "Zoek toegewezen quizzen",
+  "learn_contact_empty": "Aan dit contact zijn nog geen quizzen toegewezen.",
+  "learn_contact_no_matches": "Geen toegewezen quizzen gevonden voor deze zoekopdracht.",
+  "learn_contact_last_result": "Laatste resultaat: {score}/{total} · Poging {attempt}",
+  "learn_contact_assigned": "Toegewezen op {date}",
+  "learn_contact_revoked": "Link ingetrokken",
+  "learn_contact_held": "Resultaat nog niet gedeeld",
+  "learn_contact_identity_note": "Hier staan alleen expliciete contacttoewijzingen. Weergavenamen van gasten worden niet gekoppeld aan contacten.",
+  "learn_contact_about": "Over deze geschiedenis"
 }

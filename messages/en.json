@@ -1036,5 +1036,16 @@
   "learn_quiz_label": "Your quiz",
   "learn_quiz_invitation": "Bring your curiosity. Let’s learn something new.",
   "learn_quiz_complete": "Quiz complete!",
-  "learn_quiz_finish_note": "Every question is a chance to learn."
+  "learn_quiz_finish_note": "Every question is a chance to learn.",
+  "learn_contact_history": "Learning history",
+  "learn_contact_view_all": "View all learning",
+  "learn_contact_search": "Search assigned quizzes",
+  "learn_contact_empty": "No quizzes have been assigned to this contact.",
+  "learn_contact_no_matches": "No assigned quizzes match your search.",
+  "learn_contact_last_result": "Last result: {score}/{total} · Attempt {attempt}",
+  "learn_contact_assigned": "Assigned {date}",
+  "learn_contact_revoked": "Link revoked",
+  "learn_contact_held": "Result not yet shared",
+  "learn_contact_identity_note": "Only explicit contact assignments appear here. Guest display names are not matched to contacts.",
+  "learn_contact_about": "About this history"
 }
