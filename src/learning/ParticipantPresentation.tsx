@@ -3,7 +3,7 @@ import { Compass, Flag, Sparkles, CheckCircle2 } from "lucide-react";
 import type { PublicLearning } from "./contracts";
 import { m } from "../paraglide/messages.js";
 
-function QuizArtwork({ finish = false }: { finish?: boolean }) {
+export function QuizArtwork({ finish = false }: { finish?: boolean }) {
   const Icon = finish ? Flag : Compass;
   return (
     <div className="quiz-artwork" data-finish={finish} aria-hidden="true">

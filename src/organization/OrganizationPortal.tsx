@@ -113,7 +113,7 @@ export default function OrganizationPortal({
   workspaceSection?: WorkspaceSection;
   accountSettings?: boolean;
   learningId?: string;
-  learningMode?: "view" | "edit" | "assign";
+  learningMode?: "view" | "edit" | "assign" | "live";
   activityId?: string | null;
   sessionId?: string | null;
   attendance?: boolean;

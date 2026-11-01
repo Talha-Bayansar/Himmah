@@ -1,3 +1,5 @@
+import { livePublicApi, liveStaffApi, liveRateKey } from "./live-api.ts";
+import { createLiveStore } from "./live-store.ts";
 import {
   learningApi,
   learningPublicApi,
@@ -57,6 +59,12 @@ export interface Env {
   HIMMAH_VAPID_PRIVATE_KEY?: string;
   HIMMAH_AUTH_URL: string;
   HIMMAH_APP_ORIGIN: string;
+  LIVE_JOIN_LIMITER?: {
+    limit(options: { key: string }): Promise<{ success: boolean }>;
+  };
+  LIVE_IP_LIMITER?: {
+    limit(options: { key: string }): Promise<{ success: boolean }>;
+  };
   DIRECTORY_LIMITER?: {
     limit(options: { key: string }): Promise<{ success: boolean }>;
   };
@@ -71,6 +79,7 @@ interface Identity {
   emailVerified: boolean;
 }
 type Dependencies = {
+  live?: (url: string) => ReturnType<typeof createLiveStore>;
   learning?: (url: string) => ReturnType<typeof createLearningStore>;
   fetch: typeof fetch;
   store: (url: string) => OrganizationStore;
@@ -240,6 +249,44 @@ export function createHandler(
           headers: responseHeaders,
         });
       }
+      if (url.pathname.startsWith("/api/live/rooms/")) {
+        if (env.HIMMAH_PEOPLE_ENABLED !== "true" || !env.HIMMAH_DATABASE_URL)
+          return json({ code: "people_unavailable" }, 503);
+        const join = url.pathname.endsWith("/join"),
+          ipKey = await liveRateKey(request, true);
+        if (
+          !(
+            await (
+              env.LIVE_IP_LIMITER ??
+              env.DIRECTORY_LIMITER ??
+              env.ONBOARDING_LIMITER
+            ).limit({ key: `live-ip:${ipKey}` })
+          ).success
+        )
+          return json({ code: "rate_limit" }, 429);
+        const hasCredential = request.headers
+          .get("cookie")
+          ?.split(";")
+          .some((c) => c.trim().startsWith("hl_live="));
+        if (join || hasCredential) {
+          const allowed = await (
+            join
+              ? (env.LIVE_JOIN_LIMITER ??
+                env.DIRECTORY_LIMITER ??
+                env.ONBOARDING_LIMITER)
+              : (env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER)
+          ).limit({
+            key: `live-public:${join ? "join" : request.method}:${await liveRateKey(request, join)}`,
+          });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        return (
+          (await livePublicApi(
+            request,
+            (deps.live ?? createLiveStore)(env.HIMMAH_DATABASE_URL),
+          )) ?? json({ code: "not_found" }, 404)
+        );
+      }
       if (url.pathname.startsWith("/api/learning/public/")) {
         if (env.HIMMAH_PEOPLE_ENABLED !== "true" || !env.HIMMAH_DATABASE_URL)
           return json({ code: "people_unavailable" }, 503);
@@ -276,6 +323,15 @@ export function createHandler(
           env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
         ).limit({ key: `learning-staff:${user.id}` });
         if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        if (/\/live(?:\/|$)/.test(url.pathname))
+          return (
+            (await liveStaffApi(
+              request,
+              user,
+              deps.store(env.HIMMAH_DATABASE_URL),
+              (deps.live ?? createLiveStore)(env.HIMMAH_DATABASE_URL),
+            )) ?? json({ code: "not_found" }, 404)
+          );
         const response = await learningApi(
           request,
           user,

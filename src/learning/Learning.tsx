@@ -1,3 +1,4 @@
+import LiveHost from "../live/LiveHost";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
@@ -72,7 +73,7 @@ export default function Learning({
   organization: Organization;
   userId: string;
   id?: string | undefined;
-  mode?: "view" | "edit" | "assign" | undefined;
+  mode?: "view" | "edit" | "assign" | "live" | undefined;
 }) {
   return (
     <LearningScope org={organization} user={userId}>
@@ -85,7 +86,7 @@ function LearningBody({
   mode,
 }: {
   id?: string | undefined;
-  mode: "view" | "edit" | "assign";
+  mode: "view" | "edit" | "assign" | "live";
 }) {
   const { base, prefix, api } = useLearning();
   const raw = useRouterState({
@@ -121,6 +122,7 @@ function LearningBody({
     return (
       <ErrorNotice error={detail.error} retry={() => void detail.refetch()} />
     );
+  if (mode === "live") return <LiveHost detail={detail.data} />;
   if (mode === "edit")
     return <LearningEditor key={id} item={detail.data.item} />;
   if (mode === "assign")
@@ -380,92 +382,114 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
           {m.learn_title()}
         </Link>
       </Button>
-      <DirectoryHeader
-        title={item.title}
-        description={stateLabel(item.state)}
-        autoFocus={false}
-        action={
-          <ItemActions
-            name={item.title}
-            pending={command.isPending}
-            disabled={command.uncertain}
-            actions={[
-              {
-                label: m.learn_edit(),
-                icon: Pencil,
-                onSelect: () =>
-                  void navigate({
-                    to: "/workspace/$organizationId/learning/$learningId/edit",
-                    params: { organizationId: org.id, learningId: item.id },
-                    search: {
-                      q: "",
-                      tab: "participants",
-                      publication: "",
-                      activity: "",
-                      session: "",
-                    },
-                  }),
-              },
-              ...(pub && !current && hasDraftChanges
-                ? [
-                    {
-                      label: m.learn_publish_revision(),
-                      icon: Send,
-                      onSelect: publish,
-                    },
-                  ]
-                : []),
-              ...(item.currentPublication && current
-                ? [
-                    {
-                      label:
-                        item.state === "closed"
-                          ? m.learn_reopen()
-                          : m.learn_close(),
-                      icon: LockKeyhole,
-                      onSelect: async () => {
-                        if (
-                          await confirm({
-                            title:
-                              item.state === "closed"
-                                ? m.learn_reopen()
-                                : m.learn_close(),
-                            description: m.learn_close_warning(),
-                            confirmLabel:
-                              item.state === "closed"
-                                ? m.learn_reopen()
-                                : m.learn_close(),
-                          })
-                        )
-                          await run(
-                            item.state === "closed" ? "reopen" : "close",
-                          );
+      <div className="section-action-group">
+        <DirectoryHeader
+          title={item.title}
+          description={stateLabel(item.state)}
+          autoFocus={false}
+          action={
+            <ItemActions
+              name={item.title}
+              pending={command.isPending}
+              disabled={command.uncertain}
+              actions={[
+                {
+                  label: m.learn_edit(),
+                  icon: Pencil,
+                  onSelect: () =>
+                    void navigate({
+                      to: "/workspace/$organizationId/learning/$learningId/edit",
+                      params: { organizationId: org.id, learningId: item.id },
+                      search: {
+                        q: "",
+                        tab: "participants",
+                        publication: "",
+                        activity: "",
+                        session: "",
                       },
-                    },
-                  ]
-                : []),
-              ...(pub && !pub.released
-                ? [
-                    {
-                      label: m.learn_release(),
-                      icon: LockOpen,
-                      onSelect: async () => {
-                        if (
-                          await confirm({
-                            title: m.learn_release(),
-                            description: m.learn_release_warning(),
-                            confirmLabel: m.learn_release(),
-                          })
-                        )
-                          await run("release");
+                    }),
+                },
+                ...(pub && !current && hasDraftChanges
+                  ? [
+                      {
+                        label: m.learn_publish_revision(),
+                        icon: Send,
+                        onSelect: publish,
                       },
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        }
-      />
+                    ]
+                  : []),
+                ...(item.currentPublication && current
+                  ? [
+                      {
+                        label:
+                          item.state === "closed"
+                            ? m.learn_reopen()
+                            : m.learn_close(),
+                        icon: LockKeyhole,
+                        onSelect: async () => {
+                          if (
+                            await confirm({
+                              title:
+                                item.state === "closed"
+                                  ? m.learn_reopen()
+                                  : m.learn_close(),
+                              description: m.learn_close_warning(),
+                              confirmLabel:
+                                item.state === "closed"
+                                  ? m.learn_reopen()
+                                  : m.learn_close(),
+                            })
+                          )
+                            await run(
+                              item.state === "closed" ? "reopen" : "close",
+                            );
+                        },
+                      },
+                    ]
+                  : []),
+                ...(pub && !pub.released
+                  ? [
+                      {
+                        label: m.learn_release(),
+                        icon: LockOpen,
+                        onSelect: async () => {
+                          if (
+                            await confirm({
+                              title: m.learn_release(),
+                              description: m.learn_release_warning(),
+                              confirmLabel: m.learn_release(),
+                            })
+                          )
+                            await run("release");
+                        },
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+          }
+        />
+        <Button
+          asChild
+          variant="outline"
+          className="contextual-secondary-action"
+        >
+          <Link
+            to="/workspace/$organizationId/learning/$learningId/live"
+            params={{ organizationId: org.id, learningId: item.id }}
+            search={{
+              q: "",
+              tab: "participants",
+              publication: "",
+              activity: "",
+              session: "",
+            }}
+          >
+            <BookOpen aria-hidden="true" />
+            {m.live_host()}
+          </Link>
+        </Button>
+      </div>
       {item.description && <p>{item.description}</p>}
       {(item.activityName || item.sessionTopic) && (
         <p className="activity-note">

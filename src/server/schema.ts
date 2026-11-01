@@ -1150,3 +1150,140 @@ export const learningOperations = pgTable(
     ),
   ],
 );
+
+// Live quizzes reuse immutable learning publications; guests never become contacts.
+export const liveRooms = pgTable(
+  "hub_live_rooms",
+  {
+    id: uuid("id").primaryKey(),
+    organizationId: uuid("organization_id").notNull(),
+    itemId: uuid("item_id").notNull(),
+    publicationId: uuid("publication_id").notNull(),
+    code: text("code").notNull().unique(),
+    state: text("state").notNull().default("lobby"),
+    questionIndex: integer("question_index").notNull().default(-1),
+    version: integer("version").notNull().default(1),
+    nextNumber: integer("next_number").notNull().default(0),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    unique("hub_live_room_scope").on(t.organizationId, t.id),
+    foreignKey({
+      columns: [t.organizationId, t.itemId],
+      foreignColumns: [learningItems.organizationId, learningItems.id],
+    }),
+    foreignKey({
+      columns: [t.organizationId, t.publicationId],
+      foreignColumns: [learningVersions.organizationId, learningVersions.id],
+    }),
+    index("hub_live_room_directory").on(
+      t.organizationId,
+      t.itemId,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_live_room_state",
+      sql`${t.state} in ('lobby','question','locked','revealed','finished')`,
+    ),
+    check(
+      "hub_live_room_bounds",
+      sql`${t.questionIndex} between -1 and 49 and ${t.version}>0 and ${t.nextNumber} between 0 and 200 and ${t.expiresAt}>${t.createdAt}`,
+    ),
+    check("hub_live_code", sql`${t.code} ~ '^[A-F0-9]{10}$'`),
+  ],
+);
+export const livePlayers = pgTable(
+  "hub_live_players",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    roomId: uuid("room_id").notNull(),
+    credentialHash: text("credential_hash").notNull(),
+    nickname: text("nickname"),
+    number: integer("number").notNull(),
+    revision: integer("revision").notNull().default(1),
+    revoked: boolean("revoked").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_live_player_scope").on(t.organizationId, t.roomId, t.id),
+    unique("hub_live_player_credential").on(t.roomId, t.credentialHash),
+    unique("hub_live_player_number").on(t.roomId, t.number),
+    foreignKey({
+      columns: [t.organizationId, t.roomId],
+      foreignColumns: [liveRooms.organizationId, liveRooms.id],
+    }),
+    index("hub_live_player_directory").on(
+      t.organizationId,
+      t.roomId,
+      t.createdAt,
+      t.id,
+    ),
+    check(
+      "hub_live_player_bounds",
+      sql`${t.number} between 1 and 200 and ${t.revision}>0 and (${t.nickname} is null or length(trim(${t.nickname})) between 1 and 40) and ${t.credentialHash} ~ '^[a-f0-9]{64}$'`,
+    ),
+  ],
+);
+export const liveAnswers = pgTable(
+  "hub_live_answers",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    roomId: uuid("room_id").notNull(),
+    playerId: uuid("player_id").notNull(),
+    questionIndex: integer("question_index").notNull(),
+    choice: integer("choice").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.roomId, t.playerId, t.questionIndex] }),
+    foreignKey({
+      columns: [t.organizationId, t.roomId, t.playerId],
+      foreignColumns: [
+        livePlayers.organizationId,
+        livePlayers.roomId,
+        livePlayers.id,
+      ],
+    }),
+    index("hub_live_answer_counts").on(t.roomId, t.questionIndex),
+    check(
+      "hub_live_answer_bounds",
+      sql`${t.questionIndex} between 0 and 49 and ${t.choice} between 0 and 5`,
+    ),
+  ],
+);
+export const liveOperations = pgTable(
+  "hub_live_operations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    roomId: uuid("room_id").notNull(),
+    actor: text("actor").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    payload: jsonb("payload").notNull(),
+    response: jsonb("response").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_live_operation_key").on(
+      t.organizationId,
+      t.actor,
+      t.requestKey,
+    ),
+    foreignKey({
+      columns: [t.organizationId, t.roomId],
+      foreignColumns: [liveRooms.organizationId, liveRooms.id],
+    }),
+  ],
+);

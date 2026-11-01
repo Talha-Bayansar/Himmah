@@ -64,6 +64,13 @@
       "when": 1793469318221,
       "tag": "0008_learning",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793536482736,
+      "tag": "0009_live_quizzes",
+      "breakpoints": true
     }
   ]
 }

@@ -2500,7 +2500,7 @@ button[data-slot="button"].people-section-add {
 
 /* Learning uses the shared directory, page forms and compact participant rows. */
 .learning-detail { display: grid; gap: var(--space-6); }
-.learning-detail > .directory-heading { margin-bottom: 0; flex-direction: row; }
+.learning-detail .directory-heading { margin-bottom: 0; flex-direction: row; }
 .learning-detail > [data-slot="button"] { justify-self: start; max-width: 100%; }
 .learning-fields { display: grid; gap: var(--space-4); min-width: 0; border: 0; padding: 0; margin: 0; }
 .learning-field { display: grid; gap: var(--space-2); min-width: 0; }
@@ -2689,3 +2689,33 @@ button[data-slot="button"].people-section-add {
 .learning-question-pagination > button { min-width: 0; }
 
 @media(min-width:768px) { .learning-stepper { scroll-margin-block: calc(124px + var(--space-6) + env(safe-area-inset-top)); } }
+
+/* Live hosting keeps operational controls; invitees share the playful quiz shell. */
+.live-room-share { display: grid; gap: var(--space-3); padding: var(--space-6); border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--card); overflow-wrap: anywhere; }
+.live-room-share h2, .live-room-share p { margin: 0; }
+.live-room-code { font-size: clamp(28px,6vw,40px); letter-spacing: .06em; font-variant-numeric: tabular-nums; text-align: center; color: var(--primary); }
+.live-counts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); margin: 0; }
+.live-counts > div { min-width: 0; border-top: 1px solid var(--border); padding-top: var(--space-3); }
+.live-counts dt { color: var(--muted-foreground); font-size: var(--text-supporting); }
+.live-counts dd { font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; margin: var(--space-1) 0 0; }
+.live-host .live-primary { justify-self: stretch; min-height: 48px; white-space: normal; }
+.live-phase, .live-answer-feedback { display: flex; align-items: center; gap: var(--space-2); font-weight: 600; }
+.live-phase svg, .live-answer-feedback svg { flex-shrink: 0; }
+.live-waiting { display: grid; justify-items: center; text-align: center; gap: var(--space-4); }
+.live-waiting h2, .live-waiting p { margin: 0; }
+.live-distribution, .live-summary { list-style: none; padding: 0; margin: 0; }
+.live-distribution li { display: flex; justify-content: space-between; align-items: start; gap: var(--space-4); padding-block: var(--space-3); border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.live-distribution li > strong { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.live-summary li { display: grid; gap: var(--space-1); padding-block: var(--space-4); border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.live-summary li > span { color: var(--muted-foreground); font-size: var(--text-supporting); }
+.live-correct-label { display: block; color: var(--status-positive); font-size: var(--text-supporting); }
+.learning-answer label[data-correct="true"] { border-color: var(--status-positive); box-shadow: 0 3px 0 var(--status-positive); }
+.live-progress { width: 100%; height: 8px; accent-color: var(--primary); border: 0; border-radius: 8px; overflow: hidden; background: var(--border); }
+.live-progress::-webkit-progress-bar { background: var(--border); }
+.live-progress::-webkit-progress-value { background: var(--primary); }
+.live-progress::-moz-progress-bar { background: var(--primary); }
+.live-player-stage { scroll-margin-top: calc(96px + env(safe-area-inset-top)); }
+.live-host .directory-heading > .directory-actions { flex-wrap: nowrap; flex-shrink: 0; }
+.live-host .directory-heading > .directory-actions > [data-slot="button"] { flex: none; width: 48px; min-width: 48px; }
+.live-room-share .session-help { margin: 0; }
+.live-room-share .session-help p { margin-top: var(--space-3); }

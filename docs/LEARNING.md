@@ -37,7 +37,7 @@ The additive Drizzle migration `0008_learning.sql` adds items, immutable publica
 
 `scripts/learning-plan.mjs` produces a guarded, digestable installation transaction for verified Himmah database/role and cancellation baseline. Validate on the isolated clone before development and hosted installation; reserved main/provider schemas are excluded. Fresh installs include learning through `schema-install-plan.mjs`. Custom current-publication/context constraints and column-specific delete behavior are recorded in the migration because Drizzle does not express the latter column subset.
 
-Organization learning analytics, written answers/manual grading, regrading workflows, question libraries and live hosted quizzes remain later increments. Result history is available on each learning item and, for explicit assignments, on the contact profile. Learning scores do not enter attendance insights.
+Organization learning analytics, written answers/manual grading, regrading workflows, question libraries remain later increments. Live hosted quizzes are documented in [live quizzes](LIVE_QUIZZES.md). Result history is available on each learning item and, for explicit assignments, on the contact profile. Learning scores do not enter attendance insights.
 
 Executed release evidence belongs in [infrastructure history](INFRASTRUCTURE.md).
 
