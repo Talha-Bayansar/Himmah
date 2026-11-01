@@ -43,6 +43,14 @@
   --elevation-overlay: 0 -12px 48px #192d2124;
   --motion-press: 120ms;
   --motion-enter: 200ms;
+  --quiz-sage: #eef3e8;
+  --quiz-sage-edge: #a8baa0;
+  --quiz-sand: #fcf2dc;
+  --quiz-sand-edge: #c9b47d;
+  --quiz-sky: #eaf2f6;
+  --quiz-sky-edge: #9ab7c8;
+  --quiz-lilac: #f1edf7;
+  --quiz-lilac-edge: #b8a8ce;
   --status-positive: #226344;
   --status-positive-surface: #eaf4ec;
   --status-warning: #80591c;
@@ -63,6 +71,10 @@
   --sidebar-ring: #82a84d;
 }
 .dark {
+  --quiz-sage: #244334;
+  --quiz-sand: #453b24;
+  --quiz-sky: #263e4b;
+  --quiz-lilac: #3b3348;
   --background: #12382f;
   --foreground: #edf4e8;
   --card: #1a4438;

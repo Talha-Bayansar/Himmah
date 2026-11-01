@@ -685,9 +685,7 @@ it("shows distinct released feedback without repeating correct answers, and hide
   expect(within(rows[0]!).getByText("Correct", { exact: true })).toBeTruthy();
   expect(within(rows[0]!).getAllByText("Correct choice")).toHaveLength(1);
   expect(within(rows[0]!).getByText("Why this works")).toBeTruthy();
-  expect(
-    within(rows[1]!).getByText("Incorrect", { exact: true }),
-  ).toBeTruthy();
+  expect(within(rows[1]!).getByText("Incorrect", { exact: true })).toBeTruthy();
   expect(within(rows[1]!).getByText("Chosen")).toBeTruthy();
   expect(within(rows[1]!).getByText("Expected")).toBeTruthy();
   expect(within(rows[2]!).getByText("Expected skipped")).toBeTruthy();
@@ -698,4 +696,51 @@ it("shows distinct released feedback without repeating correct answers, and hide
   );
   expect(screen.queryByRole("list")).toBeNull();
   expect(screen.queryByText("Expected")).toBeNull();
+});
+
+it("celebrates submission for every score and never displays a held score", async () => {
+  const { ParticipantFinish } =
+    await import("../src/learning/ParticipantPresentation");
+  const data: import("../src/learning/contracts").PublicLearning = {
+    ...content,
+    questionCount: 2,
+    number: 1,
+    available: true,
+    name: "Guest",
+    allowance: 1,
+    attempt: {
+      id: attemptId,
+      sequence: 1,
+      answers: {},
+      revision: 2,
+      submittedAt: "2026-11-01T12:00:00Z",
+      score: 2,
+      total: 2,
+      released: false,
+    },
+  };
+  const { rerender } = render(
+    <ParticipantFinish
+      data={data}
+      date="1 November"
+      refresh={<button>Refresh results</button>}
+    />,
+  );
+  expect(screen.getByText("Quiz complete!")).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Refresh results" })).toBeTruthy();
+  expect(screen.queryByText("2 out of 2 points")).toBeNull();
+  rerender(
+    <ParticipantFinish
+      data={{
+        ...data,
+        attempt: { ...data.attempt!, released: true, score: 0 },
+      }}
+      date="1 November"
+      refresh={null}
+    />,
+  );
+  expect(screen.getByText("Quiz complete!")).toBeTruthy();
+  expect(screen.getByText("0 out of 2 points")).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Refresh results" })).toBeNull();
+  expect(screen.queryByText(/passed|failed/i)).toBeNull();
 });

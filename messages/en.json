@@ -1032,5 +1032,9 @@
   "learn_edit_answer": "Edit answer to question {number}",
   "learn_answered_count": "{count} of {total} answered",
   "learn_save_unconfirmed": "Save not confirmed",
-  "learn_answer_saved": "Answer saved"
+  "learn_answer_saved": "Answer saved",
+  "learn_quiz_label": "Your quiz",
+  "learn_quiz_invitation": "Bring your curiosity. Let’s learn something new.",
+  "learn_quiz_complete": "Quiz complete!",
+  "learn_quiz_finish_note": "Every question is a chance to learn."
 }

@@ -1032,5 +1032,9 @@
   "learn_edit_answer": "{number}. sorunun yanıtını düzenle",
   "learn_answered_count": "{total} sorudan {count} tanesi yanıtlandı",
   "learn_save_unconfirmed": "Kayıt doğrulanamadı",
-  "learn_answer_saved": "Yanıt kaydedildi"
+  "learn_answer_saved": "Yanıt kaydedildi",
+  "learn_quiz_label": "Bilgi yarışmanız",
+  "learn_quiz_invitation": "Merakınızı yanınıza alın. Yeni bir şey keşfedelim.",
+  "learn_quiz_complete": "Quiz tamamlandı!",
+  "learn_quiz_finish_note": "Her soru, öğrenmek için yeni bir fırsat."
 }

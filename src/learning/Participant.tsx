@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Check,
   BookOpen,
-  CheckCircle2,
   ListChecks,
   CalendarClock,
   Pencil,
@@ -15,7 +14,6 @@ import { Button } from "../components/ui/button";
 import { ActionButton } from "../components/shared/action-button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import { DirectoryHeader } from "../components/shared/directory-layout";
 import { ListSkeleton } from "../components/shared/infinite-list";
 import {
   DirectoryError,
@@ -25,6 +23,11 @@ import {
 import { LanguageSelector, useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
 import { secretToken, type PublicLearning } from "./contracts";
+import {
+  ParticipantHeading,
+  ParticipantFinish,
+  QuestionJourney,
+} from "./ParticipantPresentation";
 import { ParticipantFeedback } from "./ParticipantFeedback";
 export default function Participant({ item }: { item: string }) {
   const cache = useQueryClient(),
@@ -221,10 +224,10 @@ export default function Participant({ item }: { item: string }) {
         ) : (
           data && (
             <>
-              <DirectoryHeader
+              <ParticipantHeading
                 title={data.title}
                 description={!started && !submitted ? data.description : ""}
-                autoFocus={false}
+                view={view}
               />
               {command.isError && (
                 <div role="alert" className="participant-message">
@@ -257,36 +260,19 @@ export default function Participant({ item }: { item: string }) {
               )}
               {submitted ? (
                 <section className="participant-section participant-results">
-                  <div className="participant-result-summary">
-                    <div className="participant-section-heading">
-                      <h2>
-                        <CheckCircle2 size={22} aria-hidden="true" />
-                        {m.learn_submission_saved()}
-                      </h2>
-                      <time dateTime={a!.submittedAt!}>
-                        {date(a!.submittedAt!)}
-                      </time>
-                    </div>
-                    {a!.released ? (
-                      <strong className="learning-score">
-                        {m.learn_score({
-                          score: String(a!.score),
-                          total: String(a!.total),
-                        })}
-                      </strong>
-                    ) : (
-                      <>
-                        <p>{m.learn_results_held()}</p>
-                        <ActionButton
-                          variant="outline"
-                          pending={query.isFetching}
-                          onClick={() => void query.refetch()}
-                        >
-                          {m.learn_refresh_results()}
-                        </ActionButton>
-                      </>
-                    )}
-                  </div>
+                  <ParticipantFinish
+                    data={data}
+                    date={date(a!.submittedAt!)}
+                    refresh={
+                      <ActionButton
+                        variant="outline"
+                        pending={query.isFetching}
+                        onClick={() => void query.refetch()}
+                      >
+                        {m.learn_refresh_results()}
+                      </ActionButton>
+                    }
+                  />
                   {a!.released && <ParticipantFeedback data={data} />}
                   {data.available && a!.sequence < data.allowance && (
                     <div className="directory-actions participant-actions">
@@ -473,7 +459,9 @@ export default function Participant({ item }: { item: string }) {
                           })}
                         </span>
                       </div>
+                      <QuestionJourney data={data} index={index} />
                       <progress
+                        className="sr-only"
                         max={data.questions.length}
                         value={Object.keys(a?.answers ?? {}).length}
                         aria-label={m.learn_progress_label()}
@@ -486,7 +474,7 @@ export default function Participant({ item }: { item: string }) {
                       <legend>{q.text}</legend>
                       <div className="learning-answer-options">
                         {q.choices.map((choice, n) => (
-                          <label key={n}>
+                          <label key={n} data-choice={n % 4}>
                             <input
                               type="radio"
                               name={`answer-${index}`}
@@ -511,7 +499,19 @@ export default function Participant({ item }: { item: string }) {
                                 });
                               }}
                             />
-                            <span>{choice}</span>
+                            <span
+                              className="quiz-choice-letter"
+                              aria-hidden="true"
+                            >
+                              {String.fromCharCode(65 + n)}
+                            </span>
+                            <span className="quiz-choice-text">{choice}</span>
+                            <span
+                              className="quiz-choice-selected"
+                              aria-hidden="true"
+                            >
+                              <Check size={18} />
+                            </span>
                           </label>
                         ))}
                       </div>

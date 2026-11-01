@@ -1032,5 +1032,9 @@
   "learn_edit_answer": "Antwoord op vraag {number} wijzigen",
   "learn_answered_count": "{count} van {total} beantwoord",
   "learn_save_unconfirmed": "Opslaan niet bevestigd",
-  "learn_answer_saved": "Antwoord opgeslagen"
+  "learn_answer_saved": "Antwoord opgeslagen",
+  "learn_quiz_label": "Jouw quiz",
+  "learn_quiz_invitation": "Neem je nieuwsgierigheid mee. Ontdek iets nieuws.",
+  "learn_quiz_complete": "Quiz voltooid!",
+  "learn_quiz_finish_note": "Elke vraag is een kans om te leren."
 }
