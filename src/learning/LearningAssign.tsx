@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import { useConfirmation } from "../components/shared/confirmation";
 import { useState } from "react";
 import { useBlocker, Link } from "@tanstack/react-router";
@@ -88,6 +89,7 @@ export default function LearningAssign({ detail }: { detail: LearningDetail }) {
             session: "",
           }}
         >
+          <ArrowLeft aria-hidden="true" />
           {m.form_back()}
         </Link>
       </Button>

@@ -910,3 +910,7 @@ Validation: strict typecheck, production build, 17 focused learning/app-launch U
 Additional final check: five Dutch 390px mobile-emulation states passed with touch enabled and actual tap selection, through review/submission and held/released results. This is Chromium emulation, not a physical phone.
 
 Deployment verified: implementation `41b34c8` pushed to `rebuild/people-foundation`; himmah-hub version `779e7fa4-125b-4f05-9ff5-3574c150df7b` at 100%. Dedicated bindings, People enabled, maintenance false and minute cron retained. Live URL: https://himmah-hub.talha-bayansar.workers.dev.
+
+## 1 November 2026 — consistent learning Back controls
+
+Added the shared Lucide ArrowLeft icon to the quiz wizard's page Back control and Previous-step button. Fixed the same missing icon on learning assignment and participant review Back controls. Existing link/outline variants, spacing, accessible labels, navigation, draft guards and disabled states remain unchanged. Validation: strict typecheck, all 17 focused learning/app-launch UI cases, production build, documentation links and diff check passed. No schema or API change; no new browser/device coverage claimed for this icon-only refinement.

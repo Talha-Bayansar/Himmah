@@ -424,6 +424,7 @@ export default function Participant({ item }: { item: string }) {
                       disabled={locked}
                       onClick={() => setReview(false)}
                     >
+                      <ArrowLeft aria-hidden="true" />
                       {m.form_back()}
                     </Button>
                     <ActionButton

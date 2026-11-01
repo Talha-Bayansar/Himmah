@@ -275,6 +275,7 @@ export default function LearningEditor({
           })
         }
       >
+        <ArrowLeft aria-hidden="true" />
         {m.form_back()}
       </Button>
       <DirectoryHeader
@@ -906,6 +907,7 @@ export default function LearningEditor({
                   })
             }
           >
+            {step > 0 && <ArrowLeft aria-hidden="true" />}
             {step > 0 ? m.learn_previous() : m.cancel()}
           </Button>
           <ActionButton
