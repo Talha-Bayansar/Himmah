@@ -28,6 +28,14 @@
     ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   --text-page: clamp(28px, 4vw, 32px);
+  --text-section: 20px;
+  --text-subsection: 18px;
+  --text-row: 16px;
+  --text-label: 14px;
+  --text-metric: 28px;
+  --text-amount: 24px;
+  --weight-heading: 650;
+  --weight-emphasis: 600;
   --text-body: 16px;
   --text-supporting: 14px;
   --page-gutter: 24px;

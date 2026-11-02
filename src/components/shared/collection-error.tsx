@@ -1,5 +1,4 @@
-import { Alert, AlertDescription } from "../ui/alert";
-import { ActionButton } from "./action-button";
+import { ErrorFeedback } from "./feedback";
 import { directoryMessage } from "../../community/client";
 import { m } from "../../paraglide/messages.js";
 export function CollectionError({
@@ -12,15 +11,10 @@ export function CollectionError({
   pending?: boolean;
 }) {
   return (
-    <div className="space-y-3">
-      <Alert variant="destructive" role="alert">
-        <AlertDescription>{directoryMessage(error)}</AlertDescription>
-      </Alert>
-      {retry && (
-        <ActionButton variant="outline" pending={pending} onClick={retry}>
-          {m.try_again()}
-        </ActionButton>
-      )}
-    </div>
+    <ErrorFeedback
+      message={directoryMessage(error, m.interface_request_unconfirmed())}
+      retry={retry}
+      pending={pending}
+    />
   );
 }

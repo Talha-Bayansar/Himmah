@@ -1,3 +1,5 @@
+import { MetricSkeleton } from "../components/shared/infinite-list";
+import { MetricSummary } from "../components/shared/metric-summary";
 import { useQuery } from "@tanstack/react-query";
 import { DirectoryError, directoryRequest } from "../community/client";
 import { ErrorNotice } from "../activities/Activities";
@@ -24,26 +26,30 @@ export function SessionStats({
         compact ? "session-stats session-stats-compact" : "session-stats"
       }
     >
-      <dl className="session-stat-grid" aria-label={m.management_stats()}>
-        <div>
-          <dt>{m.attendance_present()}</dt>
-          <dd>{summary.present}</dd>
-        </div>
-        {financial && (
-          <>
-            <div>
-              <dt>{m.cash_paid()}</dt>
-              <dd>{summary.paid}</dd>
-            </div>
-            <div>
-              <dt>{m.cash_unpaid()}</dt>
-              <dd>{(summary.unpaid ?? 0) + (summary.partial ?? 0)}</dd>
-            </div>
-          </>
-        )}
-      </dl>
+      <MetricSummary
+        label={m.management_stats()}
+        compact={compact}
+        className="session-stat-grid"
+        items={[
+          { label: m.attendance_present(), value: summary.present },
+          ...(financial
+            ? [
+                { label: m.cash_paid(), value: summary.paid },
+                {
+                  label: m.cash_unpaid(),
+                  value: (summary.unpaid ?? 0) + (summary.partial ?? 0),
+                },
+              ]
+            : []),
+        ]}
+      />
       {financial && !compact && (
-        <>
+        <details className="session-help session-money-details">
+          <summary>
+            {m.interface_financial_details()} ·{" "}
+            {sessionPrice(summary.outstandingMinor ?? 0, locale)}{" "}
+            {m.cash_outstanding().toLocaleLowerCase(locale)}
+          </summary>
           <dl className="session-money-grid">
             <div>
               <dt>{m.management_expected()}</dt>
@@ -63,10 +69,10 @@ export function SessionStats({
               {m.management_partial_count({ count: String(summary.partial) })}
             </p>
           )}
-          {summary.paymentCount !== summary.present && (
-            <p className="activity-note">{m.management_scope()}</p>
-          )}
-        </>
+        </details>
+      )}
+      {financial && !compact && summary.paymentCount !== summary.present && (
+        <p className="activity-note">{m.management_scope()}</p>
       )}
     </div>
   );
@@ -104,7 +110,12 @@ export function SessionStatsPreview({
     },
   });
   if (query.isPending)
-    return <div className="directory-skeleton" aria-busy="true" />;
+    return (
+      <MetricSkeleton
+        count={paidSession ? 3 : 1}
+        columns={paidSession ? 3 : 1}
+      />
+    );
   if (query.isError)
     return (
       <ErrorNotice

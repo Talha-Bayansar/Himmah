@@ -850,3 +850,39 @@ it("opens published-version insights from Results while keeping individual histo
     ),
   ).toBe(true);
 });
+
+it("retains supporting context for a draft without delaying its publish action", async () => {
+  backend();
+  const fetcher = globalThis.fetch;
+  vi.stubGlobal(
+    "fetch",
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const response = await fetcher(input, init);
+      if (
+        new URL(String(input), "https://himmah.test").pathname.endsWith(
+          "/" + id,
+        ) &&
+        !init?.method
+      ) {
+        const data = await response.json();
+        return Response.json({
+          ...data,
+          item: {
+            ...data.item,
+            state: "draft",
+            description: "Supporting draft information",
+            activityName: "Study group",
+          },
+          publication: null,
+          versions: [],
+        });
+      }
+      return response;
+    },
+  );
+  mountStaff("detail");
+  await screen.findByRole("button", { name: "Publish" });
+  await userEvent.setup().click(screen.getByText("Details"));
+  expect(screen.getByText("Supporting draft information")).toBeTruthy();
+  expect(screen.getByText("Study group")).toBeTruthy();
+});

@@ -1141,5 +1141,19 @@
   "learn_insights_all_scores": "Alle scoreaantallen",
   "learn_insights_selection_hint": "Tik op een staaf of kies een score om het aantal te bekijken.",
   "learn_insights_question_option": "Vraag {number} · {correct}/{total} juist",
-  "learn_insights_scope": "Samenvattingen gelden voor de hele geselecteerde versie. Zoeken op naam filtert alleen de individuele resultaten hieronder."
+  "learn_insights_scope": "Samenvattingen gelden voor de hele geselecteerde versie. Zoeken op naam filtert alleen de individuele resultaten hieronder.",
+  "interface_request_unconfirmed": "We konden dit verzoek niet bevestigen. Probeer het opnieuw.",
+  "interface_load_error": "We konden deze gegevens niet laden. Probeer het opnieuw.",
+  "interface_save_error": "Het opslaan is niet bevestigd. Je wijzigingen staan hier nog. Probeer het opnieuw.",
+  "interface_discard": "Wijzigingen verwerpen",
+  "interface_required": "Vul dit veld in.",
+  "interface_financial_details": "Betalingsoverzicht",
+  "interface_agenda": "Agenda",
+  "interface_filters": "Filters",
+  "interface_reset_filters": "Filters wissen",
+  "interface_check_field": "Controleer deze waarde.",
+  "interface_minimum_chars": "Gebruik minstens {count} tekens.",
+  "interface_filter_help": "Wijzigingen worden direct toegepast.",
+  "interface_active_filter": "Actief filter",
+  "interface_home_short": "Start"
 }

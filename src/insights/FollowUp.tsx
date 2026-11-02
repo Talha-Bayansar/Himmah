@@ -1,3 +1,4 @@
+import { UtilityButton } from "../components/shared/utility-button";
 import { useEffect, useState } from "react";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
@@ -133,19 +134,13 @@ export default function FollowUp({
         description={m.follow_up_intro()}
         autoFocus={false}
         action={
-          <Button
-            variant="outline"
-            size="icon"
+          <UtilityButton
             aria-label={m.follow_up_refresh()}
-            disabled={query.isFetching}
+            pending={query.isFetching}
             onClick={() => void query.refetch()}
           >
-            <RefreshCw
-              size={18}
-              aria-hidden="true"
-              className={query.isFetching ? "animate-spin" : ""}
-            />
-          </Button>
+            <RefreshCw size={18} aria-hidden="true" />
+          </UtilityButton>
         }
       />
       <DirectoryToolbar

@@ -1,3 +1,4 @@
+import { UtilityButton } from "../components/shared/utility-button";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
@@ -86,15 +87,13 @@ export default function PlannedSessions({
         description={m.schedule_description()}
         autoFocus={false}
         action={
-          <Button
-            variant="outline"
-            size="icon"
+          <UtilityButton
             aria-label={m.schedule_refresh()}
-            disabled={query.isFetching}
+            pending={query.isFetching}
             onClick={() => void query.refetch()}
           >
             <RefreshCw size={18} aria-hidden="true" />
-          </Button>
+          </UtilityButton>
         }
       />
       <DirectoryToolbar

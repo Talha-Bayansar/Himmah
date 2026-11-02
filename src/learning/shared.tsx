@@ -153,6 +153,7 @@ export function CommandError({
     <div>
       <ErrorNotice
         error={command.error}
+        saving
         retry={() => {
           if (command.uncertain && command.variables)
             command.mutate(command.variables);

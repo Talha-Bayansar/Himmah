@@ -1,3 +1,4 @@
+import { DirectoryFilters } from "../components/shared/directory-filters";
 import { useFormNavigation } from "../components/shared/form-navigation";
 import {
   DirectoryHeader,
@@ -105,13 +106,15 @@ export default function Assignments({
         value={search}
         onChange={setSearch}
       >
-        <label className="directory-archived">
-          <Checkbox
-            checked={revoked}
-            onCheckedChange={(v) => setRevoked(v === true)}
-          />
-          {m.access_show_revoked()}
-        </label>
+        <DirectoryFilters active={revoked} onReset={() => setRevoked(false)}>
+          <label className="directory-archived">
+            <Checkbox
+              checked={revoked}
+              onCheckedChange={(v) => setRevoked(v === true)}
+            />
+            {m.access_show_revoked()}
+          </label>
+        </DirectoryFilters>
       </DirectoryToolbar>
       {revoke.isError && <CollectionError error={revoke.error} />}
       {pages.isPending ? (

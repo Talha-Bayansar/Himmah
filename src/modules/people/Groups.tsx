@@ -1,3 +1,4 @@
+import { DirectoryFilters } from "../../components/shared/directory-filters";
 import { useFormNavigation } from "../../components/shared/form-navigation";
 import {
   DirectoryHeader,
@@ -111,13 +112,15 @@ function GroupList({ org, user }: { org: string; user: string }) {
         value={search}
         onChange={setSearch}
       >
-        <Label className="directory-archived">
-          <Checkbox
-            checked={archived}
-            onCheckedChange={(v) => setArchived(v === true)}
-          />
-          {m.people_archived_groups()}
-        </Label>
+        <DirectoryFilters active={archived} onReset={() => setArchived(false)}>
+          <Label className="directory-archived">
+            <Checkbox
+              checked={archived}
+              onCheckedChange={(v) => setArchived(v === true)}
+            />
+            {m.people_archived_groups()}
+          </Label>
+        </DirectoryFilters>
       </DirectoryToolbar>
       {list.isPending ? (
         <ListSkeleton />
@@ -265,7 +268,7 @@ function GroupDetail({
           }
         />
       </div>
-      {mutation.isError && <ErrorNotice error={mutation.error} />}
+      {mutation.isError && <ErrorNotice error={mutation.error} saving />}
       {group.archivedAt && <p>{m.people_archived_groups()}</p>}
       {group.description && (
         <Card density="compact">

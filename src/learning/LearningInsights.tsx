@@ -1,3 +1,6 @@
+import { Skeleton } from "../components/ui/skeleton";
+import { UtilityButton } from "../components/shared/utility-button";
+import { MetricSummary } from "../components/shared/metric-summary";
 import { lazy, Suspense, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -9,8 +12,7 @@ import { useLearning } from "./shared";
 import type { LearningInsights as Report } from "./contracts";
 import { useLocale } from "../localization/locale";
 import { m } from "../paraglide/messages.js";
-import { ActionButton } from "../components/shared/action-button";
-import { ListSkeleton } from "../components/shared/infinite-list";
+import { MetricSkeleton } from "../components/shared/infinite-list";
 import {
   NativeSelect,
   NativeSelectOption,
@@ -51,18 +53,16 @@ export default function LearningInsights({
     >
       <div className="learning-insights-heading">
         <h2 id="learning-insights-heading">{m.learn_insights()}</h2>
-        <ActionButton
-          variant="outline"
-          size="icon"
+        <UtilityButton
           aria-label={m.learn_insights_refresh()}
           pending={query.isFetching}
           onClick={() => void cache.invalidateQueries({ queryKey: prefix })}
         >
           <RefreshCw aria-hidden="true" />
-        </ActionButton>
+        </UtilityButton>
       </div>
       {query.isPending ? (
-        <ListSkeleton />
+        <MetricSkeleton />
       ) : query.isError ? (
         <ErrorNotice error={query.error} retry={() => void query.refetch()} />
       ) : (
@@ -76,31 +76,29 @@ export default function LearningInsights({
                   })
                 : m.learn_insights_guests({ total: number(data.participants) })}
             </p>
-            <dl className="learning-insights-metrics">
-              <div>
-                <dt>
-                  <CheckCheck aria-hidden="true" />
-                  {m.learn_insights_completed()}
-                </dt>
-                <dd>{number(data.completed)}</dd>
-              </div>
-              <div>
-                <dt>
-                  <ChartNoAxesColumnIncreasing aria-hidden="true" />
-                  {m.learn_insights_average()}
-                </dt>
-                <dd>
-                  {data.averageScore === null
-                    ? "—"
-                    : m.learn_insights_score({
-                        score: data.averageScore.toLocaleString(locale, {
-                          maximumFractionDigits: 1,
+            <MetricSummary
+              className="learning-insights-metrics"
+              items={[
+                {
+                  label: m.learn_insights_completed(),
+                  icon: <CheckCheck aria-hidden="true" />,
+                  value: number(data.completed),
+                },
+                {
+                  label: m.learn_insights_average(),
+                  icon: <ChartNoAxesColumnIncreasing aria-hidden="true" />,
+                  value:
+                    data.averageScore === null
+                      ? "—"
+                      : m.learn_insights_score({
+                          score: data.averageScore.toLocaleString(locale, {
+                            maximumFractionDigits: 1,
+                          }),
+                          total: number(data.questionCount),
                         }),
-                        total: number(data.questionCount),
-                      })}
-                </dd>
-              </div>
-            </dl>
+                },
+              ]}
+            />
             {!data.completed ? (
               <p className="directory-empty">{m.learn_insights_empty()}</p>
             ) : (
@@ -138,7 +136,15 @@ export default function LearningInsights({
                           ))}
                         </NativeSelect>
                       </div>
-                      <Suspense fallback={<ListSkeleton />}>
+                      <Suspense
+                        fallback={
+                          <Skeleton
+                            className="h-52 w-full"
+                            role="status"
+                            aria-label={m.directory_loading()}
+                          />
+                        }
+                      >
                         <ScoreChart
                           distribution={data.distribution}
                           selected={selectedScore}

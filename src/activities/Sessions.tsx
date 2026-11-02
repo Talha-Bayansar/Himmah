@@ -295,6 +295,42 @@ export default function Sessions({
             paidSession={(item.priceMinor ?? 0) > 0}
           />
         )}
+        {full && canOperate && (
+          <div className="session-actions session-actions-primary">
+            <Button asChild>
+              <Link
+                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+                params={{
+                  organizationId: organization.id,
+                  activityId: activity.id,
+                  sessionId: item.id,
+                }}
+              >
+                <ClipboardCheck size={16} aria-hidden="true" />
+                {m.management_open()}
+              </Link>
+            </Button>
+          </div>
+        )}
+        {full && !canOperate && canCash && (
+          <Button className="activity-card-primary" asChild>
+            <Link
+              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+              params={{
+                organizationId: organization.id,
+                activityId: activity.id,
+                sessionId: item.id,
+              }}
+              search={{ q: "" }}
+            >
+              <Banknote aria-hidden="true" />
+              {m.management_open()}
+            </Link>
+          </Button>
+        )}
+        {item.cancelled && item.cancellationReason && (
+          <p className="activity-description">{item.cancellationReason}</p>
+        )}
         {canOperate && item.registration && (
           <div className="session-registration-summary">
             <p className="activity-status">
@@ -357,42 +393,6 @@ export default function Sessions({
               )}
             </details>
           </>
-        )}
-        {full && canOperate && (
-          <div className="session-actions session-actions-primary">
-            <Button asChild>
-              <Link
-                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
-                params={{
-                  organizationId: organization.id,
-                  activityId: activity.id,
-                  sessionId: item.id,
-                }}
-              >
-                <ClipboardCheck size={16} aria-hidden="true" />
-                {m.management_open()}
-              </Link>
-            </Button>
-          </div>
-        )}
-        {full && !canOperate && canCash && (
-          <Button className="activity-card-primary" asChild>
-            <Link
-              to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
-              params={{
-                organizationId: organization.id,
-                activityId: activity.id,
-                sessionId: item.id,
-              }}
-              search={{ q: "" }}
-            >
-              <Banknote aria-hidden="true" />
-              {m.management_open()}
-            </Link>
-          </Button>
-        )}
-        {item.cancelled && item.cancellationReason && (
-          <p className="activity-description">{item.cancellationReason}</p>
         )}
         {!full && (
           <Button className="activity-card-primary" asChild>

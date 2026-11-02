@@ -211,3 +211,33 @@ The [original research](AIRBNB_DESIGN_RESEARCH.md) remains historical evidence; 
 Validation for this documentation review: fourteen fresh page renders and two sheets at the stated sizes had no page exceptions or horizontal document overflow. This does not establish all-state usability or accessibility. Documentation links and Git diff checks run separately; no application regression suite, native Airbnb app test, hosted database operation or application deployment is part of this review.
 
 Component-extension validation: 24 fresh state observations across two phone widths completed without page exceptions; the separate Dutch chart flow passed eight checks. Draft save was mocked as an HTTP 503, with no hosted write. Sheet dismissal and focus restoration were checked after explicit discard and actual detachment. Documentation link/diff checks apply; no application changes, full regression rerun or deployment were required.
+
+## Owner-approved implementation follow-up
+
+After this assessment, the owner authorized implementing its findings throughout Himmah. The historical measurements and before-images above remain intact. The adopted [design system](../DESIGN_SYSTEM.md#adopted-composition-and-component-contracts--2-november-2026) and [current gallery](../design/COMPONENTS.md) now define the shipped direction.
+
+| Finding | Implementation |
+| --- | --- |
+| Session management below optional detail | Main attendance/payment entry follows essential schedule/pricing/counts and precedes supporting registration/background sections. |
+| Attendance preamble | Compact short counts; detailed money in a labelled expansion; removed compounded heading/section spacing. Scope/restriction notices and row actions retained. |
+| Learning preamble and task actions | Compact status/version/release, task-specific Participants/Questions/Results controls, supporting context in settings and Live in More. |
+| Home balance | Denser bounded preview; monthly overview before compact administrative shortcuts. |
+| Wizard repetition | Four named steps and active section remain; redundant visual step narration removed while preserving accessible status. |
+| Component roles/type | Semantic theme roles, shared read-only MetricSummary, interactive Statistic distinction, quiet square utilities, inset search and filter sheets. |
+| Feedback and fields | Shared error anatomy with known-domain and unconfirmed-outcome wording; inline associated native/explicit field errors; pending form locks and retained drafts. |
+| Confirmation/menu/pagination/navigation | Explicit Discard changes, consequential menu separators, quiet short-list completion, narrow Activities label reads Agenda and Turkish Home uses Başla, retaining their full accessible destination names. |
+| Motion and durable validation | Reduced-motion-aware tab entry; local-only multi-width/language screenshot baselines, state gallery and composition/interaction assertions. No decorative roster/cash animation. |
+
+No proprietary font, travel photography, 3D icon set, new database structure or speculative native haptics was necessary. Native iOS/Android, software keyboard, drag and assistive-technology verification remain device-validation work; exact Airbnb build-specific parity was never established by the audit. This is an implemented Himmah design improvement, not a claim that every Airbnb pattern applies to operational attendance/cash.
+
+Fresh local composition measurements after implementation (synthetic Dutch fixture; viewport y positions, not universal content limits):
+
+| Target | 390px before → after | 320px before → after |
+| --- | --- | --- |
+| Session main management button | 1028 → 585 | 1187 → 622 |
+| First attendee name | 769 → 630 | 797 → 631 |
+| Learning participant search | 779 → 571 | 890 → 682 |
+| Quiz insights heading | 611 → 426 | 722 → 537 |
+| Home monthly overview heading | 1047 → 582 | 1087 → 622 |
+
+The session action now fits above fixed navigation at both phone widths in this fixture. Long real content may still require scrolling; essential restrictions are not hidden to satisfy a coordinate. Current references include **62 visual states / 42 page layouts**, narrow EN/NL/TR, NL tablet/desktop, pending/invalid/unconfirmed saves, discard, filters, menus, empty/loading/error/25-row collections and enlarged Results. The committed local harness also compares screenshots on a separate repeat run; domain and UI checks are recorded in [infrastructure history](../INFRASTRUCTURE.md). This does not turn the browser samples into native-device or accessibility certification.

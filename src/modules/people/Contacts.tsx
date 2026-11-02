@@ -1,3 +1,4 @@
+import { DirectoryFilters } from "../../components/shared/directory-filters";
 import { ContactLearning } from "../../learning/ContactLearning";
 import { FormSurface } from "../../components/shared/form-surface";
 import {
@@ -146,13 +147,15 @@ function ContactList({ org, user }: { org: string; user: string }) {
         value={search}
         onChange={setSearch}
       >
-        <Label className="directory-archived">
-          <Checkbox
-            checked={archived}
-            onCheckedChange={(v) => setArchived(v === true)}
-          />
-          {m.people_archived()}
-        </Label>
+        <DirectoryFilters active={archived} onReset={() => setArchived(false)}>
+          <Label className="directory-archived">
+            <Checkbox
+              checked={archived}
+              onCheckedChange={(v) => setArchived(v === true)}
+            />
+            {m.people_archived()}
+          </Label>
+        </DirectoryFilters>
       </DirectoryToolbar>
       {list.isPending ? (
         <ListSkeleton />
@@ -369,7 +372,7 @@ function ContactDetail({
         )}
       </div>
       {contact.archivedAt && <p>{m.people_contact_archived()}</p>}
-      {mutation.isError && <ErrorNotice error={mutation.error} />}
+      {mutation.isError && <ErrorNotice error={mutation.error} saving />}
       {!view && (contact.givenName || contact.familyName) && (
         <Card density="compact">
           <CardContent>
@@ -688,6 +691,7 @@ function Editor({
     if (
       !form.state.isDirty ||
       (await confirm({
+        confirmLabel: m.interface_discard(),
         title: m.people_discard(),
         description: m.people_discard_description(),
         destructive: true,
@@ -702,6 +706,7 @@ function Editor({
         form.state.isDirty &&
         !mutation.isSuccess &&
         !(await confirm({
+          confirmLabel: m.interface_discard(),
           title: m.people_discard(),
           description: m.people_discard_description(),
           destructive: true,
@@ -725,7 +730,7 @@ function Editor({
       onClose={() => void close()}
     >
       <form
-        className="space-y-4"
+        className="form-layout"
         onSubmit={(e) => {
           e.preventDefault();
           try {
@@ -738,85 +743,95 @@ function Editor({
           }
         }}
       >
-        {method ? (
-          <>
-            <form.Field name="kind">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="method-kind">{m.people_kind()}</Label>
-                  <NativeSelect
-                    id="method-kind"
-                    value={field.state.value}
-                    onChange={(e) =>
-                      field.handleChange(e.target.value as "phone" | "email")
-                    }
-                  >
-                    <NativeSelectOption value="phone">
-                      {m.people_phone()}
-                    </NativeSelectOption>
-                    <NativeSelectOption value="email">
-                      {m.people_email()}
-                    </NativeSelectOption>
-                  </NativeSelect>
-                </div>
+        <fieldset disabled={mutation.isPending} className="form-fields">
+          {method ? (
+            <>
+              <form.Field name="kind">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="method-kind">{m.people_kind()}</Label>
+                    <NativeSelect
+                      id="method-kind"
+                      value={field.state.value}
+                      onChange={(e) =>
+                        field.handleChange(e.target.value as "phone" | "email")
+                      }
+                    >
+                      <NativeSelectOption value="phone">
+                        {m.people_phone()}
+                      </NativeSelectOption>
+                      <NativeSelectOption value="email">
+                        {m.people_email()}
+                      </NativeSelectOption>
+                    </NativeSelect>
+                  </div>
+                )}
+              </form.Field>
+              <form.Field name="value">
+                {(field) => (
+                  <div className="space-y-2">
+                    <Label htmlFor="method-value">{m.people_value()}</Label>
+                    <Input
+                      id="method-value"
+                      aria-invalid={validation}
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      autoComplete="off"
+                      maxLength={254}
+                    />
+                  </div>
+                )}
+              </form.Field>
+              <form.Field name="preferred">
+                {(field) => (
+                  <Label className="flex items-center gap-3">
+                    <Checkbox
+                      checked={field.state.value}
+                      onCheckedChange={(v) => field.handleChange(v === true)}
+                    />
+                    {m.people_preferred()}
+                  </Label>
+                )}
+              </form.Field>
+            </>
+          ) : (
+            <>
+              {(["displayName", "givenName", "familyName"] as const).map(
+                (name, index) => (
+                  <form.Field key={name} name={name}>
+                    {(field) => (
+                      <div className="space-y-2">
+                        <Label htmlFor={name}>
+                          {index === 0
+                            ? m.people_name()
+                            : index === 1
+                              ? m.people_given()
+                              : m.people_family()}
+                        </Label>
+                        <Input
+                          id={name}
+                          aria-invalid={
+                            validation &&
+                            name === "displayName" &&
+                            !field.state.value.trim()
+                          }
+                          value={field.state.value}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          maxLength={120}
+                          required={index === 0}
+                        />
+                      </div>
+                    )}
+                  </form.Field>
+                ),
               )}
-            </form.Field>
-            <form.Field name="value">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label htmlFor="method-value">{m.people_value()}</Label>
-                  <Input
-                    id="method-value"
-                    value={field.state.value}
-                    onChange={(e) => field.handleChange(e.target.value)}
-                    autoComplete="off"
-                    maxLength={254}
-                  />
-                </div>
-              )}
-            </form.Field>
-            <form.Field name="preferred">
-              {(field) => (
-                <Label className="flex items-center gap-3">
-                  <Checkbox
-                    checked={field.state.value}
-                    onCheckedChange={(v) => field.handleChange(v === true)}
-                  />
-                  {m.people_preferred()}
-                </Label>
-              )}
-            </form.Field>
-          </>
-        ) : (
-          <>
-            {(["displayName", "givenName", "familyName"] as const).map(
-              (name, index) => (
-                <form.Field key={name} name={name}>
-                  {(field) => (
-                    <div className="space-y-2">
-                      <Label htmlFor={name}>
-                        {index === 0
-                          ? m.people_name()
-                          : index === 1
-                            ? m.people_given()
-                            : m.people_family()}
-                      </Label>
-                      <Input
-                        id={name}
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        maxLength={120}
-                        required={index === 0}
-                      />
-                    </div>
-                  )}
-                </form.Field>
-              ),
-            )}
-          </>
-        )}
+            </>
+          )}
+        </fieldset>
         {validation && <p role="alert">{m.people_invalid()}</p>}
-        {mutation.isError && <ErrorNotice error={mutation.error} />}
+        {mutation.isError && (
+          <ErrorNotice error={mutation.error} saving draft />
+        )}
         <div className="flex flex-wrap justify-end gap-3">
           <Button
             type="button"

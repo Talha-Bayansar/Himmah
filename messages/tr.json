@@ -1141,5 +1141,19 @@
   "learn_insights_all_scores": "Tüm puan sayımları",
   "learn_insights_selection_hint": "Bir çubuğa dokunun veya sayısını görmek için bir puan seçin.",
   "learn_insights_question_option": "Soru {number} · {correct}/{total} doğru",
-  "learn_insights_scope": "Özetler seçilen sürümün tamamını kapsar. İsim araması yalnızca aşağıdaki bireysel sonuçları filtreler."
+  "learn_insights_scope": "Özetler seçilen sürümün tamamını kapsar. İsim araması yalnızca aşağıdaki bireysel sonuçları filtreler.",
+  "interface_request_unconfirmed": "Bu isteği doğrulayamadık. Lütfen tekrar deneyin.",
+  "interface_load_error": "Bu bilgiler yüklenemedi. Lütfen tekrar deneyin.",
+  "interface_save_error": "Kayıt işlemi doğrulanamadı. Değişiklikleriniz burada duruyor. Lütfen tekrar deneyin.",
+  "interface_discard": "Değişiklikleri sil",
+  "interface_required": "Bu alanı doldurun.",
+  "interface_financial_details": "Ödeme ayrıntıları",
+  "interface_agenda": "Takvim",
+  "interface_filters": "Filtreler",
+  "interface_reset_filters": "Filtreleri temizle",
+  "interface_check_field": "Bu değeri kontrol edin.",
+  "interface_minimum_chars": "En az {count} karakter kullanın.",
+  "interface_filter_help": "Değişiklikler hemen uygulanır.",
+  "interface_active_filter": "Etkin filtre",
+  "interface_home_short": "Başla"
 }

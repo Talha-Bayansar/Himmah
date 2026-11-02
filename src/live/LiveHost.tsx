@@ -1,3 +1,5 @@
+import { UtilityButton } from "../components/shared/utility-button";
+import { MetricSummary } from "../components/shared/metric-summary";
 import { useEffect, useState } from "react";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
@@ -321,9 +323,7 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
         </Button>
         {data && (
           <div className="live-toolbar-actions">
-            <ActionButton
-              variant="outline"
-              size="icon"
+            <UtilityButton
               aria-label={m.live_refresh()}
               pending={query.isFetching}
               onClick={() => {
@@ -332,7 +332,7 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
               }}
             >
               <RefreshCw aria-hidden="true" />
-            </ActionButton>
+            </UtilityButton>
             {active && (
               <ItemActions
                 name={data.title}
@@ -377,29 +377,22 @@ function HostRoom({ detail, room }: { detail: LearningDetail; room: string }) {
                 void query.refetch();
               }}
             />
-            <dl
+            <MetricSummary
               className="live-counts"
-              data-single={
-                data.questionIndex < 0 ||
-                data.state === "finished" ||
-                data.expired
-              }
-            >
-              <div>
-                <dt>{m.live_participants()}</dt>
-                <dd>{data.participants}</dd>
-              </div>
-              {data.questionIndex >= 0 &&
+              items={[
+                { label: m.live_participants(), value: data.participants },
+                ...(data.questionIndex >= 0 &&
                 data.state !== "finished" &&
-                !data.expired && (
-                  <div>
-                    <dt>{m.live_answer_count()}</dt>
-                    <dd>
-                      {data.answered ?? 0} / {data.participants}
-                    </dd>
-                  </div>
-                )}
-            </dl>
+                !data.expired
+                  ? [
+                      {
+                        label: m.live_answer_count(),
+                        value: `${data.answered ?? 0} / ${data.participants}`,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
             {data.state === "lobby" && primaryAction}
             {data.state === "lobby" && !data.expired && (
               <section className="live-room-share">

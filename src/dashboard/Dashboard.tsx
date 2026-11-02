@@ -1,3 +1,4 @@
+import { UtilityButton } from "../components/shared/utility-button";
 import { SessionList } from "./SessionList";
 import { Statistic, StatisticPeriods } from "../insights/Statistic";
 import { perSession } from "../insights/statistics";
@@ -15,8 +16,10 @@ import { ArrowRight, CalendarDays, RefreshCw, Users } from "lucide-react";
 import { directoryRequest, DirectoryError } from "../community/client";
 import { ErrorNotice } from "../activities/Activities";
 import { DirectoryHeader } from "../components/shared/directory-layout";
-import { ListSkeleton } from "../components/shared/infinite-list";
-import { Button } from "../components/ui/button";
+import {
+  ListSkeleton,
+  MetricSkeleton,
+} from "../components/shared/infinite-list";
 import { useLocale } from "../localization/locale";
 import { sessionPrice } from "../activities/contracts";
 import type { Organization } from "../organization/contracts";
@@ -126,15 +129,13 @@ export default function Dashboard({
         description={m.dashboard_intro()}
         autoFocus={false}
         action={
-          <Button
-            variant="outline"
-            size="icon"
+          <UtilityButton
             aria-label={m.dashboard_refresh()}
-            disabled={busy}
+            pending={busy}
             onClick={refresh}
           >
             <RefreshCw aria-hidden="true" size={18} />
-          </Button>
+          </UtilityButton>
         }
       />
       <section
@@ -168,6 +169,7 @@ export default function Dashboard({
                 <p className="directory-empty">{m.dashboard_no_sessions()}</p>
               ) : (
                 <SessionList
+                  compact
                   items={upcoming.data.items}
                   organizationId={organization.id}
                   label={m.dashboard_upcoming()}
@@ -186,55 +188,6 @@ export default function Dashboard({
           )
         )}
       </section>
-      {admin && (
-        <section
-          className="dashboard-section"
-          aria-labelledby="dashboard-actions"
-        >
-          <h2 id="dashboard-actions">{m.dashboard_actions()}</h2>
-          <div className="dashboard-shortcuts">
-            <Link
-              to="/workspace/$organizationId/people/contacts"
-              params={{ organizationId: organization.id }}
-            >
-              <Users aria-hidden="true" size={20} />
-              <span>{m.dashboard_contacts()}</span>
-              <ArrowRight aria-hidden="true" size={18} />
-            </Link>
-            <Link
-              to="/workspace/$organizationId/forms/$form/$recordId"
-              params={{
-                organizationId: organization.id,
-                form: "activity",
-                recordId: "new",
-              }}
-              search={{ returnTo: `/workspace/${organization.id}/dashboard` }}
-            >
-              <CalendarDays aria-hidden="true" size={20} />
-              <span>{m.dashboard_plan()}</span>
-              <ArrowRight aria-hidden="true" size={18} />
-            </Link>
-            <Link
-              to="/workspace/$organizationId/follow-up"
-              params={{ organizationId: organization.id }}
-              search={{ days: 30, view: "recent", q: "" }}
-            >
-              <UserRoundSearch aria-hidden="true" size={20} />
-              <span>{m.follow_up_title()}</span>
-              <ArrowRight aria-hidden="true" size={18} />
-            </Link>
-            <Link
-              to="/workspace/$organizationId/learning"
-              params={{ organizationId: organization.id }}
-              search={{ q: "", activity: "", session: "" }}
-            >
-              <BookOpen aria-hidden="true" size={20} />
-              <span>{m.learn_title()}</span>
-              <ArrowRight aria-hidden="true" size={18} />
-            </Link>
-          </div>
-        </section>
-      )}
       {admin && (
         <section
           className="dashboard-section"
@@ -262,7 +215,7 @@ export default function Dashboard({
             />
           )}
           {report.isPending ? (
-            <ListSkeleton />
+            <MetricSkeleton count={4} />
           ) : (
             summary && (
               <StatisticPeriods
@@ -344,6 +297,55 @@ export default function Dashboard({
               </StatisticPeriods>
             )
           )}
+        </section>
+      )}
+      {admin && (
+        <section
+          className="dashboard-section"
+          aria-labelledby="dashboard-actions"
+        >
+          <h2 id="dashboard-actions">{m.dashboard_actions()}</h2>
+          <div className="dashboard-shortcuts">
+            <Link
+              to="/workspace/$organizationId/people/contacts"
+              params={{ organizationId: organization.id }}
+            >
+              <Users aria-hidden="true" size={20} />
+              <span>{m.dashboard_contacts()}</span>
+              <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <Link
+              to="/workspace/$organizationId/forms/$form/$recordId"
+              params={{
+                organizationId: organization.id,
+                form: "activity",
+                recordId: "new",
+              }}
+              search={{ returnTo: `/workspace/${organization.id}/dashboard` }}
+            >
+              <CalendarDays aria-hidden="true" size={20} />
+              <span>{m.dashboard_plan()}</span>
+              <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <Link
+              to="/workspace/$organizationId/follow-up"
+              params={{ organizationId: organization.id }}
+              search={{ days: 30, view: "recent", q: "" }}
+            >
+              <UserRoundSearch aria-hidden="true" size={20} />
+              <span>{m.follow_up_title()}</span>
+              <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <Link
+              to="/workspace/$organizationId/learning"
+              params={{ organizationId: organization.id }}
+              search={{ q: "", activity: "", session: "" }}
+            >
+              <BookOpen aria-hidden="true" size={20} />
+              <span>{m.learn_title()}</span>
+              <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+          </div>
         </section>
       )}
     </div>

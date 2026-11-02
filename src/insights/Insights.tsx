@@ -1,3 +1,4 @@
+import { UtilityButton } from "../components/shared/utility-button";
 import { Statistic, StatisticPeriods } from "./Statistic";
 import { perSession, share } from "./statistics";
 import {
@@ -26,6 +27,7 @@ import {
 import {
   InfiniteFooter,
   ListSkeleton,
+  MetricSkeleton,
 } from "../components/shared/infinite-list";
 import { FormSurface } from "../components/shared/form-surface";
 import { Button } from "../components/ui/button";
@@ -268,18 +270,13 @@ export default function Insights({
           description={m.insights_intro()}
           autoFocus={false}
           action={
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={report.isFetching}
+            <UtilityButton
+              pending={report.isFetching}
               aria-label={m.insights_refresh()}
               onClick={() => void report.refetch()}
             >
-              <RefreshCw
-                aria-hidden="true"
-                className={report.isFetching ? "animate-spin" : ""}
-              />
-            </Button>
+              <RefreshCw aria-hidden="true" />
+            </UtilityButton>
           }
         />
         <Button
@@ -406,7 +403,7 @@ export default function Insights({
         />
       )}
       {report.isPending ? (
-        <ListSkeleton />
+        <MetricSkeleton count={4} />
       ) : denied || (report.isError && !data) ? (
         <ErrorNotice
           error={report.error}

@@ -202,7 +202,7 @@ export function CancelSessionsPage({
       description={m.cancellation_help()}
       onClose={() => void cancel()}
     >
-      {save.isError && <ErrorNotice error={save.error} />}
+      {save.isError && <ErrorNotice error={save.error} saving />}
       <form
         className="directory-form"
         onSubmit={(e) => {

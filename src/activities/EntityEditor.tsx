@@ -171,7 +171,7 @@ export function EntityEditor({
       }
       onClose={() => void close()}
     >
-      {submit.isError && <ErrorNotice error={submit.error} />}
+      {submit.isError && <ErrorNotice error={submit.error} saving />}
       <form
         className="directory-form activity-form"
         onSubmit={(e) => {

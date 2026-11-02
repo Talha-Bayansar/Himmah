@@ -4,7 +4,7 @@ export const request = directoryRequest;
 export const accessDenied = (error: unknown) =>
   error instanceof DirectoryError &&
   ["not_found_or_forbidden", "sign_in", "verify_required"].includes(error.code);
-export function peopleMessage(error: unknown) {
+export function peopleMessage(error: unknown, fallback?: string) {
   if (error instanceof DirectoryError) {
     if (
       error.code === "version_conflict" ||
@@ -19,5 +19,5 @@ export function peopleMessage(error: unknown) {
     if (error.code === "duplicate_active_record")
       return m.people_duplicate_record();
   }
-  return m.error_service();
+  return fallback ?? m.interface_request_unconfirmed();
 }

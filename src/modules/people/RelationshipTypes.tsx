@@ -117,7 +117,7 @@ function TypeList({ org, user }: { org: string; user: string }) {
         />
         {m.people_archived_types()}
       </Label>
-      {mutation.isError && <ErrorNotice error={mutation.error} />}
+      {mutation.isError && <ErrorNotice error={mutation.error} saving />}
       {list.isPending ? (
         <ListSkeleton />
       ) : list.isError && !list.data ? (

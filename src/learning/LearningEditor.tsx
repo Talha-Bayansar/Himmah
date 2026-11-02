@@ -280,7 +280,7 @@ export default function LearningEditor({
       </Button>
       <DirectoryHeader
         title={item ? m.learn_edit() : m.learn_create()}
-        description={m.learn_editor_intro()}
+
         autoFocus={false}
       />
       <nav
@@ -323,7 +323,7 @@ export default function LearningEditor({
           }
         }}
       >
-        <p className="activity-note learning-step-status" role="status">
+        <p className="sr-only learning-step-status" role="status">
           {m.learn_wizard_step({ current: String(step + 1), total: "4" })} ·{" "}
           {steps[step]}
         </p>

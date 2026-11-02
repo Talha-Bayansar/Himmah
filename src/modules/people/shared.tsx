@@ -1,3 +1,4 @@
+import { ErrorFeedback } from "../../components/shared/feedback";
 import { FormSurface } from "../../components/shared/form-surface";
 import { useForm } from "@tanstack/react-form";
 import { reasonInput } from "./contracts";
@@ -40,8 +41,12 @@ export const PeopleAccessFailure = createContext<
 export function ErrorNotice({
   error,
   retry,
+  saving = false,
+  draft = false,
 }: {
+  draft?: boolean;
   error: unknown;
+  saving?: boolean;
   retry?: () => unknown;
 }) {
   const report = useContext(PeopleAccessFailure);
@@ -49,14 +54,17 @@ export function ErrorNotice({
     if (accessDenied(error)) report?.(error);
   }, [error, report]);
   return (
-    <div className="space-y-2">
-      <p role="alert">{peopleMessage(error)}</p>
-      {retry && !accessDenied(error) && (
-        <Button variant="outline" onClick={() => void retry()}>
-          {m.try_again()}
-        </Button>
+    <ErrorFeedback
+      message={peopleMessage(
+        error,
+        draft
+          ? m.interface_save_error()
+          : saving
+            ? m.interface_request_unconfirmed()
+            : m.interface_load_error(),
       )}
-    </div>
+      retry={retry && !accessDenied(error) ? retry : undefined}
+    />
   );
 }
 export function usePages<T>(
@@ -164,6 +172,7 @@ export function PeopleForm({
   const approved = useRef(false);
   const discard = () =>
     confirm({
+      confirmLabel: m.interface_discard(),
       title: m.people_discard(),
       description: m.people_discard_description(),
       destructive: true,
@@ -190,16 +199,16 @@ export function PeopleForm({
       onClose={() => void close()}
     >
       <form
-        className="space-y-4"
+        className="form-layout"
         onSubmit={(e) => {
           e.preventDefault();
           if (!pending) onSubmit();
         }}
       >
-        <fieldset disabled={pending} className="min-w-0 space-y-4">
+        <fieldset disabled={pending} className="form-fields">
           {children}
         </fieldset>
-        {!!error && <ErrorNotice error={error} />}
+        {!!error && <ErrorNotice error={error} saving draft />}
         <div className="flex flex-wrap justify-end gap-3">
           <Button
             type="button"

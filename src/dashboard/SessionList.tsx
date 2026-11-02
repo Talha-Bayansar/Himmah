@@ -13,10 +13,12 @@ export function SessionList({
   items,
   organizationId,
   label,
+  compact = false,
 }: {
   items: DashboardSession[];
   organizationId: string;
   label: string;
+  compact?: boolean;
 }) {
   const locale = useLocale()?.locale ?? "en";
   return (
@@ -24,7 +26,11 @@ export function SessionList({
       {items.map((item) => (
         <DirectoryItem key={item.id} linked>
           <Link
-            className="directory-item-link"
+            className={
+              compact
+                ? "directory-item-link session-preview-link"
+                : "directory-item-link"
+            }
             to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
             params={{
               organizationId,
@@ -36,8 +42,9 @@ export function SessionList({
               name={sessionTitle(item)}
               detail={
                 <>
-                  {item.topic && <span>{item.name}</span>}
+                  {item.topic && !compact && <span>{item.name}</span>}
                   <time dateTime={item.startsAt}>
+                    {compact && item.topic && `${item.name} · `}
                     {new Intl.DateTimeFormat(locale, {
                       dateStyle: "medium",
                       timeStyle: "short",
@@ -47,7 +54,7 @@ export function SessionList({
                       new Date(item.endsAt),
                     )}
                   </time>
-                  {item.location && <span>{item.location}</span>}
+                  {item.location && !compact && <span>{item.location}</span>}
                 </>
               }
               icon={<CalendarDays aria-hidden="true" size={20} />}

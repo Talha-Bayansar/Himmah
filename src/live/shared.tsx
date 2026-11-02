@@ -63,7 +63,7 @@ export function LiveCommandNotice({
   if (!command.isError) return null;
   return (
     <div className="participant-message">
-      <ErrorNotice error={command.error} />
+      <ErrorNotice error={command.error} saving />
       {command.uncertain ? (
         <>
           <p>{m.learn_uncertain()}</p>

@@ -22,13 +22,15 @@ export async function directoryRequest<T>(
     );
   return value as T;
 }
-export function directoryMessage(error: unknown) {
+export function directoryMessage(error: unknown, fallback?: string) {
+  if (!(error instanceof DirectoryError) || error.code === "service")
+    return fallback ?? m.interface_request_unconfirmed();
   const key =
     error instanceof DirectoryError
       ? "directory_" + error.code
       : "directory_service";
   const messages = m as unknown as Record<string, () => string>;
-  return messages[key]?.() ?? m.error_service();
+  return messages[key]?.() ?? fallback ?? m.interface_request_unconfirmed();
 }
 export function useDirectoryPages<T>(
   key: readonly unknown[],

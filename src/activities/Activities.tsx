@@ -1,3 +1,5 @@
+import { DirectoryFilters } from "../components/shared/directory-filters";
+import { ErrorFeedback } from "../components/shared/feedback";
 import { sessionPrice } from "./contracts";
 import { useFormNavigation } from "../components/shared/form-navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -30,7 +32,6 @@ import {
   ListSkeleton,
 } from "../components/shared/infinite-list";
 import { ItemActions } from "../components/shared/item-actions";
-import { Alert, AlertDescription } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
 import { Input } from "../components/ui/input";
@@ -49,27 +50,22 @@ export function ErrorNotice({
   error,
   retry,
   pending = false,
+  saving = false,
 }: {
+  saving?: boolean;
   error: unknown;
   retry?: () => void;
   pending?: boolean;
 }) {
   return (
-    <div className="space-y-3">
-      <Alert variant="destructive" role="alert">
-        <AlertDescription>{directoryMessage(error)}</AlertDescription>
-      </Alert>
-      {retry && (
-        <ActionButton
-          type="button"
-          variant="outline"
-          pending={pending}
-          onClick={retry}
-        >
-          {m.try_again()}
-        </ActionButton>
+    <ErrorFeedback
+      message={directoryMessage(
+        error,
+        saving ? m.interface_request_unconfirmed() : m.interface_load_error(),
       )}
-    </div>
+      retry={retry}
+      pending={pending}
+    />
   );
 }
 export function Audience({ groups }: { groups: AudienceGroup[] }) {
@@ -501,13 +497,18 @@ export default function Activities({
                 onChange={(e) => setSearch(e.target.value)}
               />
             </label>
-            <label className="directory-archived">
-              <Checkbox
-                checked={archived}
-                onCheckedChange={(value) => setArchived(value === true)}
-              />
-              {m.activities_show_cancelled()}
-            </label>
+            <DirectoryFilters
+              active={archived}
+              onReset={() => setArchived(false)}
+            >
+              <label className="directory-archived">
+                <Checkbox
+                  checked={archived}
+                  onCheckedChange={(value) => setArchived(value === true)}
+                />
+                {m.activities_show_cancelled()}
+              </label>
+            </DirectoryFilters>
           </div>
           {query.isPending ? (
             <ListSkeleton />
@@ -537,7 +538,7 @@ export default function Activities({
           )}
         </>
       )}
-      {archive.isError && <ErrorNotice error={archive.error} />}
+      {archive.isError && <ErrorNotice error={archive.error} saving />}
       {permanentDelete.isError && (
         <ErrorNotice
           error={permanentDelete.error}

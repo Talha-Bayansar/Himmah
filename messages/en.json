@@ -1141,5 +1141,19 @@
   "learn_insights_all_scores": "All score counts",
   "learn_insights_selection_hint": "Tap a bar or choose a score to inspect its count.",
   "learn_insights_question_option": "Question {number} · {correct}/{total} correct",
-  "learn_insights_scope": "Summaries cover the whole selected version. Name search filters only the individual results below."
+  "learn_insights_scope": "Summaries cover the whole selected version. Name search filters only the individual results below.",
+  "interface_request_unconfirmed": "We could not confirm this request. Please try again.",
+  "interface_load_error": "We could not load this information. Please try again.",
+  "interface_save_error": "Saving could not be confirmed. Your changes are still here. Please try again.",
+  "interface_discard": "Discard changes",
+  "interface_required": "Complete this field.",
+  "interface_financial_details": "Payment breakdown",
+  "interface_agenda": "Agenda",
+  "interface_filters": "Filters",
+  "interface_reset_filters": "Clear filters",
+  "interface_check_field": "Check this value.",
+  "interface_minimum_chars": "Use at least {count} characters.",
+  "interface_filter_help": "Changes apply immediately.",
+  "interface_active_filter": "Active filter",
+  "interface_home_short": "Home"
 }

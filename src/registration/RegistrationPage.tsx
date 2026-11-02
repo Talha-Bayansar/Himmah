@@ -705,7 +705,7 @@ function Editor({
           </div>
         )}
         {invalid && <p role="alert">{m.registration_selection_required()}</p>}
-        {operation.isError && <ErrorNotice error={operation.error} />}
+        {operation.isError && <ErrorNotice error={operation.error} saving />}
         {attempt.current && operation.isError && (
           <p>{m.registration_uncertain()}</p>
         )}

@@ -44,6 +44,7 @@ export function WorkspaceNavigation({
       <Link
         to="/workspace/$organizationId/$section"
         params={{ organizationId, section: "dashboard" }}
+        aria-label={m.dashboard_title()}
         aria-current={
           section === "dashboard" ||
           section === "insights" ||
@@ -54,7 +55,10 @@ export function WorkspaceNavigation({
         }
       >
         <House aria-hidden="true" size={20} />
-        <span>{m.dashboard_title()}</span>
+        <span className="navigation-full-label">{m.dashboard_title()}</span>
+        <span className="navigation-short-label" aria-hidden="true">
+          {m.interface_home_short()}
+        </span>
       </Link>
       {admin && (
         <Link
@@ -69,6 +73,7 @@ export function WorkspaceNavigation({
       <Link
         to="/workspace/$organizationId/$section"
         params={{ organizationId, section: "activities" }}
+        aria-label={m.activities_title()}
         aria-current={
           section === "activities" || section === "schedule"
             ? "page"
@@ -76,7 +81,10 @@ export function WorkspaceNavigation({
         }
       >
         <CalendarDays aria-hidden="true" size={20} />
-        <span>{m.activities_title()}</span>
+        <span className="navigation-full-label">{m.activities_title()}</span>
+        <span className="navigation-short-label" aria-hidden="true">
+          {m.interface_agenda()}
+        </span>
       </Link>
       {admin && (
         <Link

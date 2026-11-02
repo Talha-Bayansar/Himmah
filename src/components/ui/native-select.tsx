@@ -1,3 +1,5 @@
+import { useFieldFeedback } from "../shared/field-feedback";
+import { FieldError } from "../shared/feedback";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ChevronDownIcon } from "lucide-react";
@@ -7,28 +9,50 @@ function NativeSelect({
   size = "default",
   ...props
 }: Omit<React.ComponentProps<"select">, "size"> & { size?: "sm" | "default" }) {
+  const feedback = useFieldFeedback({
+    id: props.id,
+    invalid: props["aria-invalid"],
+    describedBy: props["aria-describedby"],
+    value: props.value ?? props.defaultValue,
+  });
   return (
-    <div
-      className="group/native-select relative w-fit has-[select:disabled]:opacity-50"
-      data-slot="native-select-wrapper"
-    >
-      <select
-        data-slot="native-select"
-        data-size={size}
-        className={cn(
-          "h-12 w-full min-w-0 appearance-none rounded-[var(--radius-control)] border border-input bg-card px-4 py-0 pr-10 text-base leading-normal shadow-none transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed data-[size=sm]:h-11 dark:bg-input/30 dark:hover:bg-input/50",
-          "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-          "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-          className,
-        )}
-        {...props}
-      />
-      <ChevronDownIcon
-        className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-muted-foreground opacity-50 select-none"
-        aria-hidden="true"
-        data-slot="native-select-icon"
-      />
-    </div>
+    <>
+      <div
+        className="group/native-select relative w-fit has-[select:disabled]:opacity-50"
+        data-slot="native-select-wrapper"
+      >
+        <select
+          data-slot="native-select"
+          data-size={size}
+          className={cn(
+            "h-12 w-full min-w-0 appearance-none rounded-[var(--radius-control)] border border-input bg-card px-4 py-0 pr-10 text-base leading-normal shadow-none transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed data-[size=sm]:h-11 dark:bg-input/30 dark:hover:bg-input/50",
+            "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+            className,
+          )}
+          {...props}
+          aria-invalid={feedback.invalid}
+          aria-describedby={feedback.describedBy}
+          aria-errormessage={feedback.error ? feedback.errorId : undefined}
+          onInvalid={(event) => {
+            props.onInvalid?.(event);
+            feedback.onInvalid(event);
+          }}
+          onChange={(event) => {
+            feedback.onChange(event.currentTarget);
+            props.onChange?.(event);
+          }}
+        />
+        <ChevronDownIcon
+          className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-muted-foreground opacity-50 select-none"
+          aria-hidden="true"
+          data-slot="native-select-icon"
+        />
+      </div>
+      <FieldError id={feedback.errorId} announce={feedback.announce}>
+        {feedback.error}
+      </FieldError>
+    </>
   );
 }
 

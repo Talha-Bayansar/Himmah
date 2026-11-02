@@ -1,3 +1,4 @@
+import { MetricSummary } from "../components/shared/metric-summary";
 import LearningInsights from "./LearningInsights";
 import LiveHost from "../live/LiveHost";
 import { useEffect, useState } from "react";
@@ -386,7 +387,7 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
       <div className="section-action-group">
         <DirectoryHeader
           title={item.title}
-          description={stateLabel(item.state)}
+          description={!pub ? stateLabel(item.state) : ""}
           autoFocus={false}
           action={
             <ItemActions
@@ -395,11 +396,11 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
               disabled={command.uncertain}
               actions={[
                 {
-                  label: m.learn_edit(),
-                  icon: Pencil,
+                  label: m.live_host(),
+                  icon: BookOpen,
                   onSelect: () =>
                     void navigate({
-                      to: "/workspace/$organizationId/learning/$learningId/edit",
+                      to: "/workspace/$organizationId/learning/$learningId/live",
                       params: { organizationId: org.id, learningId: item.id },
                       search: {
                         q: "",
@@ -410,6 +411,30 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
                       },
                     }),
                 },
+
+                ...(!pub || tab !== "questions"
+                  ? [
+                      {
+                        label: m.learn_edit(),
+                        icon: Pencil,
+                        onSelect: () =>
+                          void navigate({
+                            to: "/workspace/$organizationId/learning/$learningId/edit",
+                            params: {
+                              organizationId: org.id,
+                              learningId: item.id,
+                            },
+                            search: {
+                              q: "",
+                              tab: "participants",
+                              publication: "",
+                              activity: "",
+                              session: "",
+                            },
+                          }),
+                      },
+                    ]
+                  : []),
                 ...(pub && !current && hasDraftChanges
                   ? [
                       {
@@ -470,33 +495,7 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
             />
           }
         />
-        <Button
-          asChild
-          variant="outline"
-          className="contextual-secondary-action"
-        >
-          <Link
-            to="/workspace/$organizationId/learning/$learningId/live"
-            params={{ organizationId: org.id, learningId: item.id }}
-            search={{
-              q: "",
-              tab: "participants",
-              publication: "",
-              activity: "",
-              session: "",
-            }}
-          >
-            <BookOpen aria-hidden="true" />
-            {m.live_host()}
-          </Link>
-        </Button>
       </div>
-      {item.description && <p>{item.description}</p>}
-      {(item.activityName || item.sessionTopic) && (
-        <p className="activity-note">
-          {[item.activityName, item.sessionTopic].filter(Boolean).join(" · ")}
-        </p>
-      )}
       {!pub ? (
         <ActionButton
           pending={command.isPending}
@@ -508,19 +507,37 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
         </ActionButton>
       ) : (
         <>
-          <div className="learning-publication-select">
-            <Label htmlFor="learning-publication">{m.learn_version()}</Label>
-            <NativeSelect
-              id="learning-publication"
-              value={pub.id}
-              onChange={(e) => apply({ publication: e.target.value, q: "" })}
-            >
-              {detail.versions.map((v) => (
-                <NativeSelectOption key={v.id} value={v.id}>
-                  {m.learn_version_number({ number: String(v.number) })}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+          <div className="learning-context">
+            <span className="activity-note">{stateLabel(item.state)}</span>
+            <div className="learning-publication-select">
+              {detail.versions.length > 1 ? (
+                <>
+                  <Label htmlFor="learning-publication" className="sr-only">
+                    {m.learn_version()}
+                  </Label>
+                  <NativeSelect
+                    id="learning-publication"
+                    value={pub.id}
+                    onChange={(e) =>
+                      apply({ publication: e.target.value, q: "" })
+                    }
+                  >
+                    {detail.versions.map((v) => (
+                      <NativeSelectOption key={v.id} value={v.id}>
+                        {m.learn_version_number({ number: String(v.number) })}
+                      </NativeSelectOption>
+                    ))}
+                  </NativeSelect>
+                </>
+              ) : (
+                <span className="activity-note" aria-label={m.learn_version()}>
+                  {m.learn_version_number({ number: String(pub.number) })}
+                </span>
+              )}
+            </div>
+            <span className="learning-release-state activity-note">
+              {pub.released ? m.learn_released() : m.learn_staff_results_held()}
+            </span>
           </div>
           {current && hasDraftChanges && (
             <>
@@ -539,55 +556,6 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
               </ActionButton>
             </>
           )}
-          {current &&
-            !hasDraftChanges &&
-            item.state === "published" &&
-            (pub.content.mode === "assigned" ? (
-              <Button asChild>
-                <Link
-                  to="/workspace/$organizationId/learning/$learningId/assign"
-                  params={{ organizationId: org.id, learningId: item.id }}
-                  search={{
-                    q: "",
-                    tab: "participants",
-                    publication: "",
-                    activity: "",
-                    session: "",
-                  }}
-                >
-                  <UserPlus />
-                  {m.learn_assign()}
-                </Link>
-              </Button>
-            ) : (
-              <ActionButton
-                pending={command.isPending}
-                disabled={command.uncertain}
-                onClick={() => void generate()}
-              >
-                <Link2 />
-                {pub.hasLink ? m.learn_generate_link() : m.learn_share()}
-              </ActionButton>
-            ))}
-          {tab !== "results" && (
-            <dl className="learning-counts">
-              <div>
-                <dt>{m.learn_participants()}</dt>
-                <dd>{detail.counts.assigned.toLocaleString(locale)}</dd>
-              </div>
-              <div>
-                <dt>{m.learn_started()}</dt>
-                <dd>{detail.counts.started.toLocaleString(locale)}</dd>
-              </div>
-              <div>
-                <dt>{m.learn_submitted()}</dt>
-                <dd>{detail.counts.submitted.toLocaleString(locale)}</dd>
-              </div>
-            </dl>
-          )}
-          <p className="activity-note">
-            {pub.released ? m.learn_released() : m.learn_staff_results_held()}
-          </p>
           <Tabs value={tab} onValueChange={(tab) => apply({ tab, q: "" })}>
             <TabsList className="learning-tabs" aria-label={m.learn_title()}>
               {(["questions", "participants", "results"] as const).map((v) => (
@@ -601,6 +569,29 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
               ))}
             </TabsList>
             <TabsContent value="questions">
+              {!command.uncertain && !command.isPending && (
+                <Button
+                  variant="outline"
+                  asChild
+                  className="contextual-secondary-action"
+                >
+                  <Link
+                    to="/workspace/$organizationId/learning/$learningId/edit"
+                    params={{ organizationId: org.id, learningId: item.id }}
+                    search={{
+                      q: "",
+                      tab: "questions",
+                      publication: pub.id,
+                      activity: "",
+                      session: "",
+                    }}
+                  >
+                    <Pencil aria-hidden="true" />
+                    {m.learn_edit()}
+                  </Link>
+                </Button>
+              )}
+
               <ol className="learning-question-preview">
                 {pub.content.questions.map((q, i) => (
                   <li key={i}>
@@ -622,7 +613,63 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
             </TabsContent>
             <TabsContent value="participants">
               {tab === "participants" && (
-                <Participants detail={detail} command={command} />
+                <>
+                  {current &&
+                    !hasDraftChanges &&
+                    item.state === "published" &&
+                    (pub.content.mode === "assigned" ? (
+                      <Button asChild>
+                        <Link
+                          to="/workspace/$organizationId/learning/$learningId/assign"
+                          params={{
+                            organizationId: org.id,
+                            learningId: item.id,
+                          }}
+                          search={{
+                            q: "",
+                            tab: "participants",
+                            publication: "",
+                            activity: "",
+                            session: "",
+                          }}
+                        >
+                          <UserPlus />
+                          {m.learn_assign()}
+                        </Link>
+                      </Button>
+                    ) : (
+                      <ActionButton
+                        pending={command.isPending}
+                        disabled={command.uncertain}
+                        onClick={() => void generate()}
+                      >
+                        <Link2 />
+                        {pub.hasLink
+                          ? m.learn_generate_link()
+                          : m.learn_share()}
+                      </ActionButton>
+                    ))}
+                  <MetricSummary
+                    compact
+                    className="learning-counts"
+                    items={[
+                      {
+                        label: m.learn_participants(),
+                        value: detail.counts.assigned.toLocaleString(locale),
+                      },
+                      {
+                        label: m.learn_started(),
+                        value: detail.counts.started.toLocaleString(locale),
+                      },
+                      {
+                        label: m.learn_submitted(),
+                        value: detail.counts.submitted.toLocaleString(locale),
+                      },
+                    ]}
+                  />
+
+                  <Participants detail={detail} command={command} />
+                </>
               )}
             </TabsContent>
             <TabsContent value="results">
@@ -648,6 +695,15 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
           </Tabs>
           <details className="session-help">
             <summary>{m.learn_settings()}</summary>
+            {item.description && <p>{item.description}</p>}
+            {(item.activityName || item.sessionTopic) && (
+              <p className="activity-note">
+                {[item.activityName, item.sessionTopic]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            )}
+
             <p>
               {pub.content.mode === "assigned"
                 ? m.learn_assignment_warning()
@@ -668,6 +724,19 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
             <p>{m.learn_independent()}</p>
           </details>
         </>
+      )}
+      {!pub && (item.description || item.activityName || item.sessionTopic) && (
+        <details className="session-help">
+          <summary>{m.learn_wizard_details()}</summary>
+          {item.description && <p>{item.description}</p>}
+          {(item.activityName || item.sessionTopic) && (
+            <p className="activity-note">
+              {[item.activityName, item.sessionTopic]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          )}
+        </details>
       )}
       <CommandError command={command} />
       {share &&

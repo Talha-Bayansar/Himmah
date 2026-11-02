@@ -297,7 +297,7 @@ export function ScheduleEditor({
         <p className="activity-status">{activity.name}</p>
         <p className="activity-note">{m.activities_timezone({ timezone })}</p>
       </div>
-      {save.isError && <ErrorNotice error={save.error} />}
+      {save.isError && <ErrorNotice error={save.error} saving />}
       {validation && <p role="alert">{validation}</p>}
       {review ? (
         <div className="directory-form">

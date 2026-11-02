@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { MoreHorizontal, type LucideIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "../ui/dropdown-menu";
 import { ActionButton } from "./action-button";
 import { useLocale } from "../../localization/locale";
@@ -70,19 +71,24 @@ export function ItemActions({
           });
         }}
       >
-        {actions.map((action) => (
-          <DropdownMenuItem
-            key={action.label}
-            disabled={action.disabled}
-            variant={action.destructive ? "destructive" : "default"}
-            onSelect={() => {
-              queued.current = action;
-              setOpen(false);
-            }}
-          >
-            <action.icon size={18} aria-hidden="true" />
-            <span>{action.label}</span>
-          </DropdownMenuItem>
+        {actions.map((action, index) => (
+          <Fragment key={action.label}>
+            {action.destructive &&
+              index > 0 &&
+              !actions[index - 1]?.destructive && <DropdownMenuSeparator />}
+            <DropdownMenuItem
+              key={action.label}
+              disabled={action.disabled}
+              variant={action.destructive ? "destructive" : "default"}
+              onSelect={() => {
+                queued.current = action;
+                setOpen(false);
+              }}
+            >
+              <action.icon size={18} aria-hidden="true" />
+              <span>{action.label}</span>
+            </DropdownMenuItem>
+          </Fragment>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
