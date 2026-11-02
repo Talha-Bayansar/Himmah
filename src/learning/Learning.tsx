@@ -1,3 +1,4 @@
+import LearningInsights from "./LearningInsights";
 import LiveHost from "../live/LiveHost";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -568,20 +569,22 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
                 {pub.hasLink ? m.learn_generate_link() : m.learn_share()}
               </ActionButton>
             ))}
-          <dl className="learning-counts">
-            <div>
-              <dt>{m.learn_participants()}</dt>
-              <dd>{detail.counts.assigned.toLocaleString(locale)}</dd>
-            </div>
-            <div>
-              <dt>{m.learn_started()}</dt>
-              <dd>{detail.counts.started.toLocaleString(locale)}</dd>
-            </div>
-            <div>
-              <dt>{m.learn_submitted()}</dt>
-              <dd>{detail.counts.submitted.toLocaleString(locale)}</dd>
-            </div>
-          </dl>
+          {tab !== "results" && (
+            <dl className="learning-counts">
+              <div>
+                <dt>{m.learn_participants()}</dt>
+                <dd>{detail.counts.assigned.toLocaleString(locale)}</dd>
+              </div>
+              <div>
+                <dt>{m.learn_started()}</dt>
+                <dd>{detail.counts.started.toLocaleString(locale)}</dd>
+              </div>
+              <div>
+                <dt>{m.learn_submitted()}</dt>
+                <dd>{detail.counts.submitted.toLocaleString(locale)}</dd>
+              </div>
+            </dl>
+          )}
           <p className="activity-note">
             {pub.released ? m.learn_released() : m.learn_staff_results_held()}
           </p>
@@ -624,7 +627,22 @@ function LearningDetailView({ detail }: { detail: LearningDetail }) {
             </TabsContent>
             <TabsContent value="results">
               {tab === "results" && (
-                <Participants detail={detail} command={command} results />
+                <div className="learning-results">
+                  <LearningInsights
+                    key={pub.id}
+                    item={item.id}
+                    publication={pub.id}
+                  />
+                  <section
+                    className="learning-individual-results"
+                    aria-labelledby="learning-individual-heading"
+                  >
+                    <h2 id="learning-individual-heading">
+                      {m.learn_insights_individual()}
+                    </h2>
+                    <Participants detail={detail} command={command} results />
+                  </section>
+                </div>
               )}
             </TabsContent>
           </Tabs>

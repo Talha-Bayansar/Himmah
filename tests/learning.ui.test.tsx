@@ -175,6 +175,37 @@ function backend(changed = false, draftOverride?: typeof content) {
           ],
           nextCursor: null,
         });
+      if (u.pathname.endsWith("/insights"))
+        return Response.json({
+          publicationId: pub,
+          number: 1,
+          mode: "assigned",
+          questionCount: content.questions.length,
+          generatedAt: org.createdAt,
+          participants: 1,
+          completed: 1,
+          inProgress: 0,
+          notStarted: 0,
+          revoked: 0,
+          averageScore: 2,
+          distribution: [
+            { score: 0, count: 0 },
+            { score: 1, count: 0 },
+            { score: 2, count: 1 },
+          ],
+          questions: content.questions.map((q, index) => ({
+            index,
+            text: q.text,
+            correct: 1,
+            incorrect: 0,
+            unanswered: 0,
+            choices: q.choices.map((text, n) => ({
+              text,
+              correct: n === q.correct,
+              count: n === q.correct ? 1 : 0,
+            })),
+          })),
+        });
       if (u.pathname.endsWith("/results/" + recipient.id))
         return Response.json({
           name: "Alex",
@@ -796,4 +827,26 @@ it("provides manual copying without focusing the field when compact clipboard co
   );
   await user.click(screen.getByRole("button", { name: "Copy link" }));
   expect(await screen.findByRole("button", { name: "Copied" })).toBeTruthy();
+});
+
+it("opens published-version insights from Results while keeping individual history available", async () => {
+  const b = backend();
+  mountStaff();
+  await screen.findByRole("heading", { name: "Patience", level: 1 });
+  await userEvent.click(screen.getByRole("tab", { name: "Results" }));
+  expect(await screen.findByText("1 of 1 assignments completed")).toBeTruthy();
+  expect(
+    screen.getByRole("heading", { name: "Individual results" }),
+  ).toBeTruthy();
+  await userEvent.click(await screen.findByRole("button", { name: /^Alex/ }));
+  expect(
+    await within(await screen.findByRole("dialog")).findByText(
+      "Attempt 1 · 2/2",
+    ),
+  ).toBeTruthy();
+  expect(
+    b.fetcher.mock.calls.some(([input]) =>
+      String(input).includes(`/insights?publication=${pub}`),
+    ),
+  ).toBe(true);
 });

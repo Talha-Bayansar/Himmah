@@ -70,3 +70,27 @@ Rows link to the existing learning detail with exact publication/recipient searc
 `GET /api/organizations/:organizationId/learning/contacts/:contactId` independently requires verified owner/admin membership. SQL repeats the learning-admin and same-organization contact checks and scopes every version/attempt join. The response contains only bounded summary rows and a matching total, without answers, question text, answer keys or credentials. Cursors bind actor, tenant, contact and title query. Existing tables/indexes/functions suffice; no migration or hosted database write is needed. Learning commands invalidate these previews/lists; scope loss hides summaries and clears their private cached data. The full-page explanation stays in a disclosure.
 
 Synthetic Dutch references: [profile preview](design/contact-learning-preview-mobile.png) and [full history](design/contact-learning-history-mobile.png).
+
+## Published-version results insights
+
+Implemented 2 November 2026 as the next learning increment. Owners/admins open **Results** on a learning item and choose its published version using the existing version selector. Insights lead with completed entries and average score; score distribution and question analysis are progressive disclosures, followed by the existing searchable, cursor-paginated individual results and attempt-history sheet. The existing `tab=results&publication=…` URL reloads independently. Name search affects the individual list only, never the report summary.
+
+| Measure | Definition |
+| --- | --- |
+| Entries | Explicit contact/publication assignments in assigned mode; browser guest principals in open mode. Never infer verified people from nicknames. |
+| Completed | Entries with at least one submitted attempt, including zero scores. Each entry counts once. |
+| Average / score distribution | Latest **submitted** attempt per entry, not best score or all attempts. No submissions means no average, rather than a fabricated zero. Histogram includes exact scores 0 through the publication's question count. |
+| Question analysis | Correct, incorrect, unanswered and choice counts from those same latest submissions, using immutable published question text/keys. Each question's three result counts reconcile to Completed. In-progress answers never contribute. |
+| Attempts in progress | Entries whose latest attempt is unfinished. A previously submitted entry can also have a new attempt in progress; these counts are not disjoint. |
+| Not started | Entries with no attempt. |
+| Revoked | Entries whose links have been revoked. They remain in historical entry/completion/score counts; the disclosure makes this explicit. |
+
+Assigned mode shows completed/assigned counts. Open mode displays unverified guest entries and explains why no completion rate is available: viewers of the shared link are unknown. No pass threshold, pass rate, service-quality rating, cross-quiz score, attendance statistic or named ranking is invented. Live rooms retain their separate group summaries and never contribute to self-paced aggregates. Staff can inspect held results under the existing owner/admin permission; reading these insights does not release results to invitees.
+
+`GET /api/organizations/:organizationId/learning/:learningId/insights?publication=:publicationId` independently requires verified owner/admin membership in the API and `hub_learning_admin` in SQL. The selected publication must belong to the requested item and tenant. Missing/foreign publications return no report. One SQL statement provides a consistent snapshot and generated timestamp. Existing recipient and attempt indexes support publication filtering and bounded latest-attempt lookups. Answers aggregate inside SQL; at most 50 questions, six choices per question and 51 score bins leave the server, with no participant names/IDs, tokens or raw attempt answers. No schema/function installation, persistent analytics table or background job is required.
+
+Queries bind user/tenant/role/item/publication and use the existing private learning cache and scope-loss clearing. The Refresh results control refreshes active learning queries, including the individual list. Reads and switching versions have no side effects on assignments, submissions, release, contacts, attendance or money. The report is a point-in-time snapshot; it does not continuously poll.
+
+Graphs load on demand through shared shadcn/Recharts wrappers, with tooltips, tap selection, a labelled native score selector, persistent count readout and a full textual count disclosure. Question selection shows the published position and correct/submitted count and displays one question at a time. Controls preserve translated wrapping, shared gutters, touch targets, reduced motion and no autofocus. See the standing [design system](DESIGN_SYSTEM.md).
+
+Synthetic Dutch phone references: [results overview](design/learning-insights-summary-mobile.png), [interactive score distribution](design/learning-insights-distribution-mobile.png) and [question analysis](design/learning-insights-question-mobile.png). Fixtures are local and disposable; no hosted contact records or access credentials appear.

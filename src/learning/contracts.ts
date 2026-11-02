@@ -42,6 +42,29 @@ export type LearningDetail = {
   versions: { id: string; number: number }[];
   counts: { assigned: number; started: number; submitted: number };
 };
+/** One published version; latest submitted attempt per explicit assignment/guest. */
+export type LearningInsights = {
+  publicationId: string;
+  number: number;
+  mode: "assigned" | "open";
+  questionCount: number;
+  generatedAt: string;
+  participants: number;
+  completed: number;
+  inProgress: number;
+  notStarted: number;
+  revoked: number;
+  averageScore: number | null;
+  distribution: { score: number; count: number }[];
+  questions: {
+    index: number;
+    text: string;
+    correct: number;
+    incorrect: number;
+    unanswered: number;
+    choices: { text: string; correct: boolean; count: number }[];
+  }[];
+};
 export type Recipient = {
   id: string;
   name: string;

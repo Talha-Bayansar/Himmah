@@ -55,7 +55,7 @@ export async function learningApi(
       /^\/api\/organizations\/([0-9a-f-]{36})\/learning\/contacts\/([0-9a-f-]{36})$/i,
     ),
     m = url.pathname.match(
-      /^\/api\/organizations\/([0-9a-f-]{36})\/learning(?:\/([0-9a-f-]{36}|options))?(?:\/(participants|results)(?:\/([0-9a-f-]{36}))?)?$/i,
+      /^\/api\/organizations\/([0-9a-f-]{36})\/learning(?:\/([0-9a-f-]{36}|options))?(?:\/(participants|results|insights)(?:\/([0-9a-f-]{36}))?)?$/i,
     );
   if (!m && !history) return null;
   try {
@@ -126,6 +126,17 @@ export async function learningApi(
             p,
           ),
         );
+      if (m[3] === "insights") {
+        if (m[4]) throw new CommunityError("not_found", 404);
+        const data = await store.insights(
+          user.id,
+          org,
+          id,
+          uuid(url.searchParams.get("publication")),
+        );
+        if (!data) throw new CommunityError("not_found", 404);
+        return response(data);
+      }
       if (m[3] === "results" && m[4]) {
         const items = await store.result(user.id, org, id, uuid(m[4]));
         if (!items[0]) throw new CommunityError("not_found", 404);

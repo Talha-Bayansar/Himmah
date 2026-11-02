@@ -83,6 +83,55 @@ export function createLearningStore(
         counts: counts[0],
       };
     },
+    insights: async (
+      actor: string,
+      org: string,
+      item: string,
+      publication: string,
+    ) => {
+      // One snapshot, bounded output (50 questions / 6 choices). No participant data leaves SQL.
+      const data = await rows(sql`with publication as materialized (
+        select v.id,v.number,v.content,jsonb_array_length(v.content->'questions') as total
+        from hub_learning_versions v
+        where v.organization_id=${org}::uuid and v.item_id=${item}::uuid and v.id=${publication}::uuid
+          and hub_learning_admin(${actor},${org}::uuid)
+      ), participants as materialized (
+        select r.id,r.revoked,latest.id as latest_id,latest.submitted_at as latest_submitted,
+          submitted.id as submitted_id,submitted.score,submitted.answers
+        from publication v join hub_learning_recipients r on r.publication_id=v.id and r.organization_id=${org}::uuid
+        left join lateral (
+          select a.id,a.submitted_at from hub_learning_attempts a
+          where a.organization_id=r.organization_id and a.recipient_id=r.id order by a.sequence desc limit 1
+        ) latest on true
+        left join lateral (
+          select a.id,a.score,a.answers from hub_learning_attempts a
+          where a.organization_id=r.organization_id and a.recipient_id=r.id and a.submitted_at is not null
+          order by a.sequence desc limit 1
+        ) submitted on true
+      ), totals as (
+        select count(*)::int as participants,count(submitted_id)::int as completed,
+          count(*) filter(where latest_id is not null and latest_submitted is null)::int as "inProgress",
+          count(*) filter(where latest_id is null)::int as "notStarted",
+          count(*) filter(where revoked)::int as revoked,avg(score)::float8 as "averageScore" from participants
+      ), answer_counts as materialized (
+        select a.key,a.value,count(*)::int as count
+        from participants p cross join lateral jsonb_each_text(p.answers) a
+        where p.submitted_id is not null group by a.key,a.value
+      ), questions as (
+        select (q.ordinality-1)::int as index,q.value as question,
+          coalesce((select sum(a.count)::int from answer_counts a where a.key=(q.ordinality-1)::text and a.value=q.value->>'correct'),0) as correct,
+          coalesce((select sum(a.count)::int from answer_counts a where a.key=(q.ordinality-1)::text and a.value<>q.value->>'correct'),0) as incorrect,
+          (select completed from totals)-coalesce((select sum(a.count)::int from answer_counts a where a.key=(q.ordinality-1)::text),0) as unanswered,
+          (select jsonb_agg(jsonb_build_object('text',c.value,'correct',(c.ordinality-1)=(q.value->>'correct')::int,
+            'count',coalesce((select a.count from answer_counts a where a.key=(q.ordinality-1)::text and a.value=(c.ordinality-1)::text),0)) order by c.ordinality)
+           from jsonb_array_elements_text(q.value->'choices') with ordinality c) as choices
+        from publication v cross join lateral jsonb_array_elements(v.content->'questions') with ordinality q
+      ) select v.id as "publicationId",v.number,v.content->>'mode' as mode,v.total as "questionCount",now()::text as "generatedAt",t.*,
+        (select jsonb_agg(jsonb_build_object('score',n,'count',(select count(*)::int from participants p where p.submitted_id is not null and p.score=n)) order by n) from generate_series(0,v.total) n) as distribution,
+        (select jsonb_agg(jsonb_build_object('index',q.index,'text',q.question->>'text','correct',q.correct,'incorrect',q.incorrect,'unanswered',q.unanswered,'choices',q.choices) order by q.index) from questions q) as questions
+      from publication v cross join totals t`);
+      return data[0] ?? null;
+    },
     participants: (
       actor: string,
       org: string,
