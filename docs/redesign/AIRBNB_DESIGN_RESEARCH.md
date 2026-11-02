@@ -369,3 +369,7 @@ These references were discovered in the official 2025 release page. This researc
 - [Profile still](https://news-assets.withairbnb.com/wp-content/uploads/sites/21/2025/05/Guest-profile-US.jpg): review identity and summary hierarchy.
 - [Host tools still](https://news-assets.withairbnb.com/wp-content/uploads/sites/21/2025/05/Host-tools-Summer-Release-2025-US.jpg): review operational hierarchy as a closer analogue for Himmah.
 - [2026 release page and media](https://news.airbnb.com/product-releases/airbnb-2026-summer-release): compare the later homepage and hotel overview/detail flow before adopting an older visual reference as current.
+
+### Subsequent implementation comparison
+
+The [2 November 2026 comparison](AIRBNB_COMPARISON_2026-11-02.md) rechecks first-party mobile/hosting references against the adopted guidelines and fresh synthetic Himmah renders. It identifies page composition and task placement as the main remaining gaps and separates recommendations from current implementation. Its evidence limits include no authenticated native Airbnb walkthrough or pixel measurements of native app assets.
