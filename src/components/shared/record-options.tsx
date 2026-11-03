@@ -1,6 +1,6 @@
+import { SearchField } from "./search-field";
 import { useEffect, useState } from "react";
-import { Search, Check } from "lucide-react";
-import { Input } from "../ui/input";
+import { Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { InfiniteFooter, ListSkeleton } from "./infinite-list";
@@ -54,18 +54,14 @@ export function RecordOptions({
     <div className="record-options">
       {searchable && (
         <div className="directory-toolbar">
-          <label>
-            <Search size={17} aria-hidden="true" />
-            <span className="sr-only">{m.directory_search()}</span>
-            <Input
-              type="search"
-              maxLength={80}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={m.directory_search()}
-              disabled={disabled}
-            />
-          </label>
+          <SearchField
+            label={m.directory_search()}
+            maxLength={80}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={m.directory_search()}
+            disabled={disabled}
+          />
         </div>
       )}
       <div className="record-option-list">

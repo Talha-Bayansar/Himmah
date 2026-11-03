@@ -1,3 +1,4 @@
+import { SearchField } from "../components/shared/search-field";
 import { UtilityButton } from "../components/shared/utility-button";
 import { Statistic, StatisticPeriods } from "./Statistic";
 import { perSession, share } from "./statistics";
@@ -82,12 +83,9 @@ function OptionPicker({
       description={m.insights_choose()}
       onClose={onClose}
     >
-      <Label className="sr-only" htmlFor="insights-option-search">
-        {m.directory_search()}
-      </Label>
-      <Input
+      <SearchField
+        label={m.directory_search()}
         id="insights-option-search"
-        type="search"
         maxLength={80}
         value={q}
         placeholder={m.directory_search()}

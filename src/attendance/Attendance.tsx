@@ -1,3 +1,4 @@
+import { SearchField } from "../components/shared/search-field";
 import { sessionTitle } from "../activities/contracts";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { useAttendanceMembership } from "./use-attendance-membership";
@@ -10,7 +11,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { Banknote, Plus, UserMinus, History, Search } from "lucide-react";
+import { Banknote, Plus, UserMinus, History } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ErrorNotice, Schedule } from "../activities/Activities";
 import type { Session } from "../activities/contracts";
@@ -24,7 +25,6 @@ import { ItemActions } from "../components/shared/item-actions";
 import { Checkbox } from "../components/ui/checkbox";
 import { SessionStats } from "./SessionStats";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
@@ -311,17 +311,13 @@ export default function Attendance({
         </>
       )}
       <div className="attendance-filters">
-        <label className="activity-group-search">
-          <Search size={17} aria-hidden="true" />
-          <span className="sr-only">{m.directory_search()}</span>
-          <Input
-            type="search"
-            maxLength={80}
-            value={search}
-            placeholder={m.directory_search()}
-            onChange={(e) => changeSearch(e.target.value)}
-          />
-        </label>
+        <SearchField
+          label={m.directory_search()}
+          maxLength={80}
+          value={search}
+          placeholder={m.directory_search()}
+          onChange={(e) => changeSearch(e.target.value)}
+        />
       </div>
       {!!selected.size && (
         <div className="participant-bulkbar">

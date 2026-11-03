@@ -1,6 +1,7 @@
+import { SearchField } from "../components/shared/search-field";
 import { useEffect, useState, type ReactNode } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Search, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { directoryRequest } from "../community/client";
 import { ErrorNotice } from "../activities/Activities";
 import { FormSurface } from "../components/shared/form-surface";
@@ -9,7 +10,6 @@ import {
   ListSkeleton,
 } from "../components/shared/infinite-list";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
 import type { AttendancePerson as Person } from "./contracts";
 import { m } from "../paraglide/messages.js";
@@ -84,17 +84,13 @@ export function AttendancePicker({
       onClose={onClose}
     >
       {notice}
-      <label className="activity-group-search">
-        <Search size={17} aria-hidden="true" />
-        <span className="sr-only">{m.directory_search()}</span>
-        <Input
-          type="search"
-          maxLength={80}
-          value={search}
-          placeholder={m.directory_search()}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </label>
+      <SearchField
+        label={m.directory_search()}
+        maxLength={80}
+        value={search}
+        placeholder={m.directory_search()}
+        onChange={(event) => setSearch(event.target.value)}
+      />
       {people.isPending ? (
         <ListSkeleton />
       ) : people.isError && !people.data ? (

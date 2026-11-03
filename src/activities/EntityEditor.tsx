@@ -1,8 +1,9 @@
+import { SearchField } from "../components/shared/search-field";
 import { FormSurface } from "../components/shared/form-surface";
 import { useForm, useStore } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { useBlocker } from "@tanstack/react-router";
-import { Save, Search, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { DirectoryError, useDirectoryPages } from "../community/client";
 import type { PeopleGroup } from "../modules/people/contracts";
@@ -420,18 +421,14 @@ function GroupChoices({
       <p role="status">
         {m.activities_selected_count({ count: String(value.length) })}
       </p>
-      <label className="activity-group-search">
-        <Search size={16} aria-hidden="true" />
-        <span className="sr-only">{m.directory_search()}</span>
-        <Input
-          type="search"
-          maxLength={80}
-          value={search}
-          placeholder={m.directory_search()}
-          onChange={(e) => setSearch(e.target.value)}
-          disabled={disabled}
-        />
-      </label>
+      <SearchField
+        label={m.directory_search()}
+        maxLength={80}
+        value={search}
+        placeholder={m.directory_search()}
+        onChange={(e) => setSearch(e.target.value)}
+        disabled={disabled}
+      />
       {query.isPending ? (
         <ListSkeleton />
       ) : query.isError && !query.data ? (

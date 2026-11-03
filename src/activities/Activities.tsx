@@ -1,3 +1,4 @@
+import { SearchField } from "../components/shared/search-field";
 import { DirectoryFilters } from "../components/shared/directory-filters";
 import { ErrorFeedback } from "../components/shared/feedback";
 import { sessionPrice } from "./contracts";
@@ -13,7 +14,6 @@ import {
   MapPin,
   Pencil,
   Plus,
-  Search,
   Users,
   Trash2,
 } from "lucide-react";
@@ -34,7 +34,6 @@ import {
 import { ItemActions } from "../components/shared/item-actions";
 import { Button } from "../components/ui/button";
 import { Checkbox } from "../components/ui/checkbox";
-import { Input } from "../components/ui/input";
 import { useLocale } from "../localization/locale";
 import type { Organization } from "../organization/contracts";
 import { m } from "../paraglide/messages.js";
@@ -486,17 +485,13 @@ export default function Activities({
             )}
           </div>
           <div className="directory-toolbar">
-            <label>
-              <Search size={17} aria-hidden="true" />
-              <span className="sr-only">{m.directory_search()}</span>
-              <Input
-                type="search"
-                maxLength={80}
-                placeholder={m.directory_search()}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </label>
+            <SearchField
+              label={m.directory_search()}
+              maxLength={80}
+              placeholder={m.directory_search()}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
             <DirectoryFilters
               active={archived}
               onReset={() => setArchived(false)}

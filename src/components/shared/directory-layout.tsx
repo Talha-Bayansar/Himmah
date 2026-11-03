@@ -1,6 +1,5 @@
-import { Search } from "lucide-react";
+import { SearchField } from "./search-field";
 import { useEffect, useRef, type ReactNode } from "react";
-import { Input } from "../ui/input";
 import { cn } from "../../lib/utils";
 import { getLocale } from "../../paraglide/runtime.js";
 
@@ -47,18 +46,14 @@ export function DirectoryToolbar({
 }) {
   return (
     <div className="directory-toolbar">
-      <label htmlFor={id}>
-        <Search aria-hidden="true" size={17} />
-        <span className="sr-only">{label}</span>
-        <Input
-          id={id}
-          type="search"
-          maxLength={80}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={label}
-        />
-      </label>
+      <SearchField
+        label={label}
+        id={id}
+        maxLength={80}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={label}
+      />
       {children}
     </div>
   );

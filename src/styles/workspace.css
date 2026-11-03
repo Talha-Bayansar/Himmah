@@ -1055,25 +1055,35 @@ html {
   line-height: 1.6;
   color: var(--muted-foreground);
 }
-.activity-group-search {
+/* Search owns its appearance in directories, forms and portalled picker sheets. */
+label.search-field {
   display: flex;
   align-items: center;
   position: relative;
+  width: 100%;
   min-width: 0;
+  margin: 0;
 }
-.activity-group-search > svg {
+.search-field > svg {
   position: absolute;
   inset-inline-start: var(--space-4);
   z-index: 1;
   color: var(--muted-foreground);
   pointer-events: none;
+  flex-shrink: 0;
 }
-.activity-group-search > [data-slot="input"] {
+.search-field input[data-slot="input"] {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
   padding-inline-start: 44px;
   background: var(--muted);
   border-color: transparent;
-  margin: 0;
 }
+.search-field input[data-slot="input"]:focus-visible { border-color: var(--ring); }
+.search-field input::-webkit-search-decoration { -webkit-appearance: none; }
+
 .activity-group-options {
   max-height: 240px;
   overflow-y: auto;
@@ -1329,26 +1339,6 @@ html {
 .attendance-select [data-slot="checkbox"] {
   width: 24px;
   height: 24px;
-}
-.attendance-filters .activity-group-search [data-slot="input"] {
-  margin-top: 0;
-}
-
-/* Search controls share a baseline; filters never squeeze mobile search. */
-.directory-toolbar > label:first-child > [data-slot="input"] {
-  margin-top: 0;
-  min-width: 0;
-  padding-inline-start: 44px;
-  background: var(--muted);
-  border-color: transparent;
-}
-.directory-toolbar > label:first-child > svg {
-  flex-shrink: 0;
-  position: absolute;
-  inset-inline-start: 16px;
-  z-index: 1;
-  pointer-events: none;
-  color: var(--muted-foreground);
 }
 .directory-toolbar .directory-archived {
   gap: var(--space-2);

@@ -135,6 +135,44 @@ async function capture(p, name) {
   }
   captures.push(name);
 }
+async function assertSearchFields(p) {
+  const fields = await p.locator('input[type="search"]').evaluateAll((inputs) =>
+    inputs
+      .filter((e) => e.getBoundingClientRect().height > 0)
+      .map((input) => {
+        const style = getComputedStyle(input),
+          root = getComputedStyle(document.documentElement),
+          icon = input.closest(".search-field")?.querySelector("svg"),
+          a = input.getBoundingClientRect(),
+          b = icon?.getBoundingClientRect();
+        const probe = document.createElement("span");
+        probe.style.backgroundColor = root.getPropertyValue("--muted").trim();
+        document.body.append(probe);
+        const expected = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return {
+          shared: !!input.closest(".search-field"),
+          height: a.height,
+          padding: style.paddingInlineStart,
+          background: style.backgroundColor,
+          expected,
+          center: b
+            ? Math.abs(b.y + b.height / 2 - (a.y + a.height / 2))
+            : null,
+        };
+      }),
+  );
+  for (const field of fields) {
+    assert.equal(field.shared, true, "Every search uses SearchField");
+    assert.ok(field.height >= 48, "Search touch target");
+    assert.equal(field.padding, "44px", "Inset search icon spacing");
+    assert.equal(field.background, field.expected, "Warm quiet search surface");
+    assert.ok(
+      field.center !== null && field.center <= 1,
+      "Search icon aligned",
+    );
+  }
+}
 try {
   for (const [width, locale] of [
     [390, "nl"],
@@ -372,6 +410,7 @@ try {
             .map((e) => e.textContent),
         );
       assert.deepEqual(clippedNavigation, [], "Readable navigation labels");
+      await assertSearchFields(p);
       results.push({ name, width, locale, ...metrics });
       await capture(p, `${name}-${width}-${locale}`);
       if (locale === "nl" && width <= 390) {
@@ -398,6 +437,22 @@ try {
             "Tabs must not cover panel",
           );
         }
+      }
+      if (name === "attendance" && width <= 390 && locale === "nl") {
+        await p
+          .getByRole("button", { name: "Deelnemer toevoegen", exact: true })
+          .click();
+        const picker = p.getByRole("dialog");
+        await picker.waitFor();
+        assert.equal(
+          await picker.locator("input:focus").count(),
+          0,
+          "Picker does not autofocus search",
+        );
+        await assertSearchFields(p);
+        await capture(p, `attendance-picker-${width}`);
+        await p.keyboard.press("Escape");
+        await picker.waitFor({ state: "detached" });
       }
       if (name === "learning" && width <= 390 && locale === "nl") {
         const trigger = p.locator('main button[aria-haspopup="menu"]').first();
@@ -477,6 +532,16 @@ try {
           .last()
           .click();
       }
+    }
+    if (width <= 390 && locale === "nl") {
+      await p.goto(`${origin}/workspace/${org}/forms/activity/${activity}`);
+      await p.locator("#activity-audience").waitFor();
+      await p.locator("#activity-audience").selectOption("groups");
+      await p.locator(".search-field input").waitFor();
+      await p.locator(".search-field").scrollIntoViewIfNeeded();
+      await assertSearchFields(p);
+      await capture(p, `activity-picker-${width}`);
+      await p.locator("#activity-audience").selectOption("everyone");
     }
     if (width === 390 && locale === "nl") {
       for (const state of ["empty", "long", "error", "loading"]) {
