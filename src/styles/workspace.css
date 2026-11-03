@@ -3115,3 +3115,26 @@ button[data-slot="button"].people-section-add {
 
 .follow-control { display: flex; justify-content: flex-start; min-width: 0; }
 .notification-context { margin: var(--space-1) 0; color: var(--muted-foreground); font-size: var(--text-supporting); overflow-wrap: anywhere; }
+
+.import-steps { scroll-margin-block: calc(64px + var(--space-6) + env(safe-area-inset-top)); display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--space-2); margin-block: var(--space-6); }
+.import-steps > span { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-2); color: var(--muted-foreground); font-size: var(--text-supporting); min-width: 0; overflow-wrap: anywhere; }
+.import-steps > span > span { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; border: 1px solid var(--border); border-radius: 50%; }
+.import-steps [aria-current="step"] { color: var(--foreground); font-weight: var(--weight-emphasis); }
+.import-steps [aria-current="step"] > span { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.import-section { display: grid; gap: var(--space-4); min-width: 0; }
+.import-section > h2 { margin: 0; }
+.import-section > [data-slot="button"] { justify-self: start; }
+.import-example { font-size: var(--text-supporting); overflow-x: auto; padding: var(--space-3); background: var(--muted); border-radius: var(--radius-control); }
+.import-sample, .import-methods, .import-match { overflow-wrap: anywhere; }
+.import-rows { border-top: 1px solid var(--border); }
+.import-row { min-width: 0; overflow-wrap: anywhere; padding-block: var(--space-4); border-bottom: 1px solid var(--border); display: grid; gap: var(--space-2); }
+.import-row .directory-check { align-items: flex-start; }
+.import-row-number { display: block; color: var(--muted-foreground); font-size: var(--text-supporting); margin-top: var(--space-1); }
+.import-match { font-size: var(--text-supporting); margin: 0; }
+.contact-import fieldset { min-width: 0; }
+
+@media(min-width:768px) { .import-steps { scroll-margin-block: calc(124px + var(--space-6) + env(safe-area-inset-top)); } .import-steps > span { flex-direction: row; align-items: center; } }
+
+.import-commands { scroll-margin-block: 100px; }
+
+.import-row .directory-check > span { min-width: 0; }

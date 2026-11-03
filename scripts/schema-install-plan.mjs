@@ -24,6 +24,7 @@ export async function schemaInstallPlan() {
       "recurrence",
       "session-cancellation",
       "learning",
+      "contact-import",
       "live-quizzes",
       "session-following",
     ].map((f) => "db/migrations/functions/" + f + ".sql"),

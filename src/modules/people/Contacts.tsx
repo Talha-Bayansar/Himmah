@@ -33,6 +33,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
+  FileUp,
   ChevronRight,
   Pencil,
   Archive,
@@ -114,6 +115,7 @@ export default function Contacts({
 }
 
 function ContactList({ org, user }: { org: string; user: string }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState(""),
     [query, setQuery] = useState(""),
     [archived, setArchived] = useState(false),
@@ -136,10 +138,26 @@ function ContactList({ org, user }: { org: string; user: string }) {
       <DirectoryHeader
         title={m.people_contacts()}
         action={
-          <Button onClick={() => setEditing(true)}>
-            <Plus aria-hidden="true" />
-            {m.people_add()}
-          </Button>
+          <div className="directory-actions">
+            <Button onClick={() => setEditing(true)}>
+              <Plus aria-hidden="true" />
+              {m.people_add()}
+            </Button>
+            <ItemActions
+              name={m.people_contacts()}
+              actions={[
+                {
+                  label: m.import_title(),
+                  icon: FileUp,
+                  onSelect: () =>
+                    navigate({
+                      to: "/workspace/$organizationId/people/contacts/import",
+                      params: { organizationId: org },
+                    }),
+                },
+              ]}
+            />
+          </div>
         }
       />
       <DirectoryToolbar

@@ -2,11 +2,14 @@ import { readFile, readdir } from "node:fs/promises";
 import type { PGlite } from "@electric-sql/pglite";
 export async function installDatabase(
   db: PGlite,
-  { hosted = true, sessionFollowing = true } = {},
+  { hosted = true, sessionFollowing = true, contactImport = true } = {},
 ) {
   for (const file of (await readdir("db/migrations/generated"))
     .filter(
-      (f) => f.endsWith(".sql") && (sessionFollowing || !f.startsWith("0010_")),
+      (f) =>
+        f.endsWith(".sql") &&
+        (sessionFollowing || !f.startsWith("0010_")) &&
+        (contactImport || (!f.startsWith("0011_") && !f.startsWith("0012_"))),
     )
     .sort())
     await db.exec(await readFile("db/migrations/generated/" + file, "utf8"));
@@ -31,6 +34,7 @@ export async function installDatabase(
     "recurrence",
     "session-cancellation",
     "learning",
+    ...(contactImport ? ["contact-import"] : []),
     "live-quizzes",
     ...(sessionFollowing ? ["session-following"] : []),
   ])

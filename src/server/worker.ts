@@ -347,7 +347,7 @@ export function createHandler(
         return response ?? json({ code: "not_found" }, 404);
       }
       if (
-        /^\/api\/organizations\/[^/]+\/people\/(context|contacts|groups|relationship-types)(\/|$)/.test(
+        /^\/api\/organizations\/[^/]+\/people\/(context|contacts|contact-import|groups|relationship-types)(\/|$)/.test(
           url.pathname,
         )
       ) {

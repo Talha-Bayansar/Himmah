@@ -78,6 +78,20 @@
       "when": 1793731725221,
       "tag": "0010_session_following",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793746709234,
+      "tag": "0011_contact_import",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793747148678,
+      "tag": "0012_contact_import_lookup",
+      "breakpoints": true
     }
   ]
 }

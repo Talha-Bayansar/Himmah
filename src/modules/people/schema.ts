@@ -86,6 +86,10 @@ export const contacts = himmah.table(
       "contact_archive_pair",
       sql`(${t.archivedAt} is null) = (${t.archivedBy} is null)`,
     ),
+    index("contacts_import_name").on(
+      t.organizationId,
+      sql`lower(regexp_replace(trim(${t.displayName}),'[[:space:]]+',' ','g'))`,
+    ),
     index("contacts_page").on(
       t.organizationId,
       t.archivedAt,
@@ -124,6 +128,9 @@ export const contactMethods = himmah.table(
       "method_format",
       sql`(${t.kind}='email' and ${t.normalizedValue} ~ '^[^[:space:]@]+@[^[:space:]@]+[.][^[:space:]@]+$') or (${t.kind}='phone' and ${t.normalizedValue} ~ '^[+][1-9][0-9]{6,14}$')`,
     ),
+    index("methods_import_match")
+      .on(t.organizationId, t.kind, t.normalizedValue)
+      .where(sql`${t.endedAt} is null`),
     index("methods_page").on(t.organizationId, t.contactId, t.createdAt, t.id),
   ],
 );
@@ -573,4 +580,22 @@ export const communicationPreferences = himmah.table(
       foreignColumns: [contacts.organizationId, contacts.id],
     }),
   ],
+);
+
+// Only the reviewed command hash and counts are retained; uploaded files are never stored.
+export const contactImportReceipts = himmah.table(
+  "contact_import_receipts",
+  {
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    actorId: text("actor_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    payloadHash: text("payload_hash").notNull(),
+    result: jsonb().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.organizationId, t.actorId, t.requestKey] })],
 );

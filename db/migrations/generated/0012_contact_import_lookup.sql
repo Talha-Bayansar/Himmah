@@ -1,0 +1,2 @@
+CREATE INDEX "methods_import_match" ON "himmah"."contact_methods" USING btree ("organization_id","kind","normalized_value") WHERE "himmah"."contact_methods"."ended_at" is null;--> statement-breakpoint
+CREATE INDEX "contacts_import_name" ON "himmah"."contacts" USING btree ("organization_id",lower(regexp_replace(trim("display_name"),'[[:space:]]+',' ','g')));

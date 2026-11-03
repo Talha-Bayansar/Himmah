@@ -467,6 +467,23 @@ try {
       await assertSearchFields(p);
       results.push({ name, width, locale, ...metrics });
       await capture(p, `${name}-${width}-${locale}`);
+      if (name === "contacts" && width === 390 && locale === "nl") {
+        await p.locator(".directory-heading .item-actions-trigger").click();
+        await p
+          .getByRole("menuitem", { name: "Contacten importeren" })
+          .waitFor();
+        await capture(p, "contacts-import-menu-390");
+        await p.getByRole("menuitem", { name: "Contacten importeren" }).click();
+        await p.locator("#import-file").waitFor();
+        assert.equal(
+          await p.locator("input:focus").count(),
+          0,
+          "Import opens without autofocus",
+        );
+        await p.locator(".form-page .settings-back").click();
+        await p.locator("#contact-search").waitFor();
+      }
+
       if (name === "session") {
         await p.locator(".follow-control button").click();
         const sheet = p.getByRole("dialog");

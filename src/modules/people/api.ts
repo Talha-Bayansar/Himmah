@@ -1,3 +1,4 @@
+import { importRows, importCommand } from "./import-contracts.ts";
 import { communicationApi } from "./communication-api.ts";
 import { directoryApi } from "./directory-api.ts";
 import {
@@ -48,6 +49,38 @@ export async function peopleApi(
         throw new PeopleError("invalid_input");
       }
     };
+    if (
+      ["contact-import/review", "contact-import/commit"].includes(prefix[2]!)
+    ) {
+      if (request.method !== "POST")
+        return respond({ code: "not_found_or_forbidden" }, 404);
+      const text = await request.text();
+      if (text.length > 512000) throw new PeopleError("invalid_input");
+      let body;
+      try {
+        body = JSON.parse(text);
+      } catch {
+        throw new PeopleError("invalid_input");
+      }
+      if (!body || typeof body !== "object" || Array.isArray(body))
+        throw new PeopleError("invalid_input");
+      const result = prefix[2]!.endsWith("review")
+        ? Object.keys(body).some((k) => k !== "rows")
+          ? null
+          : await store.reviewImport(user.id, org, importRows(body.rows))
+        : await store.importContacts(user.id, org, importCommand(body));
+      if (!result) return respond({ code: "not_found_or_forbidden" }, 404);
+      if (result.code)
+        return respond(
+          result,
+          ["version_conflict", "request_key_conflict"].includes(
+            String(result.code),
+          )
+            ? 409
+            : 400,
+        );
+      return respond(result);
+    }
     const parts = prefix[2]!.split("/");
     if (parts.length > 4 || parts.some((p) => !p))
       return respond({ code: "not_found_or_forbidden" }, 404);

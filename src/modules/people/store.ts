@@ -1,3 +1,4 @@
+import { createContactImportStore } from "./import-store.ts";
 import { createCommunicationStore } from "./communication-store.ts";
 import { createDirectoryStore } from "./directory-store.ts";
 import { neon } from "@neondatabase/serverless";
@@ -20,6 +21,7 @@ export function createPeopleStore(url: string, execute?: Execute) {
       ? sql`and (${column},id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)`
       : sql``;
   return {
+    ...createContactImportStore(run),
     ...createDirectoryStore(run, access),
     ...createCommunicationStore(run, access),
     async context(actor: string, org: string) {

@@ -9,6 +9,7 @@ Futsal, games, points, engagement periods, rewards/coupons, challenges and parti
 - [Design system and standing UI preference](docs/DESIGN_SYSTEM.md)
 - [Product and implementation context](docs/redesign/README.md)
 - [People and communication](docs/redesign/COMMUNICATION_STATUS.md)
+- [Reviewed contact CSV import](docs/CONTACT_IMPORT.md)
 - [Insights and metric definitions](docs/INSIGHTS.md)
 - [Participation follow-up](docs/FOLLOW_UP.md)
 - [Self-paced learning](docs/LEARNING.md)
