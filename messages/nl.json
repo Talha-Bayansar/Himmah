@@ -1155,5 +1155,7 @@
   "interface_minimum_chars": "Gebruik minstens {count} tekens.",
   "interface_filter_help": "Wijzigingen worden direct toegepast.",
   "interface_active_filter": "Actief filter",
-  "interface_home_short": "Start"
+  "interface_home_short": "Start",
+  "preferences_app": "Appvoorkeuren",
+  "preferences_push_about": "Over meldingen"
 }

@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Building2, LogOut } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { ArrowRight, BadgeCheck, Building2, LogOut } from "lucide-react";
 import { ActionButton } from "../components/shared/action-button";
-import { Button } from "../components/ui/button";
+import { DirectoryHeader } from "../components/shared/directory-layout";
 import { LanguageSelector, useLocale } from "../localization/locale";
 import { PushSettings } from "../notifications/PushSettings";
 import { m } from "../paraglide/messages.js";
@@ -21,45 +20,50 @@ export function AccountSettings({
   onSignOut: () => void;
 }) {
   useLocale();
-  const heading = useRef<HTMLHeadingElement>(null);
-  useEffect(() => {
-    heading.current?.focus({ preventScroll: true });
-  }, []);
   return (
-    <div className="settings-page">
-      <header className="profile-heading">
-        <h1 ref={heading} tabIndex={-1} data-page-heading>
-          {m.profile()}
-        </h1>
-        <p>{m.profile_intro()}</p>
-      </header>
-      <section className="settings-panel" aria-label={m.profile()}>
-        <div className="settings-identity">
-          <span className="avatar" aria-hidden="true">
-            {user.name.slice(0, 1)}
-          </span>
-          <div>
-            <strong>{user.name}</strong>
-            <p>{user.email}</p>
-            <small>
-              {user.emailVerified ? m.verified() : m.verify_email()}
-            </small>
-          </div>
+    <div className="settings-page preferences-page">
+      <DirectoryHeader
+        title={m.profile()}
+        description={m.profile_intro()}
+        autoFocus={false}
+      />
+      <section
+        className="settings-identity preferences-identity"
+        aria-labelledby="preferences-account-name"
+      >
+        <span className="avatar" aria-hidden="true">
+          {[...user.name.trim()][0]}
+        </span>
+        <div>
+          <h2 id="preferences-account-name">{user.name}</h2>
+          <p>{user.email}</p>
+          <small className="preferences-verification">
+            {user.emailVerified && <BadgeCheck aria-hidden="true" />}
+            {user.emailVerified ? m.verified() : m.verify_email()}
+          </small>
         </div>
-        <div className="settings-language">
+      </section>
+      <section
+        className="preferences-section"
+        aria-labelledby="preferences-app-heading"
+      >
+        <h2 id="preferences-app-heading">{m.preferences_app()}</h2>
+        <div className="preferences-language">
           <span>{m.language()}</span>
           <LanguageSelector />
         </div>
-        <InstallApp />
-        <ActionButton variant="outline" pending={pending} onClick={onSignOut}>
-          <LogOut size={18} />
-          {m.sign_out()}
-        </ActionButton>
+        <div className="preferences-tools">
+          <InstallApp />
+        </div>
       </section>
       {user.emailVerified && <PushSettings key={user.id} userId={user.id} />}
-      {organization && !["owner", "admin"].includes(organization.role) && (
-        <Button variant="outline" asChild>
+      <section
+        className="preferences-section preferences-account-actions"
+        aria-label={m.profile()}
+      >
+        {organization && !["owner", "admin"].includes(organization.role) && (
           <Link
+            className="preferences-link"
             to="/workspace/$organizationId/$section"
             params={{
               organizationId: organization.id,
@@ -70,13 +74,19 @@ export function AccountSettings({
             <span>{m.organization_details()}</span>
             <ArrowRight aria-hidden="true" />
           </Link>
-        </Button>
-      )}
-      {!organization && (
-        <Button variant="outline" asChild>
-          <Link to="/start">{m.my_organizations()}</Link>
-        </Button>
-      )}
+        )}
+        {!organization && (
+          <Link className="preferences-link" to="/start">
+            <Building2 aria-hidden="true" />
+            <span>{m.my_organizations()}</span>
+            <ArrowRight aria-hidden="true" />
+          </Link>
+        )}
+        <ActionButton variant="outline" pending={pending} onClick={onSignOut}>
+          <LogOut size={18} aria-hidden="true" />
+          {m.sign_out()}
+        </ActionButton>
+      </section>
     </div>
   );
 }

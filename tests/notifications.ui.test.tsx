@@ -226,9 +226,12 @@ it("requires confirmation before disabling this device or all devices", async ()
     fetcher.mock.calls.filter((c) => c[1]?.method === "DELETE"),
   ).toHaveLength(0);
   await user.click(
-    screen.getByRole("button", { name: "Disable on all devices" }),
+    screen.getByRole("button", { name: "Actions for Push notifications" }),
   );
-  const dialog = screen.getByRole("alertdialog");
+  await user.click(
+    screen.getByRole("menuitem", { name: "Disable on all devices" }),
+  );
+  const dialog = await screen.findByRole("alertdialog");
   expect(dialog).toBeTruthy();
   const buttons = [...dialog.querySelectorAll("button")];
   await user.click(

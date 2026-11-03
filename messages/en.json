@@ -1155,5 +1155,7 @@
   "interface_minimum_chars": "Use at least {count} characters.",
   "interface_filter_help": "Changes apply immediately.",
   "interface_active_filter": "Active filter",
-  "interface_home_short": "Home"
+  "interface_home_short": "Home",
+  "preferences_app": "App preferences",
+  "preferences_push_about": "About notifications"
 }

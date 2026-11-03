@@ -1155,5 +1155,7 @@
   "interface_minimum_chars": "En az {count} karakter kullanın.",
   "interface_filter_help": "Değişiklikler hemen uygulanır.",
   "interface_active_filter": "Etkin filtre",
-  "interface_home_short": "Başla"
+  "interface_home_short": "Başla",
+  "preferences_app": "Uygulama tercihleri",
+  "preferences_push_about": "Bildirimler hakkında"
 }

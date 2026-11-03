@@ -6,7 +6,8 @@ import { m } from "../paraglide/messages.js";
 import { ActionButton } from "../components/shared/action-button";
 import { useConfirmation } from "../components/shared/confirmation";
 import { Skeleton } from "../components/ui/skeleton";
-import { Alert, AlertDescription } from "../components/ui/alert";
+import { ErrorFeedback } from "../components/shared/feedback";
+import { ItemActions } from "../components/shared/item-actions";
 import { DirectoryError, directoryRequest } from "../community/client";
 import {
   currentSubscription,
@@ -81,31 +82,38 @@ export function PushSettings({ userId }: { userId: string }) {
         : m.push_service();
   return (
     <section
-      className="settings-panel push-settings"
+      className="preferences-section push-settings"
       aria-labelledby="push-heading"
     >
-      <h2 id="push-heading">
-        <Bell aria-hidden="true" />
-        {m.push_title()}
-      </h2>
-      <p>{m.push_help()}</p>
+      <div className="preferences-section-heading">
+        <h2 id="push-heading">{m.push_title()}</h2>
+        <ItemActions
+          name={m.push_title()}
+          pending={change.isPending && change.variables === "all"}
+          disabled={change.isPending}
+          actions={[
+            {
+              label: m.push_all_disable(),
+              icon: BellOff,
+              destructive: true,
+              onSelect: () => disable(true),
+            },
+          ]}
+        />
+      </div>
       {settings.isPending ? (
         <Skeleton className="h-12 w-full" />
-      ) : settings.isError ? (
-        <ActionButton
-          variant="outline"
-          pending={settings.isFetching}
-          onClick={() => void settings.refetch()}
-        >
-          {m.try_again()}
-        </ActionButton>
-      ) : settings.data?.ios ? (
+      ) : settings.isError ? null : settings.data?.ios ? (
         <p>{m.push_ios()}</p>
       ) : !settings.data?.supported ? (
         <p>{m.push_unsupported()}</p>
       ) : (
         <>
-          <p role="status">
+          <p
+            role="status"
+            className="preferences-device-status"
+            data-enabled={settings.data.enabled}
+          >
             {settings.data.enabled ? m.push_enabled() : m.push_disabled()}
           </p>
           {!settings.data.publicKey && <p>{m.push_not_configured()}</p>}
@@ -113,6 +121,7 @@ export function PushSettings({ userId }: { userId: string }) {
             <p>{m.push_denied()}</p>
           )}
           <ActionButton
+            className="push-device-action"
             pending={change.isPending && change.variables !== "all"}
             disabled={
               change.isPending ||
@@ -120,7 +129,7 @@ export function PushSettings({ userId }: { userId: string }) {
                 (!settings.data.publicKey ||
                   Notification.permission === "denied"))
             }
-            variant="outline"
+            variant={settings.data.enabled ? "outline" : "default"}
             onClick={() =>
               settings.data.enabled ? void disable() : change.mutate("enable")
             }
@@ -135,20 +144,17 @@ export function PushSettings({ userId }: { userId: string }) {
         </>
       )}
       {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
+        <ErrorFeedback
+          message={errorMessage}
+          retry={settings.isError ? () => void settings.refetch() : undefined}
+          pending={settings.isFetching}
+        />
       )}
-      <ActionButton
-        variant="outline"
-        pending={change.isPending && change.variables === "all"}
-        disabled={change.isPending}
-        onClick={() => void disable(true)}
-      >
-        <BellOff aria-hidden="true" />
-        {m.push_all_disable()}
-      </ActionButton>
-      <p className="text-sm">{m.push_device_hint()}</p>
+      <details className="session-help preferences-help">
+        <summary>{m.preferences_push_about()}</summary>
+        <p>{m.push_help()}</p>
+        <p>{m.push_device_hint()}</p>
+      </details>
     </section>
   );
 }
