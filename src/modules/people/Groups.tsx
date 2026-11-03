@@ -1,3 +1,4 @@
+import { SearchField } from "../../components/shared/search-field";
 import { DirectoryFilters } from "../../components/shared/directory-filters";
 import { useFormNavigation } from "../../components/shared/form-navigation";
 import {
@@ -290,8 +291,9 @@ function GroupDetail({
         <p className="text-sm text-muted-foreground">
           {m.people_member_count({ count: group.memberCount })}
         </p>
-        <Label htmlFor="member-search">{m.people_search_members()}</Label>
-        <Input
+
+        <SearchField
+          label={m.people_search_members()}
           id="member-search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

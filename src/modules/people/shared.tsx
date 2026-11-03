@@ -1,3 +1,4 @@
+import { SearchField } from "../../components/shared/search-field";
 import { ErrorFeedback } from "../../components/shared/feedback";
 import { FormSurface } from "../../components/shared/form-surface";
 import { useForm } from "@tanstack/react-form";
@@ -264,8 +265,8 @@ export function Picker<T extends { id: string; assigned?: boolean }>({
   const inputId = "picker-" + path.replace(/[^a-z0-9]/gi, "-");
   return (
     <div className="space-y-3">
-      <Label htmlFor={inputId}>{label}</Label>
-      <Input
+      <SearchField
+        label={label}
         id={inputId}
         value={query}
         maxLength={80}

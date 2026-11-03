@@ -1,3 +1,4 @@
+import { SearchField } from "../../components/shared/search-field";
 import { useFormNavigation } from "../../components/shared/form-navigation";
 import {
   PREVIEW_SIZE,
@@ -11,7 +12,6 @@ import { useForm } from "@tanstack/react-form";
 import { UserMinus, Unlink } from "lucide-react";
 import { m } from "../../paraglide/messages.js";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import {
   NativeSelect,
@@ -107,8 +107,8 @@ export function ContactGroups({
       </div>
       {full && (
         <div className="space-y-3">
-          <Label htmlFor="groups-search">{m.people_search_groups()}</Label>
-          <Input
+          <SearchField
+            label={m.people_search_groups()}
             id="groups-search"
             value={filters?.q ?? ""}
             maxLength={80}
@@ -339,10 +339,8 @@ export function ContactRelationships({
       </details>
       {full && (
         <div className="space-y-3">
-          <Label htmlFor="relationships-search">
-            {m.people_search_relationships()}
-          </Label>
-          <Input
+          <SearchField
+            label={m.people_search_relationships()}
             id="relationships-search"
             value={filters?.q ?? ""}
             maxLength={80}

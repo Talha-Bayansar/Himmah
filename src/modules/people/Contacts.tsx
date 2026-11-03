@@ -1,3 +1,4 @@
+import { SearchField } from "../../components/shared/search-field";
 import { DirectoryFilters } from "../../components/shared/directory-filters";
 import { ContactLearning } from "../../learning/ContactLearning";
 import { FormSurface } from "../../components/shared/form-surface";
@@ -428,8 +429,8 @@ function ContactDetail({
           </div>
           {view === "methods" && (
             <div className="space-y-2">
-              <Label htmlFor="method-search">{m.people_search_methods()}</Label>
-              <Input
+              <SearchField
+                label={m.people_search_methods()}
                 id="method-search"
                 value={filters?.q ?? ""}
                 maxLength={80}

@@ -1,3 +1,4 @@
+import { SearchField } from "../../components/shared/search-field";
 import { useFormNavigation } from "../../components/shared/form-navigation";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -103,8 +104,9 @@ function TypeList({ org, user }: { org: string; user: string }) {
         />
       </div>
       <p>{m.people_type_hint()}</p>
-      <Label htmlFor="type-search">{m.people_search_types()}</Label>
-      <Input
+
+      <SearchField
+        label={m.people_search_types()}
         id="type-search"
         value={q}
         onChange={(e) => setQ(e.target.value)}

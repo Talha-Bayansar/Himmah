@@ -1,3 +1,4 @@
+import { SearchField } from "../../components/shared/search-field";
 import { useFormNavigation } from "../../components/shared/form-navigation";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -222,10 +223,8 @@ export function Communication({
       )}
       {full && (
         <div className="space-y-3">
-          <Label htmlFor="communication-search">
-            {m.people_search_responsibilities()}
-          </Label>
-          <Input
+          <SearchField
+            label={m.people_search_responsibilities()}
             id="communication-search"
             value={filters?.q ?? ""}
             maxLength={80}

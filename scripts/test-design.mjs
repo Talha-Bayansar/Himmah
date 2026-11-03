@@ -76,6 +76,16 @@ const contacts = [
   eligible: true,
   status: "present",
 }));
+const groupId = "55555555-5555-4555-8555-555555555555";
+const peopleGroup = {
+  id: groupId,
+  name: "Studiegroep",
+  version: 1,
+  memberCount: 3,
+  description: "",
+  archivedAt: null,
+  createdAt: organization.createdAt,
+};
 const summary = {
   total: 3,
   present: 3,
@@ -234,6 +244,28 @@ try {
         response = Response.json({ organization });
       else if (u.pathname.endsWith("/notifications/unread"))
         response = Response.json({ count: 0 });
+      else if (u.pathname.includes("/learning/contacts/"))
+        response = Response.json({ items: [], total: 0, nextCursor: null });
+      else if (u.pathname.endsWith("/contacts/" + contacts[0].id))
+        response = Response.json(contacts[0]);
+      else if (u.pathname.endsWith("/groups/" + groupId))
+        response = Response.json(peopleGroup);
+      else if (u.pathname.endsWith("/group-options"))
+        response = Response.json({
+          items: [{ ...peopleGroup, assigned: true }],
+          nextCursor: null,
+        });
+      else if (u.pathname.endsWith("/groups/" + groupId + "/members"))
+        response = Response.json({
+          items: contacts.map((c) => ({
+            ...c,
+            contactId: c.id,
+            validFrom: "2026-11-01",
+            validTo: null,
+            contactArchived: false,
+          })),
+          nextCursor: null,
+        });
       else if (u.pathname.includes("/learning"))
         response = await learningApi(
           new Request("https://himmah.test" + u.pathname + u.search),
@@ -532,6 +564,68 @@ try {
           .last()
           .click();
       }
+    }
+    if (width <= 390 && locale === "nl") {
+      const person = contacts[0].id;
+      const peopleScreens = [
+        ["relationship-create", `forms/relationship/${person}`],
+        ["communication-create", `forms/communication/${person}`],
+        ["group-members", `people/groups/${groupId}`],
+        ...["methods", "groups", "relationships", "communication"].map(
+          (view) => [`contact-${view}`, `people/contacts/${person}/${view}`],
+        ),
+        ["relationship-types", "manage/relationship-types"],
+      ];
+      for (const [name, route] of peopleScreens) {
+        await p.goto(`${origin}/workspace/${org}/${route}`);
+        await p.locator("main h1").waitFor();
+        await p.locator('input[type="search"]').first().waitFor();
+        await p.waitForTimeout(300);
+        await assertSearchFields(p);
+        const gaps = await p.locator(".search-field").evaluateAll((es) =>
+          es
+            .map((e) => {
+              const next = e.nextElementSibling;
+              return next && next.getBoundingClientRect().height > 0
+                ? next.getBoundingClientRect().top -
+                    e.getBoundingClientRect().bottom
+                : null;
+            })
+            .filter((g) => g !== null),
+        );
+        assert.ok(
+          gaps.every((g) => g >= 8),
+          "People search keeps space before results/filters",
+        );
+        assert.equal(
+          await p.locator("input:focus").count(),
+          0,
+          "People search has no autofocus",
+        );
+        assert.equal(
+          await p.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+          "People search overflow",
+        );
+        await capture(p, `${name}-${width}`);
+      }
+      await p.goto(`${origin}/workspace/${org}/people/contacts/${person}`);
+      await p
+        .getByRole("button", { name: "Aan groep toevoegen", exact: true })
+        .click();
+      const sheet = p.getByRole("dialog");
+      await sheet.waitFor();
+      await assertSearchFields(p);
+      assert.equal(
+        await sheet.locator("input:focus").count(),
+        0,
+        "Group picker has no autofocus",
+      );
+      await capture(p, `contact-group-picker-${width}`);
+      await p.keyboard.press("Escape");
+      await sheet.waitFor({ state: "detached" });
     }
     if (width <= 390 && locale === "nl") {
       await p.goto(`${origin}/workspace/${org}/forms/activity/${activity}`);

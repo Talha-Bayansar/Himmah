@@ -9,7 +9,7 @@
   },
   "scripts": {
     "check": "npm run typecheck && npm run docs:check && npm test",
-    "typecheck": "npm run i18n:compile && tsr generate && tsc --noEmit",
+    "typecheck": "npm run i18n:compile && tsr generate && tsc --noEmit && node scripts/check-search-fields.mjs",
     "docs:check": "node scripts/check-docs.mjs",
     "dev": "vite --host 0.0.0.0 --port 3101",
     "build": "npm run pwa:assets && vite build",
