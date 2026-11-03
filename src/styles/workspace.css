@@ -3112,3 +3112,6 @@ button[data-slot="button"].people-section-add {
 }
 .live-room-share .session-help { margin: 0; }
 .live-room-share .session-help p { margin-top: var(--space-3); }
+
+.follow-control { display: flex; justify-content: flex-start; min-width: 0; }
+.notification-context { margin: var(--space-1) 0; color: var(--muted-foreground); font-size: var(--text-supporting); overflow-wrap: anywhere; }

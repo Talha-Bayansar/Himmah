@@ -4,7 +4,7 @@ import {
 } from "@tanstack/react-start/server";
 import { env } from "cloudflare:workers";
 import { paraglideMiddleware } from "./paraglide/server.js";
-import { deliverPush } from "./server/push-delivery";
+import { runNotificationJobs } from "./server/notification-jobs";
 import { createHandler, type Env } from "./server/worker";
 const render = createStartHandler(defaultStreamHandler);
 const api = createHandler();
@@ -15,7 +15,7 @@ export default {
     context: { waitUntil(promise: Promise<unknown>): void },
   ) {
     if (bindings.HIMMAH_MAINTENANCE !== "true")
-      context.waitUntil(deliverPush(bindings));
+      context.waitUntil(runNotificationJobs(bindings));
   },
   async fetch(request: Request) {
     if (new URL(request.url).pathname.startsWith("/api/"))

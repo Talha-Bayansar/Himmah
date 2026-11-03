@@ -71,6 +71,13 @@
       "when": 1793536482736,
       "tag": "0009_live_quizzes",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793731725221,
+      "tag": "0010_session_following",
+      "breakpoints": true
     }
   ]
 }

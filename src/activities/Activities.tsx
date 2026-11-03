@@ -1,3 +1,4 @@
+import { FollowControl } from "../notifications/FollowControl";
 import { SearchField } from "../components/shared/search-field";
 import { DirectoryFilters } from "../components/shared/directory-filters";
 import { ErrorFeedback } from "../components/shared/feedback";
@@ -387,6 +388,9 @@ export default function Activities({
       )}
       {full && item.description && (
         <p className="activity-description">{item.description}</p>
+      )}
+      {full && (
+        <FollowControl user={userId} org={organization.id} activity={item.id} />
       )}
       {!full && (
         <Button className="activity-card-primary" asChild>

@@ -154,6 +154,7 @@ export function PeopleForm({
   error,
   children,
   submitLabel,
+  submitDisabled = false,
   canLeave,
   page = false,
 }: {
@@ -166,6 +167,7 @@ export function PeopleForm({
   error?: unknown;
   children: ReactNode;
   submitLabel?: string;
+  submitDisabled?: boolean;
   canLeave?: () => boolean;
   page?: boolean;
 }) {
@@ -220,7 +222,11 @@ export function PeopleForm({
             <X aria-hidden="true" />
             {m.cancel()}
           </Button>
-          <ActionButton type="submit" pending={pending}>
+          <ActionButton
+            type="submit"
+            pending={pending}
+            disabled={submitDisabled}
+          >
             <Save aria-hidden="true" />
             {submitLabel ?? m.directory_save()}
           </ActionButton>

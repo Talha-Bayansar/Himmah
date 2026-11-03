@@ -54,11 +54,20 @@ export async function deliverPush(
           const payload = JSON.stringify({
             title: "Himmah",
             body,
-            url: `/workspace/${target.organizationId}/notifications`,
+            url:
+              typeof target.href === "string"
+                ? target.href
+                : `/workspace/${target.organizationId}/notifications`,
           });
           const endpoint = pushEndpoint(target.endpoint);
           const request = await buildPushPayload(
-            { data: payload, options: { ttl: 3600, urgency: "normal" } },
+            {
+              data: payload,
+              options: {
+                ttl: Math.max(1, Math.min(3600, Number(target.ttl) || 3600)),
+                urgency: "normal",
+              },
+            },
             {
               endpoint,
               expirationTime: null,

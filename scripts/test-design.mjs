@@ -213,11 +213,32 @@ try {
     });
     const p = await ctx.newPage();
     let contactState = "normal";
+    let follow = {
+      following: true,
+      reminderMinutes: 60,
+      version: 0,
+      source: "activity",
+      canFollow: true,
+    };
+    const followWrites = [];
     p.on("pageerror", (e) => errors.push(e.message));
     await p.route("**/api/**", async (route) => {
       const u = new URL(route.request().url());
       let response;
-      if (route.request().method() !== "GET") {
+      if (
+        u.pathname.endsWith("/follow") &&
+        route.request().method() === "POST"
+      ) {
+        const body = route.request().postDataJSON();
+        followWrites.push(body);
+        follow = {
+          ...follow,
+          ...body,
+          version: follow.version + 1,
+          source: "own",
+        };
+        response = Response.json(follow);
+      } else if (route.request().method() !== "GET") {
         assert.ok(
           u.pathname.endsWith("/contacts"),
           "Only mocked contact-save is permitted",
@@ -242,6 +263,7 @@ try {
         });
       else if (u.pathname === "/api/organizations/" + org)
         response = Response.json({ organization });
+      else if (u.pathname.endsWith("/follow")) response = Response.json(follow);
       else if (u.pathname.endsWith("/notifications/unread"))
         response = Response.json({ count: 0 });
       else if (u.pathname.includes("/learning/contacts/"))
@@ -445,6 +467,32 @@ try {
       await assertSearchFields(p);
       results.push({ name, width, locale, ...metrics });
       await capture(p, `${name}-${width}-${locale}`);
+      if (name === "session") {
+        await p.locator(".follow-control button").click();
+        const sheet = p.getByRole("dialog");
+        await sheet.waitFor();
+        await p.waitForTimeout(250);
+        assert.equal(
+          await sheet.locator("input:focus,select:focus").count(),
+          0,
+          "No autofocus",
+        );
+        assert.equal(
+          await p.evaluate(
+            () => document.documentElement.scrollWidth > innerWidth,
+          ),
+          false,
+          "Follow sheet has no horizontal overflow",
+        );
+        await capture(p, `follow-sheet-${width}-${locale}`);
+        await sheet.getByRole("combobox").selectOption("0");
+        await sheet.locator('button[type="submit"]').click();
+        await sheet.waitFor({ state: "hidden" });
+        assert.equal(followWrites.length, 1);
+        assert.equal(followWrites[0].reminderMinutes, 0);
+        assert.equal(followWrites[0].version, 0);
+      }
+
       if (locale === "nl" && width <= 390) {
         if (name === "session") {
           const action = p.locator(".session-actions-primary");

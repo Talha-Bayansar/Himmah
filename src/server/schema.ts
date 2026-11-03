@@ -199,6 +199,9 @@ export const activitySessions = pgTable(
       t.activityId,
       t.creationKey,
     ),
+    index("hub_session_reminder_window")
+      .on(t.startsAt, t.id)
+      .where(sql`not ${t.cancelled}`),
     index("hub_session_schedule").on(
       t.organizationId,
       t.activityId,
@@ -445,6 +448,89 @@ export const volunteerAssignmentChanges = pgTable(
   ],
 );
 
+export const sessionFollows = pgTable(
+  "hub_session_follows",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id").notNull(),
+    userId: text("user_id").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id"),
+    enabled: boolean("enabled").notNull(),
+    reminderMinutes: integer("reminder_minutes").notNull().default(60),
+    version: integer("version").notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    unique("hub_follow_scope").on(t.organizationId, t.id),
+    uniqueIndex("hub_follow_activity")
+      .on(t.organizationId, t.userId, t.activityId)
+      .where(sql`${t.sessionId} is null`),
+    uniqueIndex("hub_follow_session")
+      .on(t.organizationId, t.userId, t.activityId, t.sessionId)
+      .where(sql`${t.sessionId} is not null`),
+    index("hub_follow_lookup")
+      .on(t.organizationId, t.activityId, t.sessionId)
+      .where(sql`${t.enabled}`),
+    foreignKey({
+      columns: [t.organizationId, t.userId],
+      foreignColumns: [memberships.organizationId, memberships.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.organizationId, t.activityId],
+      foreignColumns: [activities.organizationId, activities.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }).onDelete("cascade"),
+    check(
+      "hub_follow_settings",
+      sql`${t.reminderMinutes} in (0,60) and ${t.version}>0`,
+    ),
+  ],
+);
+export const followRequests = pgTable(
+  "hub_follow_requests",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    userId: text("user_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    activityId: uuid("activity_id").notNull(),
+    sessionId: uuid("session_id"),
+    payload: jsonb("payload").notNull(),
+    result: jsonb("result").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.userId, t.requestKey] }),
+    foreignKey({
+      columns: [t.organizationId, t.userId],
+      foreignColumns: [memberships.organizationId, memberships.userId],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.organizationId, t.activityId],
+      foreignColumns: [activities.organizationId, activities.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }).onDelete("cascade"),
+  ],
+);
+
 export const notifications = pgTable(
   "hub_notifications",
   {
@@ -456,12 +542,37 @@ export const notifications = pgTable(
     eventId: uuid("event_id").notNull(),
     kind: text("kind").notNull(),
     href: text("href").notNull(),
+    activityId: uuid("activity_id"),
+    sessionId: uuid("session_id"),
+    followId: uuid("follow_id"),
+    followVersion: integer("follow_version"),
+    plannedAt: timestamp("planned_at", { withTimezone: true }),
+    sessionFingerprint: text("session_fingerprint"),
     readAt: timestamp("read_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (t) => [
+    foreignKey({
+      columns: [t.organizationId, t.followId],
+      foreignColumns: [sessionFollows.organizationId, sessionFollows.id],
+    }).onDelete("cascade"),
+    foreignKey({
+      columns: [t.organizationId, t.activityId, t.sessionId],
+      foreignColumns: [
+        activitySessions.organizationId,
+        activitySessions.activityId,
+        activitySessions.id,
+      ],
+    }).onDelete("cascade"),
+    uniqueIndex("hub_reminder_once")
+      .on(t.organizationId, t.userId, t.sessionId, t.plannedAt)
+      .where(sql`${t.kind}='session_reminder'`),
+    check(
+      "hub_session_notification_fields",
+      sql`${t.kind}='staff_notice' or (${t.kind} in ('session_reminder','session_changed','session_cancelled') and ${t.activityId} is not null and ${t.sessionId} is not null and ${t.followId} is not null and ${t.followVersion} is not null and ${t.followVersion}>0 and ${t.plannedAt} is not null and ${t.sessionFingerprint} is not null)`,
+    ),
     unique("hub_notification_event").on(
       t.organizationId,
       t.userId,

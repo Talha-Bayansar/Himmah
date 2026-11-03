@@ -230,6 +230,22 @@ test("push notifications validate click routes, focus the centre and preserve un
   await dispatch("push", { body: "x".repeat(500), url: "//evil.invalid/" });
   assert.equal(shown[1]!.options.body, "Himmah");
   assert.equal(shown[1]!.options.data.url, "/hub");
+  const sessionRoute =
+    "/workspace/11111111-1111-4111-8111-111111111111/activities/22222222-2222-4222-8222-222222222222/sessions/33333333-3333-4333-8333-333333333333/attendance";
+  await dispatch("push", { body: "Generic update", url: sessionRoute });
+  assert.equal(shown[2]!.options.data.url, sessionRoute);
+  await dispatch("notificationclick", null, sessionRoute);
+  assert.equal(opened.at(-1), "https://himmah.example" + sessionRoute);
+  assert.equal(focused, 1, "a dirty existing window is never navigated");
+  for (const url of [
+    "https://evil.invalid" + sessionRoute,
+    sessionRoute + "/edit",
+    sessionRoute + "?private=1",
+    "/api/organizations/11111111-1111-4111-8111-111111111111",
+  ]) {
+    await dispatch("notificationclick", null, url);
+    assert.equal(opened.at(-1), "https://himmah.example/hub");
+  }
 });
 
 test("Android notification badge has a transparent background and a white leaf silhouette", async () => {

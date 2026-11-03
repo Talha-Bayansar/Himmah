@@ -1,5 +1,5 @@
 /* Himmah caches public static resources only, never pages, sessions or API data. */
-const CACHE = "himmah-public-v5";
+const CACHE = "himmah-public-v6";
 const CORE = [
   "/offline",
   "/pwa/icon-192.png",
@@ -76,6 +76,14 @@ self.addEventListener("fetch", (event) => {
 });
 
 // Lock-screen payloads deliberately contain no names, points, notes or codes.
+function privateNotificationPath(value) {
+  return (
+    typeof value === "string" &&
+    /^\/workspace\/[0-9a-f-]{36}\/(?:notifications|activities\/[0-9a-f-]{36}\/sessions\/[0-9a-f-]{36}(?:\/attendance)?)$/i.test(
+      value,
+    )
+  );
+}
 self.addEventListener("push", (event) => {
   event.waitUntil(
     (async () => {
@@ -85,11 +93,7 @@ self.addEventListener("push", (event) => {
       } catch {
         /* Ignore malformed payload. */
       }
-      const path =
-        typeof payload?.url === "string" &&
-        /^\/workspace\/[0-9a-f-]{36}\/notifications$/i.test(payload.url)
-          ? payload.url
-          : "/hub";
+      const path = privateNotificationPath(payload?.url) ? payload.url : "/hub";
       const body =
         typeof payload?.body === "string" && payload.body.length < 250
           ? payload.body
@@ -116,10 +120,7 @@ self.addEventListener("notificationclick", (event) => {
     (async () => {
       const path = event.notification.data?.url;
       const destination = new URL(
-        typeof path === "string" &&
-          /^\/workspace\/[0-9a-f-]{36}\/notifications$/i.test(path)
-          ? path
-          : "/hub",
+        privateNotificationPath(path) ? path : "/hub",
         self.location.origin,
       ).href;
       const windows = await self.clients.matchAll({

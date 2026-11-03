@@ -1,3 +1,8 @@
+import { sessionFollowApi } from "./session-follow-api.ts";
+import {
+  createSessionFollowStore,
+  type SessionFollowStore,
+} from "./session-follow-store.ts";
 import { livePublicApi, liveStaffApi, liveRateKey } from "./live-api.ts";
 import { createLiveStore } from "./live-store.ts";
 import {
@@ -79,6 +84,7 @@ interface Identity {
   emailVerified: boolean;
 }
 type Dependencies = {
+  sessionFollows?: (url: string) => SessionFollowStore;
   live?: (url: string) => ReturnType<typeof createLiveStore>;
   learning?: (url: string) => ReturnType<typeof createLearningStore>;
   fetch: typeof fetch;
@@ -450,6 +456,20 @@ export function createHandler(
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
           ).limit({ key: `activities:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        }
+        if (url.pathname.endsWith("/follow")) {
+          if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+            return json({ code: "people_unavailable" }, 503);
+          return (
+            (await sessionFollowApi(
+              request,
+              user,
+              store,
+              (deps.sessionFollows ?? createSessionFollowStore)(
+                env.HIMMAH_DATABASE_URL,
+              ),
+            )) ?? json({ code: "not_found" }, 404)
+          );
         }
         const cashResponse = await cashApi(
           request,

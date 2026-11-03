@@ -80,8 +80,14 @@ export function NotificationBell({
     </Button>
   );
 }
-export function notificationText(_kind: NotificationKind) {
-  return m.notifications_open();
+export function notificationText(kind: NotificationKind) {
+  return kind === "session_reminder"
+    ? m.follow_notice_reminder()
+    : kind === "session_changed"
+      ? m.follow_notice_changed()
+      : kind === "session_cancelled"
+        ? m.follow_notice_cancelled()
+        : m.notifications_open();
 }
 export function Notifications({
   userId,
@@ -180,6 +186,22 @@ export function Notifications({
                       {!item.readAt ? m.notifications_unread() + ": " : ""}
                     </span>
                     <strong>{notificationText(item.kind)}</strong>
+                    {item.subject && (
+                      <p className="notification-context">
+                        {item.subject}
+                        {item.startsAt && (
+                          <>
+                            {" "}
+                            ·{" "}
+                            {new Intl.DateTimeFormat(getLocale(), {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                              timeZone: item.timezone ?? "UTC",
+                            }).format(new Date(item.startsAt))}
+                          </>
+                        )}
+                      </p>
+                    )}
                     <time dateTime={new Date(item.createdAt).toISOString()}>
                       {new Intl.DateTimeFormat(getLocale(), {
                         dateStyle: "medium",

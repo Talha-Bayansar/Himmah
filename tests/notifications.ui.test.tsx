@@ -326,3 +326,34 @@ it("activates a waiting push-capable service worker after explicit opt-in withou
     type: "himmah-enable-push",
   });
 });
+it("shows private session context with a direct management link and distinct reminder/change/cancellation labels", async () => {
+  const href = `/workspace/${org}/activities/${id}/sessions/33333333-3333-4333-8333-333333333333/attendance`;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () =>
+      Response.json({
+        items: ["session_reminder", "session_changed", "session_cancelled"].map(
+          (kind, index) => ({
+            ...row,
+            id: `44444444-4444-4444-8444-44444444444${index}`,
+            kind,
+            href,
+            subject: "Synthetic session",
+            startsAt: "2026-11-04T18:00:00Z",
+            timezone: "Europe/Brussels",
+          }),
+        ),
+        nextCursor: null,
+      }),
+    ),
+  );
+  mount(<Notifications userId="staff" organizationId={org} />);
+  await screen.findByText("Session starts soon");
+  expect(screen.getByText("Session updated")).toBeTruthy();
+  expect(screen.getByText("Session cancelled")).toBeTruthy();
+  expect(screen.getAllByText(/Synthetic session/)).toHaveLength(3);
+  const links = screen.getAllByRole("link");
+  expect(
+    links.filter((link) => link.getAttribute("href") === href),
+  ).toHaveLength(3);
+});

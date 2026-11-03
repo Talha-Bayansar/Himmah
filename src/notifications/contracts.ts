@@ -1,10 +1,18 @@
 import { CommunityError } from "../community/contracts.ts";
-export const notificationKinds = ["staff_notice"] as const;
+export const notificationKinds = [
+  "staff_notice",
+  "session_reminder",
+  "session_changed",
+  "session_cancelled",
+] as const;
 export type NotificationKind = (typeof notificationKinds)[number];
 export type HubNotification = {
   id: string;
   kind: NotificationKind;
   href: string;
+  subject?: string | null;
+  startsAt?: string | null;
+  timezone?: string | null;
   readAt: string | null;
   createdAt: string;
 };

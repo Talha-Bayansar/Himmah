@@ -206,7 +206,7 @@ it("session detail loads by ID, shows the saved audience and is read-only for vo
   expect(screen.queryByRole("link", { name: "Activities" })).toBeNull();
   expect(screen.getByText("Saved group")).toBeTruthy();
   expect(screen.queryByRole("button", { name: /Actions for/ })).toBeNull();
-  expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(fetcher).toHaveBeenCalledTimes(3);
   expect(
     fetcher.mock.calls.every((call) => !String(call[0]).includes("?")),
   ).toBe(true);
@@ -498,7 +498,7 @@ it("session list has one primary action and operational shortcuts in its more me
   expect(
     screen.getByRole("menuitem", { name: "Manage attendance & payments" }),
   ).toBeTruthy();
-  expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(fetcher).toHaveBeenCalledTimes(3);
 });
 it.each([
   {

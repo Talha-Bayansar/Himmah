@@ -1,3 +1,4 @@
+import { FollowControl } from "../notifications/FollowControl";
 import { SessionStatsPreview } from "../attendance/SessionStats";
 import { sessionPrice, sessionTitle } from "./contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -393,6 +394,14 @@ export default function Sessions({
               )}
             </details>
           </>
+        )}
+        {full && (
+          <FollowControl
+            user={userId}
+            org={organization.id}
+            activity={activity.id}
+            session={item.id}
+          />
         )}
         {!full && (
           <Button className="activity-card-primary" asChild>
