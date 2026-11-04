@@ -34,6 +34,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   FileUp,
+  Download,
   ChevronRight,
   Pencil,
   Archive,
@@ -146,6 +147,21 @@ function ContactList({ org, user }: { org: string; user: string }) {
             <ItemActions
               name={m.people_contacts()}
               actions={[
+                {
+                  label: m.export_contacts_action(),
+                  icon: Download,
+                  onSelect: () =>
+                    navigate({
+                      to: "/workspace/$organizationId/exports",
+                      params: { organizationId: org },
+                      search: {
+                        kind: "contacts",
+                        state: archived ? "archived" : "active",
+                        q: search,
+                        origin: "contacts",
+                      },
+                    }),
+                },
                 {
                   label: m.import_title(),
                   icon: FileUp,

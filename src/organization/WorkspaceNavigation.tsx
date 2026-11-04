@@ -11,6 +11,7 @@ export const workspaceSections = [
   "insights",
   "follow-up",
   "learning",
+  "exports",
   "manage",
   "organization",
   "staff",
@@ -92,6 +93,7 @@ export function WorkspaceNavigation({
           params={{ organizationId, section: "manage" }}
           aria-current={
             [
+              "exports",
               "manage",
               "organization",
               "staff",

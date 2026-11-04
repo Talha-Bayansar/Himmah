@@ -1,3 +1,5 @@
+import { createExportStore } from "../src/server/export-store.ts";
+import { exportFilters } from "../src/exports/contracts.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { PGlite } from "@electric-sql/pglite";
@@ -184,6 +186,67 @@ test("Insights SQL/API reconciles attendance, historical cohorts, cash timing, c
       (
         await store.report("owner", org, { ...filters, ...overrides }, p)
       )[0] as any;
+    const exports = createExportStore("", run);
+    const reconcileExports = async () => {
+      for (const selected of [
+        {},
+        { group },
+        { activity },
+        { from: "2099-01-01", to: "2099-01-31" },
+      ]) {
+        const r = await report(selected);
+        const f = exportFilters(
+          { ...filters, ...selected, kind: "attendance" },
+          "Europe/Brussels",
+        );
+        const presence = await exports.data("owner", org, f);
+        assert.equal(presence!.items.length, r.summary.visits);
+        const balances = await exports.data("owner", org, {
+          ...f,
+          kind: "balances",
+        });
+        for (const [field, key] of [
+          ["chargedMinor", "chargedMinor"],
+          ["paidMinor", "paidMinor"],
+          ["outstandingMinor", "outstandingMinor"],
+        ])
+          assert.equal(
+            balances!.items.reduce((n, row) => n + Number(row[field!]), 0),
+            r.summary[key!],
+          );
+        const cash = await exports.data("owner", org, { ...f, kind: "cash" });
+        assert.equal(
+          cash!.items.reduce((n, row) => n + Number(row.cashMinor), 0),
+          r.summary.cashMinor,
+        );
+        if (!f.group)
+          assert.equal(
+            cash!.items.reduce((n, row) => n + Number(row.unallocatedMinor), 0),
+            r.summary.unallocatedMinor,
+          );
+        else
+          assert.ok(cash!.items.every((row) => row.unallocatedMinor === null));
+        const summary = await exports.data("owner", org, {
+          ...f,
+          kind: "insights-summary",
+        });
+        assert.deepEqual(summary!.summary, r.summary);
+        const trend = await exports.data("owner", org, {
+          ...f,
+          kind: "insights-trend",
+        });
+        assert.deepEqual(trend!.trend, r.trend);
+        const activities = await exports.data("owner", org, {
+          ...f,
+          kind: "insights-activities",
+        });
+        assert.deepEqual(activities!.items, r.items);
+      }
+    };
+    await t.test(
+      "CSV export snapshots reconcile with all report filters and calendar/cash boundaries",
+      reconcileExports,
+    );
     await t.test(
       "timezone boundaries, cancellation, archived contacts, first/returning and registration reconcile",
       async () => {
@@ -357,6 +420,10 @@ test("Insights SQL/API reconciles attendance, historical cohorts, cash timing, c
         assert.equal((await call(base + "&activity=" + key())).status, 400);
         assert.equal((await call(base + "&from=2020-02-30")).status, 400);
       },
+    );
+    await t.test(
+      "CSV exports retain correction-aware totals after changes",
+      reconcileExports,
     );
     await t.test(
       "activity and picker cursors are bounded and bound to filters and tenant",

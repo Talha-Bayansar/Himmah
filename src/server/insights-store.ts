@@ -5,6 +5,12 @@ import { sql, type SQL } from "drizzle-orm";
 import type { PageInput } from "../community/contracts.ts";
 import type { InsightsFilters } from "../insights/contracts.ts";
 
+export function insightsGroupSession(org: string, group: string, session: SQL) {
+  const member = (person: SQL) =>
+    sql`exists(select 1 from himmah.group_memberships gm where gm.organization_id=${org}::uuid and gm.group_id=${group}::uuid and gm.contact_id=${person} and gm.valid_from<=${session}.starts_at and (gm.valid_to is null or gm.valid_to>${session}.starts_at))`;
+  return sql`(${group}::uuid=any(${session}.audience_group_ids) or exists(select 1 from hub_attendance x where x.organization_id=${session}.organization_id and x.session_id=${session}.id and x.status='present' and ${member(sql`x.person_id`)}) or exists(select 1 from hub_session_registrations r where r.organization_id=${session}.organization_id and r.session_id=${session}.id and r.status='confirmed' and ${member(sql`r.person_id`)}))`;
+}
+
 // One statement/snapshot; both the API and this read boundary enforce organization-wide reporting access.
 export function insightsStatement(
   user: string,
@@ -27,7 +33,7 @@ export function insightsStatement(
  scoped_sessions as materialized(select s.*,(s.starts_at at time zone b.timezone)::date as local_day from hub_activity_sessions s cross join bounds b
  where s.organization_id=b.id and s.starts_at>=b.previous_at and s.starts_at<b.end_at
  ${f.activity ? sql`and s.activity_id=${f.activity}::uuid` : sql``}
- ${f.group ? sql`and (${f.group}::uuid=any(s.audience_group_ids) or exists(select 1 from hub_attendance x where x.organization_id=s.organization_id and x.session_id=s.id and x.status='present' and ${member(sql`x.person_id`, sql`s`)}) or exists(select 1 from hub_session_registrations r where r.organization_id=s.organization_id and r.session_id=s.id and r.status='confirmed' and ${member(sql`r.person_id`, sql`s`)}))` : sql``}),
+ ${f.group ? sql`and ${insightsGroupSession(org, f.group, sql`s`)}` : sql``}),
  sessions as materialized(select * from scoped_sessions where not cancelled and starts_at<=statement_timestamp()),
  financial_sessions as materialized(select * from scoped_sessions),
  current_sessions as materialized(select s.* from sessions s,bounds b where s.starts_at>=b.start_at),

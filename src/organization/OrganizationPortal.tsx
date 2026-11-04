@@ -1,3 +1,4 @@
+import DataExports from "../exports/DataExports";
 import Learning from "../learning/Learning";
 import PlannedSessions from "../dashboard/PlannedSessions";
 import FollowUp from "../insights/FollowUp";
@@ -349,6 +350,14 @@ export default function OrganizationPortal({
         );
       if (workspaceSection === "insights")
         return <Insights organization={org} userId={user.id} />;
+      if (workspaceSection === "exports")
+        return (
+          <DataExports
+            key={user.id + org.id + org.role}
+            organization={org}
+            userId={user.id}
+          />
+        );
       if (workspaceSection === "manage")
         return <Management organization={org} />;
       if (workspaceSection === "access")

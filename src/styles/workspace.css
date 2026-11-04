@@ -3138,3 +3138,14 @@ button[data-slot="button"].people-section-add {
 .import-commands { scroll-margin-block: 100px; }
 
 .import-row .directory-check > span { min-width: 0; }
+
+.exports-dates { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); }
+.exports-page fieldset { min-width: 0; }
+.exports-page .learning-field > [data-slot="button"] { justify-content: space-between; width: 100%; text-align: start; }
+.exports-download { justify-self: start; scroll-margin-block: 100px; }
+.exports-scope { display: grid; gap: var(--space-2); padding-block: var(--space-3); border-block: 1px solid var(--border); }
+.exports-scope > [data-slot="button"] { justify-self: start; }
+@media(max-width:359px) { .exports-dates { grid-template-columns: minmax(0,1fr); } }
+
+.exports-invalid { display: grid; gap: var(--space-3); }
+.exports-invalid > [data-slot="button"] { justify-self: start; }

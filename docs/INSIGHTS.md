@@ -26,7 +26,7 @@ Reports aggregate existing records in one SQL statement/snapshot; they do not wr
 | Group cash | With a group filter, only active receipt allocations attributable to the historical session group cohort are counted. Unallocated cash is not assigned to a group. |
 | Unallocated cash | With no group filter, the still-unallocated part of receipts in the cash occurrence window. Positive amounts remain visible. Correcting a contact's allocation reduces effective recorded cash without changing original unallocated cash. |
 
-Corrections recompute both current and prior reports; these are live views rather than frozen accounting statements. Cashflow is separated from session balances so a late payment is not counted as newly charged debt or assigned to the wrong session. Learning and exports remain separate increments from this attendance/payment reporting release.
+Corrections recompute both current and prior reports; these are live views rather than frozen accounting statements. Cashflow is separated from session balances so a late payment is not counted as newly charged debt or assigned to the wrong session. Learning remains a separate increment. [Data exports](DATA_EXPORTS.md) now reuse these reporting definitions and applied filters.
 
 ## Implementation and evidence
 

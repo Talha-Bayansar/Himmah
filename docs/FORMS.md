@@ -49,3 +49,5 @@ The learning editor now uses a four-step creator (Details, Questions, Access, Re
 Personal activity/session notification preferences use the shared simple bottom sheet: follow checkbox, one-hour/changes-only selector, explicit Save/Cancel, no autofocus, retained draft and exact unknown-outcome retry. See [session following](SESSION_FOLLOWING.md).
 
 Contact import is a complex independently reloadable page with File / Columns / Review steps, explicit mapping/selection, invalid-row skip, bounded duplicate suggestions and a final atomic save. Keep in-memory drafts, no autofocus, current actor/org scope, exact unknown-save identity and refreshed conflict review. See [contact import](CONTACT_IMPORT.md).
+
+Data exports use a dedicated read-only filter page with independently reloadable URL state. Date/report/activity/group/language choices resolve authorized context and generate a CSV only on Download. Filters do not require a discard dialog; navigating away aborts the pending read. Invalid ranges remain editable; file errors preserve choices. Reuse the shared Insights picker, SearchField and task-local feedback without autofocus. See [exports](DATA_EXPORTS.md).

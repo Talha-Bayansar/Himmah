@@ -1,3 +1,4 @@
+import { Download } from "lucide-react";
 import { SearchField } from "../components/shared/search-field";
 import { sessionTitle } from "../activities/contracts";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
@@ -255,16 +256,41 @@ export default function Attendance({
             {m.management_title()}
           </h1>
         </div>
-        <Button
-          disabled={!canEdit || membership.blocked}
-          onClick={() => {
-            setSelected(new Map());
-            setAdding(true);
-          }}
-        >
-          <Plus aria-hidden="true" />
-          {m.attendance_add()}
-        </Button>
+        <div className="directory-actions">
+          {" "}
+          <Button
+            disabled={!canEdit || membership.blocked}
+            onClick={() => {
+              setSelected(new Map());
+              setAdding(true);
+            }}
+          >
+            <Plus aria-hidden="true" />
+            {m.attendance_add()}
+          </Button>
+          {isAdmin && (
+            <ItemActions
+              name={m.management_title()}
+              actions={[
+                {
+                  label: m.export_roster_action(),
+                  icon: Download,
+                  onSelect: () =>
+                    navigate({
+                      to: "/workspace/$organizationId/exports",
+                      params: { organizationId: organization.id },
+                      search: {
+                        kind: "attendance",
+                        activity: activityId,
+                        session: sessionId,
+                        origin: "session",
+                      },
+                    }),
+                },
+              ]}
+            />
+          )}
+        </div>
       </div>
       {session.isPending ? (
         <ListSkeleton />

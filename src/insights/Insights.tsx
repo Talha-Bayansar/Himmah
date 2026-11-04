@@ -1,4 +1,6 @@
-import { SearchField } from "../components/shared/search-field";
+import { ItemActions } from "../components/shared/item-actions";
+import { Download } from "lucide-react";
+import { OptionPicker } from "./OptionPicker";
 import { UtilityButton } from "../components/shared/utility-button";
 import { Statistic, StatisticPeriods } from "./Statistic";
 import { perSession, share } from "./statistics";
@@ -41,104 +43,13 @@ import {
 import { useLocale } from "../localization/locale";
 import { sessionPrice } from "../activities/contracts";
 import type { Organization } from "../organization/contracts";
-import { useSearch } from "../modules/people/shared";
 import { m } from "../paraglide/messages.js";
 import {
   insightsFilters,
   type InsightsFilters,
   type InsightsReport,
-  type InsightsOption,
 } from "./contracts";
 
-function OptionPicker({
-  kind,
-  org,
-  user,
-  onSelect,
-  onClose,
-}: {
-  kind: "activities" | "groups";
-  org: string;
-  user: string;
-  onSelect: (id: string, name: string) => void;
-  onClose: () => void;
-}) {
-  const [q, setQ] = useState("");
-  const search = useSearch(q);
-  const query = useInfiniteQuery({
-    queryKey: ["organization", user, org, "insights-options", kind, search],
-    initialPageParam: null as string | null,
-    retry: false,
-    queryFn: ({ pageParam, signal }) =>
-      directoryRequest<{ items: InsightsOption[]; nextCursor: string | null }>(
-        `/api/organizations/${org}/insights/options?kind=${kind}&q=${encodeURIComponent(search)}` +
-          (pageParam ? "&cursor=" + encodeURIComponent(pageParam) : ""),
-        { signal },
-      ),
-    getNextPageParam: (p) => p.nextCursor ?? undefined,
-  });
-  return (
-    <FormSurface
-      title={kind === "activities" ? m.insights_activity() : m.insights_group()}
-      description={m.insights_choose()}
-      onClose={onClose}
-    >
-      <SearchField
-        label={m.directory_search()}
-        id="insights-option-search"
-        maxLength={80}
-        value={q}
-        placeholder={m.directory_search()}
-        onChange={(e) => setQ(e.target.value)}
-      />
-      <Button variant="ghost" onClick={() => onSelect("", "")}>
-        {m.insights_all()}
-      </Button>
-      {query.isPending ? (
-        <ListSkeleton />
-      ) : query.isError &&
-        (!query.data ||
-          (query.error instanceof DirectoryError &&
-            ["forbidden", "not_found", "sign_in"].includes(
-              query.error.code,
-            ))) ? (
-        <ErrorNotice
-          error={query.error}
-          pending={query.isFetching}
-          retry={() => void query.refetch()}
-        />
-      ) : (
-        <>
-          <div className="insights-options">
-            {query.data?.pages
-              .flatMap((p) => p.items)
-              .map((item) => (
-                <Button
-                  key={item.id}
-                  variant="ghost"
-                  onClick={() => onSelect(item.id, item.name)}
-                >
-                  {item.name}
-                  {item.archived && (
-                    <span className="activity-note">
-                      {m.insights_archived()}
-                    </span>
-                  )}
-                </Button>
-              ))}
-          </div>
-          {!query.data?.pages.some((p) => p.items.length) && (
-            <p className="directory-empty">{m.attendance_empty()}</p>
-          )}
-          <InfiniteFooter {...query} />
-        </>
-      )}
-      <Button variant="outline" onClick={onClose}>
-        {m.done()}
-      </Button>
-    </FormSurface>
-  );
-}
 export default function Insights({
   organization,
   userId,
@@ -268,13 +179,36 @@ export default function Insights({
           description={m.insights_intro()}
           autoFocus={false}
           action={
-            <UtilityButton
-              pending={report.isFetching}
-              aria-label={m.insights_refresh()}
-              onClick={() => void report.refetch()}
-            >
-              <RefreshCw aria-hidden="true" />
-            </UtilityButton>
+            <div className="directory-actions">
+              {" "}
+              <UtilityButton
+                pending={report.isFetching}
+                aria-label={m.insights_refresh()}
+                onClick={() => void report.refetch()}
+              >
+                <RefreshCw aria-hidden="true" />
+              </UtilityButton>
+              <ItemActions
+                name={m.insights_title()}
+                actions={[
+                  {
+                    label: m.export_title(),
+                    disabled: invalid || !data || report.isPending,
+                    icon: Download,
+                    onSelect: () =>
+                      navigate({
+                        to: "/workspace/$organizationId/exports",
+                        params: { organizationId: organization.id },
+                        search: {
+                          ...initial,
+                          kind: "insights-summary",
+                          origin: "insights",
+                        },
+                      }),
+                  },
+                ]}
+              />
+            </div>
           }
         />
         <Button

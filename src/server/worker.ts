@@ -1,3 +1,5 @@
+import { exportApi } from "./export-api.ts";
+import { createExportStore, type ExportStore } from "./export-store.ts";
 import { sessionFollowApi } from "./session-follow-api.ts";
 import {
   createSessionFollowStore,
@@ -84,6 +86,7 @@ interface Identity {
   emailVerified: boolean;
 }
 type Dependencies = {
+  exports?: (url: string) => ExportStore;
   sessionFollows?: (url: string) => SessionFollowStore;
   live?: (url: string) => ReturnType<typeof createLiveStore>;
   learning?: (url: string) => ReturnType<typeof createLearningStore>;
@@ -382,6 +385,22 @@ export function createHandler(
         if (response) return response;
       }
 
+      if (/^\/api\/organizations\/[^/]+\/exports(\/|$)/.test(url.pathname)) {
+        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+          return json({ code: "people_unavailable" }, 503);
+        const allowed = await (
+          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+        ).limit({ key: `exports:${user.id}` });
+        if (!allowed.success) return json({ code: "rate_limit" }, 429);
+        return (
+          (await exportApi(
+            request,
+            user,
+            store,
+            (deps.exports ?? createExportStore)(env.HIMMAH_DATABASE_URL),
+          )) ?? json({ code: "not_found" }, 404)
+        );
+      }
       if (/^\/api\/organizations\/[^/]+\/insights(\/|$)/.test(url.pathname)) {
         const allowed = await (
           env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
