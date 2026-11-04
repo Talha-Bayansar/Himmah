@@ -295,7 +295,12 @@ export function Picker<T extends { id: string; assigned?: boolean }>({
               return (
                 <Label
                   key={item.id}
-                  className="flex min-h-11 items-center gap-3 rounded-lg border p-3"
+                  className="choice-row"
+                  data-selected={!!checked}
+                  data-disabled={
+                    !!item.assigned ||
+                    (!picked && multiple && selected.length >= max)
+                  }
                 >
                   <Checkbox
                     aria-label={

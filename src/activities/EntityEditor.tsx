@@ -443,7 +443,15 @@ function GroupChoices({
             {query.data?.pages
               .flatMap((page) => page.items)
               .map((group) => (
-                <label key={group.id}>
+                <label
+                  key={group.id}
+                  className="choice-row"
+                  data-selected={value.includes(group.id)}
+                  data-disabled={
+                    disabled ||
+                    (!value.includes(group.id) && value.length >= 20)
+                  }
+                >
                   <Checkbox
                     checked={value.includes(group.id)}
                     disabled={

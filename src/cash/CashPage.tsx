@@ -1046,7 +1046,14 @@ function CashForm(
                     .flatMap((p) => p.items)
                     .map((charge) => (
                       <DirectoryItem key={charge.id}>
-                        <Label className="cash-option">
+                        <Label
+                          className="choice-row"
+                          data-selected={selected.has(charge.id)}
+                          data-disabled={
+                            frozen ||
+                            (!selected.has(charge.id) && selected.size >= 50)
+                          }
+                        >
                           <Checkbox
                             checked={selected.has(charge.id)}
                             disabled={

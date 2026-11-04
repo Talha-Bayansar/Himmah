@@ -1,3 +1,4 @@
+import { PickerTrigger } from "../components/shared/selection-option";
 import { ItemActions } from "../components/shared/item-actions";
 import { Download } from "lucide-react";
 import { OptionPicker } from "./OptionPicker";
@@ -286,10 +287,9 @@ export default function Insights({
           </div>
           <div>
             <Label>{m.insights_activity()}</Label>
-            <Button
-              type="button"
-              variant="outline"
-              aria-label={m.insights_activity()}
+            <PickerTrigger
+              label={m.insights_activity()}
+              open={picker === "activities"}
               onClick={() => setPicker("activities")}
             >
               {draft.activity
@@ -297,14 +297,13 @@ export default function Insights({
                     ? data.activityName
                     : names.activity) || m.insights_selected_activity()
                 : m.insights_all()}
-            </Button>
+            </PickerTrigger>
           </div>
           <div>
             <Label>{m.insights_group()}</Label>
-            <Button
-              type="button"
-              variant="outline"
-              aria-label={m.insights_group()}
+            <PickerTrigger
+              label={m.insights_group()}
+              open={picker === "groups"}
               onClick={() => setPicker("groups")}
             >
               {draft.group
@@ -312,7 +311,7 @@ export default function Insights({
                     ? data.groupName
                     : names.group) || m.insights_selected_group()
                 : m.insights_all()}
-            </Button>
+            </PickerTrigger>
           </div>
           <div className="insights-filter-actions">
             <Button type="submit">
@@ -646,6 +645,7 @@ export default function Insights({
       {picker && !denied && (
         <OptionPicker
           kind={picker}
+          selected={draft[picker === "activities" ? "activity" : "group"]}
           org={organization.id}
           user={userId}
           onClose={() => setPicker(null)}

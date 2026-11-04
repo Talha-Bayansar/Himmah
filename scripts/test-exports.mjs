@@ -218,6 +218,29 @@ try {
       assert.equal(files, 0, "Opening report never generates a file");
       await capture(p, `exports-${kind}-${suffix}`);
     }
+    if (width <= 390) {
+      await goto("attendance");
+      const trigger = p.locator(".picker-trigger").first();
+      await trigger.click();
+      const dialog = p.getByRole("dialog");
+      await dialog
+        .locator('.selection-option[aria-pressed="false"]')
+        .first()
+        .waitFor();
+      assert.equal(
+        await dialog.locator('.selection-option[aria-pressed="true"]').count(),
+        1,
+      );
+      assert.equal(await dialog.locator("input:focus").count(), 0);
+      await capture(p, `exports-activity-picker-${suffix}`);
+      await p.keyboard.press("Escape");
+      await dialog.waitFor({ state: "hidden" });
+      assert.equal(await trigger.getAttribute("aria-expanded"), "false");
+      assert.ok(
+        await trigger.evaluate((el) => el === document.activeElement),
+        "Picker restores trigger focus",
+      );
+    }
     if (width === 390) {
       await goto("contacts");
       await p.locator(".exports-page details summary").click();
@@ -291,6 +314,15 @@ try {
         .click();
       await p.locator(".exports-download:not([disabled])").waitFor();
       await capture(p, "exports-group-selected-390");
+      await p.locator(".picker-trigger").last().click();
+      const selectedChoice = p
+        .getByRole("dialog")
+        .getByRole("button", { name: "Historical study group" });
+      await selectedChoice.waitFor();
+      assert.equal(await selectedChoice.getAttribute("aria-pressed"), "true");
+      await capture(p, "exports-group-picker-selected-390");
+      await p.keyboard.press("Escape");
+      await p.getByRole("dialog").waitFor({ state: "hidden" });
       mode = "denied";
       await p.locator(".exports-download").click();
       await p.locator(".exports-page").waitFor({ state: "hidden" });

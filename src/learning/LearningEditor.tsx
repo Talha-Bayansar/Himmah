@@ -1,3 +1,4 @@
+import { PickerTrigger } from "../components/shared/selection-option";
 import { useEffect, useRef, useState } from "react";
 import { useBlocker, useNavigate } from "@tanstack/react-router";
 import {
@@ -383,29 +384,29 @@ export default function LearningEditor({
                 <div className="learning-fields">
                   <div className="learning-field">
                     <Label>{m.insights_activity()}</Label>
-                    <Button
-                      variant="outline"
-                      type="button"
+                    <PickerTrigger
+                      label={m.insights_activity()}
+                      open={picker === "activities"}
                       onClick={() => setPicker("activities")}
                     >
                       {activityName ||
                         (activityId
                           ? m.insights_selected_activity()
                           : m.learn_standalone())}
-                    </Button>
+                    </PickerTrigger>
                   </div>
                   <div className="learning-field">
                     <Label>{m.sessions_title()}</Label>
-                    <Button
-                      variant="outline"
-                      type="button"
+                    <PickerTrigger
+                      label={m.sessions_title()}
+                      open={picker === "sessions"}
                       onClick={() => setPicker("sessions")}
                     >
                       {sessionName ||
                         (sessionId
                           ? m.learn_selected_session()
                           : m.learn_no_session())}
-                    </Button>
+                    </PickerTrigger>
                   </div>
                   {(activityId || sessionId) && (
                     <Button
@@ -923,6 +924,7 @@ export default function LearningEditor({
       {picker && (
         <LearningPicker
           kind={picker}
+          selected={picker === "activities" ? activityId : sessionId}
           onClose={() => setPicker(null)}
           onSelect={(v) => {
             if (picker === "activities") {

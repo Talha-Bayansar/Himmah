@@ -1,7 +1,6 @@
 import { SearchField } from "./search-field";
 import { useEffect, useState } from "react";
-import { Check } from "lucide-react";
-import { Button } from "../ui/button";
+import { SelectionOption } from "./selection-option";
 import { Checkbox } from "../ui/checkbox";
 import { InfiniteFooter, ListSkeleton } from "./infinite-list";
 import { DirectoryError, useDirectoryPages } from "../../community/client";
@@ -81,7 +80,14 @@ export function RecordOptions({
               {items.map((item) => (
                 <li key={item.id}>
                   {multiple ? (
-                    <label className="bulk-member-option">
+                    <label
+                      className="choice-row"
+                      data-selected={selected.has(item.id)}
+                      data-disabled={
+                        disabled ||
+                        (!selected.has(item.id) && selected.size >= 50)
+                      }
+                    >
                       <Checkbox
                         checked={selected.has(item.id)}
                         disabled={
@@ -93,15 +99,13 @@ export function RecordOptions({
                       <span>{format?.(item) ?? item.name}</span>
                     </label>
                   ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
+                    <SelectionOption
+                      selected={selected.has(item.id)}
                       disabled={disabled}
-                      onClick={() => onToggle(item)}
+                      onSelect={() => onToggle(item)}
                     >
-                      {selected.has(item.id) && <Check aria-hidden="true" />}
                       {format?.(item) ?? item.name}
-                    </Button>
+                    </SelectionOption>
                   )}
                 </li>
               ))}

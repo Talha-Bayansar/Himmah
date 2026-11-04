@@ -141,7 +141,13 @@ export default function LearningAssign({ detail }: { detail: LearningDetail }) {
               <DirectoryList label={m.learn_assign()}>
                 {query.items.map((v) => (
                   <DirectoryItem key={v.id}>
-                    <label className="learning-contact-option">
+                    <label
+                      className="choice-row"
+                      data-selected={selected.has(v.id)}
+                      data-disabled={
+                        locked || (!selected.has(v.id) && selected.size >= 50)
+                      }
+                    >
                       <Checkbox
                         checked={selected.has(v.id)}
                         disabled={

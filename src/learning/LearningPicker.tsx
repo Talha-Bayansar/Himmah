@@ -1,3 +1,4 @@
+import { Button } from "../components/ui/button";
 import { useState } from "react";
 import {
   DirectoryToolbar,
@@ -10,7 +11,7 @@ import {
 } from "../components/shared/infinite-list";
 import { FormSurface } from "../components/shared/form-surface";
 import { ErrorNotice } from "../activities/Activities";
-import { Button } from "../components/ui/button";
+import { SelectionOption } from "../components/shared/selection-option";
 import { m } from "../paraglide/messages.js";
 import { useLearning, useLearningPages } from "./shared";
 import { useLocale } from "../localization/locale";
@@ -23,10 +24,12 @@ export type LearningOption = {
 };
 export default function LearningPicker({
   kind,
+  selected = "",
   onSelect,
   onClose,
 }: {
   kind: "activities" | "sessions";
+  selected?: string;
   onSelect: (v: LearningOption) => void;
   onClose: () => void;
 }) {
@@ -57,22 +60,21 @@ export default function LearningPicker({
           <DirectoryList label={m.learn_optional_context()}>
             {query.items.map((item) => (
               <DirectoryItem key={item.id}>
-                <Button
-                  variant="ghost"
-                  className="learning-option"
-                  onClick={() => onSelect(item)}
+                <SelectionOption
+                  selected={selected === item.id}
+                  onSelect={() => onSelect(item)}
+                  description={
+                    item.startsAt
+                      ? new Intl.DateTimeFormat(locale, {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                          timeZone: org.timezone,
+                        }).format(new Date(item.startsAt))
+                      : undefined
+                  }
                 >
-                  <span>{item.name}</span>
-                  {item.startsAt && (
-                    <small>
-                      {new Intl.DateTimeFormat(locale, {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                        timeZone: org.timezone,
-                      }).format(new Date(item.startsAt))}
-                    </small>
-                  )}
-                </Button>
+                  {item.name}
+                </SelectionOption>
               </DirectoryItem>
             ))}
           </DirectoryList>
@@ -82,9 +84,12 @@ export default function LearningPicker({
           <InfiniteFooter {...query} />
         </>
       )}
-      <Button variant="outline" onClick={onClose}>
-        {m.cancel()}
-      </Button>
+
+      <div className="selection-dismiss">
+        <Button type="button" variant="outline" onClick={onClose}>
+          {m.cancel()}
+        </Button>
+      </div>
     </FormSurface>
   );
 }

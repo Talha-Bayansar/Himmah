@@ -106,8 +106,18 @@ export function AttendancePicker({
               return (
                 <label
                   className={
-                    "attendance-picker-row" +
+                    "attendance-picker-row choice-row" +
                     (person.status === "present" ? " is-present" : "")
+                  }
+                  data-selected={
+                    person.status === "present" || selected.has(person.id)
+                  }
+                  data-disabled={
+                    pending ||
+                    person.status === "present" ||
+                    !person.eligible ||
+                    person.archived ||
+                    (!selected.has(person.id) && selected.size >= 50)
                   }
                   key={person.id}
                 >

@@ -1,9 +1,10 @@
+import { Button } from "../components/ui/button";
 import { useEffect, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { SearchField } from "../components/shared/search-field";
 import { directoryRequest, DirectoryError } from "../community/client";
 import { FormSurface } from "../components/shared/form-surface";
-import { Button } from "../components/ui/button";
+import { SelectionOption } from "../components/shared/selection-option";
 import {
   InfiniteFooter,
   ListSkeleton,
@@ -16,6 +17,7 @@ export function OptionPicker({
   kind,
   org,
   user,
+  selected = "",
   onSelect,
   onClose,
   onAccessError,
@@ -23,6 +25,7 @@ export function OptionPicker({
   kind: "activities" | "groups";
   org: string;
   user: string;
+  selected?: string;
   onSelect: (id: string, name: string) => void;
   onClose: () => void;
   onAccessError?: (error: unknown) => void;
@@ -64,51 +67,55 @@ export function OptionPicker({
         placeholder={m.directory_search()}
         onChange={(e) => setQ(e.target.value)}
       />
-      <Button variant="ghost" onClick={() => onSelect("", "")}>
-        {m.insights_all()}
-      </Button>
-      {query.isPending ? (
-        <ListSkeleton />
-      ) : query.isError &&
-        (!query.data ||
-          (query.error instanceof DirectoryError &&
-            ["forbidden", "not_found", "sign_in"].includes(
-              query.error.code,
-            ))) ? (
-        <ErrorNotice
-          error={query.error}
-          pending={query.isFetching}
-          retry={() => void query.refetch()}
-        />
-      ) : (
-        <>
-          <div className="insights-options">
-            {query.data?.pages
-              .flatMap((p) => p.items)
-              .map((item) => (
-                <Button
-                  key={item.id}
-                  variant="ghost"
-                  onClick={() => onSelect(item.id, item.name)}
-                >
-                  {item.name}
-                  {item.archived && (
-                    <span className="activity-note">
-                      {m.insights_archived()}
-                    </span>
-                  )}
-                </Button>
-              ))}
-          </div>
-          {!query.data?.pages.some((p) => p.items.length) && (
-            <p className="directory-empty">{m.attendance_empty()}</p>
-          )}
-          <InfiniteFooter {...query} />
-        </>
-      )}
-      <Button variant="outline" onClick={onClose}>
-        {m.done()}
-      </Button>
+      <div className="selection-list">
+        <SelectionOption selected={!selected} onSelect={() => onSelect("", "")}>
+          {kind === "activities"
+            ? m.picker_all_activities()
+            : m.picker_all_groups()}
+        </SelectionOption>
+        {query.isPending ? (
+          <ListSkeleton />
+        ) : query.isError &&
+          (!query.data ||
+            (query.error instanceof DirectoryError &&
+              ["forbidden", "not_found", "sign_in", "verify_required"].includes(
+                query.error.code,
+              ))) ? (
+          <ErrorNotice
+            error={query.error}
+            pending={query.isFetching}
+            retry={() => void query.refetch()}
+          />
+        ) : (
+          <>
+            <div className="selection-list-items">
+              {query.data?.pages
+                .flatMap((p) => p.items)
+                .map((item) => (
+                  <SelectionOption
+                    key={item.id}
+                    selected={selected === item.id}
+                    onSelect={() => onSelect(item.id, item.name)}
+                    description={
+                      item.archived ? m.insights_archived() : undefined
+                    }
+                  >
+                    {item.name}
+                  </SelectionOption>
+                ))}
+            </div>
+            {!query.data?.pages.some((p) => p.items.length) && (
+              <p className="directory-empty">{m.attendance_empty()}</p>
+            )}
+            <InfiniteFooter {...query} />
+          </>
+        )}
+      </div>
+      <div className="selection-dismiss">
+        <Button type="button" variant="outline" onClick={onClose}>
+          {m.cancel()}
+        </Button>
+      </div>
     </FormSurface>
   );
 }

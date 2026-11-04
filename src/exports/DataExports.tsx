@@ -1,3 +1,4 @@
+import { PickerTrigger } from "../components/shared/selection-option";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
@@ -451,29 +452,29 @@ export default function DataExports({
             {f.kind !== "contacts" && !f.session && (
               <div className="learning-field">
                 <Label>{m.insights_activity()}</Label>
-                <Button
-                  variant="outline"
-                  aria-label={m.insights_activity()}
+                <PickerTrigger
+                  label={m.insights_activity()}
+                  open={picker === "activities"}
                   onClick={() => setPicker("activities")}
                 >
                   {f.activity
                     ? context.data?.activityName ||
                       m.insights_selected_activity()
                     : m.insights_all()}
-                </Button>
+                </PickerTrigger>
               </div>
             )}
             <div className="learning-field">
               <Label>{m.insights_group()}</Label>
-              <Button
-                variant="outline"
-                aria-label={m.insights_group()}
+              <PickerTrigger
+                label={m.insights_group()}
+                open={picker === "groups"}
                 onClick={() => setPicker("groups")}
               >
                 {f.group
                   ? context.data?.groupName || m.insights_selected_group()
                   : m.insights_all()}
-              </Button>
+              </PickerTrigger>
             </div>
             {f.kind === "insights-trend" && (
               <div className="learning-field">
@@ -564,6 +565,7 @@ export default function DataExports({
       {picker && f && (
         <OptionPicker
           kind={picker}
+          selected={f[picker === "activities" ? "activity" : "group"]}
           org={organization.id}
           user={userId}
           onSelect={(id) => {
