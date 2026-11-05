@@ -1399,3 +1399,55 @@ export const liveOperations = pgTable(
     }),
   ],
 );
+
+// Organization defaults are distinct from personal language/follows/device consent.
+export const organizationSettings = pgTable(
+  "hub_organization_settings",
+  {
+    organizationId: uuid("organization_id")
+      .primaryKey()
+      .references(() => organizations.id),
+    description: text().notNull().default(""),
+    email: text().notNull().default(""),
+    phone: text().notNull().default(""),
+    defaultLanguage: text("default_language").notNull(),
+    quietEnabled: boolean("quiet_enabled").notNull().default(true),
+    quietStart: integer("quiet_start").notNull().default(1320),
+    quietEnd: integer("quiet_end").notNull().default(480),
+    version: integer().notNull().default(1),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedBy: text("updated_by").notNull(),
+  },
+  (t) => [
+    check(
+      "hub_settings_bounds",
+      sql`length(${t.description})<=1000 and length(${t.email})<=254 and length(${t.phone})<=64 and ${t.version}>0`,
+    ),
+    check(
+      "hub_settings_language",
+      sql`${t.defaultLanguage} in ('en','nl','tr')`,
+    ),
+    check(
+      "hub_settings_quiet",
+      sql`${t.quietStart} between 0 and 1439 and ${t.quietEnd} between 0 and 1439 and (not ${t.quietEnabled} or ${t.quietStart}<>${t.quietEnd})`,
+    ),
+  ],
+);
+export const organizationSettingsRequests = pgTable(
+  "hub_organization_settings_requests",
+  {
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    actorId: text("actor_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    payload: jsonb().notNull(),
+    result: jsonb().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.organizationId, t.actorId, t.requestKey] })],
+);

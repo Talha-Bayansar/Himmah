@@ -67,13 +67,14 @@ export default function DataExports({
   organization: Organization;
   userId: string;
 }) {
-  const { locale } = useLocale() ?? { locale: "en" };
+  const { locale: interfaceLocale } = useLocale() ?? { locale: "en" };
+  const locale = organization.defaultLanguage ?? interfaceLocale;
   const navigate = useNavigate(),
     cache = useQueryClient();
   const raw = useRouterState({
     select: (s) => s.location.search as Record<string, string>,
   });
-  const signature = JSON.stringify(raw),
+  const signature = JSON.stringify([raw, organization.timezone, locale]),
     canExport = ["owner", "admin"].includes(organization.role);
   const [picker, setPicker] = useState<"activities" | "groups" | null>(null),
     [pending, setPending] = useState(false),

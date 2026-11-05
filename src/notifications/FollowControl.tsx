@@ -1,3 +1,4 @@
+import { minuteTime } from "../organization/settings-contracts";
 import { useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, BellRing } from "lucide-react";
@@ -204,7 +205,14 @@ function FollowEditor({
           </NativeSelect>
         </div>
       </fieldset>
-      <p className="activity-note">{m.push_balance_help()}</p>
+      <p className="activity-note">
+        {initial.quietHours?.enabled === false
+          ? m.org_settings_no_quiet()
+          : m.org_settings_follow_quiet({
+              start: minuteTime(initial.quietHours?.start ?? 1320),
+              end: minuteTime(initial.quietHours?.end ?? 480),
+            })}
+      </p>
       {!canFollow && <p className="activity-note">{m.follow_closed()}</p>}
       {mutation.isError && (
         <ErrorFeedback

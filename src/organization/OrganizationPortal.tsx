@@ -1,3 +1,4 @@
+import OrganizationSettings from "./OrganizationSettings";
 import CustomFields from "../modules/people/CustomFields";
 import DataExports from "../exports/DataExports";
 import Learning from "../learning/Learning";
@@ -167,9 +168,11 @@ export default function OrganizationPortal({
       selected.isError ||
       (selected.data && !["owner", "admin"].includes(selected.data.role))
     ) {
-      const queryKey = ["organization", user.id, workspaceId, "learning"];
-      void queryClient.cancelQueries({ queryKey });
-      queryClient.removeQueries({ queryKey });
+      for (const scope of ["learning", "settings"]) {
+        const queryKey = ["organization", user.id, workspaceId, scope];
+        void queryClient.cancelQueries({ queryKey });
+        queryClient.removeQueries({ queryKey });
+      }
     }
   }, [
     user?.id,
@@ -300,7 +303,15 @@ export default function OrganizationPortal({
           />
         );
       if (workspaceSection === "organization")
-        return <OrganizationDetails organization={org} />;
+        return ["owner", "admin"].includes(org.role) ? (
+          <OrganizationSettings
+            key={user.id + org.id}
+            organization={org}
+            user={user.id}
+          />
+        ) : (
+          <OrganizationDetails organization={org} />
+        );
       if (workspaceSection === "notifications")
         return <Notifications organizationId={org.id} userId={user.id} />;
       if (workspaceSection === "dashboard")

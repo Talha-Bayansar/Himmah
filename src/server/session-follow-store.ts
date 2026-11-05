@@ -22,7 +22,7 @@ export function createSessionFollowStore(
       session: string | null,
     ) =>
       rows(
-        sql`select hub_follow_state(${user},${org}::uuid,${activity}::uuid,${session}::uuid) as result`,
+        sql`select case when state is null then null else state||jsonb_build_object('quietHours',jsonb_build_object('enabled',coalesce(q.quiet_enabled,true),'start',coalesce(q.quiet_start,1320),'end',coalesce(q.quiet_end,480),'timezone',o.timezone)) end result from (select hub_follow_state(${user},${org}::uuid,${activity}::uuid,${session}::uuid) state) f join hub_organizations o on o.id=${org}::uuid left join hub_organization_settings q on q.organization_id=o.id`,
       ),
     set: (
       user: string,

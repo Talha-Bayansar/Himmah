@@ -30,23 +30,44 @@ export function pushPolicy(
     const latest = Date.parse(String(target.latestPushAt));
     if (Number.isFinite(latest))
       delay = Math.max(delay, Math.ceil((latest + 300000 - now) / 1000));
-    const format = new Intl.DateTimeFormat("en-GB", {
-      hour: "numeric",
-      hourCycle: "h23",
-      timeZone: typeof target.timezone === "string" ? target.timezone : "UTC",
-    });
-    const hour = Number(format.format(now));
-    if (hour >= 22 || hour < 8) {
-      for (
-        let at = Math.floor(now / 900000) * 900000 + 900000;
-        at <= now + 14 * 3600000;
-        at += 900000
-      ) {
-        const h = Number(format.format(at));
-        if (h >= 8 && h < 22) {
-          delay = Math.max(delay, Math.ceil((at - now) / 1000));
-          break;
+    if (target.quietEnabled !== false) {
+      const start = Number.isInteger(target.quietStart)
+        ? Number(target.quietStart)
+        : 1320;
+      const end = Number.isInteger(target.quietEnd)
+        ? Number(target.quietEnd)
+        : 480;
+      const format = new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+        timeZone: typeof target.timezone === "string" ? target.timezone : "UTC",
+      });
+      const localMinute = (at: number) => {
+        const parts = format.formatToParts(at);
+        return (
+          Number(parts.find((p) => p.type === "hour")?.value) * 60 +
+          Number(parts.find((p) => p.type === "minute")?.value)
+        );
+      };
+      const quiet = (minute: number) =>
+        start < end
+          ? minute >= start && minute < end
+          : minute >= start || minute < end;
+      if (quiet(localMinute(now))) {
+        let endAt: number | null = null;
+        for (
+          let at = Math.floor(now / 60000) * 60000 + 60000;
+          at <= now + 48 * 3600000;
+          at += 60000
+        ) {
+          if (!quiet(localMinute(at))) {
+            endAt = at;
+            break;
+          }
         }
+        if (endAt === null) return { action: "skip", delay: 0 };
+        delay = Math.max(delay, Math.ceil((endAt - now) / 1000));
       }
     }
   }

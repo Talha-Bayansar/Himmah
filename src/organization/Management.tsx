@@ -68,8 +68,8 @@ export function Management({ organization }: { organization: Organization }) {
         },
         {
           section: "organization",
-          title: m.organization_details(),
-          description: m.manage_organization_help(),
+          title: m.org_settings_title(),
+          description: m.org_settings_intro(),
           Icon: Building2,
         },
       ],

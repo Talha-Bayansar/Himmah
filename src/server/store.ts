@@ -23,7 +23,7 @@ export function createStore(
   });
   const access = (user: string) =>
     sql`access as (select organization_id,role from hub_memberships where user_id=${user})`;
-  const projection = sql`o.id, o.name, o.slug, o.timezone, m.role, o.created_at::text as "createdAt"`;
+  const projection = sql`o.id, o.name, o.slug, o.timezone, (select default_language from hub_organization_settings where organization_id=o.id) as "defaultLanguage", m.role, o.created_at::text as "createdAt"`;
   return {
     async list(userId, input) {
       const rows = await run(

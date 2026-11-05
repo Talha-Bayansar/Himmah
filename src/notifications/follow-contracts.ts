@@ -1,5 +1,11 @@
 import { CommunityError, uuid } from "../community/contracts.ts";
 export type FollowState = {
+  quietHours?: {
+    enabled: boolean;
+    start: number;
+    end: number;
+    timezone: string;
+  };
   following: boolean;
   reminderMinutes: 0 | 60;
   version: number;

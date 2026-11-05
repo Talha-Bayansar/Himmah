@@ -6,6 +6,7 @@ export interface OrganizationInput {
   adultAuthorized: true;
 }
 export interface Organization {
+  defaultLanguage?: "en" | "nl" | "tr" | null;
   id: string;
   name: string;
   slug: string;

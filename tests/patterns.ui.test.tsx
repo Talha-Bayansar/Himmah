@@ -404,16 +404,34 @@ it("invokes the native install prompt only after the user chooses Install", asyn
   await waitFor(() => expect(prompt).toHaveBeenCalledTimes(1));
 });
 
-it("organization details reload independently, link back to Manage, and keep administration active", async () => {
+it("organization settings reload independently, return to Manage, and keep administration active", async () => {
+  const previous = globalThis.fetch;
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input, init) =>
+      String(input).endsWith("/settings")
+        ? Response.json({
+            name: organization.name,
+            description: "",
+            email: "",
+            phone: "",
+            timezone: organization.timezone,
+            defaultLanguage: null,
+            quietEnabled: true,
+            quietStart: 1320,
+            quietEnd: 480,
+            version: 0,
+          })
+        : previous(input, init),
+    ),
+  );
   mount(OrganizationPortal, `/workspace/${organization.id}/organization`);
-  await screen.findByRole("heading", { name: "Organization details" });
+  await screen.findByRole("heading", { name: "Organization settings" });
   expect(screen.getByText(organization.timezone)).toBeTruthy();
   expect(
     screen.getByRole("link", { name: "Manage" }).getAttribute("aria-current"),
   ).toBe("page");
-  await userEvent
-    .setup()
-    .click(screen.getByRole("link", { name: "Back to Manage" }));
+  await userEvent.setup().click(screen.getByRole("button", { name: "Back" }));
   await screen.findByRole("heading", { name: "Manage" });
   expect(screen.queryByRole("button", { name: "Sign out" })).toBeNull();
 });

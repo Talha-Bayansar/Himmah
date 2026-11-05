@@ -18,12 +18,14 @@ export function FormSurface({
   page = false,
   onClose,
   children,
+  footer,
 }: {
   title: string;
   description: string;
   page?: boolean;
   onClose: () => void;
   children: ReactNode;
+  footer?: ReactNode;
 }) {
   if (page)
     return (
@@ -43,6 +45,7 @@ export function FormSurface({
           autoFocus={false}
         />
         {children}
+        {footer}
       </section>
     );
   return (
@@ -60,6 +63,7 @@ export function FormSurface({
           <DrawerDescription>{description}</DrawerDescription>
         </DrawerHeader>
         <div className="form-sheet-body">{children}</div>
+        {footer && <div className="form-sheet-footer">{footer}</div>}
       </DrawerContent>
     </Drawer>
   );

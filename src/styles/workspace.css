@@ -3159,3 +3159,15 @@ button[data-slot="button"].people-section-add {
 .custom-value-summary > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border); }
 .custom-value-summary dt { color: var(--muted-foreground); overflow-wrap: anywhere; }
 .custom-value-summary dd { margin: 0; overflow-wrap: anywhere; }
+
+.organization-settings-fields { display: grid; gap: var(--space-6); min-width: 0; }
+.settings-form-section { display: grid; gap: var(--space-4); min-width: 0; padding-bottom: var(--space-6); border-bottom: 1px solid var(--border); }
+.settings-time-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); min-width: 0; }
+.settings-time-grid input { min-width: 0; width: 100%; max-width: 100%; }
+.settings-related-link { justify-content: space-between; width: 100%; white-space: normal; text-align: start; }
+
+@media (max-width: 360px) {
+  .settings-time-grid { grid-template-columns: minmax(0,1fr); }
+}
+.form-sheet-footer { display: flex; justify-content: flex-end; flex-shrink: 0; gap: var(--space-3); border-top: 1px solid var(--border); background: var(--background); padding: var(--space-3) 24px max(16px,env(safe-area-inset-bottom)); }
+.form-sheet:has(> .form-sheet-footer) .form-sheet-body { padding-bottom: var(--space-4); }
