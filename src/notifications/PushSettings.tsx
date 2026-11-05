@@ -153,6 +153,7 @@ export function PushSettings({ userId }: { userId: string }) {
       <details className="session-help preferences-help">
         <summary>{m.preferences_push_about()}</summary>
         <p>{m.push_help()}</p>
+        <p>{m.push_balance_help()}</p>
         <p>{m.push_device_hint()}</p>
       </details>
     </section>

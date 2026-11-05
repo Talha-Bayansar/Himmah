@@ -1,3 +1,4 @@
+import CustomFields from "../modules/people/CustomFields";
 import DataExports from "../exports/DataExports";
 import Learning from "../learning/Learning";
 import PlannedSessions from "../dashboard/PlannedSessions";
@@ -350,6 +351,10 @@ export default function OrganizationPortal({
         );
       if (workspaceSection === "insights")
         return <Insights organization={org} userId={user.id} />;
+      if (workspaceSection === "custom-fields")
+        return (
+          <CustomFields key={user.id + org.id} org={org.id} user={user.id} />
+        );
       if (workspaceSection === "exports")
         return (
           <DataExports

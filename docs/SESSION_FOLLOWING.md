@@ -30,3 +30,16 @@ The shared sheet retains drafts and command identity after an unknown outcome, d
 - API: GET/POST the activity or session `/follow` endpoint. Worker authentication, verified-email, same-origin JSON mutation and People gates remain in force; SQL independently enforces scope.
 - Cron: `runNotificationJobs` generates reminders before existing leased push delivery. Generation failure leaves existing delivery available. Maintenance skips both; the People gate skips session generation.
 - Local tests use disposable SQL and fake push endpoints only. Never send synthetic hosted/device pushes to validate this feature.
+
+## Native interruption balance — 5 November 2026
+
+Personal follows and browser permission remain separate, explicit opt-ins. The inbox retains currently relevant updates under the existing visibility rules; native delivery has an additional policy:
+
+- Routine pushes pause from 22:00 to 08:00 in the organization's timezone. An upcoming cancellation within two hours bypasses quiet hours and the routine cooldown. These are best-effort notifications, not exact alarms.
+- Changes wait two minutes before native delivery. Rapid edits supersede older fingerprints, so only the current update can be sent. Changes/cancellations more than seven days away remain in-app only.
+- Routine pushes have a five-minute gap per device across organizations. The queue excludes stale/read/inaccessible notices and prioritizes imminent cancellations, then reminders. It claims at most one delivery per device at once; concurrent jobs cannot claim another for that active device lease. This complements the existing bounded 20-job/four-request delivery batch.
+- A one-hour reminder is not pushed again when a current change/cancellation notice for that same session was created within the preceding ten minutes. Its in-app reminder is unaffected.
+- Quiet/cooldown deferrals reschedule without consuming provider retry attempts. Expired reminders and notices for sessions that have started are skipped, rather than delivered after the useful window. Current membership, access, follow version, fingerprint and unread state are still rechecked before transport.
+- Native notifications use a separate generic grouping tag per session. Different sessions no longer overwrite each other's alert; rapid updates to the same session replace its displayed alert. Lock-screen content remains generic. Sent/in-flight notifications cannot be recalled.
+
+The shared follow sheet and Preferences explanation disclose quiet hours and the imminent-cancellation exception. No new broadcast, automatic follow, participant messaging or permission prompt is introduced. Policy tests cover daytime/nighttime, timezone, imminent/far cancellations, edit debounce, cooldown, reminder redundancy and per-device queue leases/attempt preservation. Worker transport tests still use fake endpoints; never send a synthetic native push to an actual device for verification.

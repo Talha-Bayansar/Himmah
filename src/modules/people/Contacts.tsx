@@ -1,3 +1,10 @@
+import { CustomValueInputs, ContactCustomValues } from "./CustomFields";
+import {
+  valuesValid,
+  type FieldConfig,
+  type CustomValues,
+} from "./custom-field-contracts";
+import { DirectoryError } from "../../community/client";
 import { SearchField } from "../../components/shared/search-field";
 import { DirectoryFilters } from "../../components/shared/directory-filters";
 import { ContactLearning } from "../../learning/ContactLearning";
@@ -116,7 +123,13 @@ export default function Contacts({
 }
 
 function ContactList({ org, user }: { org: string; user: string }) {
-  const navigate = useNavigate();
+  const navigate = useNavigate(),
+    cache = useQueryClient();
+  const config = cache.getQueryData<{ customFields?: FieldConfig }>([
+    "people-context",
+    user,
+    org,
+  ])?.customFields;
   const [search, setSearch] = useState(""),
     [query, setQuery] = useState(""),
     [archived, setArchived] = useState(false),
@@ -140,7 +153,16 @@ function ContactList({ org, user }: { org: string; user: string }) {
         title={m.people_contacts()}
         action={
           <div className="directory-actions">
-            <Button onClick={() => setEditing(true)}>
+            <Button
+              onClick={() =>
+                config?.fields.some((f) => !f.archivedAt)
+                  ? void navigate({
+                      to: "/workspace/$organizationId/people/contacts/new",
+                      params: { organizationId: org },
+                    })
+                  : setEditing(true)
+              }
+            >
               <Plus aria-hidden="true" />
               {m.people_add()}
             </Button>
@@ -296,6 +318,7 @@ function ContactDetail({
   const [editingMethod, setEditingMethod] = useState<
     ContactMethod | undefined
   >();
+  const navigate = useNavigate();
   const qc = useQueryClient(),
     confirm = useConfirmation();
   const [key, setKey] = useState(() => crypto.randomUUID());
@@ -358,7 +381,23 @@ function ContactDetail({
       });
   }
   const actions = [
-    { label: m.people_edit(), icon: Pencil, onSelect: () => setEditing(true) },
+    {
+      label: m.people_edit(),
+      icon: Pencil,
+      onSelect: () =>
+        qc
+          .getQueryData<{ customFields?: FieldConfig }>([
+            "people-context",
+            user,
+            org,
+          ])
+          ?.customFields?.fields.some((f) => !f.archivedAt)
+          ? void navigate({
+              to: "/workspace/$organizationId/people/contacts/$contactId/edit",
+              params: { organizationId: org, contactId: id },
+            })
+          : setEditing(true),
+    },
     {
       label: contact.archivedAt ? m.people_restore() : m.people_archive(),
       icon: contact.archivedAt ? ArchiveRestore : Archive,
@@ -433,6 +472,18 @@ function ContactDetail({
         </Card>
       )}
 
+      {!view && (
+        <ContactCustomValues
+          config={
+            qc.getQueryData<{ customFields?: FieldConfig }>([
+              "people-context",
+              user,
+              org,
+            ])?.customFields
+          }
+          values={contact.customValues ?? {}}
+        />
+      )}
       {(!view || view === "methods") && (
         <section className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -654,12 +705,13 @@ function ContactDetail({
     </div>
   );
 }
-function Editor({
+export function Editor({
   org,
   user,
   contact,
   method = false,
   existingMethod,
+  page = false,
   onClose,
 }: {
   org: string;
@@ -667,11 +719,21 @@ function Editor({
   contact?: Contact;
   method?: boolean;
   existingMethod?: ContactMethod;
+  page?: boolean;
   onClose: () => void;
 }) {
   const confirm = useConfirmation(),
     qc = useQueryClient(),
     navigate = useNavigate();
+  const [config] = useState(
+    () =>
+      qc.getQueryData<{ customFields?: FieldConfig }>([
+        "people-context",
+        user,
+        org,
+      ])?.customFields,
+  );
+  const attempted = useRef<Record<string, unknown> | null>(null);
   const [key] = useState(() => crypto.randomUUID());
   const committed = useRef(false);
   const [version] = useState(contact?.version);
@@ -696,6 +758,7 @@ function Editor({
   });
   const form = useForm({
     defaultValues: {
+      customValues: contact?.customValues ?? ({} as CustomValues),
       displayName: contact?.displayName ?? "",
       givenName: contact?.givenName ?? "",
       familyName: contact?.familyName ?? "",
@@ -706,10 +769,22 @@ function Editor({
     onSubmit: async ({ value }) => {
       try {
         const body = method ? methodInput(value) : contactInput(value);
-        const result = await mutation.mutateAsync({ ...body });
+        if (!method && !valuesValid(config?.fields ?? [], value.customValues))
+          throw Error("invalid");
+        if (!uncertain)
+          attempted.current = {
+            ...body,
+            ...(!method && config
+              ? {
+                  customValues: value.customValues,
+                  customFieldsSnapshot: config.snapshot,
+                }
+              : {}),
+          };
+        const result = await mutation.mutateAsync(attempted.current!);
         await qc.invalidateQueries({ queryKey: ["people", user, org] });
         committed.current = true;
-        onClose();
+        if (contact) onClose();
         if (!contact)
           await navigate({
             to: "/workspace/$organizationId/people/contacts/$contactId",
@@ -720,6 +795,21 @@ function Editor({
       }
     },
   });
+  const uncertain =
+    mutation.isError &&
+    !(
+      mutation.error instanceof DirectoryError &&
+      [
+        "invalid_input",
+        "version_conflict",
+        "request_key_conflict",
+        "not_found_or_forbidden",
+        "archived_reference",
+        "duplicate_active_record",
+        "verify_required",
+        "sign_in",
+      ].includes(mutation.error.code)
+    );
   const [validation, setValidation] = useState(false);
   async function close() {
     if (mutation.isPending) return;
@@ -736,22 +826,23 @@ function Editor({
   }
   useBlocker({
     shouldBlockFn: async () =>
-      mutation.isPending ||
-      (!committed.current &&
-        form.state.isDirty &&
-        !mutation.isSuccess &&
-        !(await confirm({
-          confirmLabel: m.interface_discard(),
-          title: m.people_discard(),
-          description: m.people_discard_description(),
-          destructive: true,
-        }))),
+      !committed.current &&
+      (mutation.isPending ||
+        (form.state.isDirty &&
+          !mutation.isSuccess &&
+          !(await confirm({
+            confirmLabel: m.interface_discard(),
+            title: m.people_discard(),
+            description: m.people_discard_description(),
+            destructive: true,
+          })))),
     enableBeforeUnload: () =>
-      mutation.isPending ||
-      (!committed.current && form.state.isDirty && !mutation.isSuccess),
+      !committed.current &&
+      (mutation.isPending || (form.state.isDirty && !mutation.isSuccess)),
   });
   return (
     <FormSurface
+      page={page}
       title={
         method
           ? existingMethod
@@ -761,7 +852,13 @@ function Editor({
             ? m.people_edit()
             : m.people_add()
       }
-      description={method ? m.people_method_hint() : m.people_name_hint()}
+      description={
+        method
+          ? m.people_method_hint()
+          : config?.fields.some((f) => !f.archivedAt)
+            ? m.fields_contact_help()
+            : m.people_name_hint()
+      }
       onClose={() => void close()}
     >
       <form
@@ -770,7 +867,16 @@ function Editor({
           e.preventDefault();
           try {
             if (method) methodInput(form.state.values);
-            else contactInput(form.state.values);
+            else {
+              contactInput(form.state.values);
+              if (
+                !valuesValid(
+                  config?.fields ?? [],
+                  form.state.values.customValues,
+                )
+              )
+                throw Error("invalid");
+            }
             setValidation(false);
             void form.handleSubmit();
           } catch {
@@ -778,7 +884,10 @@ function Editor({
           }
         }}
       >
-        <fieldset disabled={mutation.isPending} className="form-fields">
+        <fieldset
+          disabled={mutation.isPending || uncertain}
+          className="form-fields"
+        >
           {method ? (
             <>
               <form.Field name="kind">
@@ -861,6 +970,20 @@ function Editor({
                 ),
               )}
             </>
+          )}
+          {!method && config?.fields.some((f) => !f.archivedAt) && (
+            <h2>{m.fields_details()}</h2>
+          )}
+          {!method && config && (
+            <form.Field name="customValues">
+              {(field) => (
+                <CustomValueInputs
+                  fields={config.fields}
+                  values={field.state.value}
+                  onChange={field.handleChange}
+                />
+              )}
+            </form.Field>
           )}
         </fieldset>
         {validation && <p role="alert">{m.people_invalid()}</p>}

@@ -39,9 +39,11 @@ import { Route as WorkspaceOrganizationIdLearningLearningIdEditRouteImport } fro
 import { Route as WorkspaceOrganizationIdLearningLearningIdLiveRouteImport } from './routes/workspace.$organizationId.learning.$learningId.live'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId'
 import { Route as WorkspaceOrganizationIdPeopleContactsImportRouteImport } from './routes/workspace.$organizationId.people.contacts_.import'
+import { Route as WorkspaceOrganizationIdPeopleContactsNewRouteImport } from './routes/workspace.$organizationId.people.contacts_.new'
 import { Route as WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport } from './routes/workspace.$organizationId.people.groups_.$groupId'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId'
 import { Route as WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId_.$view'
+import { Route as WorkspaceOrganizationIdPeopleContactsContactIdEditRouteImport } from './routes/workspace.$organizationId.people.contacts_.$contactId_.edit'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.attendance'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.cash'
 import { Route as WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRouteImport } from './routes/workspace.$organizationId.activities.$activityId.sessions.$sessionId.record-cash'
@@ -216,6 +218,12 @@ const WorkspaceOrganizationIdPeopleContactsImportRoute =
     path: '/people/contacts/import',
     getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
+const WorkspaceOrganizationIdPeopleContactsNewRoute =
+  WorkspaceOrganizationIdPeopleContactsNewRouteImport.update({
+    id: '/people/contacts_/new',
+    path: '/people/contacts/new',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
+  } as any)
 const WorkspaceOrganizationIdPeopleGroupsGroupIdRoute =
   WorkspaceOrganizationIdPeopleGroupsGroupIdRouteImport.update({
     id: '/people/groups_/$groupId',
@@ -234,6 +242,12 @@ const WorkspaceOrganizationIdPeopleContactsContactIdViewRoute =
   WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport.update({
     id: '/people/contacts_/$contactId_/$view',
     path: '/people/contacts/$contactId/$view',
+    getParentRoute: () => WorkspaceOrganizationIdRoute,
+  } as any)
+const WorkspaceOrganizationIdPeopleContactsContactIdEditRoute =
+  WorkspaceOrganizationIdPeopleContactsContactIdEditRouteImport.update({
+    id: '/people/contacts_/$contactId_/edit',
+    path: '/people/contacts/$contactId/edit',
     getParentRoute: () => WorkspaceOrganizationIdRoute,
   } as any)
 const WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute =
@@ -303,10 +317,12 @@ export interface FileRoutesByFullPath {
   '/workspace/$organizationId/learning/$learningId/live': typeof WorkspaceOrganizationIdLearningLearningIdLiveRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/contacts/import': typeof WorkspaceOrganizationIdPeopleContactsImportRoute
+  '/workspace/$organizationId/people/contacts/new': typeof WorkspaceOrganizationIdPeopleContactsNewRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/learning/$learningId/': typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
+  '/workspace/$organizationId/people/contacts/$contactId/edit': typeof WorkspaceOrganizationIdPeopleContactsContactIdEditRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
@@ -339,10 +355,12 @@ export interface FileRoutesByTo {
   '/workspace/$organizationId/learning/$learningId/live': typeof WorkspaceOrganizationIdLearningLearningIdLiveRoute
   '/workspace/$organizationId/people/contacts/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/contacts/import': typeof WorkspaceOrganizationIdPeopleContactsImportRoute
+  '/workspace/$organizationId/people/contacts/new': typeof WorkspaceOrganizationIdPeopleContactsNewRoute
   '/workspace/$organizationId/people/groups/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/learning/$learningId': typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts/$contactId/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
+  '/workspace/$organizationId/people/contacts/$contactId/edit': typeof WorkspaceOrganizationIdPeopleContactsContactIdEditRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
@@ -379,10 +397,12 @@ export interface FileRoutesById {
   '/workspace/$organizationId/learning/$learningId/live': typeof WorkspaceOrganizationIdLearningLearningIdLiveRoute
   '/workspace/$organizationId/people/contacts_/$contactId': typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   '/workspace/$organizationId/people/contacts_/import': typeof WorkspaceOrganizationIdPeopleContactsImportRoute
+  '/workspace/$organizationId/people/contacts_/new': typeof WorkspaceOrganizationIdPeopleContactsNewRoute
   '/workspace/$organizationId/people/groups_/$groupId': typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   '/workspace/$organizationId/learning/$learningId/': typeof WorkspaceOrganizationIdLearningLearningIdIndexRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRouteWithChildren
   '/workspace/$organizationId/people/contacts_/$contactId_/$view': typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
+  '/workspace/$organizationId/people/contacts_/$contactId_/edit': typeof WorkspaceOrganizationIdPeopleContactsContactIdEditRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdAttendanceRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdCashRoute
   '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash': typeof WorkspaceOrganizationIdActivitiesActivityIdSessionsSessionIdRecordCashRoute
@@ -420,10 +440,12 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/learning/$learningId/live'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/contacts/import'
+    | '/workspace/$organizationId/people/contacts/new'
     | '/workspace/$organizationId/people/groups/$groupId'
     | '/workspace/$organizationId/learning/$learningId/'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
+    | '/workspace/$organizationId/people/contacts/$contactId/edit'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
@@ -456,10 +478,12 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/learning/$learningId/live'
     | '/workspace/$organizationId/people/contacts/$contactId'
     | '/workspace/$organizationId/people/contacts/import'
+    | '/workspace/$organizationId/people/contacts/new'
     | '/workspace/$organizationId/people/groups/$groupId'
     | '/workspace/$organizationId/learning/$learningId'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts/$contactId/$view'
+    | '/workspace/$organizationId/people/contacts/$contactId/edit'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
@@ -495,10 +519,12 @@ export interface FileRouteTypes {
     | '/workspace/$organizationId/learning/$learningId/live'
     | '/workspace/$organizationId/people/contacts_/$contactId'
     | '/workspace/$organizationId/people/contacts_/import'
+    | '/workspace/$organizationId/people/contacts_/new'
     | '/workspace/$organizationId/people/groups_/$groupId'
     | '/workspace/$organizationId/learning/$learningId/'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId'
     | '/workspace/$organizationId/people/contacts_/$contactId_/$view'
+    | '/workspace/$organizationId/people/contacts_/$contactId_/edit'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/cash'
     | '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/record-cash'
@@ -729,6 +755,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsImportRouteImport
       parentRoute: typeof WorkspaceOrganizationIdRoute
     }
+    '/workspace/$organizationId/people/contacts_/new': {
+      id: '/workspace/$organizationId/people/contacts_/new'
+      path: '/people/contacts/new'
+      fullPath: '/workspace/$organizationId/people/contacts/new'
+      preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsNewRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
+    }
     '/workspace/$organizationId/people/groups_/$groupId': {
       id: '/workspace/$organizationId/people/groups_/$groupId'
       path: '/people/groups/$groupId'
@@ -748,6 +781,13 @@ declare module '@tanstack/react-router' {
       path: '/people/contacts/$contactId/$view'
       fullPath: '/workspace/$organizationId/people/contacts/$contactId/$view'
       preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRouteImport
+      parentRoute: typeof WorkspaceOrganizationIdRoute
+    }
+    '/workspace/$organizationId/people/contacts_/$contactId_/edit': {
+      id: '/workspace/$organizationId/people/contacts_/$contactId_/edit'
+      path: '/people/contacts/$contactId/edit'
+      fullPath: '/workspace/$organizationId/people/contacts/$contactId/edit'
+      preLoaderRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdEditRouteImport
       parentRoute: typeof WorkspaceOrganizationIdRoute
     }
     '/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance': {
@@ -888,8 +928,10 @@ interface WorkspaceOrganizationIdRouteChildren {
   WorkspaceOrganizationIdFormsFormRecordIdRoute: typeof WorkspaceOrganizationIdFormsFormRecordIdRoute
   WorkspaceOrganizationIdPeopleContactsContactIdRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdRoute
   WorkspaceOrganizationIdPeopleContactsImportRoute: typeof WorkspaceOrganizationIdPeopleContactsImportRoute
+  WorkspaceOrganizationIdPeopleContactsNewRoute: typeof WorkspaceOrganizationIdPeopleContactsNewRoute
   WorkspaceOrganizationIdPeopleGroupsGroupIdRoute: typeof WorkspaceOrganizationIdPeopleGroupsGroupIdRoute
   WorkspaceOrganizationIdPeopleContactsContactIdViewRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdViewRoute
+  WorkspaceOrganizationIdPeopleContactsContactIdEditRoute: typeof WorkspaceOrganizationIdPeopleContactsContactIdEditRoute
 }
 
 const WorkspaceOrganizationIdRouteChildren: WorkspaceOrganizationIdRouteChildren =
@@ -915,10 +957,14 @@ const WorkspaceOrganizationIdRouteChildren: WorkspaceOrganizationIdRouteChildren
       WorkspaceOrganizationIdPeopleContactsContactIdRoute,
     WorkspaceOrganizationIdPeopleContactsImportRoute:
       WorkspaceOrganizationIdPeopleContactsImportRoute,
+    WorkspaceOrganizationIdPeopleContactsNewRoute:
+      WorkspaceOrganizationIdPeopleContactsNewRoute,
     WorkspaceOrganizationIdPeopleGroupsGroupIdRoute:
       WorkspaceOrganizationIdPeopleGroupsGroupIdRoute,
     WorkspaceOrganizationIdPeopleContactsContactIdViewRoute:
       WorkspaceOrganizationIdPeopleContactsContactIdViewRoute,
+    WorkspaceOrganizationIdPeopleContactsContactIdEditRoute:
+      WorkspaceOrganizationIdPeopleContactsContactIdEditRoute,
   }
 
 const WorkspaceOrganizationIdRouteWithChildren =

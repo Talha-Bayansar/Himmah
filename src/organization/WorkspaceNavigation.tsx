@@ -12,6 +12,7 @@ export const workspaceSections = [
   "follow-up",
   "learning",
   "exports",
+  "custom-fields",
   "manage",
   "organization",
   "staff",
@@ -94,6 +95,7 @@ export function WorkspaceNavigation({
           aria-current={
             [
               "exports",
+              "custom-fields",
               "manage",
               "organization",
               "staff",

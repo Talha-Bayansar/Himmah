@@ -1,3 +1,8 @@
+import {
+  valuesValid,
+  type CustomField,
+  type CustomValues,
+} from "./custom-field-contracts.ts";
 import Papa from "papaparse";
 import {
   IMPORT_BYTES,
@@ -38,7 +43,7 @@ export function parseContactCsv(text: string): CsvData {
       if (cells.every((cell) => !cell.trim())) return;
       if (!headers.length) {
         headers = cells;
-        if (headers.length > 50) {
+        if (headers.length > 55) {
           invalid = true;
           parser.abort();
         }
@@ -63,6 +68,7 @@ export function parseContactCsv(text: string): CsvData {
 export function mapContactCsv(
   data: CsvData,
   mapping: Record<ImportField, number>,
+  fields: CustomField[] = [],
 ) {
   const used = Object.values(mapping).filter((n) => n >= 0);
   if (
@@ -77,6 +83,37 @@ export function mapContactCsv(
     for (const [field, column] of Object.entries(mapping))
       raw[field] = column >= 0 ? cells[column] : "";
     try {
+      const values: CustomValues = {};
+      for (const f of fields.filter((f) => !f.archivedAt)) {
+        const v = String(raw["custom:" + f.id] ?? "").trim();
+        if (!v) continue;
+        if (f.kind === "number") {
+          if (!/^-?(?:[0-9]+)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]{1,3})?$/.test(v))
+            throw Error("number");
+          values[f.id] = Number(v);
+        } else if (f.kind === "boolean") {
+          const normal = v.toLocaleLowerCase("en");
+          if (
+            ![
+              "true",
+              "false",
+              "yes",
+              "no",
+              "ja",
+              "nee",
+              "evet",
+              "hayır",
+              "hayir",
+              "1",
+              "0",
+            ].includes(normal)
+          )
+            throw Error("boolean");
+          values[f.id] = ["true", "yes", "ja", "evet", "1"].includes(normal);
+        } else values[f.id] = v;
+      }
+      if (!valuesValid(fields, values)) throw Error("fields");
+      if (Object.keys(values).length) raw.customValues = values;
       return { row, value: importRow(raw), error: false as const };
     } catch {
       return { row, value: null, error: true as const };

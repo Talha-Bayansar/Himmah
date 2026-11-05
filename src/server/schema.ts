@@ -626,6 +626,7 @@ export const pushDeliveries = pgTable(
   (t) => [
     unique("hub_push_delivery").on(t.notificationId, t.deviceId),
     index("hub_push_due").on(t.state, t.nextAt),
+    index("hub_push_device_queue").on(t.deviceId, t.state, t.nextAt, t.id),
     check(
       "hub_push_state",
       sql`${t.state} in ('pending','sending','sent','dead') and ${t.attempts} between 0 and 5`,

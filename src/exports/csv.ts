@@ -239,12 +239,29 @@ export function exportCsv(snapshot: ExportSnapshot, f: ExportFilters) {
         ),
     },
   );
+  if (f.kind === "contacts")
+    for (const field of snapshot.customFields ?? [])
+      columns.push({
+        key: "field:" + field.label + " (" + field.id + ")",
+        value: (r) => {
+          const v = (r.customValues as Record<string, unknown> | undefined)?.[
+            field.id
+          ];
+          return typeof v === "number"
+            ? { number: String(v) }
+            : text(typeof v === "boolean" ? message(v ? "yes" : "no") : v);
+        },
+      });
   const all = [...columns, ...context];
   const csv =
     "\ufeff" +
     Papa.unparse(
       {
-        fields: all.map((c) => message("col_" + c.key)),
+        fields: all.map((c) =>
+          c.key.startsWith("field:")
+            ? spreadsheetText(c.key.slice(6))
+            : message("col_" + c.key),
+        ),
         data: rows.map((r) =>
           all.map((c) => {
             const value = c.value(r);

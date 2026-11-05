@@ -1,3 +1,4 @@
+import { pushPolicy } from "../notifications/push-policy.ts";
 import { m } from "../paraglide/messages.js";
 import { buildPushPayload } from "@block65/webcrypto-web-push";
 import {
@@ -40,6 +41,15 @@ export async function deliverPush(
             await store.finish(id, lease, "dead", 0);
             return;
           }
+          const policy = pushPolicy(target);
+          if (policy.action === "skip") {
+            await store.finish(id, lease, "dead", 0);
+            return;
+          }
+          if (policy.action === "defer") {
+            await store.defer(id, lease, policy.delay);
+            return;
+          }
           const body = m.push_alert(
             {},
             {
@@ -53,6 +63,10 @@ export async function deliverPush(
           );
           const payload = JSON.stringify({
             title: "Himmah",
+            tag:
+              typeof target.sessionId === "string"
+                ? "himmah-session-" + target.sessionId
+                : "himmah-updates",
             body,
             url:
               typeof target.href === "string"

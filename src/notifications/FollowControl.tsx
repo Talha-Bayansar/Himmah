@@ -204,6 +204,7 @@ function FollowEditor({
           </NativeSelect>
         </div>
       </fieldset>
+      <p className="activity-note">{m.push_balance_help()}</p>
       {!canFollow && <p className="activity-note">{m.follow_closed()}</p>}
       {mutation.isError && (
         <ErrorFeedback

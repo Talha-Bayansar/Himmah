@@ -1,3 +1,4 @@
+import type { FieldConfig } from "./custom-field-contracts";
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
@@ -74,6 +75,19 @@ function ImportEditor({ org, user }: { org: string; user: string }) {
   const navigate = useNavigate(),
     cache = useQueryClient(),
     confirm = useConfirmation();
+  const [config] = useState(
+    () =>
+      cache.getQueryData<{ customFields?: FieldConfig }>([
+        "people-context",
+        user,
+        org,
+      ])?.customFields,
+  );
+  const fields = config?.fields.filter((f) => !f.archivedAt) ?? [];
+  const mappingFields: ImportField[] = [
+    ...importFields,
+    ...fields.map((f) => `custom:${f.id}` as const),
+  ];
   const [data, setData] = useState<CsvData | null>(null),
     [fileName, setFileName] = useState(""),
     [mapping, setMapping] = useState(blank),
@@ -189,7 +203,7 @@ function ImportEditor({ org, user }: { org: string; user: string }) {
     mappingValid = true;
   if (data) {
     try {
-      mapped = mapContactCsv(data, mapping);
+      mapped = mapContactCsv(data, mapping, fields);
     } catch {
       mappingValid = false;
     }
@@ -318,13 +332,20 @@ function ImportEditor({ org, user }: { org: string; user: string }) {
           <section className="import-section">
             <h2>{m.import_columns()}</h2>
             <p className="activity-note">{m.import_mapping_help()}</p>
+            {!!fields.length && (
+              <p className="activity-note">{m.fields_import_help()}</p>
+            )}
             <fieldset className="form-fields" disabled={pending}>
-              {importFields.map((field) => (
+              {mappingFields.map((field) => (
                 <div className="learning-field" key={field}>
-                  <Label htmlFor={"import-" + field}>{fieldName(field)}</Label>
+                  <Label htmlFor={"import-" + field}>
+                    {field.startsWith("custom:")
+                      ? fields.find((f) => "custom:" + f.id === field)?.label
+                      : fieldName(field)}
+                  </Label>
                   <NativeSelect
                     id={"import-" + field}
-                    value={mapping[field]}
+                    value={mapping[field] ?? -1}
                     onChange={(e) => {
                       setMapping({
                         ...mapping,
@@ -343,11 +364,12 @@ function ImportEditor({ org, user }: { org: string; user: string }) {
                       </NativeSelectOption>
                     ))}
                   </NativeSelect>
-                  {mapping[field] >= 0 && (
+                  {(mapping[field] ?? -1) >= 0 && (
                     <p className="activity-note import-sample">
                       {m.import_example({
                         value:
-                          data.rows[0]?.[mapping[field]]?.slice(0, 120) || "—",
+                          data.rows[0]?.[mapping[field] ?? -1]?.slice(0, 120) ||
+                          "—",
                       })}
                     </p>
                   )}

@@ -1,3 +1,4 @@
+import { fieldInput, customPayload } from "./custom-field-contracts.ts";
 import { importRows, importCommand } from "./import-contracts.ts";
 import { communicationApi } from "./communication-api.ts";
 import { directoryApi } from "./directory-api.ts";
@@ -49,13 +50,52 @@ export async function peopleApi(
         throw new PeopleError("invalid_input");
       }
     };
+    if (prefix[2] === "custom-fields") {
+      if (request.method === "GET")
+        return respond(await store.fields(user.id, org));
+      if (request.method !== "POST")
+        return respond({ code: "invalid_input" }, 405);
+      const b = await readBody();
+      const operation = b.operation;
+      if (
+        !["create", "update", "archive", "restore"].includes(String(operation))
+      )
+        throw new PeopleError("invalid_input");
+      const payload = {
+        operation,
+        ...(operation === "create"
+          ? {}
+          : { id: uuid(b.id), version: expectedVersion(b.version) }),
+        ...(["create", "update"].includes(String(operation))
+          ? fieldInput(b)
+          : {}),
+      };
+      const result = await store.fieldCommand(
+        user.id,
+        org,
+        uuid(b.key),
+        payload,
+      );
+      return respond(
+        result,
+        result.code
+          ? ["version_conflict", "request_key_conflict"].includes(
+              String(result.code),
+            )
+            ? 409
+            : result.code === "not_found_or_forbidden"
+              ? 404
+              : 400
+          : 200,
+      );
+    }
     if (
       ["contact-import/review", "contact-import/commit"].includes(prefix[2]!)
     ) {
       if (request.method !== "POST")
         return respond({ code: "not_found_or_forbidden" }, 404);
       const text = await request.text();
-      if (text.length > 512000) throw new PeopleError("invalid_input");
+      if (text.length > 4 * 1024 * 1024) throw new PeopleError("invalid_input");
       let body;
       try {
         body = JSON.parse(text);
@@ -152,7 +192,7 @@ export async function peopleApi(
     }
     if (kind !== "contacts") return respond({ code: "invalid_input" }, 405);
     const text = await request.text();
-    if (text.length > 8000) throw new PeopleError("invalid_input");
+    if (text.length > 64000) throw new PeopleError("invalid_input");
     let body: Record<string, unknown>;
     try {
       body = JSON.parse(text);
@@ -164,13 +204,14 @@ export async function peopleApi(
     let operation: string, payload: Record<string, unknown>;
     if (!id && request.method === "POST") {
       operation = "create";
-      payload = { ...contactInput(body) };
+      payload = { ...contactInput(body), ...customPayload(body) };
     } else if (id && !child && request.method === "PATCH") {
       operation = "update";
       payload = {
         contactId: id,
         version: expectedVersion(body.version),
         ...contactInput(body),
+        ...customPayload(body),
       };
     } else if (
       id &&

@@ -31,6 +31,7 @@ export type ExportSnapshot = ExportContext & {
   tooLarge?: boolean;
   generatedAt: string;
   items: Record<string, unknown>[];
+  customFields?: import("../modules/people/custom-field-contracts.ts").CustomField[];
   summary?: Record<string, unknown>;
   trend?: Record<string, unknown>[];
 };

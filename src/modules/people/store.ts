@@ -6,6 +6,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { sql, type SQL } from "drizzle-orm";
 import type { PageInput } from "../../community/contracts.ts";
 import type { Contact, ContactMethod } from "./contracts.ts";
+import type { FieldConfig } from "./custom-field-contracts.ts";
 export type Execute = (query: SQL) => Promise<Record<string, unknown>[]>;
 export function createPeopleStore(url: string, execute?: Execute) {
   const db = execute ? null : drizzle(neon(url));
@@ -15,6 +16,8 @@ export function createPeopleStore(url: string, execute?: Execute) {
       (await db!.execute(query)).rows as Record<string, unknown>[]);
   const access = (actor: string, org: string) =>
     sql`exists(select 1 from himmah.staff_memberships where organization_id=${org}::uuid and user_id=${actor} and active and role in ('owner','admin'))`;
+  const fieldConfig = (org: string) =>
+    sql`(select jsonb_build_object('fields',v,'snapshot',md5(v::text)) from (select coalesce(jsonb_agg(jsonb_build_object('id',id,'label',label,'kind',kind,'required',required,'options',options,'version',version,'archivedAt',archived_at) order by created_at,id),'[]'::jsonb) v from himmah.contact_custom_fields where organization_id=${org}::uuid) x)`;
   const contactFields = sql`id,display_name as "displayName",given_name as "givenName",family_name as "familyName",version,created_at::text as "createdAt",archived_at::text as "archivedAt"`;
   const after = (p: PageInput, column: SQL = sql`created_at`) =>
     p.after
@@ -28,10 +31,29 @@ export function createPeopleStore(url: string, execute?: Execute) {
       return (
         (
           await run(
-            sql`select id,name from himmah.organizations where id=${org}::uuid and ${access(actor, org)}`,
+            sql`select id,name,${fieldConfig(org)} as "customFields" from himmah.organizations where id=${org}::uuid and ${access(actor, org)}`,
           )
         )[0] ?? null
       );
+    },
+    async fields(actor: string, org: string) {
+      return (
+        await run(
+          sql`select ${fieldConfig(org)} as config where ${access(actor, org)}`,
+        )
+      )[0]?.config as FieldConfig | undefined;
+    },
+    async fieldCommand(
+      actor: string,
+      org: string,
+      key: string,
+      body: Record<string, unknown>,
+    ) {
+      return (
+        await run(
+          sql`select himmah.custom_field_command(${actor},${org}::uuid,${key}::uuid,${JSON.stringify(body)}::jsonb) result`,
+        )
+      )[0]?.result as Record<string, unknown>;
     },
     async list(actor: string, org: string, p: PageInput) {
       const pattern = "%" + p.query.replace(/[\\%_]/g, "\\$&") + "%";
@@ -42,7 +64,7 @@ export function createPeopleStore(url: string, execute?: Execute) {
     async get(actor: string, org: string, id: string) {
       return (
         await run(
-          sql`select ${contactFields},(select count(*)::int from himmah.group_memberships m where m.organization_id=${org}::uuid and m.contact_id=${id}::uuid and m.valid_to is null) as "activeGroupCount",(select count(distinct a.subject_contact_id)::int from himmah.communication_assignments a where a.organization_id=${org}::uuid and a.responsible_contact_id=${id}::uuid and a.valid_to is null) as "communicationDependentCount" from himmah.contacts where organization_id=${org}::uuid and id=${id}::uuid and ${access(actor, org)}`,
+          sql`select ${contactFields},coalesce((select values from himmah.contact_custom_values where organization_id=${org}::uuid and contact_id=${id}::uuid),'{}'::jsonb) as "customValues",(select count(*)::int from himmah.group_memberships m where m.organization_id=${org}::uuid and m.contact_id=${id}::uuid and m.valid_to is null) as "activeGroupCount",(select count(distinct a.subject_contact_id)::int from himmah.communication_assignments a where a.organization_id=${org}::uuid and a.responsible_contact_id=${id}::uuid and a.valid_to is null) as "communicationDependentCount" from himmah.contacts where organization_id=${org}::uuid and id=${id}::uuid and ${access(actor, org)}`,
         )
       )[0] as Contact | undefined;
     },

@@ -1,4 +1,8 @@
 import {
+  checkedCustomValues,
+  type CustomValues,
+} from "./custom-field-contracts.ts";
+import {
   contactInput,
   methodInput,
   PeopleError,
@@ -15,8 +19,12 @@ export const importFields = [
   "email",
   "phone",
 ] as const;
-export type ImportField = (typeof importFields)[number];
-export type ImportRow = ContactInput & { row: number; methods: MethodInput[] };
+export type ImportField = (typeof importFields)[number] | `custom:${string}`;
+export type ImportRow = ContactInput & {
+  row: number;
+  methods: MethodInput[];
+  customValues?: CustomValues;
+};
 export type ImportMatch = {
   id: string;
   name: string;
@@ -63,7 +71,14 @@ export function importRow(body: Record<string, unknown>): ImportRow {
         methods.push(methodInput({ kind, value, preferred: false }));
     }
   }
-  return { ...contact, row: Number(body.row), methods };
+  return {
+    ...contact,
+    row: Number(body.row),
+    methods,
+    ...(body.customValues
+      ? { customValues: checkedCustomValues(body.customValues) }
+      : {}),
+  };
 }
 export function importRows(raw: unknown): ImportRow[] {
   if (!Array.isArray(raw) || raw.length < 1 || raw.length > IMPORT_LIMIT)
@@ -81,6 +96,7 @@ export function importRows(raw: unknown): ImportRow[] {
             "givenName",
             "familyName",
             "methods",
+            "customValues",
           ].includes(k),
       )
     )

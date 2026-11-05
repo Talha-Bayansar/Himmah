@@ -3153,3 +3153,9 @@ button[data-slot="button"].people-section-add {
 .picker-trigger { width: 100%; min-width: 0; min-height: 48px; height: auto; justify-content: space-between; text-align: start; padding: var(--space-3) var(--space-4); }
 .picker-trigger > span { flex: 1; min-width: 0; overflow-wrap: anywhere; white-space: normal; }
 .picker-trigger > svg { flex: 0 0 18px; width: 18px; color: var(--muted-foreground); }
+
+/* Configured contact details retain one reading column and a divided summary. */
+.custom-value-summary { display: grid; gap: var(--space-3); margin: 0; }
+.custom-value-summary > div { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: var(--space-3); padding-bottom: var(--space-3); border-bottom: 1px solid var(--border); }
+.custom-value-summary dt { color: var(--muted-foreground); overflow-wrap: anywhere; }
+.custom-value-summary dd { margin: 0; overflow-wrap: anywhere; }

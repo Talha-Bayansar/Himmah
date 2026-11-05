@@ -1,0 +1,1 @@
+CREATE INDEX "hub_push_device_queue" ON "hub_push_deliveries" USING btree ("device_id","state","next_at","id");

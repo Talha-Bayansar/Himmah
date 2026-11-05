@@ -49,6 +49,12 @@ export function Management({ organization }: { organization: Organization }) {
       title: m.manage_organization(),
       items: [
         {
+          section: "custom-fields",
+          title: m.fields_title(),
+          description: m.fields_intro(),
+          Icon: UsersRound,
+        },
+        {
           section: "exports",
           title: m.export_title(),
           description: m.export_intro(),

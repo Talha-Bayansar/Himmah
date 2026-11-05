@@ -11,6 +11,7 @@ export type Contact = {
   version: number;
   createdAt: string;
   archivedAt: string | null;
+  customValues?: import("./custom-field-contracts.ts").CustomValues;
 };
 export type ContactMethod = {
   id: string;

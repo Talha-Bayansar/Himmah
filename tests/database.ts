@@ -37,6 +37,7 @@ export async function installDatabase(
     ...(contactImport ? ["contact-import"] : []),
     "live-quizzes",
     ...(sessionFollowing ? ["session-following"] : []),
+    ...(contactImport ? ["custom-fields"] : []),
   ])
     await db.exec(
       await readFile("db/migrations/functions/" + name + ".sql", "utf8"),

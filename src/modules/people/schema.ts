@@ -599,3 +599,76 @@ export const contactImportReceipts = himmah.table(
   },
   (t) => [primaryKey({ columns: [t.organizationId, t.actorId, t.requestKey] })],
 );
+
+export const customFields = himmah.table(
+  "contact_custom_fields",
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    label: text().notNull(),
+    kind: text().notNull(),
+    required: boolean().notNull().default(false),
+    options: jsonb()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
+    ...auditColumns(),
+  },
+  (t) => [
+    unique("contact_field_org_id").on(t.organizationId, t.id),
+    check(
+      "contact_field_label",
+      sql`length(trim(${t.label})) between 1 and 100`,
+    ),
+    check(
+      "contact_field_kind",
+      sql`${t.kind} in ('text','number','date','boolean','choice')`,
+    ),
+    check(
+      "contact_field_options",
+      sql`jsonb_typeof(${t.options})='array' and jsonb_array_length(${t.options})<=30`,
+    ),
+    uniqueIndex("contact_field_active_label")
+      .on(t.organizationId, sql`lower(${t.label})`)
+      .where(sql`${t.archivedAt} is null`),
+  ],
+);
+export const customValues = himmah.table(
+  "contact_custom_values",
+  {
+    organizationId: uuid("organization_id").notNull(),
+    contactId: uuid("contact_id").notNull(),
+    values: jsonb()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+  },
+  (t) => [
+    primaryKey({ columns: [t.organizationId, t.contactId] }),
+    foreignKey({
+      columns: [t.organizationId, t.contactId],
+      foreignColumns: [contacts.organizationId, contacts.id],
+    }).onDelete("cascade"),
+    check(
+      "contact_custom_values_object",
+      sql`jsonb_typeof(${t.values})='object'`,
+    ),
+  ],
+);
+export const customFieldReceipts = himmah.table(
+  "contact_field_receipts",
+  {
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id),
+    actorId: text("actor_id").notNull(),
+    requestKey: uuid("request_key").notNull(),
+    payload: jsonb().notNull(),
+    result: jsonb().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.organizationId, t.actorId, t.requestKey] })],
+);

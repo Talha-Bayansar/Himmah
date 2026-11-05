@@ -102,7 +102,11 @@ self.addEventListener("push", (event) => {
         body,
         icon: "/pwa/icon-192.png",
         badge: "/pwa/notification-badge.png",
-        tag: "himmah-updates",
+        tag:
+          typeof payload?.tag === "string" &&
+          /^himmah-session-[0-9a-f-]{36}$/i.test(payload.tag)
+            ? payload.tag
+            : "himmah-updates",
         data: { url: path },
       });
       const windows = await self.clients.matchAll({
