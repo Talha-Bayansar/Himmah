@@ -3,7 +3,7 @@ import sharp from "sharp";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import assert from "node:assert/strict";
 import { exportsFixture } from "../tests/exports-fixture.ts";
-import { peopleApi } from "../src/modules/people/api.ts";
+import { createHandler } from "../src/server/worker.ts";
 const origin = "http://localhost:3101";
 await fetch(origin);
 const f = await exportsFixture(),
@@ -75,6 +75,22 @@ async function capture(page, name) {
   captures.push(name);
 }
 
+// Include the deployed routing layer, not just the People handler.
+const worker = createHandler({
+  fetch: async () =>
+    Response.json({ user: { id: "owner", emailVerified: true } }),
+  store: () => f.organizations,
+  people: () => f.people,
+});
+const workerEnv = {
+  HIMMAH_APP_ORIGIN: origin,
+  HIMMAH_AUTH_URL: "https://auth.invalid",
+  HIMMAH_DATABASE_URL: "isolated",
+  HIMMAH_PEOPLE_ENABLED: "true",
+  ONBOARDING_LIMITER: { limit: async () => ({ success: true }) },
+  DIRECTORY_LIMITER: { limit: async () => ({ success: true }) },
+  ASSETS: { fetch: async () => new Response("asset") },
+};
 const browser = await chromium.launch({
   executablePath: process.env.HIMMAH_CHROMIUM_PATH ?? "/usr/bin/chromium",
   headless: true,
@@ -113,14 +129,17 @@ try {
         u = new URL(req.url());
       let response;
       if (u.pathname.includes("/people/"))
-        response = await peopleApi(
+        response = await worker(
           new Request(req.url(), {
             method: req.method(),
-            headers: { "content-type": "application/json" },
+            headers: {
+              "content-type": "application/json",
+              cookie: "session=fixture",
+              origin,
+            },
             ...(req.method() !== "GET" ? { body: req.postData() } : {}),
           }),
-          { id: "owner", emailVerified: true },
-          f.people,
+          workerEnv,
         );
       else if (u.pathname === "/api/account")
         response = Response.json({
