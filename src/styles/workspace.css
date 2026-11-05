@@ -3171,3 +3171,21 @@ button[data-slot="button"].people-section-add {
 }
 .form-sheet-footer { display: flex; justify-content: flex-end; flex-shrink: 0; gap: var(--space-3); border-top: 1px solid var(--border); background: var(--background); padding: var(--space-3) 24px max(16px,env(safe-area-inset-bottom)); }
 .form-sheet:has(> .form-sheet-footer) .form-sheet-body { padding-bottom: var(--space-4); }
+
+/* Focused check-in uses the directory gutter and compact, divided working rows. */
+.check-in-page [data-slot="tabs-list"] { width: 100%; }
+.check-in-page [data-slot="tabs-trigger"] { flex: 1; }
+.check-in-page [data-slot="tabs"] { gap: var(--space-3); }
+.check-in-total { margin: var(--space-2) 0 0; font-weight: var(--weight-emphasis); }
+.check-in-list { border-top: 1px solid var(--border); }
+.check-in-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+.check-in-row > div { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.check-in-row strong { font-size: var(--text-body); }
+.check-in-row .activity-note { margin: var(--space-1) 0 0; }
+.check-in-row > button { flex-shrink: 0; }
+.check-in-row[data-present="true"] { color: var(--muted-foreground); }
+.check-in-undo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) 0; border-block: 1px solid var(--border); }
+.check-in-undo p { margin: 0; overflow-wrap: anywhere; }
+.check-in-empty { display: grid; justify-items: start; gap: var(--space-3); padding: var(--space-4) 0; color: var(--muted-foreground); }
+.check-in-empty p { margin: 0; }
+.check-in-page > .directory-heading > button { width: auto; align-self: flex-start; }

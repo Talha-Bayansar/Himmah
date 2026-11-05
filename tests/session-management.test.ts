@@ -226,6 +226,23 @@ test("unified session management is atomic, scoped, versioned and preserves corr
       },
     );
     await t.test(
+      "check-in Undo cannot clear a payment recorded since the add",
+      async () => {
+        const current = (await list()).find((p) => p.id === ids[1])!;
+        assert.ok((current.billing as any).paidMinor > 0);
+        const undo = { personId: current.id, version: current.version };
+        const beforeCorrections = await count(
+          "hub_cash_allocation_corrections",
+        );
+        assert.equal((await command("remove", [undo])).code, "conflict");
+        assert.equal((await list()).length, 2);
+        assert.equal(
+          await count("hub_cash_allocation_corrections"),
+          beforeCorrections,
+        );
+      },
+    );
+    await t.test(
       "attendance-only cannot clear paid contacts; collect revocation denies financial replay",
       async () => {
         assert.equal(

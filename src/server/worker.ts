@@ -91,6 +91,8 @@ interface Identity {
   emailVerified: boolean;
 }
 type Dependencies = {
+  attendance?: typeof createAttendanceStore;
+  activities?: typeof createActivityStore;
   organizationSettings?: (url: string) => OrganizationSettingsStore;
   exports?: (url: string) => ExportStore;
   sessionFollows?: (url: string) => SessionFollowStore;
@@ -531,15 +533,15 @@ export function createHandler(
           request,
           user,
           store,
-          createActivityStore(env.HIMMAH_DATABASE_URL),
-          createAttendanceStore(env.HIMMAH_DATABASE_URL),
+          (deps.activities ?? createActivityStore)(env.HIMMAH_DATABASE_URL),
+          (deps.attendance ?? createAttendanceStore)(env.HIMMAH_DATABASE_URL),
         );
         if (attendanceResponse) return attendanceResponse;
         const response = await activityApi(
           request,
           user,
           store,
-          createActivityStore(env.HIMMAH_DATABASE_URL),
+          (deps.activities ?? createActivityStore)(env.HIMMAH_DATABASE_URL),
         );
         if (response) return response;
       }

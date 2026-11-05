@@ -9,6 +9,7 @@ export const attendanceStatuses = [
 export type AttendanceStatus = (typeof attendanceStatuses)[number];
 export type AttendancePerson = {
   billing?: CashCharge | null;
+  previousAttendances?: number;
   registered?: boolean;
   expected?: boolean | null;
   id: string;

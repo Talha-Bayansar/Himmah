@@ -24,6 +24,8 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
     confirm = useConfirmation(),
     locale = useLocale()?.locale ?? "en";
   const attempt = useRef<Command | null>(null);
+  const source = useRef<AttendancePerson[]>([]);
+  const [lastAdded, setLastAdded] = useState<AttendancePerson[]>([]);
   const [message, setMessage] = useState("");
   const [completed, setCompleted] = useState(0);
   const operation = useMutation({
@@ -33,6 +35,26 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
         body: JSON.stringify(command),
       }),
     onSuccess: async (result, command) => {
+      if (command.action === "add") {
+        setLastAdded(
+          source.current.flatMap((person) => {
+            const saved = result.items.find(
+              (item) => item.personId === person.id,
+            );
+            return saved?.outcome === "saved" &&
+              Number.isSafeInteger(saved.version)
+              ? [
+                  {
+                    ...person,
+                    status: "present" as const,
+                    version: saved.version!,
+                    billing: null,
+                  },
+                ]
+              : [];
+          }),
+        );
+      } else setLastAdded([]);
       attempt.current = null;
       const outcome = result.items.every((item) =>
         ["saved", "unchanged"].includes(item.outcome),
@@ -113,6 +135,7 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
       return false;
     if (attempt.current) return false;
     setMessage("");
+    source.current = records;
     attempt.current = {
       key: crypto.randomUUID(),
       action,
@@ -141,6 +164,7 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
     );
   };
   return {
+    lastAdded,
     completed,
     denied:
       operation.error instanceof DirectoryError &&
@@ -156,6 +180,9 @@ export function useAttendanceMembership(path: string, queryKey: string[]) {
     blocked,
     allowClose,
     pending: operation.isPending,
+    pendingPersonId: operation.isPending
+      ? operation.variables?.items[0]?.personId
+      : undefined,
     notice: (
       <>
         {message && (

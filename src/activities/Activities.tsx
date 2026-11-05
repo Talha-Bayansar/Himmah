@@ -5,7 +5,7 @@ import { ErrorFeedback } from "../components/shared/feedback";
 import { sessionPrice } from "./contracts";
 import { useFormNavigation } from "../components/shared/form-navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Archive,
   BookOpen,
@@ -164,6 +164,10 @@ export default function Activities({
   attendance?: boolean;
 }) {
   const locale = useLocale()?.locale ?? "en";
+  const checkIn = useRouterState({
+    select: (s) =>
+      (s.location.search as { checkIn?: boolean }).checkIn === true,
+  });
   const openForm = useFormNavigation(organization.id);
   const cache = useQueryClient(),
     confirm = useConfirmation();
@@ -410,7 +414,20 @@ export default function Activities({
       {activityId ? (
         <>
           <Button variant="link" asChild className="settings-back">
-            {attendance && sessionId ? (
+            {attendance && sessionId && checkIn ? (
+              <Link
+                to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+                params={{
+                  organizationId: organization.id,
+                  activityId,
+                  sessionId,
+                }}
+                search={(previous) => ({ ...previous, checkIn: false })}
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                {m.attendance_title()}
+              </Link>
+            ) : attendance && sessionId ? (
               <Link
                 to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
                 params={{
@@ -456,6 +473,9 @@ export default function Activities({
               {!sessionId && row(detail.data.item, true)}
               {attendance && sessionId ? (
                 <Attendance
+                  key={[userId, organization.id, activityId, sessionId].join(
+                    ":",
+                  )}
                   organization={organization}
                   userId={userId}
                   activityId={activityId}

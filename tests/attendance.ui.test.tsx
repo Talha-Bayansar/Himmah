@@ -74,6 +74,9 @@ function mount(role = "owner") {
     path: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
     validateSearch: (s: Record<string, unknown>) => ({
       q: s.q ?? "",
+      checkIn: s.checkIn === true || s.checkIn === "true",
+      source: s.source === "all" ? "all" : "suggested",
+      checkInQuery: typeof s.checkInQuery === "string" ? s.checkInQuery : "",
     }),
     component: () => (
       <Attendance
@@ -129,11 +132,16 @@ const third = {
   name: "Member Three",
 };
 async function openPicker(user: ReturnType<typeof userEvent.setup>) {
-  const button = await screen.findByRole("button", { name: "Add participant" });
+  const button = await screen.findByRole("button", { name: "Quick check-in" });
   await waitFor(() =>
     expect((button as HTMLButtonElement).disabled).toBe(false),
   );
-  await user.click(button);
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Attendance & payments" }),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Add participant" }),
+  );
   return screen.findByRole("dialog");
 }
 it("shows present contacts with combined scoped stats and no old status filters", async () => {
@@ -482,7 +490,7 @@ it("read-only sessions disable adding and removing", async () => {
   expect(
     (
       screen.getByRole("button", {
-        name: "Add participant",
+        name: "Quick check-in",
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(true);
@@ -666,4 +674,186 @@ it("payment-only staff use the shared management view without attendance reads",
   expect(screen.queryByRole("button", { name: "Add participant" })).toBeNull();
   expect(screen.queryByText("Present")).toBeNull();
   expect(screen.queryByRole("link", { name: "View session" })).toBeNull();
+});
+
+it("quick check-in adds suggested contacts immediately, disables present contacts and safely undoes the saved version", async () => {
+  let added = false;
+  const writes: any[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://test");
+      if (init?.method === "POST") {
+        const body = JSON.parse(String(init.body));
+        writes.push(body);
+        added = body.action === "add";
+        return Response.json({
+          items: [
+            {
+              personId: second.id,
+              outcome: "saved",
+              status: added ? "present" : "unmarked",
+              version: added ? 1 : 2,
+            },
+          ],
+        });
+      }
+      return Response.json(
+        url.pathname.endsWith("/attendance")
+          ? {
+              items:
+                url.searchParams.get("roster") === "participants"
+                  ? [present]
+                  : [
+                      present,
+                      {
+                        ...second,
+                        status: added ? "present" : "unmarked",
+                        version: added ? 1 : 0,
+                      },
+                    ],
+              summary: { ...summary, present: added ? 2 : 1 },
+              nextCursor: null,
+            }
+          : { item: session },
+      );
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  const enter = await screen.findByRole("button", { name: "Quick check-in" });
+  await waitFor(() =>
+    expect((enter as HTMLButtonElement).disabled).toBe(false),
+  );
+  await user.click(enter);
+  await screen.findByRole("heading", { name: "Quick check-in" });
+  const search = await screen.findByRole("searchbox", {
+    name: "Search contacts",
+  });
+  expect(document.activeElement).not.toBe(search);
+  const existing = await screen.findByRole("button", {
+    name: "Member One is already present",
+  });
+  expect((existing as HTMLButtonElement).disabled).toBe(true);
+  await user.click(screen.getByRole("button", { name: "Check in Member Two" }));
+  await screen.findByText("2 present");
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "Member Two is already present",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  expect(writes).toHaveLength(1);
+  expect(writes[0]).toMatchObject({
+    action: "add",
+    items: [{ personId: second.id, version: 0 }],
+  });
+  await user.click(screen.getByRole("button", { name: "Undo check-in" }));
+  const review = await screen.findByRole("alertdialog");
+  await user.click(within(review).getByRole("button", { name: "Remove" }));
+  await screen.findByText("1 present");
+  expect(writes[1]).toMatchObject({
+    action: "remove",
+    items: [{ personId: second.id, version: 1 }],
+  });
+  expect(writes[1].items[0].paymentVersion).toBeUndefined();
+  expect(screen.queryByRole("button", { name: "Undo check-in" })).toBeNull();
+});
+
+it("quick check-in preserves an uncertain command for exact retry and supports all-contact search and multiple selection", async () => {
+  let lost = true,
+    added = false;
+  const writes: any[] = [];
+  const reads: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = new URL(String(input), "https://test");
+      if (init?.method === "POST") {
+        const body = JSON.parse(String(init.body));
+        writes.push(body);
+        if (lost) {
+          lost = false;
+          throw new Error("lost response");
+        }
+        added = true;
+        return Response.json({
+          items: [
+            {
+              personId: second.id,
+              outcome: "saved",
+              version: 1,
+              status: "present",
+            },
+          ],
+        });
+      }
+      reads.push(url.search);
+      return Response.json(
+        url.pathname.endsWith("/attendance")
+          ? {
+              items:
+                url.searchParams.get("roster") === "suggested"
+                  ? []
+                  : [
+                      {
+                        ...second,
+                        status: added ? "present" : "unmarked",
+                        version: added ? 1 : 0,
+                      },
+                    ],
+              summary,
+              nextCursor: null,
+            }
+          : { item: session },
+      );
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  const enter = await screen.findByRole("button", { name: "Quick check-in" });
+  await waitFor(() =>
+    expect((enter as HTMLButtonElement).disabled).toBe(false),
+  );
+  await user.click(enter);
+  await screen.findByText(
+    "No previous attendees yet. Find someone in All contacts.",
+  );
+  await user.click(screen.getByRole("tab", { name: "All contacts" }));
+  await user.type(
+    screen.getByRole("searchbox", { name: "Search contacts" }),
+    "Member",
+  );
+  await waitFor(() =>
+    expect(
+      reads.some((q) => q.includes("roster=picker") && q.includes("q=Member")),
+    ).toBe(true),
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "Check in Member Two" }),
+  );
+  await screen.findByText(
+    /response was lost|not confirmed|not been confirmed|not know|uncertain/i,
+  );
+  expect(
+    (
+      screen.getByRole("button", {
+        name: "Select multiple",
+      }) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
+  await user.click(screen.getByRole("button", { name: "Try again" }));
+  await screen.findByText("Participant added.");
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toEqual(writes[0]);
+  await user.click(screen.getByRole("button", { name: "Select multiple" }));
+  const sheet = await screen.findByRole("dialog");
+  expect(
+    (
+      (await within(sheet).findByRole("checkbox", {
+        name: "Select Member Two",
+      })) as HTMLButtonElement
+    ).disabled,
+  ).toBe(true);
 });

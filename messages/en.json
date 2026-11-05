@@ -1370,5 +1370,22 @@
   "org_settings_fields_link": "Manage contact fields",
   "org_settings_reload": "Reload latest settings",
   "org_settings_invalid": "Check the details. Use a valid timezone, international phone number and different quiet-hour start/end times.",
-  "org_settings_updated": "New settings are available. Reload them before saving. Your draft is kept until you choose to reload."
+  "org_settings_updated": "New settings are available. Reload them before saving. Your draft is kept until you choose to reload.",
+  "checkin_title": "Quick check-in",
+  "checkin_multiple": "Select multiple",
+  "checkin_present_count": "{count} present",
+  "checkin_undo": "Undo check-in",
+  "checkin_search": "Search contacts",
+  "checkin_contacts": "Contacts to check in",
+  "checkin_suggested": "Previous attendees",
+  "checkin_all": "All contacts",
+  "checkin_suggested_help": "People present at the last six earlier sessions you can access for this activity. Tap to confirm today’s attendance.",
+  "checkin_help": "Tap Check in when someone arrives. Payments remain in Attendance & payments.",
+  "checkin_no_suggestions": "No previous attendees yet. Find someone in All contacts.",
+  "checkin_already": "{name} is already present",
+  "checkin_person": "Check in {name}",
+  "checkin_action": "Check in",
+  "checkin_added_count": "{count} contacts checked in",
+  "checkin_tap_help": "Tap Check in to confirm someone has arrived.",
+  "checkin_about": "About check-in"
 }

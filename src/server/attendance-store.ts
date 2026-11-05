@@ -38,10 +38,29 @@ export function createAttendanceStore(
         | "all"
         | "participants"
         | "picker"
+        | "suggested"
         | "available"
         | "registered"
         | "expected" = "all",
     ) {
+      if (filter === "suggested")
+        return rows(sql`with ${actor(user, org)},${roster(user, org, activity, session)}, previous as (
+          select old.id from hub_activity_sessions old cross join session target
+          where old.organization_id=${org}::uuid and old.activity_id=${activity}::uuid
+            and not old.cancelled and old.starts_at<target.starts_at and old.starts_at<=clock_timestamp()
+            and hub_can_attend_session(${user},${org}::uuid,${activity}::uuid,old.id)
+          order by old.starts_at desc,old.id desc limit 6
+        ), suggestions as (
+          select v.*,max(old.starts_at) as last_seen,count(*)::int as visits
+          from visible v join hub_attendance a on a.organization_id=${org}::uuid and a.person_id=v.id and a.status='present'
+          join previous p on p.id=a.session_id
+          join hub_activity_sessions old on old.organization_id=a.organization_id and old.id=a.session_id
+          where v.eligible and hub_can_attend_person(${user},${org}::uuid,${activity}::uuid,old.id,v.id)
+          group by v.id,v.name,v.created_at,v.archived,v.eligible,v.status,v.version,v.registered,v.expected
+        ) select id,name,last_seen::text as "createdAt",archived,eligible,status,version,registered,expected,visits as "previousAttendances",null as billing
+        from suggestions where name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"}
+        ${p.after ? sql`and (last_seen,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``}
+        order by last_seen desc,id desc limit ${p.limit + 1}`);
       return rows(
         sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "participants" ? sql`status='present'` : filter === "picker" ? sql`eligible` : filter === "available" ? sql`(status<>'present' and eligible)` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
       );

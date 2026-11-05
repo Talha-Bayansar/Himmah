@@ -44,7 +44,9 @@ export async function attendanceApi(
       throw new CommunityError("not_found", 404);
     if (request.method === "GET") {
       const roster = url.searchParams.get("roster") ?? "participants";
-      if (!["participants", "available", "picker"].includes(roster))
+      if (
+        !["participants", "available", "picker", "suggested"].includes(roster)
+      )
         throw new CommunityError("invalid_input");
       const input = pageInput(
         url,
@@ -74,7 +76,7 @@ export async function attendanceApi(
           session,
           input,
           "all",
-          roster as "participants" | "available" | "picker",
+          roster as "participants" | "available" | "picker" | "suggested",
         ),
         attendance.summary(user.id, org, activity, session),
       ]);

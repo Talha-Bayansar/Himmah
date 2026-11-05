@@ -1370,5 +1370,22 @@
   "org_settings_fields_link": "Kişi alanlarını yönet",
   "org_settings_reload": "Güncel ayarları yükle",
   "org_settings_invalid": "Bilgileri kontrol edin. Geçerli bir saat dilimi, uluslararası telefon numarası ve farklı başlangıç/bitiş saatleri kullanın.",
-  "org_settings_updated": "Yeni ayarlar mevcut. Kaydetmeden önce yeniden yükleyin. Yeniden yüklemeyi seçene kadar taslağınız korunur."
+  "org_settings_updated": "Yeni ayarlar mevcut. Kaydetmeden önce yeniden yükleyin. Yeniden yüklemeyi seçene kadar taslağınız korunur.",
+  "checkin_title": "Hızlı yoklama",
+  "checkin_multiple": "Birden fazla seç",
+  "checkin_present_count": "{count} kişi mevcut",
+  "checkin_undo": "Yoklamayı geri al",
+  "checkin_search": "Kişi ara",
+  "checkin_contacts": "Yoklama yapılacak kişiler",
+  "checkin_suggested": "Önceki katılımcılar",
+  "checkin_all": "Tüm kişiler",
+  "checkin_suggested_help": "Bu etkinliğin erişebildiğiniz son altı önceki oturumuna katılan kişiler. Bugünkü katılımı onaylamak için dokunun.",
+  "checkin_help": "Kişi geldiğinde Yoklama al düğmesine dokunun. Ödemeleri Katılım ve ödemeler bölümünden yönetin.",
+  "checkin_no_suggestions": "Henüz önceki katılımcı yok. Tüm kişiler bölümünde arayın.",
+  "checkin_already": "{name} zaten mevcut",
+  "checkin_person": "{name} için yoklama al",
+  "checkin_action": "Yoklama al",
+  "checkin_added_count": "{count} kişinin yoklaması alındı",
+  "checkin_tap_help": "Gelen kişinin katılımını onaylamak için Yoklama al düğmesine dokunun.",
+  "checkin_about": "Yoklama hakkında"
 }

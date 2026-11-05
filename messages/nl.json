@@ -1370,5 +1370,22 @@
   "org_settings_fields_link": "Contactvelden beheren",
   "org_settings_reload": "Laatste instellingen laden",
   "org_settings_invalid": "Controleer de gegevens. Gebruik een geldige tijdzone, een internationaal telefoonnummer en verschillende begin- en eindtijden.",
-  "org_settings_updated": "Er zijn nieuwe instellingen beschikbaar. Laad deze vóór het opslaan. Je concept blijft behouden totdat je opnieuw laadt."
+  "org_settings_updated": "Er zijn nieuwe instellingen beschikbaar. Laad deze vóór het opslaan. Je concept blijft behouden totdat je opnieuw laadt.",
+  "checkin_title": "Snel aanmelden",
+  "checkin_multiple": "Meerdere kiezen",
+  "checkin_present_count": "{count} aanwezig",
+  "checkin_undo": "Aanmelding ongedaan maken",
+  "checkin_search": "Contacten zoeken",
+  "checkin_contacts": "Contacten aanmelden",
+  "checkin_suggested": "Eerdere deelnemers",
+  "checkin_all": "Alle contacten",
+  "checkin_suggested_help": "Aanwezigen van de laatste zes eerdere sessies van deze activiteit waartoe je toegang hebt. Tik om de aanwezigheid vandaag te bevestigen.",
+  "checkin_help": "Tik op Aanmelden wanneer iemand aankomt. Betalingen beheer je bij Aanwezigheid en betalingen.",
+  "checkin_no_suggestions": "Nog geen eerdere deelnemers. Zoek iemand bij Alle contacten.",
+  "checkin_already": "{name} is al aanwezig",
+  "checkin_person": "{name} aanmelden",
+  "checkin_action": "Aanmelden",
+  "checkin_added_count": "{count} contacten aangemeld",
+  "checkin_tap_help": "Tik op Aanmelden om te bevestigen dat iemand aanwezig is.",
+  "checkin_about": "Over aanmelden"
 }

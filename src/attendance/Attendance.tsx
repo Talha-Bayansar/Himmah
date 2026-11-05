@@ -1,3 +1,4 @@
+import { QuickCheckIn } from "./QuickCheckIn";
 import { Download } from "lucide-react";
 import { SearchField } from "../components/shared/search-field";
 import { sessionTitle } from "../activities/contracts";
@@ -65,7 +66,14 @@ export default function Attendance({
   const locale = useLocale()?.locale ?? "en";
   const navigate = useNavigate();
   const filters = useRouterState({
-    select: (s) => s.location.search as { q?: string; cashView?: string },
+    select: (s) =>
+      s.location.search as {
+        q?: string;
+        cashView?: CashFilters["view"];
+        checkIn?: boolean;
+        source?: "suggested" | "all";
+        checkInQuery?: string;
+      },
   });
   const isAdmin = ["owner", "admin"].includes(organization.role);
   const access = useQuery({
@@ -248,6 +256,45 @@ export default function Attendance({
         }}
       />
     );
+  if (filters.checkIn && session.data)
+    return (
+      <>
+        <QuickCheckIn
+          path={base + "/attendance"}
+          queryKey={key}
+          session={session.data.item}
+          membership={membership}
+          source={filters.source === "all" ? "all" : "suggested"}
+          search={filters.checkInQuery ?? ""}
+          onFiltersChange={(source, checkInQuery) =>
+            void navigate({
+              to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
+              params: {
+                organizationId: organization.id,
+                activityId,
+                sessionId,
+              },
+              search: { ...filters, checkIn: true, source, checkInQuery },
+              replace: true,
+            })
+          }
+          onMultiple={() => setAdding(true)}
+        />
+        {adding && canEdit && (
+          <AttendancePicker
+            path={base + "/attendance"}
+            queryKey={key}
+            onClose={() => {
+              if (membership.allowClose()) setAdding(false);
+            }}
+            pending={membership.blocked}
+            completed={membership.completed}
+            notice={membership.notice}
+            onSelect={(people) => membership.change(people, "add")}
+          />
+        )}
+      </>
+    );
   return (
     <section className="attendance-page">
       <div className="directory-heading">
@@ -257,39 +304,57 @@ export default function Attendance({
           </h1>
         </div>
         <div className="directory-actions">
-          {" "}
           <Button
             disabled={!canEdit || membership.blocked}
-            onClick={() => {
-              setSelected(new Map());
-              setAdding(true);
-            }}
+            onClick={() =>
+              void navigate({
+                to: "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance",
+                params: {
+                  organizationId: organization.id,
+                  activityId,
+                  sessionId,
+                },
+                search: { ...filters, checkIn: true },
+              })
+            }
           >
             <Plus aria-hidden="true" />
-            {m.attendance_add()}
+            {m.checkin_title()}
           </Button>
-          {isAdmin && (
-            <ItemActions
-              name={m.management_title()}
-              actions={[
-                {
-                  label: m.export_roster_action(),
-                  icon: Download,
-                  onSelect: () =>
-                    navigate({
-                      to: "/workspace/$organizationId/exports",
-                      params: { organizationId: organization.id },
-                      search: {
-                        kind: "attendance",
-                        activity: activityId,
-                        session: sessionId,
-                        origin: "session",
-                      },
-                    }),
+          <ItemActions
+            name={m.management_title()}
+            disabled={membership.blocked}
+            actions={[
+              {
+                label: m.attendance_add(),
+                icon: Plus,
+                disabled: !canEdit,
+                onSelect: () => {
+                  setSelected(new Map());
+                  setAdding(true);
                 },
-              ]}
-            />
-          )}
+              },
+              ...(isAdmin
+                ? [
+                    {
+                      label: m.export_roster_action(),
+                      icon: Download,
+                      onSelect: () =>
+                        navigate({
+                          to: "/workspace/$organizationId/exports",
+                          params: { organizationId: organization.id },
+                          search: {
+                            kind: "attendance" as const,
+                            activity: activityId,
+                            session: sessionId,
+                            origin: "session" as const,
+                          },
+                        }),
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </div>
       </div>
       {session.isPending ? (

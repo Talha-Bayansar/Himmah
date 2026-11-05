@@ -537,7 +537,13 @@ try {
       }
       if (name === "attendance" && width <= 390 && locale === "nl") {
         await p
-          .getByRole("button", { name: "Deelnemer toevoegen", exact: true })
+          .getByRole("button", {
+            name: "Acties voor Aanwezigheid en betalingen",
+            exact: true,
+          })
+          .click();
+        await p
+          .getByRole("menuitem", { name: "Deelnemer toevoegen", exact: true })
           .click();
         const picker = p.getByRole("dialog");
         await picker.waitFor();
