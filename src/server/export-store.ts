@@ -35,7 +35,7 @@ const balance = (charge: SQL) =>
 const sessionFields = sql`s.id as "sessionId",a.name as "activity",s.name as "sessionName",s.topic,s.timezone as "sessionTimezone",${iso(sql`s.starts_at`)} as "startsAt",to_char(s.starts_at at time zone s.timezone,'YYYY-MM-DD"T"HH24:MI:SS') as "localStart",s.cancelled`;
 function detailRows(org: string, f: ExportFilters): SQL {
   if (f.kind === "contacts")
-    return sql`select c.id,c.created_at as "sortAt",c.display_name as name,c.given_name as "givenName",c.family_name as "familyName",coalesce((select values from himmah.contact_custom_values where organization_id=c.organization_id and contact_id=c.id),'{}'::jsonb) as "customValues",c.archived_at is not null as archived,${iso(sql`c.created_at`)} as "createdAt",
+    return sql`select c.id,lower(c.display_name) collate "C" as "sortAt",c.display_name as name,c.given_name as "givenName",c.family_name as "familyName",coalesce((select values from himmah.contact_custom_values where organization_id=c.organization_id and contact_id=c.id),'{}'::jsonb) as "customValues",c.archived_at is not null as archived,${iso(sql`c.created_at`)} as "createdAt",
  (select value from himmah.contact_methods m where m.organization_id=c.organization_id and m.contact_id=c.id and m.kind='email' and m.ended_at is null order by m.preferred desc,m.created_at,m.id limit 1) as email,
  (select value from himmah.contact_methods m where m.organization_id=c.organization_id and m.contact_id=c.id and m.kind='phone' and m.ended_at is null order by m.preferred desc,m.created_at,m.id limit 1) as phone,
  (select count(*)::int from himmah.group_memberships gm where gm.organization_id=c.organization_id and gm.contact_id=c.id and gm.valid_to is null) as "groupCount"

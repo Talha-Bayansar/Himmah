@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "../../server/name-order.ts";
 import { createContactImportStore } from "./import-store.ts";
 import { createCommunicationStore } from "./communication-store.ts";
 import { createDirectoryStore } from "./directory-store.ts";
@@ -58,7 +59,7 @@ export function createPeopleStore(url: string, execute?: Execute) {
     async list(actor: string, org: string, p: PageInput) {
       const pattern = "%" + p.query.replace(/[\\%_]/g, "\\$&") + "%";
       return (await run(
-        sql`select ${contactFields} from himmah.contacts where organization_id=${org}::uuid and ${access(actor, org)} and (archived_at is not null)=${p.archived} and (display_name ilike ${pattern} or given_name ilike ${pattern} or family_name ilike ${pattern}) ${after(p)} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`select ${contactFields},${nameField(sql`display_name`)} from himmah.contacts where organization_id=${org}::uuid and ${access(actor, org)} and (archived_at is not null)=${p.archived} and (display_name ilike ${pattern} or given_name ilike ${pattern} or family_name ilike ${pattern}) ${nameAfter(p, sql`display_name`)} order by ${nameOrder(sql`display_name`)} limit ${p.limit + 1}`,
       )) as unknown as Contact[];
     },
     async get(actor: string, org: string, id: string) {
@@ -70,7 +71,7 @@ export function createPeopleStore(url: string, execute?: Execute) {
     },
     async methods(actor: string, org: string, id: string, p: PageInput) {
       return (await run(
-        sql`select id,kind,value,preferred,created_at::text as "createdAt" from himmah.contact_methods where organization_id=${org}::uuid and contact_id=${id}::uuid and ended_at is null and value ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} and ${access(actor, org)} ${after(p)} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`select ${nameField(sql`(case when preferred then '0:' else '1:' end)||kind||':'||value`)},id,kind,value,preferred,created_at::text as "createdAt" from himmah.contact_methods where organization_id=${org}::uuid and contact_id=${id}::uuid and ended_at is null and value ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} and ${access(actor, org)} ${nameAfter(p, sql`(case when preferred then '0:' else '1:' end)||kind||':'||value`)} order by ${nameOrder(sql`(case when preferred then '0:' else '1:' end)||kind||':'||value`)} limit ${p.limit + 1}`,
       )) as unknown as ContactMethod[];
     },
     async history(actor: string, org: string, id: string, p: PageInput) {

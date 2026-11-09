@@ -28,7 +28,7 @@ export type PageInput = {
   limit: number;
   query: string;
   archived: boolean;
-  after: { at: string; id: string } | null;
+  after: { at: string; id: string; name?: string } | null;
   scope: string;
   groupId?: string;
 };
@@ -97,7 +97,18 @@ export function pageInput(url: URL, scope: string): PageInput {
       )
         throw Error();
       if (!scope.endsWith("/staff")) uuid(parsed.id);
-      after = { at: parsed.at, id: parsed.id };
+      if (
+        parsed.name !== undefined &&
+        (typeof parsed.name !== "string" ||
+          parsed.name.length > 512 ||
+          /[\u0000-\u001f]/.test(parsed.name))
+      )
+        throw Error();
+      after = {
+        at: parsed.at,
+        id: parsed.id,
+        ...(parsed.name !== undefined ? { name: parsed.name } : {}),
+      };
     } catch {
       throw new CommunityError("invalid_cursor");
     }
@@ -127,6 +138,10 @@ export function pageResult<T extends { id: string; createdAt: string }>(
                 scope: input.scope,
                 at: cursorAt?.(last) ?? last.createdAt,
                 id: last.id,
+                ...(typeof (last as T & { sortName?: string }).sortName ===
+                "string"
+                  ? { name: (last as T & { sortName?: string }).sortName }
+                  : {}),
               }),
             ),
           ),

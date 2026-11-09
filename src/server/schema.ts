@@ -569,9 +569,12 @@ export const notifications = pgTable(
     uniqueIndex("hub_reminder_once")
       .on(t.organizationId, t.userId, t.sessionId, t.plannedAt)
       .where(sql`${t.kind}='session_reminder'`),
+    uniqueIndex("hub_started_once")
+      .on(t.organizationId, t.userId, t.sessionId, t.plannedAt)
+      .where(sql`${t.kind}='session_started'`),
     check(
       "hub_session_notification_fields",
-      sql`${t.kind}='staff_notice' or (${t.kind} in ('session_reminder','session_changed','session_cancelled') and ${t.activityId} is not null and ${t.sessionId} is not null and ${t.followId} is not null and ${t.followVersion} is not null and ${t.followVersion}>0 and ${t.plannedAt} is not null and ${t.sessionFingerprint} is not null)`,
+      sql`${t.kind}='staff_notice' or (${t.kind} in ('session_reminder','session_changed','session_cancelled','session_started') and ${t.activityId} is not null and ${t.sessionId} is not null and ${t.followId} is not null and ${t.followVersion} is not null and ${t.followVersion}>0 and ${t.plannedAt} is not null and ${t.sessionFingerprint} is not null)`,
     ),
     unique("hub_notification_event").on(
       t.organizationId,

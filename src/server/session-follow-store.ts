@@ -34,6 +34,9 @@ export function createSessionFollowStore(
       rows(
         sql`select hub_set_follow(${user},${org}::uuid,${activity}::uuid,${session}::uuid,${body.key}::uuid,${JSON.stringify({ following: body.following, reminderMinutes: body.reminderMinutes, version: body.version })}::jsonb) as result`,
       ),
-    generate: () => rows(sql`select hub_generate_session_reminders() as count`),
+    generate: () =>
+      rows(
+        sql`select hub_generate_session_reminders()+hub_generate_session_starts() as count`,
+      ),
   };
 }

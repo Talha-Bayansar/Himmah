@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { neon } from "@neondatabase/serverless";
 import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -27,7 +28,7 @@ export function createStore(
   return {
     async list(userId, input) {
       const rows = await run(
-        sql`with ${access(userId)} select ${projection} from hub_organizations o inner join access m on m.organization_id=o.id where true ${input?.query ? sql`and o.name ilike ${"%" + input.query.replace(/[\\%_]/g, "\\$&") + "%"}` : sql``} ${input?.after ? sql`and (o.created_at,o.id) < (${input.after.at}::timestamptz,${input.after.id}::uuid)` : sql``} order by o.created_at desc,o.id desc limit ${(input?.limit ?? 25) + 1}`,
+        sql`with ${access(userId)} select ${projection},${nameField(sql`o.name`)} from hub_organizations o inner join access m on m.organization_id=o.id where true ${input?.query ? sql`and o.name ilike ${"%" + input.query.replace(/[\\%_]/g, "\\$&") + "%"}` : sql``} ${input ? nameAfter(input, sql`o.name`, sql`o.id`) : sql``} order by ${nameOrder(sql`o.name`, sql`o.id`)} limit ${(input?.limit ?? 25) + 1}`,
       );
       return rows.rows as unknown as Organization[];
     },

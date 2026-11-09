@@ -24,7 +24,7 @@
     "test:contrast": "node scripts/check-contrast.mjs",
     "pwa:assets": "node scripts/generate-pwa-assets.mjs",
     "test:worker": "node --test tests/worker-runtime.test.mjs tests/notifications-runtime.test.mjs tests/learning-runtime.test.mjs tests/live-runtime.test.mjs tests/exports-runtime.test.mjs tests/custom-fields-runtime.test.mjs tests/organization-settings-runtime.test.mjs tests/attendance-runtime.test.mjs",
-    "test:design": "node --experimental-strip-types scripts/test-design.mjs && node scripts/test-preferences.mjs && node --experimental-strip-types scripts/test-contact-import.mjs && node --experimental-strip-types scripts/test-exports.mjs && node --experimental-strip-types scripts/test-custom-fields.mjs && node --experimental-strip-types scripts/test-organization-settings.mjs && node --experimental-strip-types scripts/test-quick-check-in.mjs",
+    "test:design": "node --experimental-strip-types scripts/test-design.mjs && node scripts/test-preferences.mjs && node --experimental-strip-types scripts/test-contact-import.mjs && node --experimental-strip-types scripts/test-exports.mjs && node --experimental-strip-types scripts/test-custom-fields.mjs && node --experimental-strip-types scripts/test-organization-settings.mjs && node --experimental-strip-types scripts/test-quick-check-in.mjs && node --experimental-strip-types scripts/test-session-agenda.mjs",
     "test:design:update": "HIMMAH_UPDATE_DESIGN=1 npm run test:design"
   },
   "devDependencies": {

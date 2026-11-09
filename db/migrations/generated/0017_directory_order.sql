@@ -1,0 +1,2 @@
+CREATE INDEX "contacts_name_order" ON "himmah"."contacts" USING btree ("organization_id",lower(coalesce("display_name",'')) collate "C","id");--> statement-breakpoint
+CREATE INDEX "groups_name_order" ON "himmah"."groups" USING btree ("organization_id",lower(coalesce("name",'')) collate "C","id");

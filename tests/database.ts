@@ -2,13 +2,22 @@ import { readFile, readdir } from "node:fs/promises";
 import type { PGlite } from "@electric-sql/pglite";
 export async function installDatabase(
   db: PGlite,
-  { hosted = true, sessionFollowing = true, contactImport = true } = {},
+  {
+    hosted = true,
+    sessionFollowing = true,
+    contactImport = true,
+    sessionStarts = true,
+  } = {},
 ) {
   for (const file of (await readdir("db/migrations/generated"))
     .filter(
       (f) =>
         f.endsWith(".sql") &&
-        (sessionFollowing || !f.startsWith("0010_")) &&
+        (sessionFollowing ||
+          (!f.startsWith("0010_") &&
+            !f.startsWith("0016_") &&
+            !f.startsWith("0017_"))) &&
+        (sessionStarts || (!f.startsWith("0016_") && !f.startsWith("0017_"))) &&
         (contactImport || (!f.startsWith("0011_") && !f.startsWith("0012_"))),
     )
     .sort())
@@ -39,6 +48,7 @@ export async function installDatabase(
     ...(sessionFollowing ? ["session-following"] : []),
     ...(contactImport ? ["custom-fields"] : []),
     "organization-settings",
+    ...(sessionFollowing && sessionStarts ? ["session-starts"] : []),
   ])
     await db.exec(
       await readFile("db/migrations/functions/" + name + ".sql", "utf8"),

@@ -2,6 +2,7 @@ import { CommunityError } from "../community/contracts.ts";
 export const notificationKinds = [
   "staff_notice",
   "session_reminder",
+  "session_started",
   "session_changed",
   "session_cancelled",
 ] as const;

@@ -50,7 +50,11 @@ export async function deliverPush(
             await store.defer(id, lease, policy.delay);
             return;
           }
-          const body = m.push_alert(
+          const body = (
+            target.kind === "session_started"
+              ? m.push_session_started
+              : m.push_alert
+          )(
             {},
             {
               locale:

@@ -68,6 +68,11 @@ export const contacts = himmah.table(
     ...auditColumns(),
   },
   (t) => [
+    index("contacts_name_order").on(
+      t.organizationId,
+      sql`lower(coalesce(${t.displayName},'')) collate "C"`,
+      t.id,
+    ),
     unique("contact_scope").on(t.organizationId, t.id),
     check(
       "contact_name",
@@ -203,6 +208,11 @@ export const groups = himmah.table(
     ...auditColumns(),
   },
   (t) => [
+    index("groups_name_order").on(
+      t.organizationId,
+      sql`lower(coalesce(${t.name},'')) collate "C"`,
+      t.id,
+    ),
     unique("group_scope").on(t.organizationId, t.id),
     check("group_name", sql`length(trim(${t.name})) between 1 and 100`),
     check(

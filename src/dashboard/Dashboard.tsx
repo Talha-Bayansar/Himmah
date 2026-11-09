@@ -187,6 +187,15 @@ export default function Dashboard({
             </>
           )
         )}
+        <Link
+          className="dashboard-recent-link"
+          to="/workspace/$organizationId/schedule"
+          params={{ organizationId: organization.id }}
+          search={{ q: "", view: "past" }}
+        >
+          {m.schedule_recent()}
+          <ArrowRight aria-hidden="true" size={16} />
+        </Link>
       </section>
       {admin && (
         <section

@@ -833,7 +833,7 @@
   "directory_series_limit": "Choose 2–52 sessions within one year, and select at least one weekday.",
   "series_free": "Free participation",
   "series_price_help": "Each session uses this price. Registration stays optional.",
-  "schedule_title": "Planned sessions",
+  "schedule_title": "Sessions",
   "schedule_description": "All current and upcoming sessions, in date order.",
   "schedule_search": "Search activities, topics or locations",
   "schedule_refresh": "Refresh sessions",
@@ -1387,5 +1387,12 @@
   "checkin_action": "Check in",
   "checkin_added_count": "{count} contacts checked in",
   "checkin_tap_help": "Tap Check in to confirm someone has arrived.",
-  "checkin_about": "About check-in"
+  "checkin_about": "About check-in",
+  "schedule_recent": "Recently finished",
+  "schedule_recent_help": "Latest finished sessions first. Open attendance to make corrections.",
+  "schedule_no_recent": "No finished sessions yet.",
+  "schedule_attendance": "Update attendance",
+  "follow_notice_started": "This session has started. Record attendance.",
+  "follow_start_help": "With reminders enabled, you also receive a start reminder if attendance has not yet been recorded in your scope. Quiet hours apply.",
+  "push_session_started": "A session has started. Open Himmah to record attendance."
 }

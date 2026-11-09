@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { neon } from "@neondatabase/serverless";
 import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -62,7 +63,7 @@ export function createAttendanceStore(
         ${p.after ? sql`and (last_seen,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``}
         order by last_seen desc,id desc limit ${p.limit + 1}`);
       return rows(
-        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "participants" ? sql`status='present'` : filter === "picker" ? sql`eligible` : filter === "available" ? sql`(status<>'present' and eligible)` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`with ${actor(user, org)},${roster(user, org, activity, session)} select ${nameField(sql`name`)},hub_participant_bill(${user},${org}::uuid,${activity}::uuid,${session}::uuid,id) as billing,id,name,created_at::text as "createdAt",archived,eligible,status,version,registered,expected from visible where ${filter === "all" ? sql`true` : filter === "participants" ? sql`status='present'` : filter === "picker" ? sql`eligible` : filter === "available" ? sql`(status<>'present' and eligible)` : filter === "registered" ? sql`registered` : sql`expected`} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${status === "all" ? sql`` : sql`and status=${status}`} ${nameAfter(p, sql`name`)} order by ${nameOrder(sql`name`)} limit ${p.limit + 1}`,
       );
     },
     summary(user: string, org: string, activity: string, session: string) {

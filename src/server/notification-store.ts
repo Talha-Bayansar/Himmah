@@ -15,12 +15,13 @@ export function createNotificationStore(
       : db.execute(s).then((r) => r.rows as Record<string, unknown>[]);
   const usable = (alias: "n" | "older") => {
     const n = sql.raw(alias);
-    return sql`${n}.read_at is null and hub_notification_visible(${n},${n}.user_id) and (${n}.kind='staff_notice' or ${n}.planned_at>now())`;
+    return sql`${n}.read_at is null and hub_notification_visible(${n},${n}.user_id) and (${n}.kind in ('staff_notice','session_started') or ${n}.planned_at>now())`;
   };
   const priority = (alias: "n" | "older") => {
     const n = sql.raw(alias);
-    return sql`case when ${n}.kind='session_cancelled' and ${n}.planned_at<=now()+interval '2 hours' then 0 when ${n}.kind='session_reminder' then 1 else 2 end`;
+    return sql`case when ${n}.kind='session_cancelled' and ${n}.planned_at<=now()+interval '2 hours' then 0 when ${n}.kind='session_started' then 1 when ${n}.kind='session_reminder' then 2 else 3 end`;
   };
+  const deadline = sql`case when n.kind='session_started' then (select least(s.ends_at,s.starts_at+interval '15 minutes') from hub_activity_sessions s where s.organization_id=n.organization_id and s.activity_id=n.activity_id and s.id=n.session_id) else n.planned_at end`;
   return {
     list(user: string, org: string, p: PageInput) {
       return rows(
@@ -72,10 +73,10 @@ export function createNotificationStore(
     },
     target(id: string, lease: string) {
       return rows(
-        sql`select d.id,n.organization_id as "organizationId",s.id as "deviceId",s.endpoint,s.p256dh,s.auth,s.locale,coalesce((select quiet_enabled from hub_organization_settings where organization_id=n.organization_id),true) as "quietEnabled",coalesce((select quiet_start from hub_organization_settings where organization_id=n.organization_id),1320) as "quietStart",coalesce((select quiet_end from hub_organization_settings where organization_id=n.organization_id),480) as "quietEnd",n.kind,n.session_id as "sessionId",n.created_at::text as "createdAt",n.planned_at::text as "plannedAt",(select timezone from hub_organizations where id=n.organization_id) as timezone,
+        sql`select d.id,n.organization_id as "organizationId",s.id as "deviceId",s.endpoint,s.p256dh,s.auth,s.locale,coalesce((select quiet_enabled from hub_organization_settings where organization_id=n.organization_id),true) as "quietEnabled",coalesce((select quiet_start from hub_organization_settings where organization_id=n.organization_id),1320) as "quietStart",coalesce((select quiet_end from hub_organization_settings where organization_id=n.organization_id),480) as "quietEnd",n.kind,n.session_id as "sessionId",n.created_at::text as "createdAt",n.planned_at::text as "plannedAt",(${deadline})::text as "expiresAt",(select timezone from hub_organizations where id=n.organization_id) as timezone,
  (select max(sent.next_at)::text from hub_push_deliveries sent where sent.device_id=s.id and sent.state='sent') as "latestPushAt",
  exists(select 1 from hub_notifications changed where changed.organization_id=n.organization_id and changed.user_id=n.user_id and changed.session_id=n.session_id and changed.kind in ('session_changed','session_cancelled') and changed.created_at>=now()-interval '10 minutes' and hub_notification_visible(changed,changed.user_id)) as "recentChange",
- case when n.kind='staff_notice' then '/workspace/'||n.organization_id||'/notifications' else hub_session_notice_href(n.user_id,n.organization_id,n.activity_id,n.session_id) end as href,case when n.kind='staff_notice' then 3600 else greatest(1,least(3600,floor(extract(epoch from (n.planned_at-now())))::int)) end as ttl from hub_push_deliveries d join hub_notifications n on n.id=d.notification_id join hub_push_devices s on s.id=d.device_id and s.user_id=n.user_id where d.id=${id}::uuid and d.lease=${lease}::uuid and d.state='sending' and d.next_at>now() and n.read_at is null and d.created_at>now()-interval '24 hours' and hub_notification_visible(n,n.user_id) and (n.kind='staff_notice' or n.planned_at>now())`,
+ case when n.kind='staff_notice' then '/workspace/'||n.organization_id||'/notifications' else hub_session_notice_href(n.user_id,n.organization_id,n.activity_id,n.session_id) end as href,case when n.kind='staff_notice' then 3600 else greatest(1,least(3600,floor(extract(epoch from ((${deadline})-now())))::int)) end as ttl from hub_push_deliveries d join hub_notifications n on n.id=d.notification_id join hub_push_devices s on s.id=d.device_id and s.user_id=n.user_id where d.id=${id}::uuid and d.lease=${lease}::uuid and d.state='sending' and d.next_at>now() and n.read_at is null and d.created_at>now()-interval '24 hours' and hub_notification_visible(n,n.user_id) and (n.kind in ('staff_notice','session_started') or n.planned_at>now())`,
       );
     },
     defer(id: string, lease: string, delay: number) {

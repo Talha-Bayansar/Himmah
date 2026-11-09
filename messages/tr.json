@@ -833,7 +833,7 @@
   "directory_series_limit": "Bir yıl içinde 2–52 oturum ve en az bir gün seçin.",
   "series_free": "Ücretsiz katılım",
   "series_price_help": "Her oturumda bu fiyat geçerlidir. Kayıt isteğe bağlı kalır.",
-  "schedule_title": "Planlanan oturumlar",
+  "schedule_title": "Oturumlar",
   "schedule_description": "Devam eden ve yaklaşan tüm oturumlar, tarih sırasına göre.",
   "schedule_search": "Etkinlik, konu veya yer ara",
   "schedule_refresh": "Oturumları yenile",
@@ -1387,5 +1387,12 @@
   "checkin_action": "Yoklama al",
   "checkin_added_count": "{count} kişinin yoklaması alındı",
   "checkin_tap_help": "Gelen kişinin katılımını onaylamak için Yoklama al düğmesine dokunun.",
-  "checkin_about": "Yoklama hakkında"
+  "checkin_about": "Yoklama hakkında",
+  "schedule_recent": "Yeni bitenler",
+  "schedule_recent_help": "En son biten oturumlar önce gösterilir. Katılımı güncellemek için açın.",
+  "schedule_no_recent": "Henüz biten oturum yok.",
+  "schedule_attendance": "Katılımı güncelle",
+  "follow_notice_started": "Bu oturum başladı. Katılımı kaydedin.",
+  "follow_start_help": "Hatırlatmalar açıkken, yetki alanınızda henüz katılım kaydedilmediyse başlangıç bildirimi de alırsınız. Sessiz saatler geçerlidir.",
+  "push_session_started": "Bir oturum başladı. Katılımı kaydetmek için Himmah’ı açın."
 }

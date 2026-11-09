@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { neon } from "@neondatabase/serverless";
 import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -36,7 +37,7 @@ export function createAccessStore(
     },
     staff(user: string, org: string, p: PageInput) {
       return rows(
-        sql`select user_id as id,coalesce(hub_cash_actor_name(user_id,organization_id),'') as name,created_at::text as "createdAt" from hub_memberships where organization_id=${org}::uuid and role='volunteer' and hub_is_admin(${user},${org}::uuid) and coalesce(hub_cash_actor_name(user_id,organization_id),'') ilike ${pattern(p.query)} ${page(p, sql`created_at`, sql`user_id`, "text")} order by created_at desc,user_id desc limit ${p.limit + 1}`,
+        sql`select ${nameField(sql`coalesce(hub_cash_actor_name(user_id,organization_id),'')`)},user_id as id,coalesce(hub_cash_actor_name(user_id,organization_id),'') as name,created_at::text as "createdAt" from hub_memberships where organization_id=${org}::uuid and role='volunteer' and hub_is_admin(${user},${org}::uuid) and coalesce(hub_cash_actor_name(user_id,organization_id),'') ilike ${pattern(p.query)} ${nameAfter(p, sql`coalesce(hub_cash_actor_name(user_id,organization_id),'')`, sql`user_id`, "text")} order by ${nameOrder(sql`coalesce(hub_cash_actor_name(user_id,organization_id),'')`, sql`user_id`)} limit ${p.limit + 1}`,
       );
     },
     history(user: string, org: string, id: string, p: PageInput) {

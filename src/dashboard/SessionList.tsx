@@ -1,3 +1,4 @@
+import { m } from "../paraglide/messages.js";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays } from "lucide-react";
 import {
@@ -14,11 +15,13 @@ export function SessionList({
   organizationId,
   label,
   compact = false,
+  management = false,
 }: {
   items: DashboardSession[];
   organizationId: string;
   label: string;
   compact?: boolean;
+  management?: boolean;
 }) {
   const locale = useLocale()?.locale ?? "en";
   return (
@@ -31,7 +34,11 @@ export function SessionList({
                 ? "directory-item-link session-preview-link"
                 : "directory-item-link"
             }
-            to="/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
+            to={
+              management && item.canAttend
+                ? "/workspace/$organizationId/activities/$activityId/sessions/$sessionId/attendance"
+                : "/workspace/$organizationId/activities/$activityId/sessions/$sessionId"
+            }
             params={{
               organizationId,
               activityId: item.activityId,
@@ -55,6 +62,9 @@ export function SessionList({
                     )}
                   </time>
                   {item.location && !compact && <span>{item.location}</span>}
+                  {management && item.canAttend && (
+                    <span>{m.schedule_attendance()}</span>
+                  )}
                 </>
               }
               icon={<CalendarDays aria-hidden="true" size={20} />}

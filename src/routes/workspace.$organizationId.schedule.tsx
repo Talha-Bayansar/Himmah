@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import OrganizationPortal from "../organization/OrganizationPortal";
 export const Route = createFileRoute("/workspace/$organizationId/schedule")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { q: string; view?: "upcoming" | "past" } => ({
+    ...(s.view === "past" ? { view: "past" as const } : {}),
     q: typeof s.q === "string" ? s.q.slice(0, 80) : "",
   }),
   component: () => (

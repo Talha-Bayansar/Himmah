@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { comparisonRange } from "../insights/statistics.ts";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -47,15 +48,15 @@ export function insightsStatement(
  previous_charges as materialized(select ch.* from all_charges ch,bounds b where ch.starts_at>=b.previous_at and ch.starts_at<b.previous_end),
  paid as materialized(select ca.charge_id,sum(ca.amount_minor)::bigint as amount from all_charges ch join hub_cash_allocations ca on ca.organization_id=ch.organization_id and ca.charge_id=ch.id
  where not exists(select 1 from hub_cash_reversals rev where rev.organization_id=ca.organization_id and rev.receipt_id=ca.receipt_id) and not exists(select 1 from hub_cash_allocation_corrections x where x.organization_id=ca.organization_id and x.receipt_id=ca.receipt_id and x.charge_id=ca.charge_id) group by ca.charge_id),
- activity_rows as(select a.id,a.name,a.created_at::text as "createdAt",(select count(*)::int from current_sessions s where s.activity_id=a.id) as sessions,
+ activity_rows as(select ${nameField(sql`a.name`)},a.id,a.name,a.created_at::text as "createdAt",(select count(*)::int from current_sessions s where s.activity_id=a.id) as sessions,
  (select count(*)::int from current_presence cp where cp.activity_id=a.id) as visits,
  (select count(distinct cp.person_id)::int from current_presence cp where cp.activity_id=a.id) as unique,
  (select coalesce(sum(ch.amount_minor),0)::float8 from charges ch where ch.activity_id=a.id) as "chargedMinor",
  (select coalesce(sum(paid.amount),0)::float8 from charges ch left join paid on paid.charge_id=ch.id where ch.activity_id=a.id) as "paidMinor",
  (select coalesce(sum(ch.amount_minor-coalesce(paid.amount,0)),0)::float8 from charges ch left join paid on paid.charge_id=ch.id where ch.activity_id=a.id) as "outstandingMinor"
  from hub_activities a where a.organization_id=${org}::uuid and (exists(select 1 from current_sessions s where s.activity_id=a.id) or exists(select 1 from charges ch where ch.activity_id=a.id))),
- activity_page as(select * from activity_rows ${p.after ? sql`where ("createdAt"::timestamptz,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by "createdAt"::timestamptz desc,id desc limit ${p.limit + 1})
- select (select name from hub_activities where organization_id=b.id and id=${f.activity || null}::uuid) as "activityName",(select name from himmah.groups where organization_id=b.id and id=${f.group || null}::uuid) as "groupName",b.timezone,to_char(statement_timestamp() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "generatedAt",coalesce((select jsonb_agg(to_jsonb(ap) order by ap."createdAt"::timestamptz desc,ap.id desc) from activity_page ap),'[]'::jsonb) as items,
+ activity_page as(select * from activity_rows where true ${nameAfter(p, sql`name`)} order by ${nameOrder(sql`name`)} limit ${p.limit + 1})
+ select (select name from hub_activities where organization_id=b.id and id=${f.activity || null}::uuid) as "activityName",(select name from himmah.groups where organization_id=b.id and id=${f.group || null}::uuid) as "groupName",b.timezone,to_char(statement_timestamp() at time zone 'UTC','YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as "generatedAt",coalesce((select jsonb_agg(to_jsonb(ap) order by ${nameOrder(sql`ap.name`, sql`ap.id`)}) from activity_page ap),'[]'::jsonb) as items,
  ${
    p.after
      ? sql`null::jsonb as summary,'[]'::jsonb as trend`
@@ -101,7 +102,7 @@ export function createInsightsStore(
       p: PageInput,
     ) =>
       rows(
-        sql`select id,name,${kind === "activities" ? sql`cancelled` : sql`archived_at is not null`} as archived,created_at::text as "createdAt" from ${kind === "activities" ? sql`hub_activities` : sql`himmah.groups`} where organization_id=${org}::uuid and exists(select 1 from hub_memberships where organization_id=${org}::uuid and user_id=${user} and role in ('owner','admin')) and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`select ${nameField(sql`name`)},id,name,${kind === "activities" ? sql`cancelled` : sql`archived_at is not null`} as archived,created_at::text as "createdAt" from ${kind === "activities" ? sql`hub_activities` : sql`himmah.groups`} where organization_id=${org}::uuid and exists(select 1 from hub_memberships where organization_id=${org}::uuid and user_id=${user} and role in ('owner','admin')) and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${nameAfter(p, sql`name`)} order by ${nameOrder(sql`name`)} limit ${p.limit + 1}`,
       ),
   };
 }

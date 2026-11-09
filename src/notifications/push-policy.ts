@@ -7,12 +7,23 @@ export function pushPolicy(
   if (typeof target.kind !== "string") return send;
   const planned = Date.parse(String(target.plannedAt)),
     created = Date.parse(String(target.createdAt));
+  const started = target.kind === "session_started";
+  const expires = started ? Date.parse(String(target.expiresAt)) : planned;
+  if (
+    started &&
+    (!Number.isFinite(planned) ||
+      planned > now ||
+      !Number.isFinite(expires) ||
+      expires <= now)
+  )
+    return { action: "skip", delay: 0 };
   const imminent =
     target.kind === "session_cancelled" &&
     planned > now &&
     planned - now <= 2 * 3600000;
   if (
     target.kind !== "staff_notice" &&
+    !started &&
     (!Number.isFinite(planned) || planned <= now)
   )
     return { action: "skip", delay: 0 };
@@ -74,7 +85,7 @@ export function pushPolicy(
   if (
     delay > 0 &&
     target.kind !== "staff_notice" &&
-    now + delay * 1000 >= planned
+    now + delay * 1000 >= expires
   )
     return { action: "skip", delay: 0 };
   return delay > 0 ? { action: "defer", delay } : send;

@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { neon } from "@neondatabase/serverless";
 import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -38,9 +39,9 @@ export function createCommunityStore(
           from hub_memberships m
           left join neon_auth."user" profile on profile.id = case when m.user_id ~ '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$' then m.user_id::uuid end
           where m.organization_id=${org}::uuid and exists(select 1 from actor)
-        ) select user_id as id,name,role,created_at::text as "createdAt" from staff
-        where coalesce(name,role) ilike ${pattern(p.query)} ${cursor(p, "text")}
-        order by created_at desc,user_id desc limit ${p.limit + 1}`,
+        ) select ${nameField(sql`coalesce(name,role)`)},user_id as id,name,role,created_at::text as "createdAt" from staff
+        where coalesce(name,role) ilike ${pattern(p.query)} ${nameAfter(p, sql`coalesce(name,role)`, sql`user_id`, "text")}
+        order by ${nameOrder(sql`coalesce(name,role)`, sql`user_id`)} limit ${p.limit + 1}`,
       );
     },
     async changeStaff(

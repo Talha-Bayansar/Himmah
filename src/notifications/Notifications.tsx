@@ -81,13 +81,15 @@ export function NotificationBell({
   );
 }
 export function notificationText(kind: NotificationKind) {
-  return kind === "session_reminder"
-    ? m.follow_notice_reminder()
-    : kind === "session_changed"
-      ? m.follow_notice_changed()
-      : kind === "session_cancelled"
-        ? m.follow_notice_cancelled()
-        : m.notifications_open();
+  return kind === "session_started"
+    ? m.follow_notice_started()
+    : kind === "session_reminder"
+      ? m.follow_notice_reminder()
+      : kind === "session_changed"
+        ? m.follow_notice_changed()
+        : kind === "session_cancelled"
+          ? m.follow_notice_cancelled()
+          : m.notifications_open();
 }
 export function Notifications({
   userId,

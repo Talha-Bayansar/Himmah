@@ -88,11 +88,30 @@ test("planned sessions page across activities is chronological, cursor scoped an
       );
       return { response: response!, body: await response!.json() };
     };
+    const recent = await get("view=past");
+    assert.equal(recent.response.status, 200);
+    assert.deepEqual(
+      recent.body.items.map((s: any) => s.name),
+      ["Ended"],
+    );
+    assert.equal((await get("view=wrong")).response.status, 400);
+    const beforePast = await db.query<any>(
+      "select count(*)::int n from hub_attendance",
+    );
+    assert.equal(beforePast.rows[0].n, 0);
     let first = await get();
     assert.equal(first.response.status, 200);
     assert.equal(first.response.headers.get("cache-control"), "no-store");
     assert.equal(first.body.items.length, 25);
     assert.ok(first.body.nextCursor);
+    assert.equal(
+      (
+        await get(
+          "view=past&cursor=" + encodeURIComponent(first.body.nextCursor),
+        )
+      ).response.status,
+      400,
+    );
     assert.equal(first.body.items[0].name, "In progress");
     const all = [...first.body.items];
     let cursor = first.body.nextCursor;
@@ -174,6 +193,44 @@ test("planned sessions page across activities is chronological, cursor scoped an
     assert.ok(
       next.body.items.every(
         (r: any) => !first.body.items.some((old: any) => old.id === r.id),
+      ),
+    );
+    // Past pagination follows the end instant, even when a longer session started earlier.
+    await db.query(
+      `insert into hub_activity_sessions(organization_id,activity_id,name,description,location,timezone,starts_at,ends_at,created_by,creation_key)
+      select $1,$2,'Older '||i,'','','UTC',now()-(i+3)*interval '1 day',now()-(i+3)*interval '1 day'+interval '1 hour','owner',gen_random_uuid() from generate_series(0,52)i`,
+      [org, a],
+    );
+    for (const [activity, name, start, end] of [
+      [a, "Ends latest", -300, -1],
+      [a, "Started latest", -30, -10],
+      [archived, "Archived history", -60, -20],
+    ])
+      await db.query(
+        `insert into hub_activity_sessions(organization_id,activity_id,name,description,location,timezone,starts_at,ends_at,created_by,creation_key)values($1,$2,$3,'','','UTC',now()+($4||' minutes')::interval,now()+($5||' minutes')::interval,'owner',gen_random_uuid())`,
+        [org, activity, name, start, end],
+      );
+    const past: any[] = [];
+    let pastCursor: string | null = null;
+    do {
+      const page = await get(
+        "view=past&limit=2" +
+          (pastCursor ? "&cursor=" + encodeURIComponent(pastCursor) : ""),
+      );
+      assert.equal(page.response.status, 200);
+      past.push(...page.body.items);
+      pastCursor = page.body.nextCursor;
+    } while (pastCursor);
+    assert.deepEqual(
+      past.slice(0, 3).map((s) => s.name),
+      ["Ends latest", "Started latest", "Archived history"],
+    );
+    assert.equal(past.length, 57);
+    assert.equal(new Set(past.map((s) => s.id)).size, past.length);
+    assert.ok(
+      past.every(
+        (s, i) =>
+          i === 0 || Date.parse(past[i - 1].endsAt) >= Date.parse(s.endsAt),
       ),
     );
     for (const table of [

@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { neon } from "@neondatabase/serverless";
 import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -48,7 +49,7 @@ export function createCashStore(
       id?: string,
     ) =>
       rows(
-        sql`with ${charges(user, org, activity, session, view === "participants")} select * from charges where name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${id ? sql`and id=${id}::uuid` : sql``} ${view === "all" ? sql`` : view === "outstanding" || view === "participants" ? sql`and "outstandingMinor">0 and not "reviewRequired" and (status<>'not_charged' or "canCharge")` : view === "review" ? sql`and "reviewRequired"` : sql`and status=${view}`} ${p.after ? sql`and ("createdAt"::timestamptz,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by "createdAt"::timestamptz desc,id desc limit ${p.limit + 1}`,
+        sql`with ${charges(user, org, activity, session, view === "participants")} select ${nameField(sql`name`)},* from charges where name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${id ? sql`and id=${id}::uuid` : sql``} ${view === "all" ? sql`` : view === "outstanding" || view === "participants" ? sql`and "outstandingMinor">0 and not "reviewRequired" and (status<>'not_charged' or "canCharge")` : view === "review" ? sql`and "reviewRequired"` : sql`and status=${view}`} ${nameAfter(p, sql`name`)} order by ${nameOrder(sql`name`)} limit ${p.limit + 1}`,
       ),
     person: (
       user: string,

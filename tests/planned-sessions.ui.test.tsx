@@ -75,7 +75,10 @@ function mount(q = "", role: "owner" | "volunteer" = "owner") {
   const page = createRoute({
     getParentRoute: () => root,
     path: "/workspace/$organizationId/schedule",
-    validateSearch: (s) => ({ q: typeof s.q === "string" ? s.q : "" }),
+    validateSearch: (s) => ({
+      q: typeof s.q === "string" ? s.q : "",
+      view: s.view === "past" ? "past" : "upcoming",
+    }),
     component: () => (
       <PlannedSessions userId="staff" organization={{ ...org, role }} />
     ),
@@ -116,7 +119,7 @@ it("renders the shared compact session row, correct detail and Home links withou
     `/workspace/${org.id}/dashboard`,
   );
   expect(document.activeElement).not.toBe(
-    screen.getByRole("heading", { name: "Planned sessions" }),
+    screen.getByRole("heading", { name: "Sessions" }),
   );
 });
 it("loads more after a failed page while retaining rows and showing a rescheduled record only once", async () => {
@@ -214,4 +217,36 @@ it("uses an honest empty state when there are no planned sessions", async () => 
   mount();
   await screen.findByText("No upcoming sessions to show.");
   expect(screen.queryByText("Try a different search or filter.")).toBeNull();
+});
+
+it("switches to recently finished sessions with separate pagination and direct attendance links", async () => {
+  const reads: string[] = [];
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (input: RequestInfo | URL) => {
+      const url = new URL(String(input), "https://test");
+      reads.push(url.search);
+      return Response.json({
+        items: [{ ...first, canAttend: true }],
+        nextCursor: null,
+      });
+    }),
+  );
+  mount();
+  const user = userEvent.setup();
+  await screen.findByRole("tab", { name: "Recently finished" });
+  await user.click(screen.getByRole("tab", { name: "Recently finished" }));
+  await waitFor(() =>
+    expect(reads.some((q) => q.includes("view=past"))).toBe(true),
+  );
+  expect(
+    screen
+      .getByRole("tab", { name: "Recently finished" })
+      .getAttribute("aria-selected"),
+  ).toBe("true");
+  expect(
+    screen
+      .getByRole("link", { name: new RegExp(first.name) })
+      .getAttribute("href"),
+  ).toContain("/attendance");
 });

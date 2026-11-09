@@ -19,7 +19,7 @@ test("real Worker runtime encrypts and signs Web Push, uses native fetch, retrie
       contents: `import {deliverPush} from './src/server/push-delivery.ts';
  export default {async fetch(request){
  let result={};const status=new URL(request.url).searchParams.get('status')??'201';
- const store={claim:async()=>[{id:'test',lease:'lease',attempts:1}],target:async()=>[{organizationId:'11111111-1111-4111-8111-111111111111',deviceId:'device',endpoint:'https://fcm.googleapis.com/test/'+status,locale:'tr',...${JSON.stringify(keys)}}],finish:async(id,lease,state,delay)=>{result={state,delay};return[];},expired:async()=>{result={expired:true};return[];}};
+ const store={claim:async()=>[{id:'test',lease:'lease',attempts:1}],target:async()=>[{organizationId:'11111111-1111-4111-8111-111111111111',deviceId:'device',endpoint:'https://fcm.googleapis.com/test/'+status,locale:'tr',...(new URL(request.url).searchParams.has('started')?{kind:'session_started',plannedAt:new Date(Date.now()-60000).toISOString(),expiresAt:new Date(Date.now()+(new URL(request.url).searchParams.has('expired')?-1:300000)).toISOString(),quietEnabled:false,ttl:300}:{}),...${JSON.stringify(keys)}}],finish:async(id,lease,state,delay)=>{result={state,delay};return[];},expired:async()=>{result={expired:true};return[];}};
  await deliverPush({HIMMAH_DATABASE_URL:'test',HIMMAH_APP_ORIGIN:'https://himmah.example',HIMMAH_VAPID_PUBLIC_KEY:${JSON.stringify(vapid.publicKey)},HIMMAH_VAPID_PRIVATE_KEY:${JSON.stringify(vapid.privateKey)}},{store});return Response.json(result);}}
  `,
     },
@@ -55,6 +55,24 @@ test("real Worker runtime encrypts and signs Web Push, uses native fetch, retrie
       (await (await mf.dispatchFetch("https://test.invalid?status=201")).json())
         .state,
       "sent",
+    );
+    assert.equal(
+      (
+        await (
+          await mf.dispatchFetch("https://test.invalid?status=201&started=true")
+        ).json()
+      ).state,
+      "sent",
+    );
+    assert.equal(
+      (
+        await (
+          await mf.dispatchFetch(
+            "https://test.invalid?status=201&started=true&expired=true",
+          )
+        ).json()
+      ).state,
+      "dead",
     );
     const retry = await (
       await mf.dispatchFetch("https://test.invalid?status=429")

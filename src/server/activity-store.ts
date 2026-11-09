@@ -1,3 +1,4 @@
+import { nameField, nameAfter, nameOrder } from "./name-order.ts";
 import { neon } from "@neondatabase/serverless";
 import { sql, type SQL } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
@@ -100,7 +101,7 @@ export function createActivityStore(
     },
     list(user: string, org: string, p: PageInput) {
       return rows(
-        sql`with ${actor(user, org)} select ${activityFrom(user, org)} from hub_activities parent_row where organization_id=${org}::uuid and exists(select 1 from actor) and hub_can_view_activity(${user},${org}::uuid,id) and cancelled=${p.archived} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${p.after ? sql`and (created_at,id)<(${p.after.at}::timestamptz,${p.after.id}::uuid)` : sql``} order by created_at desc,id desc limit ${p.limit + 1}`,
+        sql`with ${actor(user, org)} select ${nameField(sql`name`)},${activityFrom(user, org)} from hub_activities parent_row where organization_id=${org}::uuid and exists(select 1 from actor) and hub_can_view_activity(${user},${org}::uuid,id) and cancelled=${p.archived} and name ilike ${"%" + p.query.replace(/[\\%_]/g, "\\$&") + "%"} ${nameAfter(p, sql`name`)} order by ${nameOrder(sql`name`)} limit ${p.limit + 1}`,
       );
     },
     get(user: string, org: string, id: string) {

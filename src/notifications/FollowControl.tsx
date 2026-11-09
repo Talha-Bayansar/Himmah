@@ -213,6 +213,7 @@ function FollowEditor({
               end: minuteTime(initial.quietHours?.end ?? 480),
             })}
       </p>
+      <p className="activity-note">{m.follow_start_help()}</p>
       {!canFollow && <p className="activity-note">{m.follow_closed()}</p>}
       {mutation.isError && (
         <ErrorFeedback

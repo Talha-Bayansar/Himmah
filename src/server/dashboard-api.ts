@@ -32,15 +32,26 @@ export async function dashboardApi(
       throw new CommunityError("not_found", 404);
     if (request.method !== "GET") throw new CommunityError("not_found", 404);
     if (match[2] === "sessions") {
-      const input = pageInput(url, user.id + ":" + org + "/planned-sessions");
+      const view = url.searchParams.get("view") ?? "upcoming";
+      if (!["upcoming", "past"].includes(view))
+        throw new CommunityError("invalid_input");
+      const input = pageInput(
+        url,
+        user.id + ":" + org + "/planned-sessions/" + view,
+      );
       if (input.groupId || input.archived)
         throw new CommunityError("invalid_input");
-      const rows = await store.sessions(user.id, org, input);
+      const rows = await store.sessions(user.id, org, input, view === "past");
       return respond(
         pageResult(
-          rows as { id: string; createdAt: string; startsAt: string }[],
+          rows as {
+            id: string;
+            createdAt: string;
+            startsAt: string;
+            endsAt: string;
+          }[],
           input,
-          (row) => row.startsAt,
+          (row) => (view === "past" ? row.endsAt : row.startsAt),
         ),
       );
     }
