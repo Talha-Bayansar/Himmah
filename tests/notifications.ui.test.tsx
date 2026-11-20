@@ -1,5 +1,5 @@
 import { beforeEach, it, expect, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, act, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -10,7 +10,10 @@ import {
   RouterProvider,
   Outlet,
 } from "@tanstack/react-router";
-import { Notifications } from "../src/notifications/Notifications";
+import {
+  Notifications,
+  NotificationBell,
+} from "../src/notifications/Notifications";
 import { PushSettings } from "../src/notifications/PushSettings";
 import { LocaleProvider } from "../src/localization/locale";
 import { ConfirmationProvider } from "../src/components/shared/confirmation";
@@ -356,4 +359,42 @@ it("shows private session context with a direct management link and distinct rem
   expect(
     links.filter((link) => link.getAttribute("href") === href),
   ).toHaveLength(3);
+});
+
+it("unread badge stays idle without a timer and refreshes through explicit invalidation and push messages", async () => {
+  const fetcher = vi.fn(async () => Response.json({ count: 0 }));
+  vi.stubGlobal("fetch", fetcher);
+  const original = Object.getOwnPropertyDescriptor(navigator, "serviceWorker"),
+    events = new EventTarget();
+  Object.defineProperty(navigator, "serviceWorker", {
+    configurable: true,
+    value: events,
+  });
+  try {
+    const client = mount(
+      <NotificationBell userId="staff" organizationId={org} />,
+    );
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1));
+    vi.useFakeTimers();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(5 * 60000);
+    });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
+    await act(async () => {
+      await client.invalidateQueries({
+        queryKey: ["notifications", "staff", org],
+      });
+    });
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    events.dispatchEvent(
+      new MessageEvent("message", { data: { type: "himmah-notifications" } }),
+    );
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(3));
+  } finally {
+    vi.useRealTimers();
+    cleanup();
+    if (original) Object.defineProperty(navigator, "serviceWorker", original);
+    else Reflect.deleteProperty(navigator, "serviceWorker");
+  }
 });

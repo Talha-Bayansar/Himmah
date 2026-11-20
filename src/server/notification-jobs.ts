@@ -1,3 +1,4 @@
+import { isQuotaError } from "./notification-failure.ts";
 import { createSessionFollowStore } from "./session-follow-store.ts";
 import { deliverPush, type PushEnv } from "./push-delivery.ts";
 export async function runNotificationJobs(
@@ -11,15 +12,19 @@ export async function runNotificationJobs(
   } = {},
 ) {
   if (env.HIMMAH_MAINTENANCE === "true" || !env.HIMMAH_DATABASE_URL) return;
+  let generationError: unknown;
   if (env.HIMMAH_PEOPLE_ENABLED === "true") {
     try {
       await (
         dependencies.generate ??
         (() => createSessionFollowStore(env.HIMMAH_DATABASE_URL).generate())
       )();
-    } catch {
+    } catch (error) {
+      if (isQuotaError(error)) throw error;
+      generationError = error;
       console.error("session-reminder-generation-failed");
     } // Never log database credentials or private records.
   }
   await (dependencies.deliver ?? (() => deliverPush(env)))();
+  if (generationError) throw generationError;
 }

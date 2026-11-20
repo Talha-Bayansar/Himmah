@@ -66,7 +66,7 @@ export function createNotificationStore(
  ((earlier.state='sending' and earlier.next_at>now()) or
  (earlier.state in ('pending','sending') and earlier.attempts<5 and earlier.next_at<=now() and ${usable("older")}
  and (${priority("older")},earlier.next_at,earlier.id)<(${priority("n")},d.next_at,d.id))))
- order by ${priority("n")},d.next_at,d.id for update of d skip locked limit 20)
+ order by ${priority("n")},d.next_at,d.id for update of d skip locked limit 10)
  update hub_push_deliveries d set state='sending',attempts=d.attempts+1,lease=gen_random_uuid(),next_at=now()+interval '5 minutes'
  from due where d.id=due.id returning d.id,d.lease,d.attempts`,
       );

@@ -28,7 +28,10 @@ export function useUnread(userId: string, organizationId: string) {
         `/api/organizations/${organizationId}/notifications/unread`,
         { signal },
       ),
-    refetchInterval: 30000,
+    // Focus/mount, app mutations and SW push messages refresh this badge. No idle DB heartbeat.
+    refetchInterval: false,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
     retry: false,
   });
 }

@@ -1,3 +1,7 @@
+import {
+  withNotificationWake,
+  type NotificationWakeEnv,
+} from "./notification-wake.ts";
 import { organizationSettingsApi } from "./organization-settings-api.ts";
 import {
   createOrganizationSettingsStore,
@@ -62,7 +66,7 @@ import {
   type CommunityStore,
 } from "./community-store.ts";
 import { createStore, type OrganizationStore } from "./store.ts";
-export interface Env {
+export interface Env extends NotificationWakeEnv {
   ASSETS: { fetch(request: Request): Promise<Response> };
   HIMMAH_DATABASE_URL: string;
   HIMMAH_PEOPLE_ENABLED?: string;
@@ -333,301 +337,321 @@ export function createHandler(
         });
       if (!env.HIMMAH_DATABASE_URL)
         return json({ error: "Workspace storage is not configured yet." }, 503);
-      if (/^\/api\/organizations\/[^/]+\/learning(\/|$)/.test(url.pathname)) {
-        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
-          return json({ code: "people_unavailable" }, 503);
-        const allowed = await (
-          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-        ).limit({ key: `learning-staff:${user.id}` });
-        if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        if (/\/live(?:\/|$)/.test(url.pathname))
-          return (
-            (await liveStaffApi(
-              request,
-              user,
-              deps.store(env.HIMMAH_DATABASE_URL),
-              (deps.live ?? createLiveStore)(env.HIMMAH_DATABASE_URL),
-            )) ?? json({ code: "not_found" }, 404)
-          );
-        const response = await learningApi(
-          request,
-          user,
-          deps.store(env.HIMMAH_DATABASE_URL),
-          (deps.learning ?? createLearningStore)(env.HIMMAH_DATABASE_URL),
-        );
-        return response ?? json({ code: "not_found" }, 404);
-      }
-      if (/^\/api\/organizations\/[^/]+\/settings$/.test(url.pathname)) {
-        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
-          return json({ code: "people_unavailable" }, 503);
-        if (request.method !== "GET") {
+      const application = async (): Promise<Response> => {
+        if (/^\/api\/organizations\/[^/]+\/learning(\/|$)/.test(url.pathname)) {
+          if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+            return json({ code: "people_unavailable" }, 503);
           const allowed = await (
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `organization-settings:${user.id}` });
+          ).limit({ key: `learning-staff:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        return organizationSettingsApi(
-          request,
-          user,
-          (deps.organizationSettings ?? createOrganizationSettingsStore)(
-            env.HIMMAH_DATABASE_URL,
-          ),
-        );
-      }
-      if (
-        /^\/api\/organizations\/[^/]+\/people\/(context|contacts|contact-import|custom-fields|groups|relationship-types)(\/|$)/.test(
-          url.pathname,
-        )
-      ) {
-        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
-          return json({ code: "people_unavailable" }, 503);
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `people:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        return peopleApi(
-          request,
-          user,
-          (deps.people ?? createPeopleStore)(env.HIMMAH_DATABASE_URL),
-        );
-      }
-      const store = deps.store(env.HIMMAH_DATABASE_URL);
-      if (
-        /^\/api\/organizations\/[^/]+\/(dashboard|sessions)$/.test(url.pathname)
-      ) {
-        const allowed = await (
-          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-        ).limit({ key: `dashboard:${user.id}` });
-        if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        const response = await dashboardApi(
-          request,
-          user,
-          store,
-          (deps.dashboard ?? createDashboardStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-
-      if (/^\/api\/organizations\/[^/]+\/exports(\/|$)/.test(url.pathname)) {
-        if (env.HIMMAH_PEOPLE_ENABLED !== "true")
-          return json({ code: "people_unavailable" }, 503);
-        const allowed = await (
-          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-        ).limit({ key: `exports:${user.id}` });
-        if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        return (
-          (await exportApi(
+          if (/\/live(?:\/|$)/.test(url.pathname))
+            return (
+              (await liveStaffApi(
+                request,
+                user,
+                deps.store(env.HIMMAH_DATABASE_URL),
+                (deps.live ?? createLiveStore)(env.HIMMAH_DATABASE_URL),
+              )) ?? json({ code: "not_found" }, 404)
+            );
+          const response = await learningApi(
             request,
             user,
-            store,
-            (deps.exports ?? createExportStore)(env.HIMMAH_DATABASE_URL),
-          )) ?? json({ code: "not_found" }, 404)
-        );
-      }
-      if (/^\/api\/organizations\/[^/]+\/insights(\/|$)/.test(url.pathname)) {
-        const allowed = await (
-          env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-        ).limit({ key: `insights:${user.id}` });
-        if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        if (url.pathname.endsWith("/insights/follow-up")) {
-          const followUpResponse = await followUpApi(
+            deps.store(env.HIMMAH_DATABASE_URL),
+            (deps.learning ?? createLearningStore)(env.HIMMAH_DATABASE_URL),
+          );
+          return response ?? json({ code: "not_found" }, 404);
+        }
+        if (/^\/api\/organizations\/[^/]+\/settings$/.test(url.pathname)) {
+          if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+            return json({ code: "people_unavailable" }, 503);
+          if (request.method !== "GET") {
+            const allowed = await (
+              env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+            ).limit({ key: `organization-settings:${user.id}` });
+            if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          }
+          return organizationSettingsApi(
             request,
             user,
-            store,
-            (deps.followUp ?? createFollowUpStore)(env.HIMMAH_DATABASE_URL),
+            (deps.organizationSettings ?? createOrganizationSettingsStore)(
+              env.HIMMAH_DATABASE_URL,
+            ),
           );
-          if (followUpResponse) return followUpResponse;
         }
-        const response = await insightsApi(
-          request,
-          user,
-          store,
-          (deps.insights ?? createInsightsStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (
-        /^\/api\/(organizations\/[^/]+\/notifications|notifications\/push)(\/|$)/.test(
-          url.pathname,
-        )
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `notifications:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await notificationApi(
-          request,
-          user,
-          store,
-          (deps.notifications ?? createNotificationStore)(
-            env.HIMMAH_DATABASE_URL,
-          ),
-          env.HIMMAH_VAPID_PRIVATE_KEY
-            ? (env.HIMMAH_VAPID_PUBLIC_KEY ?? null)
-            : null,
-        );
-        if (response) return response;
-      }
-
-      if (
-        /^\/api\/organizations\/[^/]+\/(access|work)(\/|$)/.test(url.pathname)
-      ) {
-        if (request.method !== "GET") {
-          const allowed = await (
-            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `access:${user.id}` });
-          if (!allowed.success) return json({ code: "rate_limit" }, 429);
-        }
-        const response = await accessApi(
-          request,
-          user,
-          store,
-          createAccessStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (/^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)) {
         if (
-          request.method !== "GET" ||
-          url.searchParams.get("deletionPreview") === "true" ||
-          url.searchParams.has("cancellationPreview")
+          /^\/api\/organizations\/[^/]+\/people\/(context|contacts|contact-import|custom-fields|groups|relationship-types)(\/|$)/.test(
+            url.pathname,
+          )
+        ) {
+          if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+            return json({ code: "people_unavailable" }, 503);
+          if (request.method !== "GET") {
+            const allowed = await (
+              env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+            ).limit({ key: `people:${user.id}` });
+            if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          }
+          return peopleApi(
+            request,
+            user,
+            (deps.people ?? createPeopleStore)(env.HIMMAH_DATABASE_URL),
+          );
+        }
+        const store = deps.store(env.HIMMAH_DATABASE_URL);
+        if (
+          /^\/api\/organizations\/[^/]+\/(dashboard|sessions)$/.test(
+            url.pathname,
+          )
         ) {
           const allowed = await (
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({ key: `activities:${user.id}` });
+          ).limit({ key: `dashboard:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          const response = await dashboardApi(
+            request,
+            user,
+            store,
+            (deps.dashboard ?? createDashboardStore)(env.HIMMAH_DATABASE_URL),
+          );
+          if (response) return response;
         }
-        if (url.pathname.endsWith("/follow")) {
+
+        if (/^\/api\/organizations\/[^/]+\/exports(\/|$)/.test(url.pathname)) {
           if (env.HIMMAH_PEOPLE_ENABLED !== "true")
             return json({ code: "people_unavailable" }, 503);
+          const allowed = await (
+            env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+          ).limit({ key: `exports:${user.id}` });
+          if (!allowed.success) return json({ code: "rate_limit" }, 429);
           return (
-            (await sessionFollowApi(
+            (await exportApi(
               request,
               user,
               store,
-              (deps.sessionFollows ?? createSessionFollowStore)(
-                env.HIMMAH_DATABASE_URL,
-              ),
+              (deps.exports ?? createExportStore)(env.HIMMAH_DATABASE_URL),
             )) ?? json({ code: "not_found" }, 404)
           );
         }
-        const cashResponse = await cashApi(
-          request,
-          user,
-          store,
-          createCashStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (cashResponse) return cashResponse;
-        const registrationResponse = await registrationApi(
-          request,
-          user,
-          store,
-          createRegistrationStore(env.HIMMAH_DATABASE_URL),
-        );
-        if (registrationResponse) return registrationResponse;
-        const attendanceResponse = await attendanceApi(
-          request,
-          user,
-          store,
-          (deps.activities ?? createActivityStore)(env.HIMMAH_DATABASE_URL),
-          (deps.attendance ?? createAttendanceStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (attendanceResponse) return attendanceResponse;
-        const response = await activityApi(
-          request,
-          user,
-          store,
-          (deps.activities ?? createActivityStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (
-        /^\/api\/organizations\/[^/]+\/(people|groups|staff|invitations)(\/|$)/.test(
-          url.pathname,
-        ) ||
-        url.pathname.startsWith("/api/invitations/")
-      ) {
-        if (request.method !== "GET") {
+        if (/^\/api\/organizations\/[^/]+\/insights(\/|$)/.test(url.pathname)) {
           const allowed = await (
             env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
-          ).limit({
-            key: `directory:${user.id}`,
-          });
+          ).limit({ key: `insights:${user.id}` });
           if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          if (url.pathname.endsWith("/insights/follow-up")) {
+            const followUpResponse = await followUpApi(
+              request,
+              user,
+              store,
+              (deps.followUp ?? createFollowUpStore)(env.HIMMAH_DATABASE_URL),
+            );
+            if (followUpResponse) return followUpResponse;
+          }
+          const response = await insightsApi(
+            request,
+            user,
+            store,
+            (deps.insights ?? createInsightsStore)(env.HIMMAH_DATABASE_URL),
+          );
+          if (response) return response;
         }
-        const response = await communityApi(
-          request,
-          user,
-          store,
-          (deps.directory ?? createCommunityStore)(env.HIMMAH_DATABASE_URL),
-        );
-        if (response) return response;
-      }
-      if (url.pathname === "/api/organizations" && request.method === "GET") {
-        const input = pageInput(url, "organizations:" + user.id);
-        const page = pageResult(await store.list(user.id, input), input);
-        return json({ organizations: page.items, nextCursor: page.nextCursor });
-      }
-      if (url.pathname === "/api/organizations" && request.method === "POST") {
-        if (!user.emailVerified)
-          return json(
-            {
-              error: "Verify your email before creating an organization.",
-              code: "EMAIL_NOT_VERIFIED",
-            },
-            403,
+        if (
+          /^\/api\/(organizations\/[^/]+\/notifications|notifications\/push)(\/|$)/.test(
+            url.pathname,
+          )
+        ) {
+          if (request.method !== "GET") {
+            const allowed = await (
+              env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+            ).limit({ key: `notifications:${user.id}` });
+            if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          }
+          const response = await notificationApi(
+            request,
+            user,
+            store,
+            (deps.notifications ?? createNotificationStore)(
+              env.HIMMAH_DATABASE_URL,
+            ),
+            env.HIMMAH_VAPID_PRIVATE_KEY
+              ? (env.HIMMAH_VAPID_PUBLIC_KEY ?? null)
+              : null,
           );
-        const body = await request.text();
-        if (body.length > 8000)
-          return json({ error: "Request too large." }, 413);
-        let input;
-        try {
-          input = validateOrganization(JSON.parse(body));
-        } catch (e) {
-          return json(
-            { error: e instanceof Error ? e.message : "Invalid organization." },
-            400,
-          );
+          if (response) return response;
         }
-        const allowed = await env.ONBOARDING_LIMITER.limit({
-          key: `organization:${user.id}`,
-        });
-        if (!allowed.success)
-          return json(
-            { error: "Too many requests. Please wait a minute and try again." },
-            429,
+
+        if (
+          /^\/api\/organizations\/[^/]+\/(access|work)(\/|$)/.test(url.pathname)
+        ) {
+          if (request.method !== "GET") {
+            const allowed = await (
+              env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+            ).limit({ key: `access:${user.id}` });
+            if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          }
+          const response = await accessApi(
+            request,
+            user,
+            store,
+            createAccessStore(env.HIMMAH_DATABASE_URL),
           );
-        try {
-          return json(
-            { organization: await store.create(user.id, input) },
-            201,
+          if (response) return response;
+        }
+        if (
+          /^\/api\/organizations\/[^/]+\/activities(\/|$)/.test(url.pathname)
+        ) {
+          if (
+            request.method !== "GET" ||
+            url.searchParams.get("deletionPreview") === "true" ||
+            url.searchParams.has("cancellationPreview")
+          ) {
+            const allowed = await (
+              env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+            ).limit({ key: `activities:${user.id}` });
+            if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          }
+          if (url.pathname.endsWith("/follow")) {
+            if (env.HIMMAH_PEOPLE_ENABLED !== "true")
+              return json({ code: "people_unavailable" }, 503);
+            return (
+              (await sessionFollowApi(
+                request,
+                user,
+                store,
+                (deps.sessionFollows ?? createSessionFollowStore)(
+                  env.HIMMAH_DATABASE_URL,
+                ),
+              )) ?? json({ code: "not_found" }, 404)
+            );
+          }
+          const cashResponse = await cashApi(
+            request,
+            user,
+            store,
+            createCashStore(env.HIMMAH_DATABASE_URL),
           );
-        } catch (e) {
-          const error = e as { code?: string; cause?: { code?: string } };
-          if (error.code === "23505" || error.cause?.code === "23505")
+          if (cashResponse) return cashResponse;
+          const registrationResponse = await registrationApi(
+            request,
+            user,
+            store,
+            createRegistrationStore(env.HIMMAH_DATABASE_URL),
+          );
+          if (registrationResponse) return registrationResponse;
+          const attendanceResponse = await attendanceApi(
+            request,
+            user,
+            store,
+            (deps.activities ?? createActivityStore)(env.HIMMAH_DATABASE_URL),
+            (deps.attendance ?? createAttendanceStore)(env.HIMMAH_DATABASE_URL),
+          );
+          if (attendanceResponse) return attendanceResponse;
+          const response = await activityApi(
+            request,
+            user,
+            store,
+            (deps.activities ?? createActivityStore)(env.HIMMAH_DATABASE_URL),
+          );
+          if (response) return response;
+        }
+        if (
+          /^\/api\/organizations\/[^/]+\/(people|groups|staff|invitations)(\/|$)/.test(
+            url.pathname,
+          ) ||
+          url.pathname.startsWith("/api/invitations/")
+        ) {
+          if (request.method !== "GET") {
+            const allowed = await (
+              env.DIRECTORY_LIMITER ?? env.ONBOARDING_LIMITER
+            ).limit({
+              key: `directory:${user.id}`,
+            });
+            if (!allowed.success) return json({ code: "rate_limit" }, 429);
+          }
+          const response = await communityApi(
+            request,
+            user,
+            store,
+            (deps.directory ?? createCommunityStore)(env.HIMMAH_DATABASE_URL),
+          );
+          if (response) return response;
+        }
+        if (url.pathname === "/api/organizations" && request.method === "GET") {
+          const input = pageInput(url, "organizations:" + user.id);
+          const page = pageResult(await store.list(user.id, input), input);
+          return json({
+            organizations: page.items,
+            nextCursor: page.nextCursor,
+          });
+        }
+        if (
+          url.pathname === "/api/organizations" &&
+          request.method === "POST"
+        ) {
+          if (!user.emailVerified)
             return json(
               {
-                error: "That workspace address is already taken. Try another.",
+                error: "Verify your email before creating an organization.",
+                code: "EMAIL_NOT_VERIFIED",
               },
-              409,
+              403,
             );
-          throw e;
+          const body = await request.text();
+          if (body.length > 8000)
+            return json({ error: "Request too large." }, 413);
+          let input;
+          try {
+            input = validateOrganization(JSON.parse(body));
+          } catch (e) {
+            return json(
+              {
+                error: e instanceof Error ? e.message : "Invalid organization.",
+              },
+              400,
+            );
+          }
+          const allowed = await env.ONBOARDING_LIMITER.limit({
+            key: `organization:${user.id}`,
+          });
+          if (!allowed.success)
+            return json(
+              {
+                error: "Too many requests. Please wait a minute and try again.",
+              },
+              429,
+            );
+          try {
+            return json(
+              { organization: await store.create(user.id, input) },
+              201,
+            );
+          } catch (e) {
+            const error = e as { code?: string; cause?: { code?: string } };
+            if (error.code === "23505" || error.cause?.code === "23505")
+              return json(
+                {
+                  error:
+                    "That workspace address is already taken. Try another.",
+                },
+                409,
+              );
+            throw e;
+          }
         }
-      }
-      const match = url.pathname.match(
-        /^\/api\/organizations\/([0-9a-f-]{36})$/i,
-      );
-      if (match && request.method === "GET") {
-        const organization = await store.get(user.id, match[1]!);
-        return organization
-          ? json({ organization })
-          : json({ error: "Workspace not found." }, 404);
-      }
-      return json({ error: "Not found." }, 404);
+        const match = url.pathname.match(
+          /^\/api\/organizations\/([0-9a-f-]{36})$/i,
+        );
+        if (match && request.method === "GET") {
+          const organization = await store.get(user.id, match[1]!);
+          return organization
+            ? json({ organization })
+            : json({ error: "Workspace not found." }, 404);
+        }
+        return json({ error: "Not found." }, 404);
+      };
+      return await (user.emailVerified
+        ? withNotificationWake(request, env, application)
+        : application());
     } catch (error) {
       if (error instanceof CommunityError)
         return json({ code: error.code }, error.status);
